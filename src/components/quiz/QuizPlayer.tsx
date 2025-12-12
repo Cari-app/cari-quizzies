@@ -16,6 +16,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { BeforeAfterSlider } from './BeforeAfterSlider';
 import { CarouselPlayer } from './CarouselPlayer';
 import { MetricsPlayer } from './MetricsPlayer';
+import { ChartPlayer } from './ChartPlayer';
 
 interface QuizPlayerProps {
   slug?: string;
@@ -171,6 +172,27 @@ interface ComponentConfig {
   }>;
   metricsLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
   metricsDisposition?: 'chart-legend' | 'legend-chart';
+  // Charts specific
+  chartConfig?: {
+    chartType: 'cartesian' | 'bar' | 'circular';
+    dataSets: Array<{
+      id: string;
+      name: string;
+      data: Array<{ id: string; label: string; value: number; color?: string }>;
+      fillType: 'solid' | 'gradient';
+      color: string;
+      gradientColors: string[];
+    }>;
+    selectedDataSetId: string;
+    showArea: boolean;
+    showXAxis: boolean;
+    showYAxis: boolean;
+    showGridX: boolean;
+    showGridY: boolean;
+    width: number;
+    horizontalAlign: 'start' | 'center' | 'end';
+    verticalAlign: 'auto' | 'start' | 'center' | 'end';
+  };
 }
 
 interface DroppedComponent {
@@ -1720,6 +1742,29 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
             width={widthValue}
             horizontalAlign={horizontalAlign}
             verticalAlign={verticalAlign}
+          />
+        );
+      }
+
+      case 'charts': {
+        const chartConfig = config.chartConfig || {
+          chartType: 'cartesian',
+          dataSets: [],
+          selectedDataSetId: '',
+          showArea: true,
+          showXAxis: true,
+          showYAxis: true,
+          showGridX: true,
+          showGridY: true,
+          width: 100,
+          horizontalAlign: 'start',
+          verticalAlign: 'auto',
+        };
+
+        return (
+          <ChartPlayer
+            key={comp.id}
+            config={chartConfig}
           />
         );
       }
