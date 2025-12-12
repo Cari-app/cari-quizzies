@@ -153,18 +153,37 @@ export function ChartEditorComponentTab({ config, onUpdate }: ChartEditorProps) 
         <Label className="text-xs text-muted-foreground">Conjuntos de dados</Label>
         <div className="flex flex-wrap gap-2 mt-2">
           {config.dataSets.map((ds) => (
-            <button
-              key={ds.id}
-              onClick={() => onUpdate({ selectedDataSetId: ds.id })}
-              className={cn(
-                "px-4 py-2 rounded-lg border-2 transition-all text-sm font-medium",
-                config.selectedDataSetId === ds.id
-                  ? "border-primary bg-primary/5"
-                  : "border-border hover:border-muted-foreground/50"
+            <div key={ds.id} className="relative group">
+              <button
+                onClick={() => onUpdate({ selectedDataSetId: ds.id })}
+                className={cn(
+                  "px-4 py-2 rounded-lg border-2 transition-all text-sm font-medium pr-8",
+                  config.selectedDataSetId === ds.id
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-muted-foreground/50"
+                )}
+              >
+                {ds.name}
+              </button>
+              {config.dataSets.length > 1 && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const newDataSets = config.dataSets.filter(d => d.id !== ds.id);
+                    const newSelectedId = config.selectedDataSetId === ds.id 
+                      ? newDataSets[0]?.id 
+                      : config.selectedDataSetId;
+                    onUpdate({ 
+                      dataSets: newDataSets,
+                      selectedDataSetId: newSelectedId
+                    });
+                  }}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded-md opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
               )}
-            >
-              {ds.name}
-            </button>
+            </div>
           ))}
           <Button
             variant="ghost"
