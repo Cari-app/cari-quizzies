@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Logo } from '@/components/Logo';
 import { useQuizStore } from '@/store/quizStore';
@@ -12,9 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { Reorder } from 'framer-motion';
-import { Quiz, QuizScreen, QuizScreenType } from '@/types/quiz';
-import { ScreenEditor } from './ScreenEditor';
-import { ScreenPreview } from './ScreenPreview';
+import { Quiz } from '@/types/quiz';
 import { TemplateSelector } from './TemplateSelector';
 import { ComponentPalette } from './ComponentPalette';
 import { DropZone, DroppedComponent, ComponentConfig } from './DropZone';
@@ -23,18 +21,29 @@ import { cn } from '@/lib/utils';
 import { screenTemplates } from '@/data/screenTemplates';
 import { supabase } from '@/integrations/supabase/client';
 
+// Stage type - cada etapa contém seus próprios componentes
+interface Stage {
+  id: string;
+  name: string;
+  components: DroppedComponent[];
+}
+
 export function QuizEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { quizzes, currentQuiz, setCurrentQuiz, addQuiz, updateQuiz, addScreen, deleteScreen, reorderScreens, setEditingScreen, editingScreen, startSession, updateScreen } = useQuizStore();
+  const { currentQuiz, setCurrentQuiz, addQuiz, updateQuiz } = useQuizStore();
 
   const [showTemplates, setShowTemplates] = useState(false);
   const [previewMode, setPreviewMode] = useState<'mobile' | 'desktop'>('mobile');
   const [rightTab, setRightTab] = useState<'stage' | 'appearance'>('stage');
   const [widgetsExpanded, setWidgetsExpanded] = useState(false);
   const [slugCopied, setSlugCopied] = useState(false);
-  const [droppedComponents, setDroppedComponents] = useState<DroppedComponent[]>([]);
+  
+  // Stages management
+  const [stages, setStages] = useState<Stage[]>([]);
+  const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
   const [selectedComponent, setSelectedComponent] = useState<DroppedComponent | null>(null);
+  
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -49,6 +58,10 @@ export function QuizEditor() {
     logoSize: '32' as string,
   });
   const [logoInputMode, setLogoInputMode] = useState<'image' | 'url'>('url');
+
+  // Get current stage
+  const currentStage = stages.find(s => s.id === selectedStageId);
+  const currentComponents = currentStage?.components || [];
 
   const generateSlug = (name: string) => {
     return name
@@ -68,10 +81,10 @@ export function QuizEditor() {
     }
   };
 
+  // Load quiz and stages
   useEffect(() => {
     const loadQuiz = async () => {
       if (id === 'new') {
-        // Generate a proper UUID for new quizzes
         const newId = crypto.randomUUID();
         const newQuiz: Quiz = {
           id: newId,
@@ -84,10 +97,11 @@ export function QuizEditor() {
         };
         addQuiz(newQuiz);
         setCurrentQuiz(newQuiz);
+        setStages([]);
         setHasUnsavedChanges(false);
       } else {
-        // Try to load from Supabase first
-        const { data: quizData, error } = await supabase
+        // Load from Supabase
+        const { data: quizData } = await supabase
           .from('quizzes')
           .select('*')
           .eq('id', id)
@@ -106,7 +120,7 @@ export function QuizEditor() {
           };
           setCurrentQuiz(quiz);
 
-          // Load etapas (components)
+          // Load etapas (stages)
           const { data: etapasData } = await supabase
             .from('etapas')
             .select('*')
@@ -114,101 +128,87 @@ export function QuizEditor() {
             .order('ordem', { ascending: true });
 
           if (etapasData && etapasData.length > 0) {
-            const components: DroppedComponent[] = etapasData.map((etapa) => {
+            const loadedStages: Stage[] = etapasData.map((etapa) => {
               const config = etapa.configuracoes as Record<string, any> || {};
+              const components = config.components || [];
               return {
                 id: etapa.id,
-                type: etapa.tipo,
-                name: config.componentName || etapa.titulo || etapa.tipo,
-                icon: config.icon || '📦',
-                customId: config.customId,
-                config: {
-                  label: etapa.titulo,
-                  helpText: etapa.subtitulo,
-                  buttonText: etapa.texto_botao,
-                  options: etapa.opcoes as any,
-                  ...config,
-                },
+                name: etapa.titulo || 'Nova etapa',
+                components: components as DroppedComponent[],
               };
             });
-            setDroppedComponents(components);
+            setStages(loadedStages);
+            // Select first stage by default
+            if (loadedStages.length > 0) {
+              setSelectedStageId(loadedStages[0].id);
+            }
           }
           setHasUnsavedChanges(false);
-        } else {
-          // Fallback to local store
-          const quiz = quizzes.find(q => q.id === id);
-          if (quiz) {
-            setCurrentQuiz(quiz);
-          }
         }
       }
+      setIsInitialLoad(false);
     };
 
     loadQuiz();
   }, [id]);
 
-  if (!currentQuiz) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-muted-foreground text-sm">Quiz não encontrado</p>
-      </div>
-    );
-  }
-
-  const handleAddFromTemplate = (template: typeof screenTemplates[0]) => {
-    const newScreen: QuizScreen = {
-      id: Date.now().toString(),
-      type: template.screen.type || 'info',
-      title: template.screen.title || 'Nova tela',
-      subtitle: template.screen.subtitle,
-      options: template.screen.options,
-      buttonText: template.screen.buttonText,
-      sliderMin: template.screen.sliderMin,
-      sliderMax: template.screen.sliderMax,
-      sliderStep: template.screen.sliderStep,
-      required: template.screen.required,
-      showLogo: template.screen.showLogo ?? true,
-      showProgress: template.screen.showProgress ?? true,
-      allowBack: template.screen.allowBack ?? true,
-      placeholder: template.screen.placeholder,
+  // Add new stage
+  const handleAddStage = () => {
+    const newStage: Stage = {
+      id: crypto.randomUUID(),
+      name: 'Nova etapa',
+      components: [],
     };
-    addScreen(currentQuiz.id, newScreen);
-    setShowTemplates(false);
-    setEditingScreen(newScreen);
+    setStages(prev => [...prev, newStage]);
+    setSelectedStageId(newStage.id);
+    setHasUnsavedChanges(true);
   };
 
-  const handleDeleteScreen = (screenId: string) => {
+  // Delete stage
+  const handleDeleteStage = (stageId: string) => {
     if (confirm('Excluir esta etapa?')) {
-      deleteScreen(currentQuiz.id, screenId);
+      setStages(prev => prev.filter(s => s.id !== stageId));
+      if (selectedStageId === stageId) {
+        setSelectedStageId(stages.length > 1 ? stages[0].id : null);
+      }
+      setHasUnsavedChanges(true);
     }
   };
 
-  const handleReorder = (newOrder: QuizScreen[]) => {
-    reorderScreens(currentQuiz.id, newOrder);
+  // Reorder stages
+  const handleReorderStages = (newStages: Stage[]) => {
+    setStages(newStages);
+    setHasUnsavedChanges(true);
   };
 
-  const handlePreview = () => {
-    if (currentQuiz.slug) {
-      navigate(`/${currentQuiz.slug}`);
-    } else {
-      startSession(currentQuiz.id);
-      navigate(`/${currentQuiz.id}`);
-    }
+  // Update stage name
+  const handleUpdateStageName = (stageId: string, name: string) => {
+    setStages(prev => prev.map(s => s.id === stageId ? { ...s, name } : s));
+    setHasUnsavedChanges(true);
   };
 
+  // Update components of current stage
+  const updateCurrentStageComponents = useCallback((components: DroppedComponent[]) => {
+    if (!selectedStageId) return;
+    setStages(prev => prev.map(s => 
+      s.id === selectedStageId ? { ...s, components } : s
+    ));
+    setHasUnsavedChanges(true);
+  }, [selectedStageId]);
+
+  // Save quiz and stages to Supabase
   const handleSave = async () => {
     if (!currentQuiz) return;
     
     setIsSaving(true);
     try {
-      // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         toast.error('Você precisa estar logado para salvar');
         return;
       }
 
-      // Check if quiz exists in database
+      // Check if quiz exists
       const { data: existingQuiz } = await supabase
         .from('quizzes')
         .select('id')
@@ -216,8 +216,7 @@ export function QuizEditor() {
         .maybeSingle();
 
       if (existingQuiz) {
-        // Update existing quiz
-        const { error: quizError } = await supabase
+        await supabase
           .from('quizzes')
           .update({
             titulo: currentQuiz.name,
@@ -226,11 +225,8 @@ export function QuizEditor() {
             atualizado_em: new Date().toISOString(),
           })
           .eq('id', currentQuiz.id);
-
-        if (quizError) throw quizError;
       } else {
-        // Create new quiz
-        const { error: quizError } = await supabase
+        await supabase
           .from('quizzes')
           .insert({
             id: currentQuiz.id,
@@ -240,32 +236,26 @@ export function QuizEditor() {
             criado_por: user.id,
             is_active: false,
           });
-
-        if (quizError) throw quizError;
       }
 
-      // Delete existing etapas for this quiz
+      // Delete existing etapas
       await supabase
         .from('etapas')
         .delete()
         .eq('quiz_id', currentQuiz.id);
 
-      // Insert new etapas from droppedComponents
-      if (droppedComponents.length > 0) {
-        const etapas = droppedComponents.map((comp, index) => ({
+      // Insert stages
+      if (stages.length > 0) {
+        const etapas = stages.map((stage, index) => ({
+          id: stage.id,
           quiz_id: currentQuiz.id,
-          tipo: comp.type,
-          titulo: comp.config?.label || comp.name,
-          subtitulo: comp.config?.helpText || null,
-          texto_botao: comp.config?.buttonText || null,
+          tipo: 'stage',
+          titulo: stage.name,
           ordem: index,
-          opcoes: comp.config?.options || null,
-          configuracoes: {
-            ...comp.config,
-            customId: comp.customId,
-            componentName: comp.name,
-            icon: comp.icon,
-          },
+          configuracoes: JSON.parse(JSON.stringify({
+            components: stage.components,
+            pageSettings: pageSettings,
+          })),
         }));
 
         const { error: etapasError } = await supabase
@@ -285,6 +275,7 @@ export function QuizEditor() {
     }
   };
 
+  // Publish quiz
   const handlePublish = async () => {
     if (!currentQuiz) return;
     
@@ -295,38 +286,42 @@ export function QuizEditor() {
 
     setIsPublishing(true);
     try {
-      const { error } = await supabase
+      await supabase
         .from('quizzes')
         .update({ is_active: true, atualizado_em: new Date().toISOString() })
         .eq('id', currentQuiz.id);
 
-      if (error) throw error;
-
       updateQuiz(currentQuiz.id, { isPublished: true });
       toast.success('Quiz publicado com sucesso!');
     } catch (error: any) {
-      console.error('Error publishing quiz:', error);
       toast.error('Erro ao publicar: ' + error.message);
     } finally {
       setIsPublishing(false);
     }
   };
 
-  // Track unsaved changes (skip initial render)
-  
+  // Track unsaved changes
   useEffect(() => {
-    if (isInitialLoad) {
-      setIsInitialLoad(false);
-      return;
-    }
+    if (isInitialLoad) return;
     setHasUnsavedChanges(true);
-  }, [droppedComponents, currentQuiz?.name, currentQuiz?.slug, currentQuiz?.description]);
+  }, [stages, currentQuiz?.name, currentQuiz?.slug, currentQuiz?.description, pageSettings]);
+
+  if (!currentQuiz) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-muted-foreground text-sm">Quiz não encontrado</p>
+      </div>
+    );
+  }
+
+  // Calculate progress for preview
+  const currentStageIndex = stages.findIndex(s => s.id === selectedStageId);
+  const progressValue = stages.length > 0 ? ((currentStageIndex + 1) / stages.length) * 100 : 0;
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-background">
-      {/* Left Sidebar - Two columns */}
+      {/* Left Sidebar - Stages */}
       <div className="flex shrink-0">
-        {/* Steps Column */}
         <div className="w-72 bg-background border-r border-border flex flex-col">
           {/* Header with Logo */}
           <div className="px-4 py-4 flex items-center justify-between">
@@ -382,25 +377,14 @@ export function QuizEditor() {
             </div>
           </div>
 
-          {/* Add Buttons */}
+          {/* Add Stage Buttons */}
           <div className="px-4 pb-4">
             <div className="flex gap-2">
               <Button 
                 size="sm" 
                 variant="outline"
                 className="flex-1 h-9 text-xs"
-                onClick={() => {
-                  const newScreen: QuizScreen = {
-                    id: Date.now().toString(),
-                    type: 'info',
-                    title: 'Nova etapa',
-                    showLogo: true,
-                    showProgress: true,
-                    allowBack: true,
-                  };
-                  addScreen(currentQuiz.id, newScreen);
-                  setEditingScreen(newScreen);
-                }}
+                onClick={handleAddStage}
               >
                 <Plus className="w-4 h-4 mr-1.5" />
                 Em branco
@@ -416,9 +400,9 @@ export function QuizEditor() {
             </div>
           </div>
 
-          {/* Steps List */}
+          {/* Stages List */}
           <div className="flex-1 overflow-y-auto px-2">
-            {currentQuiz.screens.length === 0 ? (
+            {stages.length === 0 ? (
               <div className="text-center py-8 px-4">
                 <div className="border border-dashed border-border rounded-lg p-6">
                   <p className="text-sm text-muted-foreground">Nenhuma etapa criada</p>
@@ -426,31 +410,41 @@ export function QuizEditor() {
                 </div>
               </div>
             ) : (
-              <Reorder.Group axis="y" values={currentQuiz.screens} onReorder={handleReorder} className="p-2">
-                {currentQuiz.screens.map((screen, index) => (
-                  <Reorder.Item key={screen.id} value={screen}>
+              <Reorder.Group axis="y" values={stages} onReorder={handleReorderStages} className="p-2">
+                {stages.map((stage, index) => (
+                  <Reorder.Item key={stage.id} value={stage}>
                     <div
                       className={cn(
                         "flex items-center gap-2 px-3 py-3 rounded-lg text-sm cursor-pointer transition-colors group mb-1",
-                        editingScreen?.id === screen.id
+                        selectedStageId === stage.id
                           ? "bg-muted border border-border"
                           : "hover:bg-muted/50"
                       )}
-                      onClick={() => setEditingScreen(screen)}
+                      onClick={() => {
+                        setSelectedStageId(stage.id);
+                        setSelectedComponent(null);
+                      }}
                     >
                       <span className="text-xs text-muted-foreground w-5 shrink-0">{index + 1}</span>
                       <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab shrink-0" />
-                      <span className="flex-1 text-sm truncate" title={screen.title || 'Sem título'}>
-                        {screen.title || 'Sem título'}
-                      </span>
+                      <Input
+                        value={stage.name}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          handleUpdateStageName(stage.id, e.target.value);
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex-1 text-sm border-none bg-transparent px-0 h-auto focus-visible:ring-0 shadow-none truncate"
+                        placeholder="Nome da etapa"
+                      />
                       <button
                         className="opacity-0 group-hover:opacity-100 p-1.5 hover:text-destructive transition-opacity shrink-0"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDeleteScreen(screen.id);
+                          handleDeleteStage(stage.id);
                         }}
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </Reorder.Item>
@@ -459,111 +453,113 @@ export function QuizEditor() {
             )}
           </div>
 
-          {/* Toggle Widgets Button - Floating */}
-          <div className="p-4">
-            <Button
-              variant="outline"
+          {/* Bottom Actions */}
+          <div className="p-4 border-t border-border space-y-2">
+            <Button 
+              className="w-full gap-2" 
               size="sm"
+              onClick={handleSave}
+              disabled={isSaving || !hasUnsavedChanges}
+            >
+              {isSaving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              {isSaving ? 'Salvando...' : hasUnsavedChanges ? 'Salvar*' : 'Salvo'}
+            </Button>
+            <Button 
+              className="w-full gap-2" 
+              size="sm" 
+              variant="outline"
+              onClick={handlePublish}
+              disabled={isPublishing || hasUnsavedChanges}
+            >
+              {isPublishing ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Upload className="w-4 h-4" />
+              )}
+              Publicar
+            </Button>
+          </div>
+        </div>
+
+        {/* Widgets Palette */}
+        <div 
+          className={cn(
+            "border-r border-border bg-muted/30 transition-all duration-300 flex flex-col overflow-hidden",
+            widgetsExpanded ? "w-64" : "w-12"
+          )}
+        >
+          {/* Toggle Button */}
+          <div className="p-2">
+            <button
               onClick={() => setWidgetsExpanded(!widgetsExpanded)}
-              className="w-full h-9 text-xs gap-2"
+              className="p-2 rounded-md hover:bg-muted transition-colors w-full flex items-center justify-center"
             >
               {widgetsExpanded ? (
-                <>
-                  <PanelLeftClose className="w-4 h-4" />
-                  Fechar componentes
-                </>
+                <PanelLeftClose className="w-4 h-4 text-muted-foreground" />
               ) : (
-                <>
-                  <PanelLeftOpen className="w-4 h-4" />
-                  Componentes
-                </>
+                <PanelLeftOpen className="w-4 h-4 text-muted-foreground" />
               )}
-            </Button>
+            </button>
           </div>
-        </div>
 
-        {/* Widgets Column - Closes completely */}
-        {widgetsExpanded && (
-          <div className="w-52 bg-background border-r border-border flex flex-col">
-            <div className="flex-1 overflow-y-auto p-3">
-              <ComponentPalette expanded={true} />
+          {/* Component Palette */}
+          {widgetsExpanded && (
+            <div className="flex-1 overflow-y-auto p-3 pt-0">
+              <ComponentPalette />
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      {/* Center - Preview */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top Bar */}
-        <div className="h-14 border-b border-border bg-background flex items-center justify-between px-4 shrink-0">
-          <div /> {/* Spacer */}
-          
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 border border-border rounded-lg p-1">
-              <button
-                className={cn(
-                  "p-2 rounded-md transition-colors",
-                  previewMode === 'mobile' ? "bg-muted" : "hover:bg-muted/50"
-                )}
-                onClick={() => setPreviewMode('mobile')}
-              >
-                <Smartphone className="w-4 h-4" />
-              </button>
-              <button
-                className={cn(
-                  "p-2 rounded-md transition-colors",
-                  previewMode === 'desktop' ? "bg-muted" : "hover:bg-muted/50"
-                )}
-                onClick={() => setPreviewMode('desktop')}
-              >
-                <Monitor className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <button className="p-2 rounded-md hover:bg-muted/50 transition-colors">
-                <Undo className="w-4 h-4 text-muted-foreground" />
-              </button>
-              <button className="p-2 rounded-md hover:bg-muted/50 transition-colors">
-                <Redo className="w-4 h-4 text-muted-foreground" />
-              </button>
-            </div>
-
-            <Button size="sm" variant="outline" onClick={handlePreview} className="gap-2">
-              <Eye className="w-4 h-4" />
-              Testar
-            </Button>
-          </div>
-
+      {/* Preview Area */}
+      <div className="flex-1 flex flex-col bg-muted/30 overflow-hidden">
+        {/* Preview Toolbar */}
+        <div className="flex items-center justify-between px-6 py-3 border-b border-border bg-background">
           <div className="flex items-center gap-2">
-            <Button 
-              size="sm" 
-              variant="outline" 
-              onClick={handleSave} 
-              className="gap-2"
-              disabled={isSaving}
-            >
-              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-              {isSaving ? 'Salvando...' : 'Salvar'}
+            <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
+              <Undo className="w-4 h-4" />
             </Button>
-            <Button 
-              size="sm" 
-              onClick={handlePublish} 
-              className="gap-2"
-              disabled={isPublishing || hasUnsavedChanges}
-              title={hasUnsavedChanges ? 'Salve antes de publicar' : ''}
-            >
-              {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-              {isPublishing ? 'Publicando...' : 'Publicar'}
+            <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
+              <Redo className="w-4 h-4" />
             </Button>
           </div>
+          
+          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+            <button
+              onClick={() => setPreviewMode('mobile')}
+              className={cn(
+                "p-1.5 rounded transition-colors",
+                previewMode === 'mobile' ? "bg-background shadow-sm" : "hover:bg-background/50"
+              )}
+            >
+              <Smartphone className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setPreviewMode('desktop')}
+              className={cn(
+                "p-1.5 rounded transition-colors",
+                previewMode === 'desktop' ? "bg-background shadow-sm" : "hover:bg-background/50"
+              )}
+            >
+              <Monitor className="w-4 h-4" />
+            </button>
+          </div>
+
+          <Button variant="ghost" size="sm" className="gap-2" onClick={() => currentQuiz.slug && navigate(`/${currentQuiz.slug}`)}>
+            <Eye className="w-4 h-4" />
+            Preview
+          </Button>
         </div>
 
-        {/* Preview Area */}
-        <div className="flex-1 flex items-center justify-center p-6 overflow-auto bg-muted/30">
+        {/* Preview Content */}
+        <div className="flex-1 flex items-start justify-center p-8 overflow-y-auto">
           <div 
             className={cn(
-              "bg-background rounded-xl border border-border shadow-sm overflow-hidden transition-all flex flex-col",
+              "bg-background rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col",
               previewMode === 'mobile' 
                 ? "w-[375px] h-[667px]" 
                 : "w-full max-w-4xl h-[640px]"
@@ -587,19 +583,25 @@ export function QuizEditor() {
                 )}
                 {pageSettings.showProgress && (
                   <div className="flex-1">
-                    <Progress value={40} className="h-1.5" />
+                    <Progress value={progressValue} className="h-1.5" />
                   </div>
                 )}
               </div>
             </div>
             
-            {/* Drop Zone */}
-            <DropZone 
-              components={droppedComponents}
-              onComponentsChange={setDroppedComponents}
-              selectedComponentId={selectedComponent?.id}
-              onSelectComponent={setSelectedComponent}
-            />
+            {/* Drop Zone - shows components for current stage */}
+            {selectedStageId ? (
+              <DropZone 
+                components={currentComponents}
+                onComponentsChange={updateCurrentStageComponents}
+                selectedComponentId={selectedComponent?.id}
+                onSelectComponent={setSelectedComponent}
+              />
+            ) : (
+              <div className="flex-1 flex items-center justify-center">
+                <p className="text-muted-foreground text-sm">Selecione uma etapa para editar</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -610,19 +612,22 @@ export function QuizEditor() {
           <ComponentEditor 
             component={selectedComponent}
             onUpdate={(config) => {
-              setDroppedComponents(prev => 
-                prev.map(c => c.id === selectedComponent.id ? { ...c, config } : c)
+              const updatedComponents = currentComponents.map(c => 
+                c.id === selectedComponent.id ? { ...c, config } : c
               );
+              updateCurrentStageComponents(updatedComponents);
               setSelectedComponent(prev => prev ? { ...prev, config } : null);
             }}
             onUpdateCustomId={(customId) => {
-              setDroppedComponents(prev => 
-                prev.map(c => c.id === selectedComponent.id ? { ...c, customId } : c)
+              const updatedComponents = currentComponents.map(c => 
+                c.id === selectedComponent.id ? { ...c, customId } : c
               );
+              updateCurrentStageComponents(updatedComponents);
               setSelectedComponent(prev => prev ? { ...prev, customId } : null);
             }}
             onDelete={() => {
-              setDroppedComponents(prev => prev.filter(c => c.id !== selectedComponent.id));
+              const updatedComponents = currentComponents.filter(c => c.id !== selectedComponent.id);
+              updateCurrentStageComponents(updatedComponents);
               setSelectedComponent(null);
             }}
           />
@@ -640,121 +645,131 @@ export function QuizEditor() {
               </div>
             </TabsContent>
           
-          <TabsContent value="appearance" className="flex-1 overflow-y-auto p-4 mt-0">
-            <div className="space-y-6">
-              {/* Logo Settings */}
-              <div className="border border-border rounded-lg p-4">
-                <Label className="text-xs text-muted-foreground uppercase tracking-wide mb-3 block">Logo</Label>
-                <div className="space-y-4">
-                  {/* Tabs Imagem/URL */}
-                  <div className="flex border border-border rounded-lg overflow-hidden">
-                    <button 
-                      className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${logoInputMode === 'image' ? 'bg-muted' : 'hover:bg-muted/50'}`}
-                      onClick={() => setLogoInputMode('image')}
-                    >
-                      <Image className="w-4 h-4 inline-block mr-1" />
-                      Imagem
-                    </button>
-                    <button 
-                      className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${logoInputMode === 'url' ? 'bg-muted' : 'hover:bg-muted/50'}`}
-                      onClick={() => setLogoInputMode('url')}
-                    >
-                      URL
-                    </button>
-                  </div>
-                  
-                  {logoInputMode === 'url' ? (
-                    <Input 
-                      placeholder="https://exemplo.com/logo.png"
-                      value={pageSettings.logoUrl}
-                      onChange={(e) => setPageSettings(prev => ({ ...prev, logoUrl: e.target.value }))}
-                    />
-                  ) : (
-                    <div className="border-2 border-dashed border-border rounded-lg p-4 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        className="hidden" 
-                        id="logo-upload"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            const reader = new FileReader();
-                            reader.onload = (ev) => {
-                              setPageSettings(prev => ({ ...prev, logoUrl: ev.target?.result as string }));
-                            };
-                            reader.readAsDataURL(file);
-                          }
-                        }}
-                      />
-                      <label htmlFor="logo-upload" className="cursor-pointer">
-                        {pageSettings.logoUrl ? (
-                          <img src={pageSettings.logoUrl} alt="Logo preview" className="max-h-12 mx-auto" />
-                        ) : (
-                          <span className="text-sm text-muted-foreground">Selecionar imagem</span>
-                        )}
-                      </label>
+            <TabsContent value="appearance" className="flex-1 overflow-y-auto p-4 mt-0">
+              <div className="space-y-6">
+                {/* Logo Settings */}
+                <div className="border border-border rounded-lg p-4">
+                  <Label className="text-xs text-muted-foreground uppercase tracking-wide mb-3 block">Logo</Label>
+                  <div className="space-y-4">
+                    {/* Tabs Imagem/URL */}
+                    <div className="flex border border-border rounded-lg overflow-hidden">
+                      <button 
+                        className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${logoInputMode === 'image' ? 'bg-muted' : 'hover:bg-muted/50'}`}
+                        onClick={() => setLogoInputMode('image')}
+                      >
+                        <Image className="w-4 h-4 inline-block mr-1" />
+                        Imagem
+                      </button>
+                      <button 
+                        className={`flex-1 py-2 px-3 text-sm font-medium transition-colors ${logoInputMode === 'url' ? 'bg-muted' : 'hover:bg-muted/50'}`}
+                        onClick={() => setLogoInputMode('url')}
+                      >
+                        URL
+                      </button>
                     </div>
-                  )}
-                  
-                  {/* Size selector */}
-                  <div className="flex items-center gap-2">
-                    <Label className="text-sm shrink-0">Tamanho:</Label>
-                    <Select 
-                      value={pageSettings.logoSize} 
-                      onValueChange={(value) => setPageSettings(prev => ({ ...prev, logoSize: value }))}
-                    >
-                      <SelectTrigger className="flex-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="24">Pequeno (24px)</SelectItem>
-                        <SelectItem value="32">Médio (32px)</SelectItem>
-                        <SelectItem value="40">Grande (40px)</SelectItem>
-                        <SelectItem value="48">Extra grande (48px)</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    
+                    {logoInputMode === 'url' ? (
+                      <Input 
+                        placeholder="https://exemplo.com/logo.png"
+                        value={pageSettings.logoUrl}
+                        onChange={(e) => setPageSettings(prev => ({ ...prev, logoUrl: e.target.value }))}
+                      />
+                    ) : (
+                      <div className="border-2 border-dashed border-border rounded-lg p-4 text-center hover:border-primary/50 transition-colors cursor-pointer">
+                        <input 
+                          type="file" 
+                          accept="image/*" 
+                          className="hidden" 
+                          id="logo-upload"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = (ev) => {
+                                setPageSettings(prev => ({ ...prev, logoUrl: ev.target?.result as string }));
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                        <label htmlFor="logo-upload" className="cursor-pointer">
+                          {pageSettings.logoUrl ? (
+                            <img src={pageSettings.logoUrl} alt="Logo preview" className="max-h-12 mx-auto" />
+                          ) : (
+                            <span className="text-sm text-muted-foreground">Selecionar imagem</span>
+                          )}
+                        </label>
+                      </div>
+                    )}
+                    
+                    {/* Size selector */}
+                    <div className="flex items-center gap-2">
+                      <Label className="text-sm shrink-0">Tamanho:</Label>
+                      <Select 
+                        value={pageSettings.logoSize} 
+                        onValueChange={(value) => setPageSettings(prev => ({ ...prev, logoSize: value }))}
+                      >
+                        <SelectTrigger className="flex-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="24">Pequeno (24px)</SelectItem>
+                          <SelectItem value="32">Médio (32px)</SelectItem>
+                          <SelectItem value="40">Grande (40px)</SelectItem>
+                          <SelectItem value="48">Extra grande (48px)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Header Settings */}
+                <div className="border border-border rounded-lg p-4">
+                  <Label className="text-xs text-muted-foreground uppercase tracking-wide mb-3 block">Header</Label>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Mostrar logo</span>
+                      <Switch 
+                        checked={pageSettings.showLogo}
+                        onCheckedChange={(checked) => setPageSettings(prev => ({ ...prev, showLogo: checked }))}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Mostrar progresso</span>
+                      <Switch 
+                        checked={pageSettings.showProgress}
+                        onCheckedChange={(checked) => setPageSettings(prev => ({ ...prev, showProgress: checked }))}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Permitir voltar</span>
+                      <Switch 
+                        checked={pageSettings.allowBack}
+                        onCheckedChange={(checked) => setPageSettings(prev => ({ ...prev, allowBack: checked }))}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-              
-              {/* Header Settings */}
-              <div className="border border-border rounded-lg p-4">
-                <Label className="text-xs text-muted-foreground uppercase tracking-wide mb-3 block">Header</Label>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Mostrar logo</span>
-                    <Switch 
-                      checked={pageSettings.showLogo}
-                      onCheckedChange={(checked) => setPageSettings(prev => ({ ...prev, showLogo: checked }))}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Mostrar progresso</span>
-                    <Switch 
-                      checked={pageSettings.showProgress}
-                      onCheckedChange={(checked) => setPageSettings(prev => ({ ...prev, showProgress: checked }))}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Permitir voltar</span>
-                    <Switch 
-                      checked={pageSettings.allowBack}
-                      onCheckedChange={(checked) => setPageSettings(prev => ({ ...prev, allowBack: checked }))}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </TabsContent>
-        </Tabs>
+            </TabsContent>
+          </Tabs>
         )}
       </div>
 
       {/* Template Modal */}
       {showTemplates && (
         <TemplateSelector 
-          onSelect={handleAddFromTemplate}
+          onSelect={(template) => {
+            const newStage: Stage = {
+              id: crypto.randomUUID(),
+              name: template.name || 'Nova etapa',
+              components: [],
+            };
+            setStages(prev => [...prev, newStage]);
+            setSelectedStageId(newStage.id);
+            setShowTemplates(false);
+            setHasUnsavedChanges(true);
+          }}
           onClose={() => setShowTemplates(false)}
         />
       )}
