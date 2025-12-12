@@ -698,12 +698,21 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           </div>
         );
 
-      case 'image':
-        return config.mediaUrl ? (
+      case 'image': {
+        if (!config.mediaUrl) return null;
+        const isEmoji = config.mediaUrl.length <= 4 && !/^https?:\/\//.test(config.mediaUrl);
+        return (
           <div className="py-4">
-            <img src={config.mediaUrl} alt={config.altText || ''} className="w-full rounded-lg" />
+            {isEmoji ? (
+              <div className="flex items-center justify-center py-4">
+                <span className="text-6xl">{config.mediaUrl}</span>
+              </div>
+            ) : (
+              <img src={config.mediaUrl} alt={config.altText || ''} className="w-full rounded-lg" />
+            )}
           </div>
-        ) : null;
+        );
+      }
 
       case 'video':
         return config.mediaUrl ? (
