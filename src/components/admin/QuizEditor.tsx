@@ -632,82 +632,41 @@ export function QuizEditor() {
                     setSelectedStageId(stage.id);
                     setEditorView('editor');
                   }}
-                  className="relative w-[375px] min-h-[667px] rounded-3xl shadow-lg border border-border/30 overflow-hidden flex flex-col cursor-pointer transition-all hover:shadow-xl"
-                  style={{
-                    backgroundColor: designSettings.backgroundColor,
-                    fontFamily: designSettings.primaryFont,
-                    fontSize: `${designSettings.fontSize}px`,
-                  }}
+                  className="relative w-[375px] h-[667px] rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col cursor-pointer transition-all hover:shadow-xl bg-background"
                 >
-
-                  {/* Quiz Header */}
-                  <div 
-                    className="shrink-0 p-4"
-                    style={{
-                      display: designSettings.progressBar === 'hidden' && !designSettings.logo.value ? 'none' : 'block',
-                    }}
-                  >
-                    <div className={cn(
-                      "flex items-center gap-3",
-                      designSettings.logoPosition === 'center' && "justify-center",
-                      designSettings.logoPosition === 'right' && "justify-end"
-                    )}>
-                      {designSettings.logo.value && (
-                        designSettings.logo.type === 'emoji' ? (
-                          <span 
-                            className={cn(
-                              designSettings.logoSize === 'small' && 'text-xl',
-                              designSettings.logoSize === 'medium' && 'text-2xl',
-                              designSettings.logoSize === 'large' && 'text-4xl',
-                            )}
-                          >
-                            {designSettings.logo.value}
-                          </span>
-                        ) : (
-                          <img 
-                            src={designSettings.logo.value} 
-                            alt="Logo" 
-                            className={cn(
-                              "object-contain",
-                              designSettings.logoSize === 'small' && 'h-6',
-                              designSettings.logoSize === 'medium' && 'h-8',
-                              designSettings.logoSize === 'large' && 'h-12',
-                            )}
-                          />
-                        )
+                  {/* Quiz Header - same as constructor */}
+                  <div className="shrink-0 border-b border-border p-3">
+                    <div className="flex items-center gap-3">
+                      {pageSettings.allowBack && (
+                        <button className="p-1 hover:bg-muted rounded transition-colors pointer-events-none">
+                          <ArrowLeft className="w-4 h-4 text-muted-foreground" />
+                        </button>
+                      )}
+                      {pageSettings.showLogo && pageSettings.logoUrl && (
+                        <img 
+                          src={pageSettings.logoUrl} 
+                          alt="Logo" 
+                          className="object-contain" 
+                          style={{ height: `${pageSettings.logoSize}px` }}
+                        />
+                      )}
+                      {pageSettings.showProgress && (
+                        <div className="flex-1">
+                          <Progress value={((index + 1) / stages.length) * 100} className="h-1.5" />
+                        </div>
                       )}
                     </div>
-                    {designSettings.progressBar === 'top' && (
-                      <div className="mt-3">
-                        <Progress 
-                          value={((index + 1) / stages.length) * 100} 
-                          className="h-1.5"
-                        />
-                      </div>
-                    )}
                   </div>
                   
-                  {/* Stage Components - scrollable */}
-                  <div className="flex-1 overflow-y-auto">
-                    <ReadonlyDropZone 
-                      components={stage.components} 
-                      designSettings={{
-                        primaryFont: designSettings.primaryFont,
-                        fontSize: designSettings.fontSize,
-                        textColor: designSettings.textColor,
-                        primaryColor: designSettings.primaryColor,
-                      }}
+                  {/* Stage Components - using DropZone in readonly mode */}
+                  <div className="flex-1 overflow-hidden pointer-events-none">
+                    <DropZone 
+                      components={stage.components}
+                      onComponentsChange={() => {}}
+                      selectedComponentId={null}
+                      onSelectComponent={() => {}}
                     />
                   </div>
-
-                  {designSettings.progressBar === 'bottom' && (
-                    <div className="shrink-0 px-4 pb-4">
-                      <Progress 
-                        value={((index + 1) / stages.length) * 100} 
-                        className="h-1.5"
-                      />
-                    </div>
-                  )}
                 </div>
               ))
             )}
