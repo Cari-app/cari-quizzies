@@ -830,51 +830,119 @@ export function QuizEditor() {
             <div className="flex-1 flex items-start justify-center p-8 overflow-y-auto">
               <div 
                 className={cn(
-                  "bg-background rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col",
+                  "rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col",
                   previewMode === 'mobile' 
                     ? "w-[375px] h-[667px]" 
                     : "w-full max-w-4xl h-[640px]"
                 )}
+                style={{
+                  backgroundColor: designSettings.backgroundColor,
+                  color: designSettings.textColor,
+                  fontFamily: designSettings.primaryFont,
+                  fontSize: `${designSettings.fontSize}px`,
+                }}
               >
-                {/* Quiz Header Preview */}
-                <div className="shrink-0 border-b border-border p-3">
-                  <div className="flex items-center gap-3">
+                {/* Quiz Header Preview - using design settings */}
+                <div 
+                  className="shrink-0 p-3"
+                  style={{ 
+                    display: designSettings.progressBar === 'hidden' && !designSettings.logo.value ? 'none' : 'flex',
+                    flexDirection: 'column',
+                    gap: '8px',
+                    borderBottom: `1px solid ${designSettings.textColor}15`,
+                  }}
+                >
+                  <div className={cn(
+                    "flex items-center gap-3",
+                    designSettings.logoPosition === 'center' && "justify-center",
+                    designSettings.logoPosition === 'right' && "justify-end"
+                  )}>
                     {pageSettings.allowBack && (
-                      <button className="p-1 hover:bg-muted rounded transition-colors">
-                        <ArrowLeft className="w-4 h-4 text-muted-foreground" />
+                      <button 
+                        className="p-1 rounded transition-colors hover:opacity-70"
+                        style={{ color: designSettings.textColor }}
+                      >
+                        <ArrowLeft className="w-4 h-4" />
                       </button>
                     )}
-                  {pageSettings.showLogo && pageSettings.logoUrl && (
-                    <img 
-                      src={pageSettings.logoUrl} 
-                      alt="Logo" 
-                      className="object-contain" 
-                      style={{ height: `${pageSettings.logoSize}px` }}
-                    />
-                  )}
-                  {pageSettings.showProgress && (
-                    <div className="flex-1">
-                      <Progress value={progressValue} className="h-1.5" />
+                    {designSettings.logo.value && (
+                      designSettings.logo.type === 'emoji' ? (
+                        <span 
+                          className={cn(
+                            designSettings.logoSize === 'small' && 'text-xl',
+                            designSettings.logoSize === 'medium' && 'text-2xl',
+                            designSettings.logoSize === 'large' && 'text-4xl',
+                          )}
+                        >
+                          {designSettings.logo.value}
+                        </span>
+                      ) : (
+                        <img 
+                          src={designSettings.logo.value} 
+                          alt="Logo" 
+                          className={cn(
+                            "object-contain",
+                            designSettings.logoSize === 'small' && 'h-6',
+                            designSettings.logoSize === 'medium' && 'h-8',
+                            designSettings.logoSize === 'large' && 'h-12',
+                          )}
+                        />
+                      )
+                    )}
+                    {designSettings.progressBar === 'top' && (
+                      <div className="flex-1">
+                        <div 
+                          className="h-1.5 rounded-full overflow-hidden"
+                          style={{ backgroundColor: `${designSettings.primaryColor}30` }}
+                        >
+                          <div 
+                            className="h-full rounded-full transition-all"
+                            style={{ 
+                              width: `${progressValue}%`,
+                              backgroundColor: designSettings.primaryColor,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Drop Zone - shows components for current stage */}
+                {selectedStageId ? (
+                  <DropZone 
+                    components={currentComponents}
+                    onComponentsChange={updateCurrentStageComponents}
+                    selectedComponentId={selectedComponent?.id}
+                    onSelectComponent={setSelectedComponent}
+                  />
+                ) : (
+                  <div className="flex-1 flex items-center justify-center">
+                    <p style={{ color: designSettings.textColor, opacity: 0.6 }} className="text-sm">
+                      Selecione uma etapa para editar
+                    </p>
+                  </div>
+                )}
+
+                {/* Bottom progress bar */}
+                {designSettings.progressBar === 'bottom' && (
+                  <div className="shrink-0 px-4 pb-4">
+                    <div 
+                      className="h-1.5 rounded-full overflow-hidden"
+                      style={{ backgroundColor: `${designSettings.primaryColor}30` }}
+                    >
+                      <div 
+                        className="h-full rounded-full transition-all"
+                        style={{ 
+                          width: `${progressValue}%`,
+                          backgroundColor: designSettings.primaryColor,
+                        }}
+                      />
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
-              
-              {/* Drop Zone - shows components for current stage */}
-              {selectedStageId ? (
-                <DropZone 
-                  components={currentComponents}
-                  onComponentsChange={updateCurrentStageComponents}
-                  selectedComponentId={selectedComponent?.id}
-                  onSelectComponent={setSelectedComponent}
-                />
-              ) : (
-                <div className="flex-1 flex items-center justify-center">
-                  <p className="text-muted-foreground text-sm">Selecione uma etapa para editar</p>
-                </div>
-              )}
             </div>
-          </div>
           </div>
         )}
       </div>
