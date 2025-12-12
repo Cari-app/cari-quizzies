@@ -616,7 +616,7 @@ export function QuizEditor() {
       </div>
 
       {/* Right Sidebar */}
-      <div className="w-80 bg-background border-l border-border flex flex-col shrink-0 overflow-hidden">
+      <div className="w-96 bg-background border-l border-border flex flex-col shrink-0 overflow-hidden">
         {selectedComponent ? (
           <ComponentEditor 
             component={selectedComponent}
