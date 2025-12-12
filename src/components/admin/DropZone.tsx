@@ -142,15 +142,10 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'text':
         return (
           <div className={cn("p-4", config.textAlign === 'center' && 'text-center', config.textAlign === 'right' && 'text-right')}>
-            <p className={cn(
-              "text-foreground",
-              config.fontSize === 'sm' && 'text-sm',
-              config.fontSize === 'lg' && 'text-lg',
-              config.fontSize === 'xl' && 'text-xl',
-              config.fontSize === '2xl' && 'text-2xl font-semibold'
-            )}>
-              {config.content || 'Bloco de texto'}
-            </p>
+            <div 
+              className="rich-text text-foreground"
+              dangerouslySetInnerHTML={{ __html: config.content || 'Bloco de texto' }}
+            />
           </div>
         );
       case 'input':
