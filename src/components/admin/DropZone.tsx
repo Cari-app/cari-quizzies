@@ -731,7 +731,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           .replace(/@3/g, firstVariation.number);
         
         return (
-          <div className="w-full px-4">
+          <div className="w-full">
             <div 
               className={cn(
                 "rounded-lg border p-4 relative overflow-hidden",
