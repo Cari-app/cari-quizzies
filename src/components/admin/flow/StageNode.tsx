@@ -62,9 +62,7 @@ const getComponentIcon = (type: string, iconName: string) => {
 };
 
 export const StageNode = memo(({ data, selected }: NodeProps & { data: StageNodeData }) => {
-  const maxVisibleComponents = 8;
-  const visibleComponents = data.components.slice(0, maxVisibleComponents);
-  const hiddenCount = data.components.length - maxVisibleComponents;
+  const allComponents = data.components;
 
   return (
     <div
@@ -85,13 +83,13 @@ export const StageNode = memo(({ data, selected }: NodeProps & { data: StageNode
 
       {/* Components List */}
       <div className="p-1.5 space-y-0.5">
-        {visibleComponents.length === 0 ? (
+        {allComponents.length === 0 ? (
           <div className="px-2 py-1.5 text-[10px] text-muted-foreground italic">
             Vazio
           </div>
         ) : (
           <>
-            {visibleComponents.map((comp, idx) => {
+            {allComponents.map((comp, idx) => {
               const isConnectable = canConnect(comp);
               return (
                 <div
@@ -116,11 +114,6 @@ export const StageNode = memo(({ data, selected }: NodeProps & { data: StageNode
                 </div>
               );
             })}
-            {hiddenCount > 0 && (
-              <div className="px-2 py-1 text-[10px] text-muted-foreground">
-                +{hiddenCount} mais...
-              </div>
-            )}
           </>
         )}
       </div>
