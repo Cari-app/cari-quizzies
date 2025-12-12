@@ -18,6 +18,7 @@ import { ComponentPalette } from './ComponentPalette';
 import { DropZone, DroppedComponent, ComponentConfig } from './DropZone';
 import { ComponentEditor } from './ComponentEditor';
 import { DesignEditor, QuizDesignSettings, defaultDesignSettings } from './DesignEditor';
+import { StagePreview } from './StagePreview';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { cn } from '@/lib/utils';
 import { screenTemplates } from '@/data/screenTemplates';
@@ -612,192 +613,100 @@ export function QuizEditor() {
             />
           </div>
         ) : editorView === 'design' ? (
-          /* Design View - Shows all stages stacked */
-          <div className="flex-1 flex items-start justify-center p-8 overflow-y-auto">
-            <div 
-              className={cn(
-                "rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col",
-                "w-[375px] min-h-[667px]"
-              )}
-              style={{
-                backgroundColor: designSettings.backgroundColor,
-                fontFamily: designSettings.primaryFont,
-                fontSize: `${designSettings.fontSize}px`,
-              }}
-            >
-              {/* Quiz Header Preview with design settings */}
+          /* Design View - Shows all stages stacked with their actual components */
+          <div className="flex-1 flex flex-col items-center p-8 overflow-y-auto gap-6">
+            {stages.length === 0 ? (
               <div 
-                className="shrink-0 p-3"
-                style={{
-                  display: designSettings.progressBar === 'hidden' && !designSettings.logo.value ? 'none' : 'block',
-                }}
+                className="w-[375px] min-h-[400px] rounded-2xl shadow-lg border border-border flex items-center justify-center"
+                style={{ backgroundColor: designSettings.backgroundColor }}
               >
-                <div className={cn(
-                  "flex items-center gap-3",
-                  designSettings.logoPosition === 'center' && "justify-center",
-                  designSettings.logoPosition === 'right' && "justify-end"
-                )}>
-                  {designSettings.logo.value && (
-                    designSettings.logo.type === 'emoji' ? (
-                      <span 
-                        className={cn(
-                          designSettings.logoSize === 'small' && 'text-xl',
-                          designSettings.logoSize === 'medium' && 'text-2xl',
-                          designSettings.logoSize === 'large' && 'text-4xl',
-                        )}
-                      >
-                        {designSettings.logo.value}
-                      </span>
-                    ) : (
-                      <img 
-                        src={designSettings.logo.value} 
-                        alt="Logo" 
-                        className={cn(
-                          "object-contain",
-                          designSettings.logoSize === 'small' && 'h-6',
-                          designSettings.logoSize === 'medium' && 'h-8',
-                          designSettings.logoSize === 'large' && 'h-12',
-                        )}
-                      />
-                    )
-                  )}
-                </div>
-                {designSettings.progressBar === 'top' && (
-                  <div className="mt-3">
-                    <Progress 
-                      value={progressValue} 
-                      className="h-1.5"
-                      style={{ 
-                        ['--progress-background' as string]: designSettings.primaryColor 
-                      }}
-                    />
-                  </div>
-                )}
+                <p className="text-sm opacity-60" style={{ color: designSettings.textColor }}>
+                  Nenhuma etapa criada
+                </p>
               </div>
-              
-              {/* Stages Preview - All cards stacked */}
-              <div className="flex-1 flex flex-col">
-                {stages.length === 0 ? (
+            ) : (
+              stages.map((stage, index) => (
+                <div 
+                  key={stage.id}
+                  className="w-[375px] rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col"
+                  style={{
+                    backgroundColor: designSettings.backgroundColor,
+                    fontFamily: designSettings.primaryFont,
+                    fontSize: `${designSettings.fontSize}px`,
+                  }}
+                >
+                  {/* Stage Header with logo (first stage only) or progress indicator */}
                   <div 
-                    className="flex-1 flex items-center justify-center p-6"
-                    style={{ color: designSettings.textColor }}
+                    className="shrink-0 p-3 border-b"
+                    style={{ borderColor: `${designSettings.textColor}10` }}
                   >
-                    <p className="text-sm opacity-60">Nenhuma etapa criada</p>
-                  </div>
-                ) : (
-                  stages.map((stage, index) => (
-                    <div 
-                      key={stage.id}
-                      className={cn(
-                        "border-b last:border-b-0 p-4",
-                        designSettings.spacing === 'compact' && 'p-3',
-                        designSettings.spacing === 'spacious' && 'p-6',
-                      )}
-                      style={{ 
-                        borderColor: `${designSettings.textColor}15`,
-                      }}
-                    >
-                      {/* Stage Card */}
-                      <div 
-                        className={cn(
-                          "flex flex-col",
-                          designSettings.alignment === 'center' && "items-center text-center",
-                          designSettings.alignment === 'right' && "items-end text-right",
-                        )}
-                      >
-                        {/* Stage Number Badge */}
-                        <div 
-                          className={cn(
-                            "text-xs font-medium px-2 py-0.5 mb-2 inline-block",
-                            designSettings.borderRadius === 'none' && 'rounded-none',
-                            designSettings.borderRadius === 'small' && 'rounded',
-                            designSettings.borderRadius === 'medium' && 'rounded-md',
-                            designSettings.borderRadius === 'large' && 'rounded-lg',
-                            designSettings.borderRadius === 'full' && 'rounded-full',
-                          )}
+                    <div className={cn(
+                      "flex items-center gap-3",
+                      designSettings.logoPosition === 'center' && "justify-center",
+                      designSettings.logoPosition === 'right' && "justify-end"
+                    )}>
+                      {index === 0 && designSettings.logo.value ? (
+                        designSettings.logo.type === 'emoji' ? (
+                          <span 
+                            className={cn(
+                              designSettings.logoSize === 'small' && 'text-xl',
+                              designSettings.logoSize === 'medium' && 'text-2xl',
+                              designSettings.logoSize === 'large' && 'text-4xl',
+                            )}
+                          >
+                            {designSettings.logo.value}
+                          </span>
+                        ) : (
+                          <img 
+                            src={designSettings.logo.value} 
+                            alt="Logo" 
+                            className={cn(
+                              "object-contain",
+                              designSettings.logoSize === 'small' && 'h-6',
+                              designSettings.logoSize === 'medium' && 'h-8',
+                              designSettings.logoSize === 'large' && 'h-12',
+                            )}
+                          />
+                        )
+                      ) : (
+                        <span 
+                          className="text-xs font-medium px-2 py-0.5 rounded-full"
                           style={{ 
                             backgroundColor: `${designSettings.primaryColor}20`,
                             color: designSettings.primaryColor,
                           }}
                         >
-                          Etapa {index + 1}
-                        </div>
-                        
-                        {/* Stage Title */}
-                        <h3 
-                          className={cn(
-                            "font-semibold mb-2",
-                            designSettings.titleSize === 'small' && 'text-base',
-                            designSettings.titleSize === 'medium' && 'text-lg',
-                            designSettings.titleSize === 'large' && 'text-xl',
-                            designSettings.titleSize === 'xlarge' && 'text-2xl',
-                          )}
-                          style={{ 
-                            color: designSettings.titleColor,
-                            fontFamily: designSettings.primaryFont,
-                          }}
-                        >
-                          {stage.name || 'Sem título'}
-                        </h3>
-                        
-                        {/* Components count */}
-                        <p 
-                          className="text-xs opacity-50"
-                          style={{ 
-                            color: designSettings.textColor,
-                            fontFamily: designSettings.secondaryFont,
-                          }}
-                        >
-                          {stage.components.length} componente{stage.components.length !== 1 ? 's' : ''}
-                        </p>
-                        
-                        {/* Mini preview of components */}
-                        {stage.components.length > 0 && (
-                          <div className="mt-3 w-full space-y-2">
-                            {stage.components.slice(0, 3).map((comp) => (
-                              <div 
-                                key={comp.id}
-                                className={cn(
-                                  "px-3 py-2 text-xs",
-                                  designSettings.borderRadius === 'none' && 'rounded-none',
-                                  designSettings.borderRadius === 'small' && 'rounded',
-                                  designSettings.borderRadius === 'medium' && 'rounded-md',
-                                  designSettings.borderRadius === 'large' && 'rounded-lg',
-                                  designSettings.borderRadius === 'full' && 'rounded-xl',
-                                )}
-                                style={{ 
-                                  backgroundColor: `${designSettings.textColor}08`,
-                                  color: designSettings.textColor,
-                                }}
-                              >
-                                {comp.type}
-                              </div>
-                            ))}
-                            {stage.components.length > 3 && (
-                              <p 
-                                className="text-xs opacity-40 text-center"
-                                style={{ color: designSettings.textColor }}
-                              >
-                                +{stage.components.length - 3} mais
-                              </p>
-                            )}
-                          </div>
-                        )}
-                      </div>
+                          {index + 1}/{stages.length}
+                        </span>
+                      )}
                     </div>
-                  ))
-                )}
-              </div>
-
-              {designSettings.progressBar === 'bottom' && (
-                <div className="px-3 pb-3">
-                  <Progress 
-                    value={progressValue} 
-                    className="h-1.5"
+                    {designSettings.progressBar === 'top' && (
+                      <div className="mt-2">
+                        <Progress 
+                          value={((index + 1) / stages.length) * 100} 
+                          className="h-1"
+                        />
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Stage Components */}
+                  <StagePreview 
+                    components={stage.components}
+                    designSettings={designSettings}
                   />
+
+                  {designSettings.progressBar === 'bottom' && (
+                    <div className="px-3 pb-3 border-t" style={{ borderColor: `${designSettings.textColor}10` }}>
+                      <Progress 
+                        value={((index + 1) / stages.length) * 100} 
+                        className="h-1 mt-3"
+                      />
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              ))
+            )}
           </div>
         ) : (
           <div className="flex-1 flex flex-col overflow-hidden">
