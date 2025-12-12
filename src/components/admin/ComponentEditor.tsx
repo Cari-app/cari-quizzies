@@ -875,35 +875,128 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     </div>
   );
 
+  const [mediaTab, setMediaTab] = useState<'image' | 'url' | 'emoji'>('url');
+  const [mediaAdvancedOpen, setMediaAdvancedOpen] = useState(false);
+
+  const commonEmojis = ['🖼️', '📷', '🌄', '🌅', '🏞️', '🎨', '✨', '💫', '🔥', '❤️', '⭐', '🎯', '💡', '🚀', '💪', '🎉'];
+
   const renderMediaComponentTab = () => (
     <div className="space-y-4">
-      <div>
-        <Label className="text-xs text-muted-foreground">ID/Name</Label>
-        <Input
-          value={component.customId || ''}
-          onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-          placeholder={`media_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-          className="mt-1 font-mono text-xs"
-        />
+      {/* Media Type Tabs */}
+      <div className="flex p-1 bg-muted rounded-lg">
+        <button
+          type="button"
+          onClick={() => setMediaTab('image')}
+          className={cn(
+            "flex-1 py-2 text-sm font-medium rounded-md transition-colors",
+            mediaTab === 'image' ? "bg-background shadow-sm" : "hover:bg-background/50"
+          )}
+        >
+          Imagem
+        </button>
+        <button
+          type="button"
+          onClick={() => setMediaTab('url')}
+          className={cn(
+            "flex-1 py-2 text-sm font-medium rounded-md transition-colors",
+            mediaTab === 'url' ? "bg-background shadow-sm" : "hover:bg-background/50"
+          )}
+        >
+          URL
+        </button>
+        <button
+          type="button"
+          onClick={() => setMediaTab('emoji')}
+          className={cn(
+            "flex-1 py-2 text-sm font-medium rounded-md transition-colors",
+            mediaTab === 'emoji' ? "bg-background shadow-sm" : "hover:bg-background/50"
+          )}
+        >
+          Emoji
+        </button>
       </div>
-      <div>
-        <Label className="text-xs text-muted-foreground">URL da mídia</Label>
-        <Input
-          value={config.mediaUrl || ''}
-          onChange={(e) => updateConfig({ mediaUrl: e.target.value })}
-          placeholder="https://..."
-          className="mt-1"
-        />
-      </div>
-      <div>
-        <Label className="text-xs text-muted-foreground">Texto alternativo</Label>
-        <Input
-          value={config.altText || ''}
-          onChange={(e) => updateConfig({ altText: e.target.value })}
-          placeholder="Descrição da imagem..."
-          className="mt-1"
-        />
-      </div>
+
+      {/* Image Upload Tab */}
+      {mediaTab === 'image' && (
+        <div className="space-y-3">
+          <Button variant="outline" className="w-full" disabled>
+            Selecionar imagem
+          </Button>
+          <p className="text-xs text-muted-foreground text-center">
+            Upload de imagens em breve
+          </p>
+        </div>
+      )}
+
+      {/* URL Tab */}
+      {mediaTab === 'url' && (
+        <div className="space-y-3">
+          <Input
+            value={config.mediaUrl || ''}
+            onChange={(e) => updateConfig({ mediaUrl: e.target.value })}
+            placeholder="https://exemplo.com/imagem.jpg"
+          />
+          {config.mediaUrl && (
+            <div className="relative w-full h-32 bg-muted rounded-lg overflow-hidden">
+              <img 
+                src={config.mediaUrl} 
+                alt="Preview" 
+                className="w-full h-full object-cover"
+                onError={(e) => (e.currentTarget.style.display = 'none')}
+              />
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Emoji Tab */}
+      {mediaTab === 'emoji' && (
+        <div className="space-y-3">
+          <div className="grid grid-cols-8 gap-1">
+            {commonEmojis.map((emoji) => (
+              <button
+                key={emoji}
+                type="button"
+                onClick={() => updateConfig({ mediaUrl: emoji, altText: 'emoji' })}
+                className={cn(
+                  "w-8 h-8 flex items-center justify-center text-xl rounded-md hover:bg-muted transition-colors",
+                  config.mediaUrl === emoji && "bg-primary/20 ring-2 ring-primary"
+                )}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Advanced Section */}
+      <Collapsible open={mediaAdvancedOpen} onOpenChange={setMediaAdvancedOpen}>
+        <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <Plus className={cn("w-4 h-4 transition-transform", mediaAdvancedOpen && "rotate-45")} />
+          AVANÇADO
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-4 space-y-4">
+          <div>
+            <Label className="text-xs text-muted-foreground">ID/Name</Label>
+            <Input
+              value={component.customId || ''}
+              onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
+              placeholder={`media_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
+              className="mt-1 font-mono text-xs"
+            />
+          </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Texto alternativo</Label>
+            <Input
+              value={config.altText || ''}
+              onChange={(e) => updateConfig({ altText: e.target.value })}
+              placeholder="Descrição da imagem..."
+              className="mt-1"
+            />
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 
