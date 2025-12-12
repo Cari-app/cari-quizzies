@@ -17,8 +17,12 @@ export function DraggableComponent({ type, name, icon, isNew, expanded }: Dragga
     e.dataTransfer.effectAllowed = 'copy';
   };
 
-  // Icon name is already in PascalCase from screenTemplates
-  const LucideIcon = icons[icon as keyof typeof icons];
+  // Convert kebab-case to PascalCase for Lucide icon lookup
+  const toPascalCase = (str: string) => 
+    str.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
+  
+  const iconKey = toPascalCase(icon) as keyof typeof icons;
+  const LucideIcon = icons[iconKey];
 
   return (
     <div
