@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
 import { Trash2, Plus, ChevronDown, GripVertical, Image, Smile, X } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 
 export interface DroppedComponent {
@@ -582,152 +583,149 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                   <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
                   
                   {/* Media button (icon/image) */}
-                  <div className="relative">
-                    <button
-                      onClick={(e) => { 
-                        e.stopPropagation(); 
-                        setShowMediaSelector(showMediaSelector === opt.id ? null : opt.id); 
-                      }}
-                      className={cn(
-                        "w-10 h-10 rounded flex items-center justify-center text-lg transition-colors",
-                        opt.mediaType === 'icon' && opt.icon ? "bg-primary/10" : "bg-muted hover:bg-muted/80"
-                      )}
-                    >
-                      {opt.mediaType === 'image' && opt.imageUrl ? (
-                        <img src={opt.imageUrl} alt="" className="w-full h-full object-cover rounded" />
-                      ) : opt.mediaType === 'icon' && opt.icon ? (
-                        <span>{opt.icon}</span>
-                      ) : (
-                        <Image className="w-4 h-4 text-muted-foreground" />
-                      )}
-                    </button>
-                    
-                    {/* Media selector dropdown */}
-                    {showMediaSelector === opt.id && (
-                      <div 
-                        className="absolute top-12 left-0 z-[100] bg-background border border-border rounded-xl shadow-xl p-4 w-72"
+                  <Popover open={showMediaSelector === opt.id} onOpenChange={(open) => setShowMediaSelector(open ? opt.id : null)}>
+                    <PopoverTrigger asChild>
+                      <button
                         onClick={(e) => e.stopPropagation()}
+                        className={cn(
+                          "w-10 h-10 rounded flex items-center justify-center text-lg transition-colors",
+                          opt.mediaType === 'icon' && opt.icon ? "bg-primary/10" : "bg-muted hover:bg-muted/80"
+                        )}
                       >
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-sm font-medium">Mídia da opção</span>
-                          <button 
-                            onClick={() => setShowMediaSelector(null)}
-                            className="p-1.5 hover:bg-muted rounded-lg transition-colors"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                        
-                        {/* Type selector */}
-                        <div className="flex gap-1 p-1 bg-muted rounded-lg mb-4">
-                          <button
-                            onClick={() => updateOption(opt.id, { mediaType: 'none', icon: undefined, imageUrl: undefined })}
-                            className={cn(
-                              "flex-1 py-2 px-3 text-xs font-medium rounded-md transition-all",
-                              (!opt.mediaType || opt.mediaType === 'none') 
-                                ? "bg-background text-foreground shadow-sm" 
-                                : "text-muted-foreground hover:text-foreground"
-                            )}
-                          >
-                            Nenhum
-                          </button>
-                          <button
-                            onClick={() => updateOption(opt.id, { mediaType: 'icon' })}
-                            className={cn(
-                              "flex-1 py-2 px-3 text-xs font-medium rounded-md transition-all flex items-center justify-center gap-1.5",
-                              opt.mediaType === 'icon' 
-                                ? "bg-background text-foreground shadow-sm" 
-                                : "text-muted-foreground hover:text-foreground"
-                            )}
-                          >
-                            <Smile className="w-3.5 h-3.5" />
-                            Ícone
-                          </button>
-                          <button
-                            onClick={() => updateOption(opt.id, { mediaType: 'image' })}
-                            className={cn(
-                              "flex-1 py-2 px-3 text-xs font-medium rounded-md transition-all flex items-center justify-center gap-1.5",
-                              opt.mediaType === 'image' 
-                                ? "bg-background text-foreground shadow-sm" 
-                                : "text-muted-foreground hover:text-foreground"
-                            )}
-                          >
-                            <Image className="w-3.5 h-3.5" />
-                            Foto
-                          </button>
-                        </div>
-                        
-                        {/* Icon picker */}
-                        {opt.mediaType === 'icon' && (
-                          <div className="space-y-2">
-                            {/* Category tabs */}
-                            <div className="flex gap-1 overflow-x-auto pb-1">
-                              {(['popular', 'faces', 'gestures', 'objects', 'symbols'] as const).map((cat) => (
-                                <button
-                                  key={cat}
-                                  onClick={() => setEmojiCategory(cat)}
-                                  className={cn(
-                                    "px-2 py-1 text-xs rounded-md whitespace-nowrap transition-colors",
-                                    emojiCategory === cat 
-                                      ? "bg-primary/20 text-primary font-medium" 
-                                      : "text-muted-foreground hover:bg-muted"
-                                  )}
-                                >
-                                  {cat === 'popular' && '⭐ Popular'}
-                                  {cat === 'faces' && '😊 Rostos'}
-                                  {cat === 'gestures' && '👍 Gestos'}
-                                  {cat === 'objects' && '🏠 Objetos'}
-                                  {cat === 'symbols' && '✅ Símbolos'}
-                                </button>
-                              ))}
-                            </div>
-                            
-                            {/* Emoji grid */}
-                            <div className="grid grid-cols-8 gap-1">
-                              {emojiCategories[emojiCategory].map((emoji) => (
-                                <button
-                                  key={emoji}
-                                  onClick={() => { 
-                                    updateOption(opt.id, { icon: emoji }); 
-                                    setShowMediaSelector(null);
-                                  }}
-                                  className={cn(
-                                    "w-7 h-7 rounded flex items-center justify-center text-lg hover:bg-muted hover:scale-110 transition-all",
-                                    opt.icon === emoji && "bg-primary/20 ring-2 ring-primary"
-                                  )}
-                                >
-                                  {emoji}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
+                        {opt.mediaType === 'image' && opt.imageUrl ? (
+                          <img src={opt.imageUrl} alt="" className="w-full h-full object-cover rounded" />
+                        ) : opt.mediaType === 'icon' && opt.icon ? (
+                          <span>{opt.icon}</span>
+                        ) : (
+                          <Image className="w-4 h-4 text-muted-foreground" />
                         )}
-                        
-                        {/* Image URL input */}
-                        {opt.mediaType === 'image' && (
-                          <div className="space-y-2">
-                            <Input
-                              value={opt.imageUrl || ''}
-                              onChange={(e) => updateOption(opt.id, { imageUrl: e.target.value })}
-                              placeholder="https://exemplo.com/imagem.jpg"
-                              className="text-sm"
-                            />
-                            <p className="text-xs text-muted-foreground">Cole a URL de uma imagem da web</p>
-                            {opt.imageUrl && (
-                              <div className="relative w-full h-20 bg-muted rounded-lg overflow-hidden">
-                                <img 
-                                  src={opt.imageUrl} 
-                                  alt="Preview" 
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => (e.currentTarget.style.display = 'none')}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        )}
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent 
+                      className="w-80 p-4" 
+                      align="start" 
+                      side="bottom"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-medium">Mídia da opção</span>
+                        <button 
+                          onClick={() => setShowMediaSelector(null)}
+                          className="p-1.5 hover:bg-muted rounded-lg transition-colors"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
                       </div>
-                    )}
-                  </div>
+                      
+                      {/* Type selector */}
+                      <div className="flex gap-1 p-1 bg-muted rounded-lg mb-4">
+                        <button
+                          onClick={() => updateOption(opt.id, { mediaType: 'none', icon: undefined, imageUrl: undefined })}
+                          className={cn(
+                            "flex-1 py-2 px-3 text-xs font-medium rounded-md transition-all",
+                            (!opt.mediaType || opt.mediaType === 'none') 
+                              ? "bg-background text-foreground shadow-sm" 
+                              : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          Nenhum
+                        </button>
+                        <button
+                          onClick={() => updateOption(opt.id, { mediaType: 'icon' })}
+                          className={cn(
+                            "flex-1 py-2 px-3 text-xs font-medium rounded-md transition-all flex items-center justify-center gap-1.5",
+                            opt.mediaType === 'icon' 
+                              ? "bg-background text-foreground shadow-sm" 
+                              : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          <Smile className="w-3.5 h-3.5" />
+                          Ícone
+                        </button>
+                        <button
+                          onClick={() => updateOption(opt.id, { mediaType: 'image' })}
+                          className={cn(
+                            "flex-1 py-2 px-3 text-xs font-medium rounded-md transition-all flex items-center justify-center gap-1.5",
+                            opt.mediaType === 'image' 
+                              ? "bg-background text-foreground shadow-sm" 
+                              : "text-muted-foreground hover:text-foreground"
+                          )}
+                        >
+                          <Image className="w-3.5 h-3.5" />
+                          Foto
+                        </button>
+                      </div>
+                      
+                      {/* Icon picker */}
+                      {opt.mediaType === 'icon' && (
+                        <div className="space-y-2">
+                          {/* Category tabs */}
+                          <div className="flex gap-1 overflow-x-auto pb-1">
+                            {(['popular', 'faces', 'gestures', 'objects', 'symbols'] as const).map((cat) => (
+                              <button
+                                key={cat}
+                                onClick={() => setEmojiCategory(cat)}
+                                className={cn(
+                                  "px-2 py-1 text-xs rounded-md whitespace-nowrap transition-colors",
+                                  emojiCategory === cat 
+                                    ? "bg-primary/20 text-primary font-medium" 
+                                    : "text-muted-foreground hover:bg-muted"
+                                )}
+                              >
+                                {cat === 'popular' && '⭐ Popular'}
+                                {cat === 'faces' && '😊 Rostos'}
+                                {cat === 'gestures' && '👍 Gestos'}
+                                {cat === 'objects' && '🏠 Objetos'}
+                                {cat === 'symbols' && '✅ Símbolos'}
+                              </button>
+                            ))}
+                          </div>
+                          
+                          {/* Emoji grid */}
+                          <div className="grid grid-cols-8 gap-1">
+                            {emojiCategories[emojiCategory].map((emoji) => (
+                              <button
+                                key={emoji}
+                                onClick={() => { 
+                                  updateOption(opt.id, { icon: emoji }); 
+                                  setShowMediaSelector(null);
+                                }}
+                                className={cn(
+                                  "w-7 h-7 rounded flex items-center justify-center text-lg hover:bg-muted hover:scale-110 transition-all",
+                                  opt.icon === emoji && "bg-primary/20 ring-2 ring-primary"
+                                )}
+                              >
+                                {emoji}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Image URL input */}
+                      {opt.mediaType === 'image' && (
+                        <div className="space-y-2">
+                          <Input
+                            value={opt.imageUrl || ''}
+                            onChange={(e) => updateOption(opt.id, { imageUrl: e.target.value })}
+                            placeholder="https://exemplo.com/imagem.jpg"
+                            className="text-sm"
+                          />
+                          <p className="text-xs text-muted-foreground">Cole a URL de uma imagem da web</p>
+                          {opt.imageUrl && (
+                            <div className="relative w-full h-20 bg-muted rounded-lg overflow-hidden">
+                              <img 
+                                src={opt.imageUrl} 
+                                alt="Preview" 
+                                className="w-full h-full object-cover"
+                                onError={(e) => (e.currentTarget.style.display = 'none')}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </PopoverContent>
+                  </Popover>
                   
                   <Input
                     value={opt.text}
