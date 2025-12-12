@@ -156,25 +156,37 @@ export function RichTextInput({
           }}
           onMouseDown={(e) => e.preventDefault()}
         >
-          {/* Text Size / Heading */}
+          {/* Text Size in pixels */}
           <select
-            className="h-6 px-1.5 text-xs bg-popover border border-border outline-none cursor-pointer hover:bg-foreground/10 rounded min-w-[80px]"
-            defaultValue="p"
+            className="h-6 px-1.5 text-xs bg-popover border border-border outline-none cursor-pointer hover:bg-foreground/10 rounded min-w-[70px]"
+            defaultValue="16"
             onMouseDown={(e) => e.stopPropagation()}
             onChange={(e) => {
-              const value = e.target.value;
-              if (value === 'small') {
-                execCommand("fontSize", "2");
-              } else {
-                execCommand("formatBlock", value);
+              const size = e.target.value;
+              // Wrap selection in span with inline style
+              const selection = window.getSelection();
+              if (selection && !selection.isCollapsed) {
+                const range = selection.getRangeAt(0);
+                const span = document.createElement('span');
+                span.style.fontSize = `${size}px`;
+                range.surroundContents(span);
+                handleInput();
               }
             }}
           >
-            <option value="h1">Título 1</option>
-            <option value="h2">Título 2</option>
-            <option value="h3">Título 3</option>
-            <option value="p">Normal</option>
-            <option value="small">Pequeno</option>
+            <option value="12">12px</option>
+            <option value="14">14px</option>
+            <option value="16">16px</option>
+            <option value="18">18px</option>
+            <option value="20">20px</option>
+            <option value="24">24px</option>
+            <option value="28">28px</option>
+            <option value="32">32px</option>
+            <option value="36">36px</option>
+            <option value="42">42px</option>
+            <option value="48">48px</option>
+            <option value="56">56px</option>
+            <option value="64">64px</option>
           </select>
 
           <div className="w-px h-4 bg-border mx-0.5" />
