@@ -566,16 +566,7 @@ export function QuizEditor() {
 
         </div>
 
-        {/* Widgets Palette - Floating toggle when closed */}
-        {!widgetsExpanded && (
-          <button
-            onClick={() => setWidgetsExpanded(true)}
-            className="m-3 p-1.5 rounded hover:bg-muted/80 transition-colors"
-            title="Abrir paleta de componentes"
-          >
-            <PanelLeftOpen className="w-4 h-4 text-muted-foreground" />
-          </button>
-        )}
+        {/* Widgets Palette - Toggle (shown in sub-header when closed) */}
         
         {/* Widgets Palette - Expanded */}
         {widgetsExpanded && (
@@ -624,7 +615,21 @@ export function QuizEditor() {
         ) : (
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Preview Mode Toggle */}
-            <div className="flex items-center justify-center py-2 border-b border-border bg-background/50">
+            <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-background/50">
+              {/* Left: Component palette toggle */}
+              {!widgetsExpanded ? (
+                <button
+                  onClick={() => setWidgetsExpanded(true)}
+                  className="p-1.5 rounded hover:bg-muted transition-colors"
+                  title="Abrir paleta de componentes"
+                >
+                  <PanelLeftOpen className="w-4 h-4 text-muted-foreground" />
+                </button>
+              ) : (
+                <div className="w-7" />
+              )}
+              
+              {/* Center: Device toggle */}
               <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
                 <button
                   onClick={() => setPreviewMode('mobile')}
@@ -645,6 +650,9 @@ export function QuizEditor() {
                   <Monitor className="w-4 h-4" />
                 </button>
               </div>
+              
+              {/* Right: Spacer for balance */}
+              <div className="w-7" />
             </div>
             
             <div className="flex-1 flex items-start justify-center p-8 overflow-y-auto">
