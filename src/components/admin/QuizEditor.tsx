@@ -23,7 +23,7 @@ export function QuizEditor() {
 
   const [showTemplates, setShowTemplates] = useState(false);
   const [previewMode, setPreviewMode] = useState<'mobile' | 'desktop'>('mobile');
-  const [rightTab, setRightTab] = useState<'stage' | 'appearance'>('stage');
+  const [rightTab, setRightTab] = useState<'stage' | 'appearance' | 'components'>('components');
 
   useEffect(() => {
     if (id === 'new') {
@@ -93,8 +93,8 @@ export function QuizEditor() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-muted/30">
-      {/* Left Sidebar */}
-      <div className="w-60 bg-background border-r border-border flex flex-col shrink-0">
+      {/* Left Sidebar - Steps Only */}
+      <div className="w-64 bg-background border-r border-border flex flex-col shrink-0">
         {/* Header */}
         <div className="p-4 border-b border-border">
           <Link 
@@ -113,70 +113,84 @@ export function QuizEditor() {
           />
         </div>
 
-        {/* Screens List */}
-        <div className="p-4 border-b border-border">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Etapas</span>
-          </div>
-          
-          <div className="flex gap-2 mb-4">
-            <Button 
-              size="sm" 
-              variant="outline"
-              className="flex-1 h-9"
-              onClick={() => setShowTemplates(true)}
-            >
-              <Plus className="w-4 h-4 mr-1" />
-              Em branco
-            </Button>
-            <Button 
-              size="sm" 
-              variant="outline"
-              className="flex-1 h-9"
-              onClick={() => setShowTemplates(true)}
-            >
-              Modelos
-            </Button>
-          </div>
-
-          {currentQuiz.screens.length === 0 ? (
-            <div className="text-center py-6 border border-dashed border-border rounded-md">
-              <p className="text-xs text-muted-foreground">Nenhuma etapa</p>
+        {/* Screens Section */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <div className="p-4 border-b border-border">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Etapas</span>
             </div>
-          ) : (
-            <Reorder.Group axis="y" values={currentQuiz.screens} onReorder={handleReorder} className="space-y-1 max-h-48 overflow-y-auto">
-              {currentQuiz.screens.map((screen) => (
-                <Reorder.Item key={screen.id} value={screen}>
-                  <div
-                    className={cn(
-                      "flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer transition-colors group",
-                      editingScreen?.id === screen.id
-                        ? "bg-accent"
-                        : "hover:bg-accent/50"
-                    )}
-                    onClick={() => setEditingScreen(screen)}
-                  >
-                    <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab shrink-0" />
-                    <span className="flex-1 truncate">{screen.title || 'Sem título'}</span>
-                    <button
-                      className="opacity-0 group-hover:opacity-100 p-1 hover:text-destructive"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteScreen(screen.id);
-                      }}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </Reorder.Item>
-              ))}
-            </Reorder.Group>
-          )}
-        </div>
+            
+            <div className="flex gap-2">
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="flex-1 h-9"
+                onClick={() => {
+                  const newScreen: QuizScreen = {
+                    id: Date.now().toString(),
+                    type: 'info',
+                    title: 'Nova etapa',
+                    showLogo: true,
+                    showProgress: true,
+                    allowBack: true,
+                  };
+                  addScreen(currentQuiz.id, newScreen);
+                  setEditingScreen(newScreen);
+                }}
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Em branco
+              </Button>
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="flex-1 h-9"
+                onClick={() => setShowTemplates(true)}
+              >
+                Modelos
+              </Button>
+            </div>
+          </div>
 
-        {/* Component Palette */}
-        <div className="flex-1 overflow-y-auto p-4">
-          <ComponentPalette />
+          {/* Steps List - Scrollable */}
+          <div className="flex-1 overflow-y-auto">
+            {currentQuiz.screens.length === 0 ? (
+              <div className="text-center py-8 px-4">
+                <div className="border border-dashed border-border rounded-lg p-6">
+                  <p className="text-xs text-muted-foreground">Nenhuma etapa</p>
+                  <p className="text-xs text-muted-foreground mt-1">Clique em "Em branco" ou "Modelos"</p>
+                </div>
+              </div>
+            ) : (
+              <Reorder.Group axis="y" values={currentQuiz.screens} onReorder={handleReorder} className="p-2">
+                {currentQuiz.screens.map((screen) => (
+                  <Reorder.Item key={screen.id} value={screen}>
+                    <div
+                      className={cn(
+                        "flex items-center gap-2 px-3 py-3 rounded-lg text-sm cursor-pointer transition-colors group mb-1",
+                        editingScreen?.id === screen.id
+                          ? "bg-accent border border-border"
+                          : "hover:bg-accent/50"
+                      )}
+                      onClick={() => setEditingScreen(screen)}
+                    >
+                      <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab shrink-0" />
+                      <span className="flex-1 truncate">{screen.title || 'Sem título'}</span>
+                      <button
+                        className="opacity-0 group-hover:opacity-100 p-1 hover:text-destructive transition-opacity"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteScreen(screen.id);
+                        }}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </Reorder.Item>
+                ))}
+              </Reorder.Group>
+            )}
+          </div>
         </div>
       </div>
 
@@ -243,12 +257,17 @@ export function QuizEditor() {
       </div>
 
       {/* Right Sidebar */}
-      <div className="w-72 bg-background border-l border-border flex flex-col shrink-0">
-        <Tabs value={rightTab} onValueChange={(v) => setRightTab(v as 'stage' | 'appearance')} className="flex flex-col h-full">
-          <TabsList className="grid grid-cols-2 m-4 mb-0">
+      <div className="w-80 bg-background border-l border-border flex flex-col shrink-0">
+        <Tabs value={rightTab} onValueChange={(v) => setRightTab(v as 'stage' | 'appearance' | 'components')} className="flex flex-col h-full">
+          <TabsList className="grid grid-cols-3 m-4 mb-0">
+            <TabsTrigger value="components">Adicionar</TabsTrigger>
             <TabsTrigger value="stage">Etapa</TabsTrigger>
             <TabsTrigger value="appearance">Aparência</TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="components" className="flex-1 overflow-y-auto p-4 mt-0">
+            <ComponentPalette />
+          </TabsContent>
           
           <TabsContent value="stage" className="flex-1 overflow-y-auto p-4 mt-0">
             {editingScreen ? (
