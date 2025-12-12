@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { CarouselItemEditor } from './CarouselItemEditor';
 import { MetricItemEditor, MetricItem } from './MetricItemEditor';
 import { ChartEditorComponentTab, ChartEditorAppearanceTab, getDefaultChartConfig, ChartConfig } from './ChartEditor';
+import { SpacerComponentEditor } from './SpacerEditor';
 
 export interface DroppedComponent {
   id: string;
@@ -1371,65 +1372,16 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
   };
 
   const renderSpacerComponentTab = () => {
-    const currentHeight = config.height ?? 24;
-    
-    return (
-      <div className="space-y-4">
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <Label className="text-xs text-muted-foreground">Altura do espaço</Label>
-            <div className="flex items-center gap-1">
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                onClick={() => updateConfig({ height: Math.max(0, currentHeight - 10) })}
-              >
-                <span className="text-sm">−</span>
-              </Button>
-              <span className="text-sm font-medium min-w-[48px] text-center">{currentHeight}px</span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                onClick={() => updateConfig({ height: Math.min(300, currentHeight + 10) })}
-              >
-                <span className="text-sm">+</span>
-              </Button>
-            </div>
-          </div>
-          <Slider
-            value={[currentHeight]}
-            onValueChange={(value) => updateConfig({ height: value[0] })}
-            min={0}
-            max={300}
-            step={1}
-            className="w-full"
-          />
-        </div>
-
-        {/* Avançado */}
-        <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
-          <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <Plus className={`w-4 h-4 transition-transform ${advancedOpen ? 'rotate-45' : ''}`} />
-            AVANÇADO
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pt-4 space-y-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">ID/Name</Label>
-              <Input
-                value={component.customId || ''}
-                onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-                placeholder={`spacer_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-                className="mt-1 font-mono text-xs"
-              />
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
-      </div>
-    );
+    return <SpacerComponentEditor 
+      config={config} 
+      updateConfig={updateConfig}
+      customId={component.customId}
+      componentId={component.id}
+      onUpdateCustomId={onUpdateCustomId}
+      generateSlug={generateSlug}
+      advancedOpen={advancedOpen}
+      setAdvancedOpen={setAdvancedOpen}
+    />;
   };
 
   const renderAlertComponentTab = () => (
