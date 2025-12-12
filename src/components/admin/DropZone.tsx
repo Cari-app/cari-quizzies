@@ -785,7 +785,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const widthValue = config.width || 100;
         
         return (
-          <div className="w-full px-4">
+          <div className="w-full">
             <div 
               className={cn(
                 "rounded-lg px-4 py-3 text-center font-medium",
