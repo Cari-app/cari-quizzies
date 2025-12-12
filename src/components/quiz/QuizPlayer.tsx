@@ -101,6 +101,17 @@ interface ComponentConfig {
   showLevelProgress?: boolean;
   levelType?: 'line' | 'segments';
   levelColor?: 'theme' | 'green-red' | 'red-green' | 'opaque' | 'red' | 'blue' | 'green' | 'yellow';
+  // Arguments specific
+  argumentItems?: Array<{
+    id: string;
+    title: string;
+    description: string;
+    mediaType: 'none' | 'emoji' | 'image';
+    emoji?: string;
+    imageUrl?: string;
+  }>;
+  argumentLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
+  argumentDisposition?: 'image-text' | 'text-image' | 'image-left' | 'image-right';
 }
 
 interface DroppedComponent {
@@ -1155,6 +1166,78 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                   {legends.join(' · ')}
                 </div>
               )}
+            </div>
+          </div>
+        );
+      }
+
+      case 'arguments': {
+        const argumentItems = (config.argumentItems || []) as Array<{
+          id: string;
+          title: string;
+          description: string;
+          mediaType: 'none' | 'emoji' | 'image';
+          emoji?: string;
+          imageUrl?: string;
+        }>;
+        const layout = config.argumentLayout || 'grid-2';
+        const disposition = config.argumentDisposition || 'image-text';
+        const widthValue = config.width || 100;
+        const horizontalAlign = config.horizontalAlign || 'start';
+        
+        const justifyClass = {
+          start: 'justify-start',
+          center: 'justify-center',
+          end: 'justify-end',
+        }[horizontalAlign];
+        
+        const gridClass = {
+          'list': 'grid-cols-1',
+          'grid-2': 'grid-cols-2',
+          'grid-3': 'grid-cols-3',
+          'grid-4': 'grid-cols-4',
+        }[layout] || 'grid-cols-2';
+        
+        const isVertical = disposition === 'image-text' || disposition === 'text-image';
+        const imageFirst = disposition === 'image-text' || disposition === 'image-left';
+        
+        return (
+          <div className={cn("w-full px-4 flex", justifyClass)}>
+            <div 
+              className={cn("grid gap-3", gridClass)}
+              style={{ width: `${widthValue}%` }}
+            >
+              {argumentItems.map((item) => (
+                <div 
+                  key={item.id} 
+                  className={cn(
+                    "border border-primary/30 rounded-lg p-4 bg-background flex",
+                    isVertical ? "flex-col" : "flex-row gap-3",
+                    !imageFirst && isVertical && "flex-col-reverse",
+                    !imageFirst && !isVertical && "flex-row-reverse"
+                  )}
+                >
+                  {/* Media area */}
+                  {item.mediaType !== 'none' && (
+                    <div className={cn(
+                      "flex items-center justify-center bg-muted/30 rounded",
+                      isVertical ? "w-full h-20 mb-3" : "w-16 h-16 flex-shrink-0"
+                    )}>
+                      {item.mediaType === 'image' && item.imageUrl ? (
+                        <img src={item.imageUrl} alt="" className="w-full h-full object-cover rounded" />
+                      ) : item.mediaType === 'emoji' && item.emoji ? (
+                        <span className="text-3xl">{item.emoji}</span>
+                      ) : null}
+                    </div>
+                  )}
+                  
+                  {/* Content */}
+                  <div className={cn("text-center", !isVertical && "text-left flex-1")}>
+                    <div className="font-semibold text-sm">{item.title}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{item.description}</div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         );

@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
-import { Trash2, Plus, ChevronDown, GripVertical, Image, Smile, X, Upload, Loader2 } from 'lucide-react';
+import { Trash2, Plus, ChevronDown, GripVertical, Image, Smile, X, Upload, Loader2, Copy } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
@@ -34,6 +34,15 @@ export interface OptionItem {
   points?: number;
   destination?: 'next' | 'submit' | 'specific';
   destinationStageId?: string;
+}
+
+export interface ArgumentItem {
+  id: string;
+  title: string;
+  description: string;
+  mediaType: 'none' | 'emoji' | 'image';
+  emoji?: string;
+  imageUrl?: string;
 }
 
 export interface ComponentConfig {
@@ -132,6 +141,10 @@ export interface ComponentConfig {
   showLevelProgress?: boolean;
   levelType?: 'line' | 'segments';
   levelColor?: 'theme' | 'green-red' | 'red-green' | 'opaque' | 'red' | 'blue' | 'green' | 'yellow';
+  // Arguments specific
+  argumentItems?: ArgumentItem[];
+  argumentLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
+  argumentDisposition?: 'image-text' | 'text-image' | 'image-left' | 'image-right';
 }
 
 interface ComponentEditorProps {
@@ -234,6 +247,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         return renderLoadingComponentTab();
       case 'level':
         return renderLevelComponentTab();
+      case 'arguments':
+        return renderArgumentsComponentTab();
       default:
         return (
           <div className="text-center py-8">
@@ -1769,6 +1784,273 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
       </Collapsible>
     </div>
   );
+
+  // =========== ARGUMENTS COMPONENT TAB ===========
+  const renderArgumentsComponentTab = () => {
+    const argumentItems: ArgumentItem[] = config.argumentItems || [];
+    const fileInputRefs: Record<string, HTMLInputElement | null> = {};
+
+    const addArgument = () => {
+      const newArg: ArgumentItem = {
+        id: Date.now().toString(),
+        title: 'Titulo aqui',
+        description: 'Descrição aqui oi tudo bem isso aqui e uma descrição',
+        mediaType: 'none',
+      };
+      updateConfig({ argumentItems: [...argumentItems, newArg] });
+    };
+
+    const updateArgument = (id: string, updates: Partial<ArgumentItem>) => {
+      const newItems = argumentItems.map(item =>
+        item.id === id ? { ...item, ...updates } : item
+      );
+      updateConfig({ argumentItems: newItems });
+    };
+
+    const removeArgument = (id: string) => {
+      updateConfig({ argumentItems: argumentItems.filter(item => item.id !== id) });
+    };
+
+    const duplicateArgument = (item: ArgumentItem) => {
+      const newArg: ArgumentItem = {
+        ...item,
+        id: Date.now().toString(),
+      };
+      const index = argumentItems.findIndex(a => a.id === item.id);
+      const newItems = [...argumentItems];
+      newItems.splice(index + 1, 0, newArg);
+      updateConfig({ argumentItems: newItems });
+    };
+
+    const handleImageUpload = async (id: string, file: File) => {
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `arguments/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('quiz-images')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('quiz-images')
+          .getPublicUrl(filePath);
+
+        updateArgument(id, { imageUrl: publicUrl, mediaType: 'image' });
+        toast.success('Imagem enviada com sucesso!');
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        toast.error('Erro ao enviar imagem');
+      }
+    };
+
+    const commonEmojis = ['📊', '💡', '🎯', '⭐', '🔥', '💪', '✨', '🚀', '💰', '❤️', '✅', '📈', '🏆', '💎', '🌟', '👍', '🔒', '⚡', '🎁', '📱'];
+
+    return (
+      <div className="space-y-4">
+        {/* Layout */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Layout</Label>
+          <Select 
+            value={config.argumentLayout || 'grid-2'} 
+            onValueChange={(v) => updateConfig({ argumentLayout: v as ComponentConfig['argumentLayout'] })}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="list">Lista</SelectItem>
+              <SelectItem value="grid-2">Grade de 2 colunas</SelectItem>
+              <SelectItem value="grid-3">Grade de 3 colunas</SelectItem>
+              <SelectItem value="grid-4">Grade de 4 colunas</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Disposição */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Disposição</Label>
+          <Select 
+            value={config.argumentDisposition || 'image-text'} 
+            onValueChange={(v) => updateConfig({ argumentDisposition: v as ComponentConfig['argumentDisposition'] })}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="image-text">image | texto</SelectItem>
+              <SelectItem value="text-image">texto | image</SelectItem>
+              <SelectItem value="image-left">imagem à esquerda</SelectItem>
+              <SelectItem value="image-right">imagem à direita</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Argumentos */}
+        <div>
+          <Label className="text-xs text-muted-foreground mb-2 block">Argumentos</Label>
+          <div className="space-y-3">
+            {argumentItems.map((item) => (
+              <div key={item.id} className="border border-border rounded-lg p-3 space-y-3 bg-muted/30">
+                {/* Drag handle and image area */}
+                <div className="flex items-start gap-2">
+                  <div className="flex-shrink-0 cursor-grab">
+                    <GripVertical className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  
+                  {/* Image/Emoji selector */}
+                  <div className="flex-shrink-0 w-24 h-16 border border-dashed border-border rounded flex items-center justify-center bg-muted/50 relative overflow-hidden">
+                    {item.mediaType === 'image' && item.imageUrl ? (
+                      <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
+                    ) : item.mediaType === 'emoji' && item.emoji ? (
+                      <span className="text-2xl">{item.emoji}</span>
+                    ) : (
+                      <Image className="w-6 h-6 text-muted-foreground" />
+                    )}
+                  </div>
+
+                  {/* Content */}
+                  <div className="flex-1 space-y-2">
+                    <Input
+                      value={item.title}
+                      onChange={(e) => updateArgument(item.id, { title: e.target.value })}
+                      placeholder="Título"
+                      className="font-semibold text-sm"
+                    />
+                    <Textarea
+                      value={item.description}
+                      onChange={(e) => updateArgument(item.id, { description: e.target.value })}
+                      placeholder="Descrição"
+                      className="text-xs min-h-[60px] resize-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Media type tabs */}
+                <div className="flex items-center gap-2">
+                  <Tabs 
+                    value={item.mediaType} 
+                    onValueChange={(v) => updateArgument(item.id, { mediaType: v as ArgumentItem['mediaType'] })}
+                    className="flex-1"
+                  >
+                    <TabsList className="h-8 w-full grid grid-cols-3">
+                      <TabsTrigger value="none" className="text-xs h-7">Nenhum</TabsTrigger>
+                      <TabsTrigger value="emoji" className="text-xs h-7">Emoji</TabsTrigger>
+                      <TabsTrigger value="image" className="text-xs h-7">Imagem</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                  
+                  {/* Actions */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={() => duplicateArgument(item)}
+                  >
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-destructive hover:text-destructive"
+                    onClick={() => removeArgument(item.id)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                {/* Emoji picker */}
+                {item.mediaType === 'emoji' && (
+                  <div className="pt-2 border-t border-border">
+                    <Label className="text-xs text-muted-foreground mb-2 block">Escolha um emoji</Label>
+                    <div className="flex flex-wrap gap-1">
+                      {commonEmojis.map((emoji) => (
+                        <button
+                          key={emoji}
+                          type="button"
+                          onClick={() => updateArgument(item.id, { emoji })}
+                          className={cn(
+                            "w-8 h-8 flex items-center justify-center text-lg rounded hover:bg-muted transition-colors",
+                            item.emoji === emoji && "bg-primary/20 ring-1 ring-primary"
+                          )}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Image input */}
+                {item.mediaType === 'image' && (
+                  <div className="pt-2 border-t border-border space-y-2">
+                    <div className="flex gap-2">
+                      <Input
+                        value={item.imageUrl || ''}
+                        onChange={(e) => updateArgument(item.id, { imageUrl: e.target.value })}
+                        placeholder="URL da imagem"
+                        className="flex-1 text-xs"
+                      />
+                      <input
+                        ref={(el) => { fileInputRefs[item.id] = el; }}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleImageUpload(item.id, file);
+                        }}
+                      />
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => fileInputRefs[item.id]?.click()}
+                        className="text-xs"
+                      >
+                        <Upload className="w-3 h-3 mr-1" />
+                        Upload
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Add argument button */}
+          <Button
+            variant="outline"
+            className="w-full mt-3"
+            onClick={addArgument}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            adicionar argumento
+          </Button>
+        </div>
+
+        {/* Avançado */}
+        <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+          <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Plus className={`w-4 h-4 transition-transform ${advancedOpen ? 'rotate-45' : ''}`} />
+            AVANÇADO
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-4 space-y-4">
+            <div>
+              <Label className="text-xs text-muted-foreground">ID/Name</Label>
+              <Input
+                value={component.customId || ''}
+                onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
+                placeholder={`arguments_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
+                className="mt-1 font-mono text-xs"
+              />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+    );
+  };
 
   // =========== APARÊNCIA TAB ===========
   const renderAppearanceTab = () => {
