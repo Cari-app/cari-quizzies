@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { CarouselItemEditor } from './CarouselItemEditor';
+import { MetricItemEditor, MetricItem } from './MetricItemEditor';
 
 export interface DroppedComponent {
   id: string;
@@ -199,6 +200,16 @@ export interface ComponentConfig {
   carouselAutoplayInterval?: number;
   carouselBorder?: boolean;
   carouselImageRatio?: '1:1' | '4:3' | '16:9' | '3:2' | '2:3' | '9:16' | '21:9';
+  // Metrics specific
+  metricItems?: Array<{
+    id: string;
+    type: 'bar' | 'circular';
+    color: 'theme' | 'green' | 'blue' | 'yellow' | 'orange' | 'red' | 'black';
+    value: number;
+    label: string;
+  }>;
+  metricsLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
+  metricsDisposition?: 'chart-legend' | 'legend-chart';
 }
 
 interface ComponentEditorProps {
@@ -313,6 +324,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         return renderBeforeAfterComponentTab();
       case 'carousel':
         return renderCarouselComponentTab();
+      case 'metrics':
+        return renderMetricsComponentTab();
       default:
         return (
           <div className="text-center py-8">
@@ -3034,6 +3047,131 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     );
   };
 
+  // =========== METRICS COMPONENT TAB ===========
+  const renderMetricsComponentTab = () => {
+    const items: MetricItem[] = config.metricItems || [
+      { id: '1', type: 'bar', color: 'theme', value: 30, label: 'Fusce vitae tellus in risus sagittis condimentum' },
+      { id: '2', type: 'circular', color: 'theme', value: 30, label: 'Fusce vitae tellus in risus sagittis condimentum' }
+    ];
+
+    const addItem = () => {
+      const newItem: MetricItem = {
+        id: Date.now().toString(),
+        type: 'bar',
+        color: 'theme',
+        value: 30,
+        label: 'Fusce vitae tellus in risus sagittis condimentum'
+      };
+      updateConfig({ metricItems: [...items, newItem] });
+    };
+
+    const updateItem = (id: string, updates: Partial<MetricItem>) => {
+      updateConfig({
+        metricItems: items.map(item =>
+          item.id === id ? { ...item, ...updates } : item
+        )
+      });
+    };
+
+    const removeItem = (id: string) => {
+      if (items.length <= 1) return;
+      updateConfig({ metricItems: items.filter(item => item.id !== id) });
+    };
+
+    const moveItem = (fromIndex: number, toIndex: number) => {
+      const newItems = [...items];
+      const [removed] = newItems.splice(fromIndex, 1);
+      newItems.splice(toIndex, 0, removed);
+      updateConfig({ metricItems: newItems });
+    };
+
+    return (
+      <div className="space-y-4">
+        {/* Layout */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Layout</Label>
+          <Select
+            value={config.metricsLayout || 'grid-2'}
+            onValueChange={(v) => updateConfig({ metricsLayout: v as ComponentConfig['metricsLayout'] })}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="list">Itens em lista</SelectItem>
+              <SelectItem value="grid-2">Grade de 2 colunas</SelectItem>
+              <SelectItem value="grid-3">Grade de 3 colunas</SelectItem>
+              <SelectItem value="grid-4">Grade de 4 colunas</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Disposition */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Disposição</Label>
+          <Select
+            value={config.metricsDisposition || 'legend-chart'}
+            onValueChange={(v) => updateConfig({ metricsDisposition: v as ComponentConfig['metricsDisposition'] })}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="chart-legend">gráfico | legenda</SelectItem>
+              <SelectItem value="legend-chart">legenda | gráfico</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Gráficos */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Gráficos</Label>
+          <div className="space-y-3 mt-2">
+            {items.map((item, index) => (
+              <MetricItemEditor
+                key={item.id}
+                item={item}
+                index={index}
+                totalItems={items.length}
+                onUpdate={(updates) => updateItem(item.id, updates)}
+                onRemove={() => removeItem(item.id)}
+                onMoveUp={() => index > 0 && moveItem(index, index - 1)}
+                onMoveDown={() => index < items.length - 1 && moveItem(index, index + 1)}
+              />
+            ))}
+            <Button
+              variant="ghost"
+              className="w-full"
+              onClick={addItem}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              adicionar gráfico
+            </Button>
+          </div>
+        </div>
+
+        {/* Avançado */}
+        <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+          <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Plus className={`w-4 h-4 transition-transform ${advancedOpen ? 'rotate-45' : ''}`} />
+            AVANÇADO
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-4 space-y-4">
+            <div>
+              <Label className="text-xs text-muted-foreground">ID/Name</Label>
+              <Input
+                value={component.customId || ''}
+                onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
+                placeholder={`metrics_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
+                className="mt-1 font-mono text-xs"
+              />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+    );
+  };
+
   // =========== APARÊNCIA TAB ===========
   const renderAppearanceTab = () => {
     const isOptionsComponent = ['options', 'single', 'multiple', 'yesno'].includes(component.type);
@@ -3047,6 +3185,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     const isPriceComponent = component.type === 'price';
     const isBeforeAfterComponent = component.type === 'before-after';
     const isCarouselComponent = component.type === 'carousel';
+    const isMetricsComponent = component.type === 'metrics';
 
     // Price component appearance
     if (isPriceComponent) {
@@ -3368,6 +3507,84 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                   <SelectItem value="auto">Auto</SelectItem>
                   <SelectItem value="start">Topo</SelectItem>
                   <SelectItem value="center">Meio</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Metrics component appearance
+    if (isMetricsComponent) {
+      return (
+        <div className="space-y-4">
+          {/* Width */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-xs text-muted-foreground">Largura</Label>
+              <div className="flex items-center gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.max(10, (config.width || 100) - 5) })}
+                >
+                  −
+                </Button>
+                <span className="text-sm font-medium w-12 text-center">{config.width || 100}%</span>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.min(100, (config.width || 100) + 5) })}
+                >
+                  +
+                </Button>
+              </div>
+            </div>
+            <Slider
+              value={[config.width || 100]}
+              onValueChange={([value]) => updateConfig({ width: value })}
+              min={10}
+              max={100}
+              step={5}
+              className="w-full"
+            />
+          </div>
+
+          {/* Horizontal and Vertical alignment */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento horizontal</Label>
+              <Select 
+                value={config.horizontalAlign || 'start'} 
+                onValueChange={(v) => updateConfig({ horizontalAlign: v as ComponentConfig['horizontalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento vertical</Label>
+              <Select 
+                value={config.verticalAlign || 'auto'} 
+                onValueChange={(v) => updateConfig({ verticalAlign: v as ComponentConfig['verticalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Auto</SelectItem>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
                   <SelectItem value="end">Fim</SelectItem>
                 </SelectContent>
               </Select>

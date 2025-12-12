@@ -15,6 +15,7 @@ import { ptBR } from 'date-fns/locale';
 import useEmblaCarousel from 'embla-carousel-react';
 import { BeforeAfterSlider } from './BeforeAfterSlider';
 import { CarouselPlayer } from './CarouselPlayer';
+import { MetricsPlayer } from './MetricsPlayer';
 
 interface QuizPlayerProps {
   slug?: string;
@@ -160,6 +161,16 @@ interface ComponentConfig {
   carouselAutoplayInterval?: number;
   carouselBorder?: boolean;
   carouselImageRatio?: '1:1' | '4:3' | '16:9' | '3:2' | '2:3' | '9:16' | '21:9';
+  // Metrics specific
+  metricItems?: Array<{
+    id: string;
+    type: 'bar' | 'circular';
+    color: 'theme' | 'green' | 'blue' | 'yellow' | 'orange' | 'red' | 'black';
+    value: number;
+    label: string;
+  }>;
+  metricsLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
+  metricsDisposition?: 'chart-legend' | 'legend-chart';
 }
 
 interface DroppedComponent {
@@ -1688,6 +1699,27 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
             width={widthValue}
             horizontalAlign={horizontalAlign}
             imageRatio={imageRatio}
+          />
+        );
+      }
+
+      case 'metrics': {
+        const items = config.metricItems || [];
+        const layout = config.metricsLayout || 'grid-2';
+        const disposition = config.metricsDisposition || 'legend-chart';
+        const widthValue = config.width || 100;
+        const horizontalAlign = config.horizontalAlign || 'start';
+        const verticalAlign = config.verticalAlign || 'auto';
+
+        return (
+          <MetricsPlayer
+            key={comp.id}
+            items={items}
+            layout={layout}
+            disposition={disposition}
+            width={widthValue}
+            horizontalAlign={horizontalAlign}
+            verticalAlign={verticalAlign}
           />
         );
       }
