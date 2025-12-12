@@ -114,6 +114,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         return { mediaUrl: '', altText: '', videoType: 'url', embedCode: '' };
       case 'spacer':
         return { height: 24 };
+      case 'script':
+        return { scriptCode: '', scriptDescription: 'Script personalizado' };
       case 'alert':
         return { 
           description: 'Texto do alerta aqui!', 
@@ -764,6 +766,19 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         return (
           <div className="flex items-center justify-center" style={{ height: config.height || 24 }}>
             <div className="border-t border-dashed border-border w-full mx-4" />
+          </div>
+        );
+      case 'script':
+        return (
+          <div className="p-4">
+            <div className="bg-[#1e1e2e] rounded-lg p-4 font-mono text-xs overflow-hidden">
+              <pre className="text-emerald-400 whitespace-pre-wrap break-all">
+                {config.scriptCode || '<script>console.log("custom script")</script>'}
+              </pre>
+            </div>
+            {config.scriptDescription && (
+              <p className="text-xs text-muted-foreground mt-2 text-center">{config.scriptDescription}</p>
+            )}
           </div>
         );
       case 'alert': {

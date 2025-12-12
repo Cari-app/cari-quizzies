@@ -110,6 +110,9 @@ export interface ComponentConfig {
   embedCode?: string;
   // Spacer
   height?: number;
+  // Script specific
+  scriptCode?: string;
+  scriptDescription?: string;
   // Appearance
   labelStyle?: 'default' | 'floating' | 'hidden';
   width?: number;
@@ -307,6 +310,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         return renderMediaComponentTab();
       case 'spacer':
         return renderSpacerComponentTab();
+      case 'script':
+        return renderScriptComponentTab();
       case 'alert':
         return renderAlertComponentTab();
       case 'notification':
@@ -1405,6 +1410,59 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
       setAdvancedOpen={setAdvancedOpen}
     />;
   };
+
+  const renderScriptComponentTab = () => (
+    <div className="space-y-4">
+      <div>
+        <Label className="text-xs text-muted-foreground">ID/Name</Label>
+        <Input
+          value={component.customId || ''}
+          onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
+          placeholder={`script_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
+          className="mt-1 font-mono text-xs"
+        />
+      </div>
+
+      <div>
+        <Label className="text-xs text-muted-foreground">Código de incorporação</Label>
+        <textarea
+          value={config.scriptCode || ''}
+          onChange={(e) => updateConfig({ scriptCode: e.target.value })}
+          placeholder={'<script>console.log("custom script")</script>'}
+          className="mt-1 w-full h-32 px-3 py-2 bg-[#1e1e2e] text-emerald-400 font-mono text-xs rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+        />
+        <p className="text-xs text-muted-foreground mt-1">
+          Cole aqui seu código de rastreamento (Facebook Pixel, Google Analytics, etc.)
+        </p>
+      </div>
+
+      <div>
+        <Label className="text-xs text-muted-foreground">Descrição (opcional)</Label>
+        <Input
+          value={config.scriptDescription || ''}
+          onChange={(e) => updateConfig({ scriptDescription: e.target.value })}
+          placeholder="Ex: Facebook Pixel de conversão"
+          className="mt-1"
+        />
+      </div>
+
+      {/* Avançado */}
+      <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+        <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <Plus className={`w-4 h-4 transition-transform ${advancedOpen ? 'rotate-45' : ''}`} />
+          AVANÇADO
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-4 space-y-4">
+          <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+            <p className="text-xs text-yellow-700 dark:text-yellow-400">
+              <strong>Atenção:</strong> Scripts são executados quando o usuário visualiza esta etapa. 
+              Certifique-se de usar apenas códigos de fontes confiáveis.
+            </p>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  );
 
   const renderAlertComponentTab = () => (
     <div className="space-y-4">
