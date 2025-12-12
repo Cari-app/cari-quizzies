@@ -178,18 +178,14 @@ interface TestimonialCarouselProps {
 }
 
 function TestimonialCarousel({ items, widthValue, justifyClass, renderCard }: TestimonialCarouselProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'start' });
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'center', skipSnaps: false });
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [canScrollPrev, setCanScrollPrev] = useState(false);
-  const [canScrollNext, setCanScrollNext] = useState(false);
 
   useEffect(() => {
     if (!emblaApi) return;
     
     const onSelect = () => {
       setSelectedIndex(emblaApi.selectedScrollSnap());
-      setCanScrollPrev(emblaApi.canScrollPrev());
-      setCanScrollNext(emblaApi.canScrollNext());
     };
     
     emblaApi.on('select', onSelect);
@@ -205,47 +201,57 @@ function TestimonialCarousel({ items, widthValue, justifyClass, renderCard }: Te
 
   return (
     <div className={cn("w-full px-4 flex", justifyClass)}>
-      <div className="relative" style={{ width: `${widthValue}%` }}>
-        <div ref={emblaRef} className="overflow-hidden">
-          <div className="flex gap-3">
-            {items.map((item) => (
-              <div key={item.id} className="flex-shrink-0 min-w-0" style={{ flex: '0 0 85%' }}>
-                {renderCard(item)}
+      <div className="relative group" style={{ width: `${widthValue}%` }}>
+        {/* Carousel container */}
+        <div ref={emblaRef} className="overflow-hidden rounded-2xl">
+          <div className="flex">
+            {items.map((item, index) => (
+              <div 
+                key={item.id} 
+                className="flex-shrink-0 min-w-0 px-2 transition-all duration-300" 
+                style={{ flex: '0 0 90%' }}
+              >
+                <div className={cn(
+                  "transition-all duration-300",
+                  index === selectedIndex ? "scale-100 opacity-100" : "scale-95 opacity-60"
+                )}>
+                  {renderCard(item)}
+                </div>
               </div>
             ))}
           </div>
         </div>
         
-        {/* Navigation buttons */}
+        {/* Premium navigation buttons */}
         {items.length > 1 && (
           <>
             <button
               onClick={scrollPrev}
-              disabled={!canScrollPrev}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 w-8 h-8 rounded-full bg-background border border-border shadow-md flex items-center justify-center disabled:opacity-30 transition-opacity"
+              className="absolute left-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/90 backdrop-blur-sm border border-border/50 shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-background hover:scale-110 hover:shadow-xl"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
             <button
               onClick={scrollNext}
-              disabled={!canScrollNext}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-8 h-8 rounded-full bg-background border border-border shadow-md flex items-center justify-center disabled:opacity-30 transition-opacity"
+              className="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background/90 backdrop-blur-sm border border-border/50 shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-background hover:scale-110 hover:shadow-xl"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-5 h-5 text-foreground" />
             </button>
           </>
         )}
         
-        {/* Dots */}
+        {/* Premium dots indicator */}
         {items.length > 1 && (
-          <div className="flex justify-center gap-1.5 mt-3">
+          <div className="flex justify-center gap-2 mt-4">
             {items.map((_, i) => (
               <button
                 key={i}
                 onClick={() => emblaApi?.scrollTo(i)}
                 className={cn(
-                  "w-2 h-2 rounded-full transition-colors",
-                  i === selectedIndex ? "bg-primary" : "bg-muted-foreground/30"
+                  "transition-all duration-300 rounded-full",
+                  i === selectedIndex 
+                    ? "w-6 h-2.5 bg-primary shadow-sm" 
+                    : "w-2.5 h-2.5 bg-muted-foreground/20 hover:bg-muted-foreground/40"
                 )}
               />
             ))}
@@ -1401,41 +1407,67 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           <div 
             key={item.id} 
             className={cn(
-              "border border-border bg-background flex flex-col h-full",
+              "relative overflow-hidden bg-gradient-to-br from-background to-muted/30 flex flex-col h-full border border-border/50",
               borderRadiusClass,
-              shadowClass,
+              "shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.15)] transition-all duration-300",
               spacingClass
             )}
           >
+            {/* Subtle accent gradient overlay */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60" />
+            
             {/* Rating stars */}
-            <div className="flex gap-0.5 mb-2">
+            <div className="flex gap-1 mb-3">
               {Array.from({ length: 5 }).map((_, i) => (
-                <span key={i} className={cn("text-sm", i < item.rating ? "text-amber-400" : "text-muted-foreground/30")}>
+                <span 
+                  key={i} 
+                  className={cn(
+                    "text-base transition-all",
+                    i < item.rating 
+                      ? "text-amber-400 drop-shadow-[0_0_3px_rgba(251,191,36,0.4)]" 
+                      : "text-muted-foreground/20"
+                  )}
+                >
                   ★
                 </span>
               ))}
             </div>
             
             {/* Author info */}
-            <div className="flex items-center gap-2 mb-2">
-              {item.avatarUrl && (
-                <img src={item.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover" />
+            <div className="flex items-center gap-3 mb-3">
+              {item.avatarUrl ? (
+                <img 
+                  src={item.avatarUrl} 
+                  alt="" 
+                  className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20 ring-offset-2 ring-offset-background" 
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
+                  <span className="text-sm font-semibold text-primary">{item.name.charAt(0)}</span>
+                </div>
               )}
               <div>
-                <div className="font-semibold text-sm">{item.name}</div>
+                <div className="font-semibold text-sm text-foreground">{item.name}</div>
                 <div className="text-xs text-muted-foreground">{item.handle}</div>
               </div>
             </div>
             
+            {/* Quote icon */}
+            <div className="text-primary/10 text-4xl font-serif leading-none mb-1">"</div>
+            
             {/* Text */}
             <div 
-              className="text-sm text-muted-foreground rich-text flex-1"
+              className="text-sm text-muted-foreground rich-text flex-1 leading-relaxed"
               dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.text) }}
             />
             
             {/* Photo */}
             {item.photoUrl && (
-              <img src={item.photoUrl} alt="" className={cn("w-full h-32 object-cover mt-3", borderRadiusClass)} />
+              <img 
+                src={item.photoUrl} 
+                alt="" 
+                className={cn("w-full h-36 object-cover mt-4 ring-1 ring-border/50", borderRadiusClass)} 
+              />
             )}
           </div>
         );
