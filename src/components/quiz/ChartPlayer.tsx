@@ -21,6 +21,7 @@ interface ChartDataPoint {
   id: string;
   label: string;
   value: number;
+  color?: string;
 }
 
 interface ChartDataSet {
@@ -240,16 +241,21 @@ function CartesianChartView({ config }: { config: ChartConfig }) {
 // Bar Chart Component
 function BarChartView({ config }: { config: ChartConfig }) {
   const { dataSets, showXAxis, showYAxis, showGridX, showGridY } = config;
+  const defaultColors = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
 
-  // Transform data for Recharts
+  // Transform data for Recharts - each bar needs individual color
   const chartData = useMemo(() => {
     if (dataSets.length === 0) return [];
     
     const firstDataSet = dataSets[0];
     return firstDataSet.data.map((point, index) => {
-      const dataPoint: Record<string, any> = { name: point.label };
+      const dataPoint: Record<string, any> = { 
+        name: point.label,
+        index
+      };
       dataSets.forEach(ds => {
         dataPoint[ds.id] = ds.data[index]?.value || 0;
+        dataPoint[`${ds.id}_color`] = ds.data[index]?.color || defaultColors[index % defaultColors.length];
       });
       return dataPoint;
     });
@@ -259,12 +265,17 @@ function BarChartView({ config }: { config: ChartConfig }) {
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={chartData} margin={{ top: 15, right: 15, left: 5, bottom: 5 }} barCategoryGap="20%">
         <defs>
-          {dataSets.map(ds => (
-            <linearGradient key={`bar-gradient-${ds.id}`} id={`bar-gradient-${ds.id}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={ds.color} stopOpacity={1} />
-              <stop offset="100%" stopColor={ds.color} stopOpacity={0.7} />
-            </linearGradient>
-          ))}
+          {chartData.map((item, idx) => 
+            dataSets.map(ds => {
+              const color = item[`${ds.id}_color`];
+              return (
+                <linearGradient key={`bar-gradient-${ds.id}-${idx}`} id={`bar-gradient-${ds.id}-${idx}`} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={color} stopOpacity={1} />
+                  <stop offset="100%" stopColor={color} stopOpacity={0.7} />
+                </linearGradient>
+              );
+            })
+          )}
         </defs>
         
         {(showGridX || showGridY) && (
@@ -306,10 +317,16 @@ function BarChartView({ config }: { config: ChartConfig }) {
           <Bar
             key={ds.id}
             dataKey={ds.id}
-            fill={`url(#bar-gradient-${ds.id})`}
             radius={[6, 6, 0, 0]}
             style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
-          />
+          >
+            {chartData.map((entry, index) => (
+              <Cell 
+                key={`cell-${index}`} 
+                fill={`url(#bar-gradient-${ds.id}-${index})`}
+              />
+            ))}
+          </Bar>
         ))}
       </BarChart>
     </ResponsiveContainer>
@@ -319,6 +336,7 @@ function BarChartView({ config }: { config: ChartConfig }) {
 // Circular (Donut) Chart Component
 function CircularChartView({ config }: { config: ChartConfig }) {
   const { dataSets } = config;
+  const defaultColors = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
 
   // Prepare data for nested donut chart
   const innerRadius = 50;
@@ -330,17 +348,17 @@ function CircularChartView({ config }: { config: ChartConfig }) {
       <ResponsiveContainer width="100%" height={220}>
         <PieChart>
           <defs>
-            {dataSets.map(ds => {
-              if (ds.fillType === 'gradient' && ds.gradientColors.length > 0) {
-                return ds.data.map((point, idx) => (
+            {dataSets.map(ds => 
+              ds.data.map((point, idx) => {
+                const color = point.color || defaultColors[idx % defaultColors.length];
+                return (
                   <linearGradient key={`${ds.id}-${idx}`} id={`pie-gradient-${ds.id}-${idx}`} x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stopColor={ds.gradientColors[idx % ds.gradientColors.length]} />
-                    <stop offset="100%" stopColor={ds.gradientColors[(idx + 1) % ds.gradientColors.length]} />
+                    <stop offset="0%" stopColor={color} stopOpacity={1} />
+                    <stop offset="100%" stopColor={color} stopOpacity={0.8} />
                   </linearGradient>
-                ));
-              }
-              return null;
-            })}
+                );
+              })
+            )}
           </defs>
           
           {dataSets.map((ds, dsIndex) => (
@@ -357,10 +375,8 @@ function CircularChartView({ config }: { config: ChartConfig }) {
               stroke="hsl(var(--background))"
             >
               {ds.data.map((point, index) => {
-                const color = ds.fillType === 'gradient' 
-                  ? ds.gradientColors[index % ds.gradientColors.length]
-                  : ds.color;
-                return <Cell key={`cell-${index}`} fill={color} />;
+                const color = point.color || defaultColors[index % defaultColors.length];
+                return <Cell key={`cell-${index}`} fill={`url(#pie-gradient-${ds.id}-${index})`} />;
               })}
             </Pie>
           ))}
@@ -374,9 +390,7 @@ function CircularChartView({ config }: { config: ChartConfig }) {
         {dataSets.map((ds, dsIndex) => (
           <div key={ds.id} className="flex flex-wrap gap-x-3 gap-y-1">
             {ds.data.map((point, index) => {
-              const color = ds.fillType === 'gradient' 
-                ? ds.gradientColors[index % ds.gradientColors.length]
-                : ds.color;
+              const color = point.color || defaultColors[index % defaultColors.length];
               const isHighlighted = point.value > 0;
               return (
                 <div 

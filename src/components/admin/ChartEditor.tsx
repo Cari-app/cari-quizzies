@@ -15,6 +15,7 @@ export interface ChartDataPoint {
   id: string;
   label: string;
   value: number;
+  color?: string;
 }
 
 export interface ChartDataSet {
@@ -285,6 +286,21 @@ export function ChartEditorAppearanceTab({ config, onUpdate }: ChartEditorProps)
     updateDataSet({ gradientColors: selectedDataSet.gradientColors.filter((_, i) => i !== index) });
   };
 
+  const updateDataPointColor = (dataSetId: string, pointId: string, color: string) => {
+    onUpdate({
+      dataSets: config.dataSets.map(ds =>
+        ds.id === dataSetId
+          ? {
+              ...ds,
+              data: ds.data.map(point =>
+                point.id === pointId ? { ...point, color } : point
+              )
+            }
+          : ds
+      )
+    });
+  };
+
   return (
     <div className="space-y-5">
       {/* Display Options (for Cartesian and Bar) */}
@@ -361,39 +377,41 @@ export function ChartEditorAppearanceTab({ config, onUpdate }: ChartEditorProps)
 
       {selectedDataSet && (
         <>
-          {/* Fill Type */}
-          <div>
-            <Label className="text-xs text-muted-foreground">Tipo de preenchimento</Label>
-            <div className="grid grid-cols-2 gap-2 mt-2">
-              <button
-                onClick={() => updateDataSet({ fillType: 'solid' })}
-                className={cn(
-                  "h-10 rounded-lg border-2 transition-all text-sm font-medium",
-                  selectedDataSet.fillType === 'solid'
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-muted-foreground/50"
-                )}
-              >
-                Cor sólida
-              </button>
-              <button
-                onClick={() => updateDataSet({ fillType: 'gradient' })}
-                className={cn(
-                  "h-10 rounded-lg border-2 transition-all text-sm font-medium",
-                  selectedDataSet.fillType === 'gradient'
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-muted-foreground/50"
-                )}
-              >
-                Cor degradê
-              </button>
-            </div>
-          </div>
-
-          {/* Solid Color */}
-          {selectedDataSet.fillType === 'solid' && (
+          {/* Fill Type - Only for cartesian */}
+          {config.chartType === 'cartesian' && (
             <div>
-              <Label className="text-xs text-muted-foreground">Cor</Label>
+              <Label className="text-xs text-muted-foreground">Tipo de preenchimento</Label>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <button
+                  onClick={() => updateDataSet({ fillType: 'solid' })}
+                  className={cn(
+                    "h-10 rounded-lg border-2 transition-all text-sm font-medium",
+                    selectedDataSet.fillType === 'solid'
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-muted-foreground/50"
+                  )}
+                >
+                  Cor sólida
+                </button>
+                <button
+                  onClick={() => updateDataSet({ fillType: 'gradient' })}
+                  className={cn(
+                    "h-10 rounded-lg border-2 transition-all text-sm font-medium",
+                    selectedDataSet.fillType === 'gradient'
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-muted-foreground/50"
+                  )}
+                >
+                  Cor degradê
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Solid Color - For cartesian solid */}
+          {config.chartType === 'cartesian' && selectedDataSet.fillType === 'solid' && (
+            <div>
+              <Label className="text-xs text-muted-foreground">Cor da linha</Label>
               <div className="flex gap-2 mt-2">
                 <Input
                   value={selectedDataSet.color}
@@ -401,16 +419,18 @@ export function ChartEditorAppearanceTab({ config, onUpdate }: ChartEditorProps)
                   placeholder="#000000"
                   className="flex-1 font-mono"
                 />
-                <div 
-                  className="w-20 h-10 rounded-lg border border-border"
-                  style={{ backgroundColor: selectedDataSet.color }}
+                <input
+                  type="color"
+                  value={selectedDataSet.color}
+                  onChange={(e) => updateDataSet({ color: e.target.value })}
+                  className="w-20 h-10 rounded-lg border border-border cursor-pointer"
                 />
               </div>
             </div>
           )}
 
-          {/* Gradient Colors */}
-          {selectedDataSet.fillType === 'gradient' && (
+          {/* Gradient Colors - For cartesian gradient */}
+          {config.chartType === 'cartesian' && selectedDataSet.fillType === 'gradient' && (
             <div>
               <Label className="text-xs text-muted-foreground">Paleta de cor</Label>
               <div className="space-y-2 mt-2">
@@ -425,9 +445,11 @@ export function ChartEditorAppearanceTab({ config, onUpdate }: ChartEditorProps)
                       placeholder="#000000"
                       className="flex-1 font-mono"
                     />
-                    <div 
-                      className="w-20 h-10 rounded-lg border border-border"
-                      style={{ backgroundColor: color }}
+                    <input
+                      type="color"
+                      value={color}
+                      onChange={(e) => updateGradientColor(index, e.target.value)}
+                      className="w-20 h-10 rounded-lg border border-border cursor-pointer"
                     />
                     <Button
                       variant="ghost"
@@ -448,6 +470,36 @@ export function ChartEditorAppearanceTab({ config, onUpdate }: ChartEditorProps)
                   <Plus className="w-4 h-4 mr-2" />
                   Adicionar cor
                 </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Individual Colors - For bar and circular */}
+          {(config.chartType === 'bar' || config.chartType === 'circular') && (
+            <div>
+              <Label className="text-xs text-muted-foreground">Cores por item</Label>
+              <div className="space-y-2 mt-2">
+                {selectedDataSet.data.map((point, index) => {
+                  const defaultColors = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
+                  const pointColor = point.color || defaultColors[index % defaultColors.length];
+                  return (
+                    <div key={point.id} className="flex gap-2 items-center">
+                      <span className="text-sm text-muted-foreground w-24 truncate">{point.label || `Item ${index + 1}`}</span>
+                      <Input
+                        value={pointColor}
+                        onChange={(e) => updateDataPointColor(selectedDataSet.id, point.id, e.target.value)}
+                        placeholder="#000000"
+                        className="flex-1 font-mono h-9"
+                      />
+                      <input
+                        type="color"
+                        value={pointColor}
+                        onChange={(e) => updateDataPointColor(selectedDataSet.id, point.id, e.target.value)}
+                        className="w-16 h-9 rounded-lg border border-border cursor-pointer"
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
