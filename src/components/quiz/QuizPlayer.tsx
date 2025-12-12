@@ -36,6 +36,12 @@ interface ComponentConfig {
   sliderMax?: number;
   sliderStep?: number;
   customId?: string;
+  // Height/Weight specific
+  layoutType?: 'input' | 'ruler';
+  unit?: 'cm' | 'pol' | 'kg' | 'lb';
+  minValue?: number;
+  maxValue?: number;
+  defaultValue?: number;
 }
 
 interface DroppedComponent {
@@ -213,13 +219,11 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       case 'email':
       case 'phone':
       case 'number':
-      case 'height':
-      case 'weight':
         return (
           <div className="py-4">
             {config.label && <label className="text-sm font-medium mb-2 block">{config.label}</label>}
             <Input
-              type={comp.type === 'email' ? 'email' : comp.type === 'number' || comp.type === 'height' || comp.type === 'weight' ? 'number' : 'text'}
+              type={comp.type === 'email' ? 'email' : comp.type === 'number' ? 'number' : 'text'}
               placeholder={config.placeholder || ''}
               value={value}
               onChange={(e) => handleInputChange(comp.id, customId, e.target.value)}
@@ -229,6 +233,99 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
             {config.helpText && <p className="text-xs text-muted-foreground mt-1">{config.helpText}</p>}
           </div>
         );
+
+      case 'height':
+      case 'weight': {
+        const isRulerLayout = config.layoutType === 'ruler';
+        const unit = config.unit || (comp.type === 'height' ? 'cm' : 'kg');
+        const altUnit = comp.type === 'height' ? 'pol' : 'lb';
+        const minVal = config.minValue || (comp.type === 'height' ? 100 : 30);
+        const maxVal = config.maxValue || (comp.type === 'height' ? 220 : 200);
+        const defaultVal = config.defaultValue || (comp.type === 'height' ? 170 : 70);
+        const currentValue = typeof value === 'number' ? value : defaultVal;
+        
+        if (isRulerLayout) {
+          return (
+            <div className="py-4">
+              {/* Unit Toggle */}
+              <div className="flex justify-center mb-4">
+                <div className="inline-flex bg-muted rounded-full p-1">
+                  <button 
+                    className={cn(
+                      "px-4 py-1.5 text-sm font-medium rounded-full transition-colors",
+                      "bg-foreground text-background"
+                    )}
+                  >
+                    {unit}
+                  </button>
+                  <button 
+                    className="px-4 py-1.5 text-sm font-medium rounded-full transition-colors text-muted-foreground"
+                  >
+                    {altUnit}
+                  </button>
+                </div>
+              </div>
+              
+              {/* Value Display */}
+              <div className="text-center mb-4">
+                <span className="text-5xl font-semibold">{currentValue}</span>
+                <span className="text-xl text-muted-foreground ml-1">{unit}</span>
+              </div>
+              
+              {/* Ruler with Slider */}
+              <div className="relative py-4">
+                <div className="flex justify-between items-end h-8 mb-2">
+                  {Array.from({ length: 21 }, (_, i) => {
+                    const isMajor = i % 5 === 0;
+                    return (
+                      <div 
+                        key={i} 
+                        className={cn(
+                          "w-px bg-border",
+                          isMajor ? "h-6" : "h-3"
+                        )} 
+                      />
+                    );
+                  })}
+                </div>
+                
+                <Slider
+                  value={[currentValue]}
+                  onValueChange={(vals) => handleInputChange(comp.id, customId, vals[0])}
+                  min={minVal}
+                  max={maxVal}
+                  step={1}
+                  className="absolute inset-x-0 top-6"
+                />
+                
+                <div className="flex justify-between text-xs text-muted-foreground mt-6">
+                  <span>{minVal + Math.round((maxVal - minVal) * 0.25)}</span>
+                  <span>{Math.round((minVal + maxVal) / 2)}</span>
+                  <span>{minVal + Math.round((maxVal - minVal) * 0.75)}</span>
+                </div>
+              </div>
+              
+              <p className="text-center text-xs text-muted-foreground mt-2">Arraste para ajustar</p>
+              {config.helpText && <p className="text-xs text-muted-foreground mt-1 text-center">{config.helpText}</p>}
+            </div>
+          );
+        }
+        
+        return (
+          <div className="py-4">
+            {config.label && <label className="text-sm font-medium mb-2 block">{config.label}</label>}
+            <Input
+              type="number"
+              placeholder={config.placeholder || ''}
+              value={value}
+              onChange={(e) => handleInputChange(comp.id, customId, e.target.value)}
+              className="w-full"
+              required={config.required}
+            />
+            {config.helpText && <p className="text-xs text-muted-foreground mt-1">{config.helpText}</p>}
+          </div>
+        );
+      }
 
       case 'textarea':
         return (
