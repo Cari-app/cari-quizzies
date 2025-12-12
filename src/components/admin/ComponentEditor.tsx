@@ -518,6 +518,27 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           </Select>
         </div>
 
+        {/* Bar Color - only for ruler layout */}
+        {config.layoutType === 'ruler' && (
+          <div>
+            <Label className="text-xs text-muted-foreground">Cor da barra</Label>
+            <div className="flex gap-2 mt-1">
+              <Input
+                type="color"
+                value={config.barColor || '#22c55e'}
+                onChange={(e) => updateConfig({ barColor: e.target.value })}
+                className="w-12 h-9 p-1 cursor-pointer"
+              />
+              <Input
+                value={config.barColor || '#22c55e'}
+                onChange={(e) => updateConfig({ barColor: e.target.value })}
+                placeholder="#22c55e"
+                className="flex-1 font-mono text-xs"
+              />
+            </div>
+          </div>
+        )}
+
         {/* Campo obrigatório */}
         <div className="flex items-center gap-2">
           <input 
@@ -593,27 +614,6 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                 />
               </div>
             </div>
-            
-            {/* Bar Color - only for ruler layout */}
-            {config.layoutType === 'ruler' && (
-              <div>
-                <Label className="text-xs text-muted-foreground">Cor da barra</Label>
-                <div className="flex gap-2 mt-1">
-                  <Input
-                    type="color"
-                    value={config.barColor || '#22c55e'}
-                    onChange={(e) => updateConfig({ barColor: e.target.value })}
-                    className="w-12 h-9 p-1 cursor-pointer"
-                  />
-                  <Input
-                    value={config.barColor || '#22c55e'}
-                    onChange={(e) => updateConfig({ barColor: e.target.value })}
-                    placeholder="#22c55e"
-                    className="flex-1 font-mono text-xs"
-                  />
-                </div>
-              </div>
-            )}
             
             <div>
               <Label className="text-xs text-muted-foreground">Texto de ajuda</Label>
