@@ -4,6 +4,7 @@ import { sanitizeHtml, sanitizeEmbed } from '@/lib/sanitize';
 import { Plus, GripVertical, Trash2, CalendarIcon, Pencil, Copy, ChevronUp, ChevronDown, Minus, ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import { Reorder } from 'framer-motion';
 import { DroppedComponent, ComponentConfig, FaqItem } from './ComponentEditor';
+import { getDefaultChartConfig } from './ChartEditor';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
@@ -261,6 +262,13 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           ],
           metricsLayout: 'grid-2',
           metricsDisposition: 'legend-chart',
+          width: 100,
+          horizontalAlign: 'start',
+          verticalAlign: 'auto'
+        };
+      case 'charts':
+        return {
+          chartConfig: getDefaultChartConfig(),
           width: 100,
           horizontalAlign: 'start',
           verticalAlign: 'auto'
@@ -1651,6 +1659,18 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   )}
                 </div>
               ))}
+            </div>
+          </div>
+        );
+      }
+      case 'charts': {
+        const chartConfig = config.chartConfig || getDefaultChartConfig();
+        return (
+          <div className="p-4">
+            <div className="bg-card rounded-xl border border-border p-4">
+              <div className="h-32 flex items-center justify-center text-muted-foreground text-sm">
+                Gráfico {chartConfig.chartType === 'cartesian' ? 'Cartesiano' : chartConfig.chartType === 'bar' ? 'de Barras' : 'Circular'}
+              </div>
             </div>
           </div>
         );

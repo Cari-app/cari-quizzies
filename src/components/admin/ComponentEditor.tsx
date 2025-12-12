@@ -16,6 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { CarouselItemEditor } from './CarouselItemEditor';
 import { MetricItemEditor, MetricItem } from './MetricItemEditor';
+import { ChartEditorComponentTab, ChartEditorAppearanceTab, getDefaultChartConfig, ChartConfig } from './ChartEditor';
 
 export interface DroppedComponent {
   id: string;
@@ -210,6 +211,8 @@ export interface ComponentConfig {
   }>;
   metricsLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
   metricsDisposition?: 'chart-legend' | 'legend-chart';
+  // Charts specific
+  chartConfig?: ChartConfig;
 }
 
 interface ComponentEditorProps {
@@ -326,6 +329,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         return renderCarouselComponentTab();
       case 'metrics':
         return renderMetricsComponentTab();
+      case 'charts':
+        return renderChartsComponentTab();
       default:
         return (
           <div className="text-center py-8">
@@ -335,6 +340,19 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           </div>
         );
     }
+  };
+
+  // =========== CHARTS COMPONENT TAB ===========
+  const renderChartsComponentTab = () => {
+    const chartConfig = config.chartConfig || getDefaultChartConfig();
+
+    const handleUpdateChartConfig = (updates: Partial<ChartConfig>) => {
+      updateConfig({ chartConfig: { ...chartConfig, ...updates } });
+    };
+
+    return (
+      <ChartEditorComponentTab config={chartConfig} onUpdate={handleUpdateChartConfig} />
+    );
   };
 
   const renderInputComponentTab = () => (
@@ -3185,6 +3203,16 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     const isBeforeAfterComponent = component.type === 'before-after';
     const isCarouselComponent = component.type === 'carousel';
     const isMetricsComponent = component.type === 'metrics';
+    const isChartsComponent = component.type === 'charts';
+
+    // Charts component appearance
+    if (isChartsComponent) {
+      const chartConfig = config.chartConfig || getDefaultChartConfig();
+      const handleUpdateChartConfig = (updates: Partial<ChartConfig>) => {
+        updateConfig({ chartConfig: { ...chartConfig, ...updates } });
+      };
+      return <ChartEditorAppearanceTab config={chartConfig} onUpdate={handleUpdateChartConfig} />;
+    }
 
     // Price component appearance
     if (isPriceComponent) {
