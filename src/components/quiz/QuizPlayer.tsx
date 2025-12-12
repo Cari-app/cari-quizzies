@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuizStore } from '@/store/quizStore';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -9,6 +9,8 @@ import { SliderScreen } from './screens/SliderScreen';
 import { ResultScreen } from './screens/ResultScreen';
 import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { Quiz, QuizScreen } from '@/types/quiz';
 
 interface QuizPlayerProps {
   slug?: string;
@@ -16,6 +18,8 @@ interface QuizPlayerProps {
 
 export function QuizPlayer({ slug }: QuizPlayerProps) {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
   const { 
     currentQuiz, 
     currentSession, 
@@ -28,38 +32,122 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
     startSession
   } = useQuizStore();
 
-  // Load quiz by slug or id
+  // Load quiz by slug or id from Supabase
   useEffect(() => {
-    if (slug) {
-      // Try to find by slug first, then by id
-      const quiz = quizzes.find(q => q.slug === slug) || quizzes.find(q => q.id === slug);
-      if (quiz) {
+    const loadQuiz = async () => {
+      if (!slug) {
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      setNotFound(false);
+
+      try {
+        // Try to find by slug first
+        let { data: quizData } = await supabase
+          .from('quizzes')
+          .select('*')
+          .eq('slug', slug)
+          .eq('is_active', true)
+          .maybeSingle();
+
+        // If not found by slug, try by id
+        if (!quizData) {
+          const { data } = await supabase
+            .from('quizzes')
+            .select('*')
+            .eq('id', slug)
+            .eq('is_active', true)
+            .maybeSingle();
+          quizData = data;
+        }
+
+        if (!quizData) {
+          // Fallback to local store
+          const localQuiz = quizzes.find(q => q.slug === slug) || quizzes.find(q => q.id === slug);
+          if (localQuiz) {
+            setCurrentQuiz(localQuiz);
+            startSession(localQuiz.id);
+            setIsLoading(false);
+            return;
+          }
+          setNotFound(true);
+          setIsLoading(false);
+          return;
+        }
+
+        // Load etapas
+        const { data: etapasData } = await supabase
+          .from('etapas')
+          .select('*')
+          .eq('quiz_id', quizData.id)
+          .order('ordem', { ascending: true });
+
+        // Convert to Quiz format
+        const screens: QuizScreen[] = (etapasData || []).map((etapa) => {
+          const config = etapa.configuracoes as Record<string, any> || {};
+          return {
+            id: etapa.id,
+            type: etapa.tipo as QuizScreen['type'],
+            title: etapa.titulo || '',
+            subtitle: etapa.subtitulo || undefined,
+            description: etapa.descricao || undefined,
+            buttonText: etapa.texto_botao || undefined,
+            options: etapa.opcoes as any,
+            required: config.required,
+            sliderMin: config.sliderMin,
+            sliderMax: config.sliderMax,
+            sliderStep: config.sliderStep,
+            sliderUnit: config.sliderUnit,
+            ...config,
+          };
+        });
+
+        const quiz: Quiz = {
+          id: quizData.id,
+          name: quizData.titulo,
+          description: quizData.descricao || '',
+          slug: quizData.slug || undefined,
+          screens,
+          createdAt: new Date(quizData.criado_em || ''),
+          updatedAt: new Date(quizData.atualizado_em || ''),
+          isPublished: quizData.is_active || false,
+        };
+
         setCurrentQuiz(quiz);
         startSession(quiz.id);
+      } catch (error) {
+        console.error('Error loading quiz:', error);
+        setNotFound(true);
+      } finally {
+        setIsLoading(false);
       }
-    }
-  }, [slug, quizzes]);
+    };
+
+    loadQuiz();
+  }, [slug]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (notFound) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+        <p className="text-muted-foreground text-sm">Quiz não encontrado</p>
+        <Button variant="outline" onClick={() => navigate('/')}>
+          Voltar ao início
+        </Button>
+      </div>
+    );
+  }
 
   if (!currentQuiz || !currentSession) {
-    if (slug) {
-      // Check if quiz exists but not loaded yet
-      const quiz = quizzes.find(q => q.slug === slug) || quizzes.find(q => q.id === slug);
-      if (!quiz) {
-        return (
-          <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-            <p className="text-muted-foreground text-sm">Quiz não encontrado</p>
-            <Button variant="outline" onClick={() => navigate('/')}>
-              Voltar ao início
-            </Button>
-          </div>
-        );
-      }
-      return (
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-        </div>
-      );
-    }
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p className="text-muted-foreground text-sm">Nenhum quiz ativo</p>
