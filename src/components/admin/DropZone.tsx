@@ -6,6 +6,7 @@ import { Reorder } from 'framer-motion';
 import { DroppedComponent, ComponentConfig, FaqItem } from './ComponentEditor';
 import { getDefaultChartConfig } from './ChartEditor';
 import { ChartPlayer } from '../quiz/ChartPlayer';
+import { SlidingRuler } from '../quiz/SlidingRuler';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
@@ -351,60 +352,18 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const maxVal = config.maxValue || (comp.type === 'height' ? 220 : 200);
         
         if (isRulerLayout) {
+          const altUnit = comp.type === 'height' ? 'pol' : 'lb';
           return (
             <div className="p-4">
-              {/* Unit Toggle */}
-              <div className="flex justify-center mb-4">
-                <div className="inline-flex bg-muted rounded-full p-1">
-                  <button className={cn(
-                    "px-4 py-1.5 text-sm font-medium rounded-full transition-colors",
-                    unit === 'cm' || unit === 'kg' ? "bg-foreground text-background" : "text-muted-foreground"
-                  )}>
-                    {comp.type === 'height' ? 'cm' : 'kg'}
-                  </button>
-                  <button className={cn(
-                    "px-4 py-1.5 text-sm font-medium rounded-full transition-colors",
-                    unit === 'pol' || unit === 'lb' ? "bg-foreground text-background" : "text-muted-foreground"
-                  )}>
-                    {comp.type === 'height' ? 'pol' : 'lb'}
-                  </button>
-                </div>
-              </div>
-              
-              {/* Value Display */}
-              <div className="text-center mb-4">
-                <span className="text-5xl font-semibold">{defaultVal}</span>
-                <span className="text-xl text-muted-foreground ml-1">{unit}</span>
-              </div>
-              
-              {/* Ruler */}
-              <div className="relative py-4">
-                {/* Indicator - pointing down from top */}
-                <div className="absolute left-1/2 -translate-x-1/2 -top-1 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-foreground" />
-                <div className="absolute left-1/2 -translate-x-1/2 top-2 w-px h-4 bg-foreground" />
-                
-                <div className="flex justify-between items-end h-8 mt-4">
-                  {Array.from({ length: 21 }, (_, i) => {
-                    const isMajor = i % 5 === 0;
-                    return (
-                      <div 
-                        key={i} 
-                        className={cn(
-                          "w-px bg-border",
-                          isMajor ? "h-6" : "h-3"
-                        )} 
-                      />
-                    );
-                  })}
-                </div>
-                <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                  <span>{minVal + Math.round((maxVal - minVal) * 0.25)}</span>
-                  <span>{defaultVal}</span>
-                  <span>{minVal + Math.round((maxVal - minVal) * 0.75)}</span>
-                </div>
-              </div>
-              
-              <p className="text-center text-xs text-muted-foreground mt-2">Arraste para ajustar</p>
+              <SlidingRuler
+                value={defaultVal}
+                onChange={() => {}}
+                min={minVal}
+                max={maxVal}
+                step={1}
+                unit={unit}
+                altUnit={altUnit}
+              />
             </div>
           );
         }
