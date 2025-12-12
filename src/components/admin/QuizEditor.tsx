@@ -639,16 +639,6 @@ export function QuizEditor() {
                     fontSize: `${designSettings.fontSize}px`,
                   }}
                 >
-                  {/* Stage Number Indicator */}
-                  <div 
-                    className="absolute top-4 left-4 z-10 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg"
-                    style={{ 
-                      backgroundColor: designSettings.primaryColor,
-                      color: '#fff',
-                    }}
-                  >
-                    {index + 1}
-                  </div>
 
                   {/* Quiz Header */}
                   <div 
