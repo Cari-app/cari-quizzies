@@ -45,6 +45,16 @@ export interface ArgumentItem {
   imageUrl?: string;
 }
 
+export interface TestimonialItem {
+  id: string;
+  name: string;
+  handle: string;
+  rating: number;
+  text: string;
+  avatarUrl?: string;
+  photoUrl?: string;
+}
+
 export interface ComponentConfig {
   label?: string;
   placeholder?: string;
@@ -145,6 +155,12 @@ export interface ComponentConfig {
   argumentItems?: ArgumentItem[];
   argumentLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
   argumentDisposition?: 'image-text' | 'text-image' | 'image-left' | 'image-right';
+  // Testimonials specific
+  testimonialItems?: TestimonialItem[];
+  testimonialLayout?: 'list' | 'grid-2';
+  testimonialBorderRadius?: 'none' | 'small' | 'medium' | 'large';
+  testimonialShadow?: 'none' | 'sm' | 'md' | 'lg';
+  testimonialSpacing?: 'compact' | 'simple' | 'relaxed';
 }
 
 interface ComponentEditorProps {
@@ -249,6 +265,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         return renderLevelComponentTab();
       case 'arguments':
         return renderArgumentsComponentTab();
+      case 'testimonials':
+        return renderTestimonialsComponentTab();
       default:
         return (
           <div className="text-center py-8">
@@ -2081,6 +2099,319 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     );
   };
 
+  // =========== TESTIMONIALS COMPONENT TAB ===========
+  const renderTestimonialsComponentTab = () => {
+    const testimonialItems: TestimonialItem[] = config.testimonialItems || [];
+    const avatarFileInputRefs: Record<string, HTMLInputElement | null> = {};
+    const photoFileInputRefs: Record<string, HTMLInputElement | null> = {};
+
+    const addTestimonial = () => {
+      const newItem: TestimonialItem = {
+        id: Date.now().toString(),
+        name: 'Nome do Cliente',
+        handle: '@usuario',
+        rating: 5,
+        text: 'Experiência incrível! Recomendo muito.',
+      };
+      updateConfig({ testimonialItems: [...testimonialItems, newItem] });
+    };
+
+    const updateTestimonial = (id: string, updates: Partial<TestimonialItem>) => {
+      const newItems = testimonialItems.map(item =>
+        item.id === id ? { ...item, ...updates } : item
+      );
+      updateConfig({ testimonialItems: newItems });
+    };
+
+    const removeTestimonial = (id: string) => {
+      updateConfig({ testimonialItems: testimonialItems.filter(item => item.id !== id) });
+    };
+
+    const duplicateTestimonial = (item: TestimonialItem) => {
+      const newItem: TestimonialItem = {
+        ...item,
+        id: Date.now().toString(),
+      };
+      const index = testimonialItems.findIndex(t => t.id === item.id);
+      const newItems = [...testimonialItems];
+      newItems.splice(index + 1, 0, newItem);
+      updateConfig({ testimonialItems: newItems });
+    };
+
+    const handleAvatarUpload = async (id: string, file: File) => {
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `testimonials/avatars/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('quiz-images')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('quiz-images')
+          .getPublicUrl(filePath);
+
+        updateTestimonial(id, { avatarUrl: publicUrl });
+        toast.success('Avatar enviado com sucesso!');
+      } catch (error) {
+        console.error('Error uploading avatar:', error);
+        toast.error('Erro ao enviar avatar');
+      }
+    };
+
+    const handlePhotoUpload = async (id: string, file: File) => {
+      try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `testimonials/photos/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('quiz-images')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('quiz-images')
+          .getPublicUrl(filePath);
+
+        updateTestimonial(id, { photoUrl: publicUrl });
+        toast.success('Foto enviada com sucesso!');
+      } catch (error) {
+        console.error('Error uploading photo:', error);
+        toast.error('Erro ao enviar foto');
+      }
+    };
+
+    return (
+      <div className="space-y-4">
+        {/* Layout */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Tipo</Label>
+          <Select 
+            value={config.testimonialLayout || 'list'} 
+            onValueChange={(v) => updateConfig({ testimonialLayout: v as ComponentConfig['testimonialLayout'] })}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="list">Lista</SelectItem>
+              <SelectItem value="grid-2">Grade de 2 colunas</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Depoimentos */}
+        <div>
+          <Label className="text-xs text-muted-foreground mb-2 block">Depoimentos</Label>
+          <div className="space-y-2">
+            {testimonialItems.map((item, index) => (
+              <div key={item.id} className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
+                {/* Header with drag handle and actions */}
+                <div className="flex items-center justify-between px-3 py-2 bg-muted/40 border-b border-border/50">
+                  <div className="flex items-center gap-2">
+                    <div className="cursor-grab hover:text-foreground transition-colors">
+                      <GripVertical className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 hover:bg-muted"
+                      onClick={() => duplicateTestimonial(item)}
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => removeTestimonial(item.id)}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Content area */}
+                <div className="p-3 space-y-3">
+                  {/* Avatar and basic info */}
+                  <div className="flex gap-3">
+                    {/* Avatar */}
+                    <div className="flex-shrink-0">
+                      <div 
+                        className={cn(
+                          "w-10 h-10 rounded-full flex items-center justify-center overflow-hidden transition-all cursor-pointer",
+                          item.avatarUrl 
+                            ? "border border-border" 
+                            : "border-2 border-dashed border-muted-foreground/30 bg-muted/30"
+                        )}
+                        onClick={() => avatarFileInputRefs[item.id]?.click()}
+                      >
+                        {item.avatarUrl ? (
+                          <img src={item.avatarUrl} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <Smile className="w-4 h-4 text-muted-foreground/50" />
+                        )}
+                      </div>
+                      <input
+                        ref={(el) => { avatarFileInputRefs[item.id] = el; }}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handleAvatarUpload(item.id, file);
+                        }}
+                      />
+                    </div>
+
+                    {/* Name and handle */}
+                    <div className="flex-1 space-y-1">
+                      <div className="flex gap-2">
+                        <Input
+                          value={item.name}
+                          onChange={(e) => updateTestimonial(item.id, { name: e.target.value })}
+                          placeholder="Nome"
+                          className="flex-1 text-sm h-8"
+                        />
+                        <Input
+                          type="number"
+                          value={item.rating}
+                          onChange={(e) => updateTestimonial(item.id, { rating: Math.min(5, Math.max(1, parseInt(e.target.value) || 5)) })}
+                          min={1}
+                          max={5}
+                          className="w-14 text-sm h-8"
+                        />
+                      </div>
+                      <Input
+                        value={item.handle}
+                        onChange={(e) => updateTestimonial(item.id, { handle: e.target.value })}
+                        placeholder="@usuario"
+                        className="text-xs h-7 text-muted-foreground"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Avatar URL input */}
+                  <div className="bg-muted/20 rounded-lg p-2 space-y-1">
+                    <Label className="text-xs text-muted-foreground">Avatar (URL ou upload)</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={item.avatarUrl || ''}
+                        onChange={(e) => updateTestimonial(item.id, { avatarUrl: e.target.value })}
+                        placeholder="https://exemplo.com/avatar.jpg"
+                        className="flex-1 text-xs h-8"
+                      />
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => avatarFileInputRefs[item.id]?.click()}
+                        className="text-xs h-8 px-3"
+                      >
+                        <Upload className="w-3 h-3 mr-1" />
+                        Upload
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Testimonial text */}
+                  <div className="bg-muted/30 rounded-lg px-3 py-2 border border-transparent focus-within:border-primary/50 transition-colors">
+                    <RichTextInput
+                      value={item.text}
+                      onChange={(val) => updateTestimonial(item.id, { text: val })}
+                      placeholder="Texto do depoimento..."
+                      className="text-sm"
+                    />
+                  </div>
+
+                  {/* Photo URL input */}
+                  <div className="bg-muted/20 rounded-lg p-2 space-y-1">
+                    <Label className="text-xs text-muted-foreground">Foto adicional (opcional)</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={item.photoUrl || ''}
+                        onChange={(e) => updateTestimonial(item.id, { photoUrl: e.target.value })}
+                        placeholder="https://exemplo.com/foto.jpg"
+                        className="flex-1 text-xs h-8"
+                      />
+                      <input
+                        ref={(el) => { photoFileInputRefs[item.id] = el; }}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) handlePhotoUpload(item.id, file);
+                        }}
+                      />
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => photoFileInputRefs[item.id]?.click()}
+                        className="text-xs h-8 px-3"
+                      >
+                        <Upload className="w-3 h-3 mr-1" />
+                        Upload
+                      </Button>
+                    </div>
+                    {item.photoUrl && (
+                      <div className="mt-2 relative rounded-lg overflow-hidden">
+                        <img src={item.photoUrl} alt="" className="w-full h-24 object-cover rounded-lg" />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="absolute top-1 right-1 h-6 w-6 bg-background/80 hover:bg-background"
+                          onClick={() => updateTestimonial(item.id, { photoUrl: '' })}
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Add testimonial button */}
+          <Button
+            variant="outline"
+            className="w-full mt-3"
+            onClick={addTestimonial}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            adicionar depoimento
+          </Button>
+        </div>
+
+        {/* Avançado */}
+        <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+          <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Plus className={`w-4 h-4 transition-transform ${advancedOpen ? 'rotate-45' : ''}`} />
+            AVANÇADO
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-4 space-y-4">
+            <div>
+              <Label className="text-xs text-muted-foreground">ID/Name</Label>
+              <Input
+                value={component.customId || ''}
+                onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
+                placeholder={`testimonials_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
+                className="mt-1 font-mono text-xs"
+              />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+    );
+  };
+
   // =========== APARÊNCIA TAB ===========
   const renderAppearanceTab = () => {
     const isOptionsComponent = ['options', 'single', 'multiple', 'yesno'].includes(component.type);
@@ -2089,6 +2420,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     const isTimerComponent = component.type === 'timer';
     const isLoadingComponent = component.type === 'loading';
     const isLevelComponent = component.type === 'level';
+    const isTestimonialsComponent = component.type === 'testimonials';
 
     // Loading component appearance
     if (isLoadingComponent) {
@@ -2125,6 +2457,140 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
               max={100}
               step={5}
               className="[&>span:first-child]:bg-primary"
+            />
+          </div>
+
+          {/* Horizontal and Vertical alignment */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento horizontal</Label>
+              <Select 
+                value={config.horizontalAlign || 'start'} 
+                onValueChange={(v) => updateConfig({ horizontalAlign: v as ComponentConfig['horizontalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento vertical</Label>
+              <Select 
+                value={config.verticalAlign || 'auto'} 
+                onValueChange={(v) => updateConfig({ verticalAlign: v as ComponentConfig['verticalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Auto</SelectItem>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Testimonials component appearance
+    if (isTestimonialsComponent) {
+      return (
+        <div className="space-y-4">
+          {/* Bordas */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Bordas</Label>
+            <Select 
+              value={config.testimonialBorderRadius || 'small'} 
+              onValueChange={(v) => updateConfig({ testimonialBorderRadius: v as ComponentConfig['testimonialBorderRadius'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sem borda</SelectItem>
+                <SelectItem value="small">Pequeno</SelectItem>
+                <SelectItem value="medium">Médio</SelectItem>
+                <SelectItem value="large">Grande</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Sombra */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Sombra</Label>
+            <Select 
+              value={config.testimonialShadow || 'none'} 
+              onValueChange={(v) => updateConfig({ testimonialShadow: v as ComponentConfig['testimonialShadow'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sem sombra</SelectItem>
+                <SelectItem value="sm">Pequena</SelectItem>
+                <SelectItem value="md">Média</SelectItem>
+                <SelectItem value="lg">Grande</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Espaçamento */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Espaçamento</Label>
+            <Select 
+              value={config.testimonialSpacing || 'simple'} 
+              onValueChange={(v) => updateConfig({ testimonialSpacing: v as ComponentConfig['testimonialSpacing'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="compact">Compacto</SelectItem>
+                <SelectItem value="simple">Simples</SelectItem>
+                <SelectItem value="relaxed">Grande</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Width */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-xs text-muted-foreground">Largura</Label>
+              <div className="flex items-center gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.max(10, (config.width || 100) - 5) })}
+                >
+                  −
+                </Button>
+                <span className="text-sm font-medium w-12 text-center">{config.width || 100}%</span>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.min(100, (config.width || 100) + 5) })}
+                >
+                  +
+                </Button>
+              </div>
+            </div>
+            <Slider
+              value={[config.width || 100]}
+              onValueChange={([value]) => updateConfig({ width: value })}
+              min={10}
+              max={100}
+              step={5}
+              className="w-full"
             />
           </div>
 
