@@ -282,28 +282,64 @@ export function QuizEditor() {
           <TabsContent value="appearance" className="flex-1 overflow-y-auto p-4 mt-0">
             {editingScreen ? (
               <div className="space-y-6">
+                {/* Elementos */}
+                <div>
+                  <Label className="text-xs text-muted-foreground uppercase tracking-wide mb-3 block">Elementos</Label>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Mostrar título</span>
+                      <Switch 
+                        checked={editingScreen.showTitle !== false}
+                        onCheckedChange={(checked) => updateScreen(currentQuiz.id, editingScreen.id, { showTitle: checked })}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Mostrar subtítulo</span>
+                      <Switch 
+                        checked={editingScreen.showSubtitle !== false}
+                        onCheckedChange={(checked) => updateScreen(currentQuiz.id, editingScreen.id, { showSubtitle: checked })}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Mostrar botão</span>
+                      <Switch 
+                        checked={editingScreen.showButton !== false}
+                        onCheckedChange={(checked) => updateScreen(currentQuiz.id, editingScreen.id, { showButton: checked })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Header */}
                 <div>
                   <Label className="text-xs text-muted-foreground uppercase tracking-wide mb-3 block">Header</Label>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">Mostrar logo</span>
+                      <span className="text-sm">Mostrar header</span>
                       <Switch 
-                        checked={editingScreen.showLogo ?? true}
-                        onCheckedChange={(checked) => updateScreen(currentQuiz.id, editingScreen.id, { showLogo: checked })}
+                        checked={editingScreen.showHeader !== false}
+                        onCheckedChange={(checked) => updateScreen(currentQuiz.id, editingScreen.id, { showHeader: checked })}
                       />
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Mostrar progresso</span>
                       <Switch 
-                        checked={editingScreen.showProgress ?? true}
+                        checked={editingScreen.showProgress !== false}
                         onCheckedChange={(checked) => updateScreen(currentQuiz.id, editingScreen.id, { showProgress: checked })}
                       />
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm">Permitir voltar</span>
+                      <span className="text-sm">Botão voltar</span>
                       <Switch 
-                        checked={editingScreen.allowBack ?? true}
+                        checked={editingScreen.allowBack !== false}
                         onCheckedChange={(checked) => updateScreen(currentQuiz.id, editingScreen.id, { allowBack: checked })}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Mostrar logo</span>
+                      <Switch 
+                        checked={editingScreen.showLogo !== false}
+                        onCheckedChange={(checked) => updateScreen(currentQuiz.id, editingScreen.id, { showLogo: checked })}
                       />
                     </div>
                   </div>

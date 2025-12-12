@@ -43,7 +43,7 @@ export interface QuizOption {
 export interface QuizScreen {
   id: string;
   type: QuizScreenType;
-  title: string;
+  title?: string;
   subtitle?: string;
   description?: string;
   imageUrl?: string;
@@ -56,10 +56,15 @@ export interface QuizScreen {
   sliderUnit?: string;
   required?: boolean;
   components?: QuizComponent[];
-  // Appearance settings
+  // Visibility settings - all optional
+  showTitle?: boolean;
+  showSubtitle?: boolean;
+  showButton?: boolean;
+  showHeader?: boolean;
   showLogo?: boolean;
   showProgress?: boolean;
   allowBack?: boolean;
+  // Style settings
   backgroundColor?: string;
   textColor?: string;
 }
