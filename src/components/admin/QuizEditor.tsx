@@ -127,8 +127,8 @@ export function QuizEditor() {
   };
 
   const handlePublish = () => {
-    updateQuiz(currentQuiz.id, { isPublished: !currentQuiz.isPublished });
-    toast.success(currentQuiz.isPublished ? 'Quiz despublicado' : 'Quiz publicado com sucesso!');
+    updateQuiz(currentQuiz.id, { isPublished: true });
+    toast.success('Quiz publicado com sucesso!');
   };
 
   return (
@@ -353,10 +353,9 @@ export function QuizEditor() {
               size="sm" 
               onClick={handlePublish} 
               className="gap-2"
-              variant={currentQuiz.isPublished ? "secondary" : "default"}
             >
               <Upload className="w-4 h-4" />
-              {currentQuiz.isPublished ? 'Despublicar' : 'Publicar'}
+              Publicar
             </Button>
           </div>
         </div>
