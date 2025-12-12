@@ -166,24 +166,50 @@ export const screenTemplates: ScreenTemplate[] = [
 
 export const componentPalette = {
   form: [
-    { type: 'input', name: 'Campo', icon: '📝' },
-    { type: 'email', name: 'E-mail', icon: '✉️' },
-    { type: 'phone', name: 'Telefone', icon: '📱' },
+    { type: 'input', name: 'Campo', icon: '✏️' },
+    { type: 'email', name: 'E-mail', icon: '📧' },
+    { type: 'phone', name: 'Telefone', icon: '📞' },
     { type: 'button', name: 'Botão', icon: '🔘' },
     { type: 'number', name: 'Número', icon: '🔢' },
-    { type: 'textarea', name: 'Textarea', icon: '📄' },
+    { type: 'textarea', name: 'Textarea', icon: '📝' },
     { type: 'date', name: 'Data', icon: '📅' },
+    { type: 'height', name: 'Altura', icon: '📏' },
+    { type: 'weight', name: 'Peso', icon: '⚖️' },
   ],
   quiz: [
     { type: 'options', name: 'Opções', icon: '☑️' },
     { type: 'multiple', name: 'Múltipla Escolha', icon: '✅' },
     { type: 'single', name: 'Escolha Única', icon: '⭕' },
     { type: 'yesno', name: 'Sim/Não', icon: '👍' },
-    { type: 'rating', name: 'Avaliação', icon: '⭐' },
+    { type: 'video-response', name: 'Vídeo Resposta', icon: '🎥', isNew: true },
   ],
   media: [
-    { type: 'heading', name: 'Texto', icon: '📝' },
+    { type: 'text', name: 'Texto', icon: '🔤' },
     { type: 'image', name: 'Imagem', icon: '🖼️' },
     { type: 'video', name: 'Vídeo', icon: '🎬' },
+    { type: 'audio', name: 'Áudio', icon: '🔊' },
+  ],
+  attention: [
+    { type: 'alert', name: 'Alerta', icon: '⚠️' },
+    { type: 'notification', name: 'Notificação', icon: '🔔' },
+    { type: 'timer', name: 'Timer', icon: '⏱️' },
+    { type: 'loading', name: 'Loading', icon: '⏳' },
+    { type: 'level', name: 'Nível', icon: '📊' },
+  ],
+  argumentation: [
+    { type: 'arguments', name: 'Argumentos', icon: '💬' },
+    { type: 'testimonials', name: 'Depoimentos', icon: '👥' },
+    { type: 'faq', name: 'FAQ', icon: '❓' },
+    { type: 'price', name: 'Preço', icon: '💰' },
+    { type: 'before-after', name: 'Antes/Depois', icon: '🔄' },
+    { type: 'carousel', name: 'Carrossel', icon: '🎠' },
+  ],
+  charts: [
+    { type: 'metrics', name: 'Métricas', icon: '📈' },
+    { type: 'charts', name: 'Gráficos', icon: '📊' },
+  ],
+  customization: [
+    { type: 'spacer', name: 'Espaço', icon: '↕️' },
+    { type: 'script', name: 'Script', icon: '⚡' },
   ],
 };
