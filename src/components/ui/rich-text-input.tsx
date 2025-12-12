@@ -149,7 +149,7 @@ export function RichTextInput({
       {showToolbar && (
         <div
           ref={toolbarRef}
-          className="absolute z-50 flex items-center gap-0.5 px-1.5 py-1 bg-popover border border-border rounded-lg shadow-lg"
+          className="absolute z-[100] flex items-center gap-0.5 px-1.5 py-1 bg-popover border border-border rounded-lg shadow-lg"
           style={{
             top: toolbarPosition.top,
             left: toolbarPosition.left,
@@ -158,8 +158,9 @@ export function RichTextInput({
         >
           {/* Text Size / Heading */}
           <select
-            className="h-6 px-1.5 text-xs bg-transparent border-0 outline-none cursor-pointer hover:bg-foreground/10 rounded min-w-[80px]"
+            className="h-6 px-1.5 text-xs bg-popover border border-border outline-none cursor-pointer hover:bg-foreground/10 rounded min-w-[80px]"
             defaultValue="p"
+            onMouseDown={(e) => e.stopPropagation()}
             onChange={(e) => {
               const value = e.target.value;
               if (value === 'small') {
