@@ -664,7 +664,7 @@ export function QuizEditor() {
                   </div>
                   
                   {/* Stage Components - EXACT same DropZone as constructor, just non-interactive */}
-                  <div className="flex-1 pointer-events-none design-preview-mode">
+                  <div className="flex-1 min-h-0 overflow-y-auto pointer-events-none design-preview-mode">
                     <DropZone 
                       components={stage.components}
                       onComponentsChange={() => {}}
