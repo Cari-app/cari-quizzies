@@ -682,7 +682,10 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               )}
               style={{ width: `${width}%` }}
             >
-              <p className="text-sm">{config.description || 'Texto do alerta'}</p>
+              <div 
+                className="text-sm rich-text"
+                dangerouslySetInnerHTML={{ __html: config.description || 'Texto do alerta' }}
+              />
             </div>
           </div>
         );
