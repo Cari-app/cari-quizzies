@@ -1445,10 +1445,21 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const hasBorder = config.carouselBorder === true;
         const widthValue = config.width || 100;
         const hAlign = config.horizontalAlign || 'start';
+        const imageRatio = config.carouselImageRatio || '4:3';
         
         const justifyClass = hAlign === 'center' ? 'justify-center' : hAlign === 'end' ? 'justify-end' : 'justify-start';
         const showImage = layout !== 'text-only';
         const showText = layout !== 'image-only';
+        
+        const aspectRatioClasses: Record<string, string> = {
+          '1:1': 'aspect-square',
+          '4:3': 'aspect-[4/3]',
+          '3:2': 'aspect-[3/2]',
+          '16:9': 'aspect-video',
+          '21:9': 'aspect-[21/9]',
+          '2:3': 'aspect-[2/3]',
+          '9:16': 'aspect-[9/16]',
+        };
         
         // Show first item as preview
         const currentItem = items[0];
@@ -1464,7 +1475,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             >
               {/* Image */}
               {showImage && (
-                <div className="aspect-[4/3] bg-muted flex items-center justify-center">
+                <div className={cn(aspectRatioClasses[imageRatio] || 'aspect-[4/3]', "bg-muted flex items-center justify-center")}>
                   {currentItem?.image ? (
                     <img src={currentItem.image} alt="" className="w-full h-full object-cover" />
                   ) : (

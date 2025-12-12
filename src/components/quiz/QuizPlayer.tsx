@@ -159,6 +159,7 @@ interface ComponentConfig {
   carouselAutoplay?: boolean;
   carouselAutoplayInterval?: number;
   carouselBorder?: boolean;
+  carouselImageRatio?: '1:1' | '4:3' | '16:9' | '3:2' | '2:3' | '9:16' | '21:9';
 }
 
 interface DroppedComponent {
@@ -1673,6 +1674,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         const hasBorder = config.carouselBorder === true;
         const widthValue = config.width || 100;
         const horizontalAlign = config.horizontalAlign || 'start';
+        const imageRatio = config.carouselImageRatio || '4:3';
 
         return (
           <CarouselPlayer
@@ -1685,6 +1687,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
             hasBorder={hasBorder}
             width={widthValue}
             horizontalAlign={horizontalAlign}
+            imageRatio={imageRatio}
           />
         );
       }
