@@ -181,6 +181,11 @@ export interface ComponentConfig {
   priceRedirectUrl?: string;
   priceLayout?: 'horizontal' | 'vertical';
   priceStyle?: 'theme' | 'red' | 'info' | 'success' | 'warning';
+  // Before-After specific
+  beforeAfterImage1?: string;
+  beforeAfterImage2?: string;
+  beforeAfterRatio?: '1:1' | '16:9' | '4:3' | '9:16';
+  beforeAfterInitialPosition?: number;
 }
 
 interface ComponentEditorProps {
@@ -291,6 +296,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         return renderFaqComponentTab();
       case 'price':
         return renderPriceComponentTab();
+      case 'before-after':
+        return renderBeforeAfterComponentTab();
       default:
         return (
           <div className="text-center py-8">
@@ -2681,6 +2688,198 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     );
   };
 
+  // =========== BEFORE-AFTER COMPONENT TAB ===========
+  const renderBeforeAfterComponentTab = () => {
+    const image1FileInputRef = useRef<HTMLInputElement>(null);
+    const image2FileInputRef = useRef<HTMLInputElement>(null);
+    const [uploading1, setUploading1] = useState(false);
+    const [uploading2, setUploading2] = useState(false);
+
+    const handleImageUpload = async (imageKey: 'beforeAfterImage1' | 'beforeAfterImage2', file: File, setUploading: (v: boolean) => void) => {
+      try {
+        setUploading(true);
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `before-after/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('quiz-images')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('quiz-images')
+          .getPublicUrl(filePath);
+
+        updateConfig({ [imageKey]: publicUrl });
+        toast.success('Imagem enviada com sucesso!');
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        toast.error('Erro ao enviar imagem');
+      } finally {
+        setUploading(false);
+      }
+    };
+
+    return (
+      <div className="space-y-4">
+        {/* Primeira imagem */}
+        <div className="border border-border rounded-lg overflow-hidden">
+          <Label className="text-xs text-muted-foreground p-3 block border-b border-border bg-muted/30">Primeira imagem</Label>
+          <Tabs defaultValue="image" className="w-full">
+            <TabsList className="grid grid-cols-2 m-3 mb-0">
+              <TabsTrigger value="image">Imagem</TabsTrigger>
+              <TabsTrigger value="url">URL</TabsTrigger>
+            </TabsList>
+            <TabsContent value="image" className="p-3 pt-2">
+              <div className="space-y-3">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => image1FileInputRef.current?.click()}
+                  disabled={uploading1}
+                >
+                  {uploading1 ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Selecionar imagem
+                    </>
+                  )}
+                </Button>
+                <input
+                  ref={image1FileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleImageUpload('beforeAfterImage1', file, setUploading1);
+                  }}
+                />
+                {config.beforeAfterImage1 && (
+                  <div className="relative rounded-lg overflow-hidden border border-border">
+                    <img
+                      src={config.beforeAfterImage1}
+                      alt="Primeira imagem"
+                      className="w-full h-32 object-cover"
+                    />
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 h-6 w-6"
+                      onClick={() => updateConfig({ beforeAfterImage1: '' })}
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+            <TabsContent value="url" className="p-3 pt-2">
+              <Input
+                value={config.beforeAfterImage1 || ''}
+                onChange={(e) => updateConfig({ beforeAfterImage1: e.target.value })}
+                placeholder="https://exemplo.com/imagem.jpg"
+              />
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* Segunda imagem */}
+        <div className="border border-border rounded-lg overflow-hidden">
+          <Label className="text-xs text-muted-foreground p-3 block border-b border-border bg-muted/30">Segunda imagem</Label>
+          <Tabs defaultValue="image" className="w-full">
+            <TabsList className="grid grid-cols-2 m-3 mb-0">
+              <TabsTrigger value="image">Imagem</TabsTrigger>
+              <TabsTrigger value="url">URL</TabsTrigger>
+            </TabsList>
+            <TabsContent value="image" className="p-3 pt-2">
+              <div className="space-y-3">
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => image2FileInputRef.current?.click()}
+                  disabled={uploading2}
+                >
+                  {uploading2 ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Enviando...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Selecionar imagem
+                    </>
+                  )}
+                </Button>
+                <input
+                  ref={image2FileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleImageUpload('beforeAfterImage2', file, setUploading2);
+                  }}
+                />
+                {config.beforeAfterImage2 && (
+                  <div className="relative rounded-lg overflow-hidden border border-border">
+                    <img
+                      src={config.beforeAfterImage2}
+                      alt="Segunda imagem"
+                      className="w-full h-32 object-cover"
+                    />
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 h-6 w-6"
+                      onClick={() => updateConfig({ beforeAfterImage2: '' })}
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+            <TabsContent value="url" className="p-3 pt-2">
+              <Input
+                value={config.beforeAfterImage2 || ''}
+                onChange={(e) => updateConfig({ beforeAfterImage2: e.target.value })}
+                placeholder="https://exemplo.com/imagem.jpg"
+              />
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* Avançado */}
+        <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+          <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Plus className={`w-4 h-4 transition-transform ${advancedOpen ? 'rotate-45' : ''}`} />
+            AVANÇADO
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-4 space-y-4">
+            <div>
+              <Label className="text-xs text-muted-foreground">ID/Name</Label>
+              <Input
+                value={component.customId || ''}
+                onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
+                placeholder={`before_after_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
+                className="mt-1 font-mono text-xs"
+              />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+    );
+  };
+
   // =========== APARÊNCIA TAB ===========
   const renderAppearanceTab = () => {
     const isOptionsComponent = ['options', 'single', 'multiple', 'yesno'].includes(component.type);
@@ -2692,6 +2891,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     const isTestimonialsComponent = component.type === 'testimonials';
     const isFaqComponent = component.type === 'faq';
     const isPriceComponent = component.type === 'price';
+    const isBeforeAfterComponent = component.type === 'before-after';
 
     // Price component appearance
     if (isPriceComponent) {
@@ -2799,6 +2999,103 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                   <SelectItem value="auto">Auto</SelectItem>
                   <SelectItem value="start">Começo</SelectItem>
                   <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Before-After component appearance
+    if (isBeforeAfterComponent) {
+      return (
+        <div className="space-y-4">
+          {/* Proporção */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Proporção</Label>
+            <Select 
+              value={config.beforeAfterRatio || '1:1'} 
+              onValueChange={(v) => updateConfig({ beforeAfterRatio: v as ComponentConfig['beforeAfterRatio'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1:1">1:1 (Quadrado)</SelectItem>
+                <SelectItem value="16:9">16:9 (Padrão)</SelectItem>
+                <SelectItem value="4:3">4:3 (Retangular)</SelectItem>
+                <SelectItem value="9:16">9:16 (Mobile)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Width */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-xs text-muted-foreground">Largura</Label>
+              <div className="flex items-center gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.max(10, (config.width || 100) - 5) })}
+                >
+                  −
+                </Button>
+                <span className="text-sm font-medium w-12 text-center">{config.width || 100}%</span>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.min(100, (config.width || 100) + 5) })}
+                >
+                  +
+                </Button>
+              </div>
+            </div>
+            <Slider
+              value={[config.width || 100]}
+              onValueChange={([value]) => updateConfig({ width: value })}
+              min={10}
+              max={100}
+              step={5}
+              className="w-full"
+            />
+          </div>
+
+          {/* Horizontal and Vertical alignment */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento horizontal</Label>
+              <Select 
+                value={config.horizontalAlign || 'start'} 
+                onValueChange={(v) => updateConfig({ horizontalAlign: v as ComponentConfig['horizontalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento vertical</Label>
+              <Select 
+                value={config.verticalAlign || 'auto'} 
+                onValueChange={(v) => updateConfig({ verticalAlign: v as ComponentConfig['verticalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Auto</SelectItem>
+                  <SelectItem value="start">Topo</SelectItem>
+                  <SelectItem value="center">Meio</SelectItem>
                   <SelectItem value="end">Fim</SelectItem>
                 </SelectContent>
               </Select>
