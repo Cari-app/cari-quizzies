@@ -19,6 +19,60 @@ import { MetricItemEditor, MetricItem } from './MetricItemEditor';
 import { ChartEditorComponentTab, ChartEditorAppearanceTab, getDefaultChartConfig, ChartConfig } from './ChartEditor';
 import { SpacerComponentEditor } from './SpacerEditor';
 
+// Component ID Display - Shows the unique ID and allows copying
+interface ComponentIdDisplayProps {
+  id: string;
+  customId?: string;
+  type: string;
+  onUpdateCustomId: (customId: string) => void;
+  generateSlug: (text: string) => string;
+}
+
+function ComponentIdDisplay({ id, customId, type, onUpdateCustomId, generateSlug }: ComponentIdDisplayProps) {
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success('ID copiado!');
+  };
+
+  const effectiveId = customId || id;
+
+  return (
+    <div className="space-y-2">
+      <div>
+        <Label className="text-xs text-muted-foreground">ID Customizado</Label>
+        <div className="flex gap-1 mt-1">
+          <Input
+            value={customId || ''}
+            onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
+            placeholder={`${type}_${id.slice(0, 8)}`}
+            className="flex-1 font-mono text-xs"
+          />
+          <Button
+            variant="outline"
+            size="icon"
+            className="h-9 w-9 shrink-0"
+            onClick={() => copyToClipboard(effectiveId)}
+            title="Copiar ID"
+          >
+            <Copy className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono bg-muted/50 px-2 py-1 rounded">
+        <span className="text-muted-foreground/60">UUID:</span>
+        <span className="truncate flex-1">{id}</span>
+        <button
+          onClick={() => copyToClipboard(id)}
+          className="hover:text-foreground transition-colors"
+          title="Copiar UUID"
+        >
+          <Copy className="h-3 w-3" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // Theme Color Picker Component
 interface ThemeColorPickerProps {
   value: string;
@@ -432,15 +486,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
   const renderInputComponentTab = () => (
     <div className="space-y-4">
       {/* ID/Name */}
-      <div>
-        <Label className="text-xs text-muted-foreground">ID/Name</Label>
-        <Input
-          value={component.customId || ''}
-          onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-          placeholder={`${component.type}_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-          className="mt-1 font-mono text-xs"
-        />
-      </div>
+      <ComponentIdDisplay
+        id={component.id}
+        customId={component.customId}
+        type={component.type}
+        onUpdateCustomId={onUpdateCustomId}
+        generateSlug={generateSlug}
+      />
 
       {/* Título/Label */}
       <div>
@@ -563,15 +615,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     return (
       <div className="space-y-4">
         {/* ID/Name */}
-        <div>
-          <Label className="text-xs text-muted-foreground">ID/Name</Label>
-          <Input
-            value={component.customId || ''}
-            onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-            placeholder={`${component.type}_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-            className="mt-1 font-mono text-xs"
-          />
-        </div>
+        <ComponentIdDisplay
+          id={component.id}
+          customId={component.customId}
+          type={component.type}
+          onUpdateCustomId={onUpdateCustomId}
+          generateSlug={generateSlug}
+        />
 
         {/* Layout Type */}
         <div>
@@ -695,15 +745,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
   const renderButtonComponentTab = () => (
     <div className="space-y-4">
-      <div>
-        <Label className="text-xs text-muted-foreground">ID/Name</Label>
-        <Input
-          value={component.customId || ''}
-          onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-          placeholder={`button_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-          className="mt-1 font-mono text-xs"
-        />
-      </div>
+      <ComponentIdDisplay
+        id={component.id}
+        customId={component.customId}
+        type={component.type}
+        onUpdateCustomId={onUpdateCustomId}
+        generateSlug={generateSlug}
+      />
       <div>
         <Label className="text-xs text-muted-foreground">Texto do botão</Label>
         <RichTextInput
@@ -776,15 +824,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     return (
       <div className="space-y-4">
         {/* ID/Name */}
-        <div>
-          <Label className="text-xs text-muted-foreground">ID/Name</Label>
-          <Input
-            value={component.customId || ''}
-            onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-            placeholder={`opcoes_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-            className="mt-1 font-mono text-xs"
-          />
-        </div>
+        <ComponentIdDisplay
+          id={component.id}
+          customId={component.customId}
+          type={component.type}
+          onUpdateCustomId={onUpdateCustomId}
+          generateSlug={generateSlug}
+        />
 
         {/* Introdução */}
         <div className="border border-border rounded-lg p-3">
@@ -1101,15 +1147,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
   const renderTextComponentTab = () => (
     <div className="space-y-4">
-      <div>
-        <Label className="text-xs text-muted-foreground">ID/Name</Label>
-        <Input
-          value={component.customId || ''}
-          onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-          placeholder={`text_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-          className="mt-1 font-mono text-xs"
-        />
-      </div>
+      <ComponentIdDisplay
+        id={component.id}
+        customId={component.customId}
+        type={component.type}
+        onUpdateCustomId={onUpdateCustomId}
+        generateSlug={generateSlug}
+      />
       <div>
         <Label className="text-xs text-muted-foreground">Conteúdo</Label>
         <RichTextInput
@@ -1276,15 +1320,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
               AVANÇADO
             </CollapsibleTrigger>
             <CollapsibleContent className="pt-4 space-y-4">
-              <div>
-                <Label className="text-xs text-muted-foreground">ID/Name</Label>
-                <Input
-                  value={component.customId || ''}
-                  onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-                  placeholder={`video_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-                  className="mt-1 font-mono text-xs"
-                />
-              </div>
+              <ComponentIdDisplay
+                id={component.id}
+                customId={component.customId}
+                type={component.type}
+                onUpdateCustomId={onUpdateCustomId}
+                generateSlug={generateSlug}
+              />
             </CollapsibleContent>
           </Collapsible>
         </div>
@@ -1432,15 +1474,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             AVANÇADO
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-4 space-y-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">ID/Name</Label>
-              <Input
-                value={component.customId || ''}
-                onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-                placeholder={`media_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-                className="mt-1 font-mono text-xs"
-              />
-            </div>
+            <ComponentIdDisplay
+              id={component.id}
+              customId={component.customId}
+              type={component.type}
+              onUpdateCustomId={onUpdateCustomId}
+              generateSlug={generateSlug}
+            />
             <div>
               <Label className="text-xs text-muted-foreground">Texto alternativo</Label>
               <Input
@@ -1471,15 +1511,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
   const renderScriptComponentTab = () => (
     <div className="space-y-4">
-      <div>
-        <Label className="text-xs text-muted-foreground">ID/Name</Label>
-        <Input
-          value={component.customId || ''}
-          onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-          placeholder={`script_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-          className="mt-1 font-mono text-xs"
-        />
-      </div>
+      <ComponentIdDisplay
+        id={component.id}
+        customId={component.customId}
+        type={component.type}
+        onUpdateCustomId={onUpdateCustomId}
+        generateSlug={generateSlug}
+      />
 
       <div>
         <Label className="text-xs text-muted-foreground">Código de incorporação</Label>
@@ -1542,15 +1580,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           AVANÇADO
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-4 space-y-4">
-          <div>
-            <Label className="text-xs text-muted-foreground">ID/Name</Label>
-            <Input
-              value={component.customId || ''}
-              onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-              placeholder={`alert_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-              className="mt-1 font-mono text-xs"
-            />
-          </div>
+          <ComponentIdDisplay
+            id={component.id}
+            customId={component.customId}
+            type={component.type}
+            onUpdateCustomId={onUpdateCustomId}
+            generateSlug={generateSlug}
+          />
         </CollapsibleContent>
       </Collapsible>
     </div>
@@ -1697,15 +1733,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             AVANÇADO
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-4 space-y-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">ID/Name</Label>
-              <Input
-                value={component.customId || ''}
-                onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-                placeholder={`notification_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-                className="mt-1 font-mono text-xs"
-              />
-            </div>
+            <ComponentIdDisplay
+              id={component.id}
+              customId={component.customId}
+              type={component.type}
+              onUpdateCustomId={onUpdateCustomId}
+              generateSlug={generateSlug}
+            />
           </CollapsibleContent>
         </Collapsible>
       </div>
@@ -1748,15 +1782,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           AVANÇADO
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-4 space-y-4">
-          <div>
-            <Label className="text-xs text-muted-foreground">ID/Name</Label>
-            <Input
-              value={component.customId || ''}
-              onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-              placeholder={`timer_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-              className="mt-1 font-mono text-xs"
-            />
-          </div>
+          <ComponentIdDisplay
+            id={component.id}
+            customId={component.customId}
+            type={component.type}
+            onUpdateCustomId={onUpdateCustomId}
+            generateSlug={generateSlug}
+          />
         </CollapsibleContent>
       </Collapsible>
     </div>
@@ -1765,15 +1797,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
   const renderLoadingComponentTab = () => (
     <div className="space-y-4">
       {/* ID/Name */}
-      <div>
-        <Label className="text-xs text-muted-foreground">ID/Name</Label>
-        <Input
-          value={component.customId || ''}
-          onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-          placeholder={`loading_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-          className="mt-1 font-mono text-xs"
-        />
-      </div>
+      <ComponentIdDisplay
+        id={component.id}
+        customId={component.customId}
+        type={component.type}
+        onUpdateCustomId={onUpdateCustomId}
+        generateSlug={generateSlug}
+      />
 
       {/* Título */}
       <div>
@@ -1995,15 +2025,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           AVANÇADO
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-4 space-y-4">
-          <div>
-            <Label className="text-xs text-muted-foreground">ID/Name</Label>
-            <Input
-              value={component.customId || ''}
-              onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-              placeholder={`level_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-              className="mt-1 font-mono text-xs"
-            />
-          </div>
+          <ComponentIdDisplay
+            id={component.id}
+            customId={component.customId}
+            type={component.type}
+            onUpdateCustomId={onUpdateCustomId}
+            generateSlug={generateSlug}
+          />
         </CollapsibleContent>
       </Collapsible>
     </div>
@@ -2290,15 +2318,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             AVANÇADO
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-4 space-y-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">ID/Name</Label>
-              <Input
-                value={component.customId || ''}
-                onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-                placeholder={`arguments_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-                className="mt-1 font-mono text-xs"
-              />
-            </div>
+            <ComponentIdDisplay
+              id={component.id}
+              customId={component.customId}
+              type={component.type}
+              onUpdateCustomId={onUpdateCustomId}
+              generateSlug={generateSlug}
+            />
           </CollapsibleContent>
         </Collapsible>
       </div>
@@ -2604,15 +2630,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             AVANÇADO
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-4 space-y-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">ID/Name</Label>
-              <Input
-                value={component.customId || ''}
-                onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-                placeholder={`testimonials_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-                className="mt-1 font-mono text-xs"
-              />
-            </div>
+            <ComponentIdDisplay
+              id={component.id}
+              customId={component.customId}
+              type={component.type}
+              onUpdateCustomId={onUpdateCustomId}
+              generateSlug={generateSlug}
+            />
           </CollapsibleContent>
         </Collapsible>
       </div>
@@ -2739,15 +2763,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             AVANÇADO
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-4 space-y-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">ID/Name</Label>
-              <Input
-                value={component.customId || ''}
-                onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-                placeholder={`faq_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-                className="mt-1 font-mono text-xs"
-              />
-            </div>
+            <ComponentIdDisplay
+              id={component.id}
+              customId={component.customId}
+              type={component.type}
+              onUpdateCustomId={onUpdateCustomId}
+              generateSlug={generateSlug}
+            />
           </CollapsibleContent>
         </Collapsible>
       </div>
@@ -2848,15 +2870,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             AVANÇADO
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-4 space-y-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">ID/Name</Label>
-              <Input
-                value={component.customId || ''}
-                onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-                placeholder={`price_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-                className="mt-1 font-mono text-xs"
-              />
-            </div>
+            <ComponentIdDisplay
+              id={component.id}
+              customId={component.customId}
+              type={component.type}
+              onUpdateCustomId={onUpdateCustomId}
+              generateSlug={generateSlug}
+            />
           </CollapsibleContent>
         </Collapsible>
       </div>
@@ -3040,15 +3060,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             AVANÇADO
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-4 space-y-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">ID/Name</Label>
-              <Input
-                value={component.customId || ''}
-                onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-                placeholder={`before_after_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-                className="mt-1 font-mono text-xs"
-              />
-            </div>
+            <ComponentIdDisplay
+              id={component.id}
+              customId={component.customId}
+              type={component.type}
+              onUpdateCustomId={onUpdateCustomId}
+              generateSlug={generateSlug}
+            />
           </CollapsibleContent>
         </Collapsible>
       </div>
@@ -3179,15 +3197,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             AVANÇADO
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-4 space-y-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">ID/Name</Label>
-              <Input
-                value={component.customId || ''}
-                onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-                placeholder={`carousel_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-                className="mt-1 font-mono text-xs"
-              />
-            </div>
+            <ComponentIdDisplay
+              id={component.id}
+              customId={component.customId}
+              type={component.type}
+              onUpdateCustomId={onUpdateCustomId}
+              generateSlug={generateSlug}
+            />
           </CollapsibleContent>
         </Collapsible>
       </div>
@@ -3303,15 +3319,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             AVANÇADO
           </CollapsibleTrigger>
           <CollapsibleContent className="pt-4 space-y-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">ID/Name</Label>
-              <Input
-                value={component.customId || ''}
-                onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-                placeholder={`metrics_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-                className="mt-1 font-mono text-xs"
-              />
-            </div>
+            <ComponentIdDisplay
+              id={component.id}
+              customId={component.customId}
+              type={component.type}
+              onUpdateCustomId={onUpdateCustomId}
+              generateSlug={generateSlug}
+            />
           </CollapsibleContent>
         </Collapsible>
       </div>
