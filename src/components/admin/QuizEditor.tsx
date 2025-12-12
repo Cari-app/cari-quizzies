@@ -527,34 +527,36 @@ export function QuizEditor() {
       <div className="flex-1 flex flex-col bg-muted/30 overflow-hidden">
         {/* Preview Toolbar */}
         <div className="flex items-center justify-between px-6 py-3 border-b border-border bg-background">
-          <div className="flex items-center gap-2">
+          <div className="w-20" /> {/* Spacer for balance */}
+          
+          <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
               <Undo className="w-4 h-4" />
             </Button>
             <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
               <Redo className="w-4 h-4" />
             </Button>
-          </div>
-          
-          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
-            <button
-              onClick={() => setPreviewMode('mobile')}
-              className={cn(
-                "p-1.5 rounded transition-colors",
-                previewMode === 'mobile' ? "bg-background shadow-sm" : "hover:bg-background/50"
-              )}
-            >
-              <Smartphone className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setPreviewMode('desktop')}
-              className={cn(
-                "p-1.5 rounded transition-colors",
-                previewMode === 'desktop' ? "bg-background shadow-sm" : "hover:bg-background/50"
-              )}
-            >
-              <Monitor className="w-4 h-4" />
-            </button>
+            
+            <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+              <button
+                onClick={() => setPreviewMode('mobile')}
+                className={cn(
+                  "p-1.5 rounded transition-colors",
+                  previewMode === 'mobile' ? "bg-background shadow-sm" : "hover:bg-background/50"
+                )}
+              >
+                <Smartphone className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setPreviewMode('desktop')}
+                className={cn(
+                  "p-1.5 rounded transition-colors",
+                  previewMode === 'desktop' ? "bg-background shadow-sm" : "hover:bg-background/50"
+                )}
+              >
+                <Monitor className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           <Button variant="ghost" size="sm" className="gap-2" onClick={() => currentQuiz.slug && navigate(`/${currentQuiz.slug}`)}>
