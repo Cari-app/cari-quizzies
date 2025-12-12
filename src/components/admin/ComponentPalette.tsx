@@ -2,20 +2,20 @@ import { componentPalette } from '@/data/screenTemplates';
 
 export function ComponentPalette() {
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {/* Formulário */}
       <div>
-        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 block">
+        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5 block px-1">
           Formulário
         </span>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-1">
           {componentPalette.form.map((comp) => (
             <button
               key={comp.type}
-              className="flex items-center gap-2 p-2.5 text-sm rounded-lg border border-border hover:bg-accent/50 transition-colors text-left"
+              className="flex items-center gap-2 px-2 py-2 text-xs rounded-md border border-border hover:bg-accent/50 transition-colors text-left w-full"
               draggable
             >
-              <span>{comp.icon}</span>
+              <span className="text-base">{comp.icon}</span>
               <span className="truncate">{comp.name}</span>
             </button>
           ))}
@@ -24,17 +24,17 @@ export function ComponentPalette() {
 
       {/* Quiz */}
       <div>
-        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 block">
+        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5 block px-1">
           Quiz
         </span>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-1">
           {componentPalette.quiz.map((comp) => (
             <button
               key={comp.type}
-              className="flex items-center gap-2 p-2.5 text-sm rounded-lg border border-border hover:bg-accent/50 transition-colors text-left"
+              className="flex items-center gap-2 px-2 py-2 text-xs rounded-md border border-border hover:bg-accent/50 transition-colors text-left w-full"
               draggable
             >
-              <span>{comp.icon}</span>
+              <span className="text-base">{comp.icon}</span>
               <span className="truncate">{comp.name}</span>
             </button>
           ))}
@@ -43,17 +43,17 @@ export function ComponentPalette() {
 
       {/* Mídia e conteúdo */}
       <div>
-        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 block">
+        <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5 block px-1">
           Mídia e conteúdo
         </span>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="space-y-1">
           {componentPalette.media.map((comp) => (
             <button
               key={comp.type}
-              className="flex items-center gap-2 p-2.5 text-sm rounded-lg border border-border hover:bg-accent/50 transition-colors text-left"
+              className="flex items-center gap-2 px-2 py-2 text-xs rounded-md border border-border hover:bg-accent/50 transition-colors text-left w-full"
               draggable
             >
-              <span>{comp.icon}</span>
+              <span className="text-base">{comp.icon}</span>
               <span className="truncate">{comp.name}</span>
             </button>
           ))}
