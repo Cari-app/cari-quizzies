@@ -171,6 +171,16 @@ export interface ComponentConfig {
   faqItems?: FaqItem[];
   faqDetailType?: 'arrow' | 'plus-minus';
   faqFirstOpen?: boolean;
+  // Price specific
+  priceTitle?: string;
+  pricePrefix?: string;
+  priceValue?: string;
+  priceSuffix?: string;
+  priceHighlight?: string;
+  priceType?: 'illustrative' | 'redirect';
+  priceRedirectUrl?: string;
+  priceLayout?: 'horizontal' | 'vertical';
+  priceStyle?: 'theme' | 'red' | 'info' | 'success' | 'warning';
 }
 
 interface ComponentEditorProps {
@@ -279,6 +289,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         return renderTestimonialsComponentTab();
       case 'faq':
         return renderFaqComponentTab();
+      case 'price':
+        return renderPriceComponentTab();
       default:
         return (
           <div className="text-center py-8">
@@ -2560,6 +2572,115 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     );
   };
 
+  // =========== PRICE COMPONENT TAB ===========
+  const renderPriceComponentTab = () => {
+    return (
+      <div className="space-y-4">
+        {/* Título */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Título</Label>
+          <Input
+            value={config.priceTitle || ''}
+            onChange={(e) => updateConfig({ priceTitle: e.target.value })}
+            placeholder="Plano PRO"
+            className="mt-1"
+          />
+        </div>
+
+        {/* Prefixo, Valor, Sufixo */}
+        <div className="grid grid-cols-3 gap-2">
+          <div>
+            <Label className="text-xs text-muted-foreground">Prefixo</Label>
+            <Input
+              value={config.pricePrefix || ''}
+              onChange={(e) => updateConfig({ pricePrefix: e.target.value })}
+              placeholder="10% off"
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Valor</Label>
+            <Input
+              value={config.priceValue || ''}
+              onChange={(e) => updateConfig({ priceValue: e.target.value })}
+              placeholder="R$ 89,90"
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Sufixo</Label>
+            <Input
+              value={config.priceSuffix || ''}
+              onChange={(e) => updateConfig({ priceSuffix: e.target.value })}
+              placeholder="à vista"
+              className="mt-1"
+            />
+          </div>
+        </div>
+
+        {/* Texto destaque */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Texto destaque</Label>
+          <Input
+            value={config.priceHighlight || ''}
+            onChange={(e) => updateConfig({ priceHighlight: e.target.value })}
+            placeholder="Ex: popular, destaque..."
+            className="mt-1"
+          />
+        </div>
+
+        {/* Tipo de preço */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Tipo de preço</Label>
+          <Select 
+            value={config.priceType || 'illustrative'} 
+            onValueChange={(v) => updateConfig({ priceType: v as ComponentConfig['priceType'] })}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="illustrative">Ilustrativo</SelectItem>
+              <SelectItem value="redirect">Redirecionar</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* URL de redirecionamento - só mostra se for redirect */}
+        {config.priceType === 'redirect' && (
+          <div>
+            <Label className="text-xs text-muted-foreground">URL de redirecionamento</Label>
+            <Input
+              value={config.priceRedirectUrl || ''}
+              onChange={(e) => updateConfig({ priceRedirectUrl: e.target.value })}
+              placeholder="https://..."
+              className="mt-1"
+            />
+          </div>
+        )}
+
+        {/* Avançado */}
+        <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+          <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Plus className={`w-4 h-4 transition-transform ${advancedOpen ? 'rotate-45' : ''}`} />
+            AVANÇADO
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-4 space-y-4">
+            <div>
+              <Label className="text-xs text-muted-foreground">ID/Name</Label>
+              <Input
+                value={component.customId || ''}
+                onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
+                placeholder={`price_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
+                className="mt-1 font-mono text-xs"
+              />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+    );
+  };
+
   // =========== APARÊNCIA TAB ===========
   const renderAppearanceTab = () => {
     const isOptionsComponent = ['options', 'single', 'multiple', 'yesno'].includes(component.type);
@@ -2570,6 +2691,122 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     const isLevelComponent = component.type === 'level';
     const isTestimonialsComponent = component.type === 'testimonials';
     const isFaqComponent = component.type === 'faq';
+    const isPriceComponent = component.type === 'price';
+
+    // Price component appearance
+    if (isPriceComponent) {
+      return (
+        <div className="space-y-4">
+          {/* Layout */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Layout</Label>
+            <Select 
+              value={config.priceLayout || 'horizontal'} 
+              onValueChange={(v) => updateConfig({ priceLayout: v as ComponentConfig['priceLayout'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="horizontal">Horizontal</SelectItem>
+                <SelectItem value="vertical">Vertical</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Estilo */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Estilo</Label>
+            <Select 
+              value={config.priceStyle || 'theme'} 
+              onValueChange={(v) => updateConfig({ priceStyle: v as ComponentConfig['priceStyle'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="theme">Tema</SelectItem>
+                <SelectItem value="red">Vermelho</SelectItem>
+                <SelectItem value="info">Informativo</SelectItem>
+                <SelectItem value="success">Sucesso</SelectItem>
+                <SelectItem value="warning">Atenção</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Width */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-xs text-muted-foreground">Largura</Label>
+              <div className="flex items-center gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.max(10, (config.width || 100) - 5) })}
+                >
+                  −
+                </Button>
+                <span className="text-sm font-medium w-12 text-center">{config.width || 100}%</span>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.min(100, (config.width || 100) + 5) })}
+                >
+                  +
+                </Button>
+              </div>
+            </div>
+            <Slider
+              value={[config.width || 100]}
+              onValueChange={([value]) => updateConfig({ width: value })}
+              min={10}
+              max={100}
+              step={5}
+              className="w-full"
+            />
+          </div>
+
+          {/* Horizontal and Vertical alignment */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento horizontal</Label>
+              <Select 
+                value={config.horizontalAlign || 'start'} 
+                onValueChange={(v) => updateConfig({ horizontalAlign: v as ComponentConfig['horizontalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento vertical</Label>
+              <Select 
+                value={config.verticalAlign || 'auto'} 
+                onValueChange={(v) => updateConfig({ verticalAlign: v as ComponentConfig['verticalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Auto</SelectItem>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     // FAQ component appearance
     if (isFaqComponent) {
