@@ -19,6 +19,69 @@ import { MetricItemEditor, MetricItem } from './MetricItemEditor';
 import { ChartEditorComponentTab, ChartEditorAppearanceTab, getDefaultChartConfig, ChartConfig } from './ChartEditor';
 import { SpacerComponentEditor } from './SpacerEditor';
 
+// Theme Color Picker Component
+interface ThemeColorPickerProps {
+  value: string;
+  useTheme: boolean;
+  themeColor: string;
+  onChange: (color: string) => void;
+  onUseThemeChange: (useTheme: boolean) => void;
+  label: string;
+}
+
+function ThemeColorPicker({ value, useTheme, themeColor, onChange, onUseThemeChange, label }: ThemeColorPickerProps) {
+  const displayColor = useTheme ? themeColor : value;
+  
+  return (
+    <div>
+      <Label className="text-xs text-muted-foreground">{label}</Label>
+      <div className="flex gap-2 mt-1">
+        <button
+          type="button"
+          onClick={() => onUseThemeChange(true)}
+          className={cn(
+            "px-3 py-2 text-xs font-medium rounded-md border transition-colors",
+            useTheme 
+              ? "border-primary bg-primary/10 text-primary" 
+              : "border-border text-muted-foreground hover:bg-muted"
+          )}
+        >
+          Tema
+        </button>
+        <div className="flex-1 flex gap-2">
+          <div 
+            className={cn(
+              "relative w-12 h-9 rounded-md border overflow-hidden cursor-pointer",
+              useTheme && "opacity-50 pointer-events-none"
+            )}
+            style={{ backgroundColor: displayColor }}
+          >
+            <input
+              type="color"
+              value={displayColor}
+              onChange={(e) => {
+                onUseThemeChange(false);
+                onChange(e.target.value);
+              }}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+          </div>
+          <Input
+            value={displayColor}
+            onChange={(e) => {
+              onUseThemeChange(false);
+              onChange(e.target.value);
+            }}
+            placeholder="#000000"
+            className={cn("flex-1 font-mono text-xs", useTheme && "opacity-50")}
+            disabled={useTheme}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export interface DroppedComponent {
   id: string;
   type: string;
@@ -128,6 +191,7 @@ export interface ComponentConfig {
   maxValue?: number;
   defaultValue?: number;
   barColor?: string;
+  useThemeColor?: boolean; // When true, use global primary color
   // Alert specific
   alertStyle?: 'red' | 'yellow' | 'green' | 'blue' | 'gray';
   alertHighlight?: boolean;
@@ -225,9 +289,10 @@ interface ComponentEditorProps {
   onUpdate: (config: ComponentConfig) => void;
   onUpdateCustomId: (customId: string) => void;
   onDelete: () => void;
+  themeColor?: string; // Global primary color from design settings
 }
 
-export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelete }: ComponentEditorProps) {
+export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelete, themeColor = '#A855F7' }: ComponentEditorProps) {
   const config = component.config || {};
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
@@ -525,23 +590,14 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
         {/* Bar Color - only for ruler layout */}
         {config.layoutType === 'ruler' && (
-          <div>
-            <Label className="text-xs text-muted-foreground">Cor da barra</Label>
-            <div className="flex gap-2 mt-1">
-              <Input
-                type="color"
-                value={config.barColor || '#22c55e'}
-                onChange={(e) => updateConfig({ barColor: e.target.value })}
-                className="w-12 h-9 p-1 cursor-pointer"
-              />
-              <Input
-                value={config.barColor || '#22c55e'}
-                onChange={(e) => updateConfig({ barColor: e.target.value })}
-                placeholder="#22c55e"
-                className="flex-1 font-mono text-xs"
-              />
-            </div>
-          </div>
+          <ThemeColorPicker
+            label="Cor da barra"
+            value={config.barColor || themeColor}
+            useTheme={config.useThemeColor !== false} // Default to true
+            themeColor={themeColor}
+            onChange={(color) => updateConfig({ barColor: color })}
+            onUseThemeChange={(useTheme) => updateConfig({ useThemeColor: useTheme, barColor: useTheme ? themeColor : config.barColor })}
+          />
         )}
 
         {/* Campo obrigatório */}
