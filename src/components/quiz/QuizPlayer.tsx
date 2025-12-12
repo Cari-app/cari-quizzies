@@ -229,15 +229,10 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
             config.textAlign === 'center' && 'text-center',
             config.textAlign === 'right' && 'text-right'
           )}>
-            <p className={cn(
-              "text-foreground",
-              config.fontSize === 'sm' && 'text-sm',
-              config.fontSize === 'lg' && 'text-lg',
-              config.fontSize === 'xl' && 'text-xl',
-              config.fontSize === '2xl' && 'text-2xl font-semibold'
-            )}>
-              {config.content || ''}
-            </p>
+            <div 
+              className="rich-text text-foreground"
+              dangerouslySetInnerHTML={{ __html: config.content || '' }}
+            />
           </div>
         );
 

@@ -63,9 +63,21 @@ export function RichTextInput({
     handleInput();
   };
 
+  const cleanHtml = (html: string): string => {
+    // Remove empty style attributes
+    return html
+      .replace(/style=""/g, '')
+      .replace(/style=''/g, '')
+      .replace(/<div style="">/g, '<div>')
+      .replace(/<span style="">/g, '<span>')
+      .replace(/<font[^>]*>/gi, '') // Remove font tags
+      .replace(/<\/font>/gi, '');
+  };
+
   const handleInput = () => {
     if (editorRef.current) {
-      onChange(editorRef.current.innerHTML);
+      const cleanedHtml = cleanHtml(editorRef.current.innerHTML);
+      onChange(cleanedHtml);
     }
   };
 
