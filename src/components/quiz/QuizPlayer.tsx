@@ -2,24 +2,65 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { ArrowLeft, Loader2, CalendarIcon, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface QuizPlayerProps {
   slug?: string;
 }
 
-interface QuizComponent {
+interface ComponentConfig {
+  label?: string;
+  placeholder?: string;
+  required?: boolean;
+  helpText?: string;
+  buttonText?: string;
+  buttonStyle?: string;
+  buttonAction?: string;
+  content?: string;
+  textAlign?: string;
+  fontSize?: string;
+  mediaUrl?: string;
+  altText?: string;
+  height?: number;
+  options?: Array<{ id: string; text: string; value: string }>;
+  allowMultiple?: boolean;
+  sliderMin?: number;
+  sliderMax?: number;
+  sliderStep?: number;
+  customId?: string;
+}
+
+interface DroppedComponent {
   id: string;
-  tipo: string;
+  type: string;
+  name: string;
+  icon: string;
+  config?: ComponentConfig;
+  customId?: string;
+}
+
+interface PageSettings {
+  showLogo?: boolean;
+  showProgress?: boolean;
+  allowBack?: boolean;
+  logoUrl?: string;
+  logoSize?: string;
+}
+
+interface QuizStage {
+  id: string;
   titulo: string | null;
-  subtitulo: string | null;
-  texto_botao: string | null;
-  opcoes: any;
-  configuracoes: Record<string, any> | null;
   ordem: number;
+  components: DroppedComponent[];
+  pageSettings?: PageSettings;
 }
 
 interface QuizData {
@@ -34,8 +75,13 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [quiz, setQuiz] = useState<QuizData | null>(null);
-  const [components, setComponents] = useState<QuizComponent[]>([]);
+  const [stages, setStages] = useState<QuizStage[]>([]);
+  const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [formData, setFormData] = useState<Record<string, any>>({});
+  const [selectedDate, setSelectedDate] = useState<Record<string, Date | undefined>>({});
+
+  const currentStage = stages[currentStageIndex];
+  const pageSettings = currentStage?.pageSettings;
 
   // Load quiz by slug or id from Supabase
   useEffect(() => {
@@ -76,24 +122,24 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
 
         setQuiz(quizData);
 
-        // Load etapas (components)
+        // Load etapas (stages)
         const { data: etapasData } = await supabase
           .from('etapas')
           .select('*')
           .eq('quiz_id', quizData.id)
           .order('ordem', { ascending: true });
 
-        const formattedComponents: QuizComponent[] = (etapasData || []).map((e) => ({
-          id: e.id,
-          tipo: e.tipo,
-          titulo: e.titulo,
-          subtitulo: e.subtitulo,
-          texto_botao: e.texto_botao,
-          opcoes: e.opcoes,
-          configuracoes: e.configuracoes as Record<string, any> | null,
-          ordem: e.ordem,
-        }));
-        setComponents(formattedComponents);
+        const formattedStages: QuizStage[] = (etapasData || []).map((e) => {
+          const configuracoes = e.configuracoes as Record<string, any> | null;
+          return {
+            id: e.id,
+            titulo: e.titulo,
+            ordem: e.ordem,
+            components: (configuracoes?.components as DroppedComponent[]) || [],
+            pageSettings: configuracoes?.pageSettings as PageSettings | undefined,
+          };
+        });
+        setStages(formattedStages);
       } catch (error) {
         console.error('Error loading quiz:', error);
         setNotFound(true);
@@ -110,18 +156,40 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
     setFormData(prev => ({ ...prev, [key]: value }));
   };
 
+  const handleDateChange = (componentId: string, customId: string | undefined, date: Date | undefined) => {
+    const key = customId || componentId;
+    setSelectedDate(prev => ({ ...prev, [key]: date }));
+    if (date) {
+      setFormData(prev => ({ ...prev, [key]: format(date, 'yyyy-MM-dd') }));
+    }
+  };
+
+  const handleNext = () => {
+    if (currentStageIndex < stages.length - 1) {
+      setCurrentStageIndex(prev => prev + 1);
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStageIndex > 0) {
+      setCurrentStageIndex(prev => prev - 1);
+    }
+  };
+
   const handleSubmit = () => {
     console.log('Form data submitted:', formData);
     // TODO: Save responses to database
     navigate('/');
   };
 
-  const renderComponent = (comp: QuizComponent) => {
-    const config = comp.configuracoes || {};
-    const customId = config.customId;
-    const value = formData[customId || comp.id] || '';
+  const renderComponent = (comp: DroppedComponent) => {
+    const config = comp.config || {};
+    const customId = comp.customId || config.customId;
+    const key = customId || comp.id;
+    const value = formData[key] || '';
+    const dateValue = selectedDate[key];
 
-    switch (comp.tipo) {
+    switch (comp.type) {
       case 'text':
         return (
           <div className={cn(
@@ -136,7 +204,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
               config.fontSize === 'xl' && 'text-xl',
               config.fontSize === '2xl' && 'text-2xl font-semibold'
             )}>
-              {config.content || comp.titulo || ''}
+              {config.content || ''}
             </p>
           </div>
         );
@@ -151,7 +219,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           <div className="py-4">
             {config.label && <label className="text-sm font-medium mb-2 block">{config.label}</label>}
             <Input
-              type={comp.tipo === 'email' ? 'email' : comp.tipo === 'number' || comp.tipo === 'height' || comp.tipo === 'weight' ? 'number' : 'text'}
+              type={comp.type === 'email' ? 'email' : comp.type === 'number' || comp.type === 'height' || comp.type === 'weight' ? 'number' : 'text'}
               placeholder={config.placeholder || ''}
               value={value}
               onChange={(e) => handleInputChange(comp.id, customId, e.target.value)}
@@ -181,29 +249,45 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         return (
           <div className="py-4">
             {config.label && <label className="text-sm font-medium mb-2 block">{config.label}</label>}
-            <Input
-              type="date"
-              value={value}
-              onChange={(e) => handleInputChange(comp.id, customId, e.target.value)}
-              className="w-full"
-              required={config.required}
-            />
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className={cn(
+                    "w-full px-4 py-3 bg-background border border-border rounded-lg text-sm flex items-center justify-between transition-colors hover:border-primary/50",
+                    !dateValue && "text-muted-foreground"
+                  )}
+                >
+                  <span>{dateValue ? format(dateValue, 'dd/MM/yyyy', { locale: ptBR }) : 'dd/mm/aaaa'}</span>
+                  <CalendarIcon className="h-4 w-4" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={dateValue}
+                  onSelect={(date) => handleDateChange(comp.id, customId, date)}
+                  locale={ptBR}
+                  className="pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
             {config.helpText && <p className="text-xs text-muted-foreground mt-1">{config.helpText}</p>}
           </div>
         );
 
       case 'button':
+        const buttonAction = config.buttonAction || 'next';
         return (
           <div className="py-4">
             <Button
-              onClick={handleSubmit}
+              onClick={buttonAction === 'submit' ? handleSubmit : handleNext}
               className={cn(
                 "w-full",
                 config.buttonStyle === 'secondary' && "bg-secondary text-secondary-foreground",
                 config.buttonStyle === 'outline' && "border border-border bg-transparent"
               )}
             >
-              {config.buttonText || comp.texto_botao || 'Continuar'}
+              {config.buttonText || 'Continuar'}
             </Button>
           </div>
         );
@@ -214,7 +298,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           <div className="py-4">
             {config.label && <p className="text-sm font-medium mb-3">{config.label}</p>}
             <div className="space-y-2">
-              {(config.options || comp.opcoes || []).map((opt: any) => (
+              {(config.options || []).map((opt) => (
                 <button
                   key={opt.id}
                   onClick={() => handleInputChange(comp.id, customId, opt.value)}
@@ -244,7 +328,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           <div className="py-4">
             {config.label && <p className="text-sm font-medium mb-3">{config.label}</p>}
             <div className="space-y-2">
-              {(config.options || comp.opcoes || []).map((opt: any) => {
+              {(config.options || []).map((opt) => {
                 const isSelected = selectedValues.includes(opt.value);
                 return (
                   <button
@@ -281,7 +365,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           <div className="py-4">
             {config.label && <p className="text-sm font-medium mb-3">{config.label}</p>}
             <div className="flex gap-3">
-              {(config.options || comp.opcoes || [{ id: '1', text: 'Sim', value: 'yes' }, { id: '2', text: 'Não', value: 'no' }]).map((opt: any) => (
+              {(config.options || [{ id: '1', text: 'Sim', value: 'yes' }, { id: '2', text: 'Não', value: 'no' }]).map((opt) => (
                 <button
                   key={opt.id}
                   onClick={() => handleInputChange(comp.id, customId, opt.value)}
@@ -362,10 +446,10 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
     );
   }
 
-  if (components.length === 0) {
+  if (stages.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-background">
-        <p className="text-muted-foreground text-sm">Este quiz não tem componentes</p>
+        <p className="text-muted-foreground text-sm">Este quiz não tem etapas</p>
         <Button variant="outline" onClick={() => navigate('/')}>
           Voltar ao início
         </Button>
@@ -373,25 +457,36 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
     );
   }
 
-  return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md">
-        {/* Back button */}
-        <button
-          onClick={() => navigate('/')}
-          className="mb-6 p-2 hover:bg-muted rounded-lg transition-colors inline-flex items-center gap-2 text-sm text-muted-foreground"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Voltar
-        </button>
+  const progressValue = stages.length > 1 ? ((currentStageIndex + 1) / stages.length) * 100 : 100;
+  const showHeader = pageSettings?.showProgress || (pageSettings?.allowBack && currentStageIndex > 0);
 
-        {/* Quiz content */}
-        <div className="space-y-2">
-          {components.map((comp) => (
-            <div key={comp.id}>
-              {renderComponent(comp)}
-            </div>
-          ))}
+  return (
+    <div className="min-h-screen flex flex-col bg-background">
+      {/* Header */}
+      {showHeader && (
+        <div className="p-4 border-b border-border flex items-center gap-4 shrink-0">
+          {pageSettings?.allowBack && currentStageIndex > 0 && (
+            <button onClick={handleBack} className="p-1 hover:bg-accent rounded">
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+          )}
+          {pageSettings?.showProgress && (
+            <Progress value={progressValue} className="h-1.5 flex-1" />
+          )}
+        </div>
+      )}
+
+      {/* Content */}
+      <div className="flex-1 flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          {/* Stage components */}
+          <div className="space-y-2">
+            {currentStage?.components.map((comp) => (
+              <div key={comp.id}>
+                {renderComponent(comp)}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
