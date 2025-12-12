@@ -1913,20 +1913,18 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
                   {/* Content */}
                   <div className="flex-1 space-y-2">
-                    <Input
+                    <RichTextInput
                       value={item.title}
-                      onChange={(e) => updateArgument(item.id, { title: e.target.value })}
+                      onChange={(val) => updateArgument(item.id, { title: val })}
                       placeholder="Título"
-                      className="font-semibold text-sm border-border"
+                      className="font-semibold text-sm"
                     />
-                    <div className="border border-border rounded-md bg-muted/30 p-2">
-                      <Textarea
-                        value={item.description}
-                        onChange={(e) => updateArgument(item.id, { description: e.target.value })}
-                        placeholder="Descrição"
-                        className="text-xs min-h-[40px] resize-none border-0 bg-transparent p-0 focus-visible:ring-0"
-                      />
-                    </div>
+                    <RichTextInput
+                      value={item.description}
+                      onChange={(val) => updateArgument(item.id, { description: val })}
+                      placeholder="Descrição"
+                      className="text-xs text-muted-foreground"
+                    />
                   </div>
                 </div>
 
