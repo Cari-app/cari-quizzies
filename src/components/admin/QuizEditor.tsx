@@ -116,172 +116,165 @@ export function QuizEditor() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-muted/30">
-      {/* Left Sidebar - Two columns: Steps + Widgets */}
-      <div className="flex shrink-0">
-        {/* Steps Column */}
-        <div className="w-52 bg-background border-r border-border flex flex-col">
-          {/* Header */}
-          <div className="p-3 border-b border-border">
-            <Link 
-              to="/admin"
-              className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-2"
-            >
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Voltar
-            </Link>
-            
+    <div className="flex h-screen w-screen overflow-hidden bg-background">
+      {/* Left Sidebar */}
+      <div className="w-72 bg-background border-r border-border flex flex-col shrink-0">
+        {/* Header */}
+        <div className="p-4 border-b border-border">
+          <Link 
+            to="/admin"
+            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-3"
+          >
+            <ChevronLeft className="w-4 h-4 mr-1" />
+            Voltar
+          </Link>
+          
+          <Input
+            value={currentQuiz.name}
+            onChange={(e) => {
+              const newName = e.target.value;
+              const updates: Partial<Quiz> = { name: newName };
+              if (!currentQuiz.slug) {
+                updates.slug = generateSlug(newName);
+              }
+              updateQuiz(currentQuiz.id, updates);
+            }}
+            className="font-semibold border-none bg-transparent px-0 h-auto text-base focus-visible:ring-0 shadow-none"
+            placeholder="Nome do quiz"
+          />
+          
+          {/* URL Slug */}
+          <div className="mt-2 flex items-center gap-2">
+            <Globe className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
             <Input
-              value={currentQuiz.name}
-              onChange={(e) => {
-                const newName = e.target.value;
-                const updates: Partial<Quiz> = { name: newName };
-                // Auto-generate slug if not set
-                if (!currentQuiz.slug) {
-                  updates.slug = generateSlug(newName);
-                }
-                updateQuiz(currentQuiz.id, updates);
-              }}
-              className="font-medium border-none bg-transparent px-0 h-auto text-sm focus-visible:ring-0 shadow-none"
-              placeholder="Nome do quiz"
+              value={currentQuiz.slug || ''}
+              onChange={(e) => updateQuiz(currentQuiz.id, { slug: generateSlug(e.target.value) })}
+              className="text-xs border-none bg-transparent px-0 h-auto focus-visible:ring-0 shadow-none text-muted-foreground"
+              placeholder="url-do-quiz"
             />
-            
-            {/* URL Slug */}
-            <div className="mt-2 flex items-center gap-1.5">
-              <Globe className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-              <Input
-                value={currentQuiz.slug || ''}
-                onChange={(e) => updateQuiz(currentQuiz.id, { slug: generateSlug(e.target.value) })}
-                className="text-xs border-none bg-transparent px-0 h-auto focus-visible:ring-0 shadow-none text-muted-foreground"
-                placeholder="url-do-quiz"
-              />
-              {currentQuiz.slug && (
-                <button
-                  onClick={handleCopyUrl}
-                  className="p-1 hover:bg-accent rounded transition-colors shrink-0"
-                  title="Copiar URL"
-                >
-                  {slugCopied ? (
-                    <Check className="w-3 h-3 text-green-500" />
-                  ) : (
-                    <Copy className="w-3 h-3 text-muted-foreground" />
-                  )}
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Steps Section */}
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <div className="p-3 border-b border-border">
-              <div className="flex gap-2">
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  className="flex-1 h-8 text-xs"
-                  onClick={() => {
-                    const newScreen: QuizScreen = {
-                      id: Date.now().toString(),
-                      type: 'info',
-                      title: 'Nova etapa',
-                      showLogo: true,
-                      showProgress: true,
-                      allowBack: true,
-                    };
-                    addScreen(currentQuiz.id, newScreen);
-                    setEditingScreen(newScreen);
-                  }}
-                >
-                  <Plus className="w-3 h-3 mr-1" />
-                  Em branco
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  className="flex-1 h-8 text-xs"
-                  onClick={() => setShowTemplates(true)}
-                >
-                  Modelos
-                </Button>
-              </div>
-            </div>
-
-            {/* Steps List */}
-            <div className="flex-1 overflow-y-auto">
-              {currentQuiz.screens.length === 0 ? (
-                <div className="text-center py-6 px-3">
-                  <div className="border border-dashed border-border rounded-lg p-4">
-                    <p className="text-xs text-muted-foreground">Nenhuma etapa</p>
-                  </div>
-                </div>
-              ) : (
-                <Reorder.Group axis="y" values={currentQuiz.screens} onReorder={handleReorder} className="p-2">
-                  {currentQuiz.screens.map((screen, index) => (
-                    <Reorder.Item key={screen.id} value={screen}>
-                      <div
-                        className={cn(
-                          "flex items-center gap-2 px-2 py-2.5 rounded-lg text-sm cursor-pointer transition-colors group mb-1",
-                          editingScreen?.id === screen.id
-                            ? "bg-accent border border-border"
-                            : "hover:bg-accent/50"
-                        )}
-                        onClick={() => setEditingScreen(screen)}
-                      >
-                        <span className="text-xs text-muted-foreground w-4">{index + 1}</span>
-                        <GripVertical className="w-3.5 h-3.5 text-muted-foreground/50 cursor-grab shrink-0" />
-                        <span className="flex-1 truncate text-xs">{screen.title || 'Sem título'}</span>
-                        <button
-                          className="opacity-0 group-hover:opacity-100 p-1 hover:text-destructive transition-opacity"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteScreen(screen.id);
-                          }}
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </div>
-                    </Reorder.Item>
-                  ))}
-                </Reorder.Group>
-              )}
-            </div>
+            {currentQuiz.slug && (
+              <button
+                onClick={handleCopyUrl}
+                className="p-1 hover:bg-muted rounded transition-colors shrink-0"
+                title="Copiar URL"
+              >
+                {slugCopied ? (
+                  <Check className="w-3.5 h-3.5 text-primary" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5 text-muted-foreground" />
+                )}
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Widgets Column */}
-        <div className={cn(
-          "bg-background border-r border-border flex flex-col overflow-hidden transition-all duration-200",
-          widgetsExpanded ? "w-64" : "w-44"
-        )}>
-          {/* Toggle Button */}
-          <div className="p-2 border-b border-border flex justify-end">
-            <button
-              onClick={() => setWidgetsExpanded(!widgetsExpanded)}
-              className="p-1.5 rounded-md hover:bg-accent/50 transition-colors text-muted-foreground hover:text-foreground"
-              title={widgetsExpanded ? "Recolher" : "Expandir"}
+        {/* Add Buttons */}
+        <div className="p-3 border-b border-border">
+          <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              variant="outline"
+              className="flex-1 h-9 text-xs"
+              onClick={() => {
+                const newScreen: QuizScreen = {
+                  id: Date.now().toString(),
+                  type: 'info',
+                  title: 'Nova etapa',
+                  showLogo: true,
+                  showProgress: true,
+                  allowBack: true,
+                };
+                addScreen(currentQuiz.id, newScreen);
+                setEditingScreen(newScreen);
+              }}
             >
-              {widgetsExpanded ? (
-                <PanelLeftClose className="w-4 h-4" />
-              ) : (
-                <PanelLeftOpen className="w-4 h-4" />
-              )}
-            </button>
+              <Plus className="w-4 h-4 mr-1.5" />
+              Em branco
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline"
+              className="flex-1 h-9 text-xs"
+              onClick={() => setShowTemplates(true)}
+            >
+              Modelos
+            </Button>
           </div>
-          <div className="flex-1 overflow-y-auto p-2">
-            <ComponentPalette expanded={widgetsExpanded} />
-          </div>
+        </div>
+
+        {/* Steps List */}
+        <div className="flex-1 overflow-y-auto">
+          {currentQuiz.screens.length === 0 ? (
+            <div className="text-center py-8 px-4">
+              <div className="border border-dashed border-border rounded-lg p-6">
+                <p className="text-sm text-muted-foreground">Nenhuma etapa criada</p>
+                <p className="text-xs text-muted-foreground mt-1">Clique em "Em branco" ou "Modelos"</p>
+              </div>
+            </div>
+          ) : (
+            <Reorder.Group axis="y" values={currentQuiz.screens} onReorder={handleReorder} className="p-2">
+              {currentQuiz.screens.map((screen, index) => (
+                <Reorder.Item key={screen.id} value={screen}>
+                  <div
+                    className={cn(
+                      "flex items-center gap-2 px-3 py-3 rounded-lg text-sm cursor-pointer transition-colors group mb-1",
+                      editingScreen?.id === screen.id
+                        ? "bg-muted border border-border"
+                        : "hover:bg-muted/50"
+                    )}
+                    onClick={() => setEditingScreen(screen)}
+                  >
+                    <span className="text-xs text-muted-foreground w-5 shrink-0">{index + 1}</span>
+                    <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab shrink-0" />
+                    <span className="flex-1 text-sm truncate" title={screen.title || 'Sem título'}>
+                      {screen.title || 'Sem título'}
+                    </span>
+                    <button
+                      className="opacity-0 group-hover:opacity-100 p-1.5 hover:text-destructive transition-opacity shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteScreen(screen.id);
+                      }}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </Reorder.Item>
+              ))}
+            </Reorder.Group>
+          )}
+        </div>
+
+        {/* Widgets Section */}
+        <div className="border-t border-border">
+          <button
+            onClick={() => setWidgetsExpanded(!widgetsExpanded)}
+            className="w-full px-4 py-3 flex items-center justify-between text-sm font-medium hover:bg-muted/50 transition-colors"
+          >
+            <span>Componentes</span>
+            {widgetsExpanded ? (
+              <PanelLeftClose className="w-4 h-4 text-muted-foreground" />
+            ) : (
+              <PanelLeftOpen className="w-4 h-4 text-muted-foreground" />
+            )}
+          </button>
+          {widgetsExpanded && (
+            <div className="p-3 pt-0 max-h-64 overflow-y-auto">
+              <ComponentPalette expanded={true} />
+            </div>
+          )}
         </div>
       </div>
 
       {/* Center - Preview */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Bar */}
-        <div className="h-14 border-b border-border bg-background flex items-center justify-center gap-6 px-4 shrink-0">
-          <div className="flex items-center gap-1 border border-border rounded-md p-1">
+        <div className="h-14 border-b border-border bg-background flex items-center justify-center gap-4 px-4 shrink-0">
+          <div className="flex items-center gap-1 border border-border rounded-lg p-1">
             <button
               className={cn(
-                "p-2 rounded transition-colors",
-                previewMode === 'mobile' ? "bg-accent" : "hover:bg-accent/50"
+                "p-2 rounded-md transition-colors",
+                previewMode === 'mobile' ? "bg-muted" : "hover:bg-muted/50"
               )}
               onClick={() => setPreviewMode('mobile')}
             >
@@ -289,8 +282,8 @@ export function QuizEditor() {
             </button>
             <button
               className={cn(
-                "p-2 rounded transition-colors",
-                previewMode === 'desktop' ? "bg-accent" : "hover:bg-accent/50"
+                "p-2 rounded-md transition-colors",
+                previewMode === 'desktop' ? "bg-muted" : "hover:bg-muted/50"
               )}
               onClick={() => setPreviewMode('desktop')}
             >
@@ -299,36 +292,36 @@ export function QuizEditor() {
           </div>
 
           <div className="flex items-center gap-1">
-            <button className="p-2 rounded hover:bg-accent/50 transition-colors">
+            <button className="p-2 rounded-md hover:bg-muted/50 transition-colors">
               <Undo className="w-4 h-4 text-muted-foreground" />
             </button>
-            <button className="p-2 rounded hover:bg-accent/50 transition-colors">
+            <button className="p-2 rounded-md hover:bg-muted/50 transition-colors">
               <Redo className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
 
-          <Button onClick={handlePreview}>
-            <Eye className="w-4 h-4 mr-2" />
+          <Button size="sm" onClick={handlePreview} className="gap-2">
+            <Eye className="w-4 h-4" />
             Testar
           </Button>
         </div>
 
         {/* Preview Area */}
-        <div className="flex-1 flex items-center justify-center p-8 overflow-auto">
+        <div className="flex-1 flex items-center justify-center p-6 overflow-auto bg-muted/30">
           <div 
             className={cn(
-              "bg-background rounded-2xl border border-border shadow-sm overflow-hidden transition-all flex flex-col",
+              "bg-background rounded-xl border border-border shadow-sm overflow-hidden transition-all flex flex-col",
               previewMode === 'mobile' 
-                ? "w-[390px] h-[700px]" 
-                : "w-full max-w-5xl h-[680px]"
+                ? "w-[375px] h-[667px]" 
+                : "w-full max-w-4xl h-[640px]"
             )}
           >
             {editingScreen ? (
               <ScreenPreview screen={editingScreen} />
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-muted-foreground border-2 border-dashed border-border m-6 rounded-xl">
-                <p className="text-sm">Arraste e solte os componentes aqui</p>
-                <p className="text-xs mt-1">ou selecione uma etapa</p>
+              <div className="flex flex-col items-center justify-center h-full text-muted-foreground border-2 border-dashed border-border m-4 rounded-lg">
+                <p className="text-sm">Selecione uma etapa</p>
+                <p className="text-xs text-muted-foreground mt-1">ou crie uma nova</p>
               </div>
             )}
           </div>
