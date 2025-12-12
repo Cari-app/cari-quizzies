@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { sanitizeHtml, sanitizeEmbed } from '@/lib/sanitize';
-import { Plus, GripVertical, Trash2, CalendarIcon, Pencil, Copy, ChevronUp, ChevronDown, Minus } from 'lucide-react';
+import { Plus, GripVertical, Trash2, CalendarIcon, Pencil, Copy, ChevronUp, ChevronDown, Minus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Reorder } from 'framer-motion';
 import { DroppedComponent, ComponentConfig, FaqItem } from './ComponentEditor';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -222,6 +222,16 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           priceRedirectUrl: '',
           priceLayout: 'horizontal',
           priceStyle: 'theme',
+          width: 100,
+          horizontalAlign: 'start',
+          verticalAlign: 'auto'
+        };
+      case 'before-after':
+        return {
+          beforeAfterImage1: '',
+          beforeAfterImage2: '',
+          beforeAfterRatio: '1:1',
+          beforeAfterInitialPosition: 50,
           width: 100,
           horizontalAlign: 'start',
           verticalAlign: 'auto'
@@ -1356,6 +1366,58 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   {suffix && (
                     <span className="text-xs text-muted-foreground">{suffix}</span>
                   )}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      }
+      case 'before-after': {
+        const img1 = config.beforeAfterImage1 || '';
+        const img2 = config.beforeAfterImage2 || '';
+        const ratio = config.beforeAfterRatio || '1:1';
+        const widthValue = config.width || 100;
+        const hAlign = config.horizontalAlign || 'start';
+        
+        const justifyClass = hAlign === 'center' ? 'justify-center' : hAlign === 'end' ? 'justify-end' : 'justify-start';
+        const aspectRatioClass = ratio === '1:1' ? 'aspect-square' : ratio === '16:9' ? 'aspect-video' : ratio === '4:3' ? 'aspect-[4/3]' : 'aspect-[9/16]';
+        
+        return (
+          <div className={cn("w-full px-4 py-4 flex", justifyClass)}>
+            <div 
+              className={cn("relative overflow-hidden rounded-xl border border-border shadow-lg", aspectRatioClass)}
+              style={{ width: `${widthValue}%` }}
+            >
+              {/* Background image (image 2) */}
+              <div className="absolute inset-0">
+                {img2 ? (
+                  <img src={img2} alt="Depois" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center">
+                    <span className="text-muted-foreground text-sm">Depois</span>
+                  </div>
+                )}
+              </div>
+              
+              {/* Foreground image (image 1) with clip */}
+              <div className="absolute inset-0" style={{ clipPath: 'inset(0 50% 0 0)' }}>
+                {img1 ? (
+                  <img src={img1} alt="Antes" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
+                    <span className="text-muted-foreground text-sm">Antes</span>
+                  </div>
+                )}
+              </div>
+              
+              {/* Slider handle */}
+              <div 
+                className="absolute top-0 bottom-0 w-1 bg-background shadow-lg"
+                style={{ left: '50%', transform: 'translateX(-50%)' }}
+              >
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background shadow-xl border border-border flex items-center justify-center">
+                  <ChevronLeft className="w-4 h-4 text-muted-foreground -mr-1" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground -ml-1" />
                 </div>
               </div>
             </div>

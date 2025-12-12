@@ -145,6 +145,11 @@ interface ComponentConfig {
   priceRedirectUrl?: string;
   priceLayout?: 'horizontal' | 'vertical';
   priceStyle?: 'theme' | 'red' | 'info' | 'success' | 'warning';
+  // Before-After specific
+  beforeAfterImage1?: string;
+  beforeAfterImage2?: string;
+  beforeAfterRatio?: '1:1' | '16:9' | '4:3' | '9:16';
+  beforeAfterInitialPosition?: number;
 }
 
 interface DroppedComponent {
@@ -1626,6 +1631,30 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
               </div>
             </div>
           </div>
+        );
+      }
+
+      case 'before-after': {
+        const widthValue = config.width || 100;
+        const horizontalAlign = config.horizontalAlign || 'start';
+        const ratio = config.beforeAfterRatio || '1:1';
+        const img1 = config.beforeAfterImage1 || '';
+        const img2 = config.beforeAfterImage2 || '';
+        const initialPosition = config.beforeAfterInitialPosition || 50;
+
+        // Import BeforeAfterSlider dynamically to avoid circular deps
+        const BeforeAfterSlider = require('./BeforeAfterSlider').BeforeAfterSlider;
+
+        return (
+          <BeforeAfterSlider
+            key={comp.id}
+            image1={img1}
+            image2={img2}
+            ratio={ratio}
+            initialPosition={initialPosition}
+            width={widthValue}
+            horizontalAlign={horizontalAlign}
+          />
         );
       }
 
