@@ -1,4 +1,5 @@
 import { componentPalette } from '@/data/screenTemplates';
+import { cn } from '@/lib/utils';
 
 const categories = [
   { key: 'form', label: 'Formulário' },
@@ -10,7 +11,11 @@ const categories = [
   { key: 'customization', label: 'Personalização' },
 ] as const;
 
-export function ComponentPalette() {
+interface ComponentPaletteProps {
+  expanded?: boolean;
+}
+
+export function ComponentPalette({ expanded = false }: ComponentPaletteProps) {
   return (
     <div className="space-y-4">
       {categories.map((category) => {
@@ -22,17 +27,25 @@ export function ComponentPalette() {
             <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5 block px-1">
               {category.label}
             </span>
-            <div className="space-y-1">
+            <div className={cn(
+              expanded ? "grid grid-cols-2 gap-1.5" : "space-y-1"
+            )}>
               {items.map((comp) => (
                 <button
                   key={comp.type}
-                  className="flex items-center gap-2 px-2 py-2 text-xs rounded-md border border-border hover:bg-accent/50 transition-colors text-left w-full relative"
+                  className={cn(
+                    "flex items-center gap-2 px-2 py-2 text-xs rounded-md border border-border hover:bg-accent/50 transition-colors text-left w-full relative",
+                    expanded && "flex-col gap-1 py-3 justify-center"
+                  )}
                   draggable
                 >
-                  <span className="text-base">{comp.icon}</span>
-                  <span className="truncate">{comp.name}</span>
+                  <span className={cn("text-base", expanded && "text-xl")}>{comp.icon}</span>
+                  <span className={cn("truncate", expanded && "text-center text-[10px]")}>{comp.name}</span>
                   {'isNew' in comp && comp.isNew && (
-                    <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[9px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-medium">
+                    <span className={cn(
+                      "text-[8px] bg-green-100 text-green-700 px-1 py-0.5 rounded font-medium",
+                      expanded ? "absolute top-1 right-1" : "absolute right-1.5 top-1/2 -translate-y-1/2"
+                    )}>
                       novo
                     </span>
                   )}
