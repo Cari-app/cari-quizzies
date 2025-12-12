@@ -3,16 +3,48 @@ import { Handle, Position, NodeProps } from '@xyflow/react';
 import { cn } from '@/lib/utils';
 import { icons } from 'lucide-react';
 
+interface ComponentData {
+  id: string;
+  type: string;
+  name: string;
+  icon: string;
+  config?: {
+    buttonAction?: string;
+    autoAdvance?: boolean;
+    options?: Array<{ destination?: string }>;
+    [key: string]: any;
+  };
+}
+
 interface StageNodeData {
   label: string;
-  components: Array<{
-    type: string;
-    name: string;
-    icon: string;
-  }>;
+  components: ComponentData[];
   index: number;
   isSelected: boolean;
 }
+
+// Types that can trigger navigation
+const CONNECTABLE_TYPES = ['button', 'options', 'single_choice', 'multiple_choice', 'loading'];
+
+const canConnect = (comp: ComponentData): boolean => {
+  if (CONNECTABLE_TYPES.includes(comp.type)) {
+    // Check if button has navigation action
+    if (comp.type === 'button') {
+      const action = comp.config?.buttonAction;
+      return action === 'next' || action === 'submit' || action === 'specific';
+    }
+    // Check if options have auto-advance or destinations
+    if (comp.type === 'options' || comp.type === 'single_choice' || comp.type === 'multiple_choice') {
+      return comp.config?.autoAdvance !== false;
+    }
+    // Loading always navigates
+    if (comp.type === 'loading') {
+      return true;
+    }
+    return true;
+  }
+  return false;
+};
 
 // Map component types to icons
 const getComponentIcon = (type: string, iconName: string) => {
@@ -30,14 +62,14 @@ const getComponentIcon = (type: string, iconName: string) => {
 };
 
 export const StageNode = memo(({ data, selected }: NodeProps & { data: StageNodeData }) => {
-  const maxVisibleComponents = 5;
+  const maxVisibleComponents = 8;
   const visibleComponents = data.components.slice(0, maxVisibleComponents);
   const hiddenCount = data.components.length - maxVisibleComponents;
 
   return (
     <div
       className={cn(
-        "bg-background border rounded-lg shadow-sm min-w-[180px] max-w-[200px] transition-all",
+        "bg-background border rounded-lg shadow-sm min-w-[180px] max-w-[220px] transition-all",
         selected || data.isSelected 
           ? "border-primary ring-2 ring-primary/20" 
           : "border-border hover:border-muted-foreground/50"
@@ -59,23 +91,31 @@ export const StageNode = memo(({ data, selected }: NodeProps & { data: StageNode
           </div>
         ) : (
           <>
-            {visibleComponents.map((comp, idx) => (
-              <div
-                key={idx}
-                className="flex items-center gap-1.5 px-2 py-1 rounded text-[11px] hover:bg-muted/50 relative group"
-              >
-                {getComponentIcon(comp.type, comp.icon)}
-                <span className="truncate flex-1">{comp.name}</span>
-                
-                {/* Individual component connection handle */}
-                <Handle
-                  type="source"
-                  position={Position.Right}
-                  id={`comp-${idx}`}
-                  className="!w-2 !h-2 !bg-muted-foreground/40 !border-0 !right-[-8px] opacity-0 group-hover:opacity-100 transition-opacity"
-                />
-              </div>
-            ))}
+            {visibleComponents.map((comp, idx) => {
+              const isConnectable = canConnect(comp);
+              return (
+                <div
+                  key={comp.id || idx}
+                  className={cn(
+                    "flex items-center gap-1.5 px-2 py-1 rounded text-[11px] relative",
+                    isConnectable ? "hover:bg-primary/10 cursor-pointer" : "hover:bg-muted/50"
+                  )}
+                >
+                  {getComponentIcon(comp.type, comp.icon)}
+                  <span className="truncate flex-1">{comp.name}</span>
+                  
+                  {/* Individual component connection handle - only for connectable components */}
+                  {isConnectable && (
+                    <Handle
+                      type="source"
+                      position={Position.Right}
+                      id={`comp-${comp.id || idx}`}
+                      className="!w-2.5 !h-2.5 !bg-primary/60 !border-2 !border-primary !right-[-10px] hover:!bg-primary transition-colors"
+                    />
+                  )}
+                </div>
+              );
+            })}
             {hiddenCount > 0 && (
               <div className="px-2 py-1 text-[10px] text-muted-foreground">
                 +{hiddenCount} mais...
