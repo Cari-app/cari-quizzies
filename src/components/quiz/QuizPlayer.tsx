@@ -79,6 +79,17 @@ interface ComponentConfig {
   timerSeconds?: number;
   timerText?: string;
   timerStyle?: 'default' | 'red' | 'blue' | 'green' | 'yellow' | 'gray';
+  // Loading specific
+  loadingTitle?: string;
+  loadingDescription?: string;
+  loadingDuration?: number;
+  loadingDelay?: number;
+  loadingNavigation?: 'next' | 'submit' | 'link';
+  loadingDestination?: 'next' | 'specific';
+  loadingDestinationStageId?: string;
+  loadingDestinationUrl?: string;
+  showLoadingTitle?: boolean;
+  showLoadingProgress?: boolean;
 }
 
 interface DroppedComponent {
@@ -128,10 +139,13 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
     visible: boolean;
   } | null>(null);
   const [timerValues, setTimerValues] = useState<Record<string, number>>({});
+  const [loadingProgress, setLoadingProgress] = useState<Record<string, number>>({});
+  const [loadingActive, setLoadingActive] = useState<Record<string, boolean>>({});
 
   const currentStage = stages[currentStageIndex];
   const pageSettings = currentStage?.pageSettings;
   const notificationComponents = currentStage?.components.filter(c => c.type === 'notification') || [];
+  const loadingComponents = currentStage?.components.filter(c => c.type === 'loading') || [];
 
   // Load quiz by slug or id from Supabase
   useEffect(() => {
@@ -941,6 +955,45 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         );
       }
 
+      case 'loading': {
+        const widthValue = config.width || 100;
+        const title = config.loadingTitle || 'Carregando...';
+        const description = config.loadingDescription || '';
+        const showTitle = config.showLoadingTitle !== false;
+        const showProgress = config.showLoadingProgress !== false;
+        const horizontalAlign = config.horizontalAlign || 'start';
+        
+        const progress = loadingProgress[comp.id] ?? 0;
+        
+        const justifyClass = {
+          start: 'justify-start',
+          center: 'justify-center',
+          end: 'justify-end',
+        }[horizontalAlign];
+        
+        return (
+          <div className={cn("w-full px-4 flex", justifyClass)}>
+            <div 
+              className="border border-border rounded-lg p-4 bg-background"
+              style={{ width: `${widthValue}%` }}
+            >
+              {showTitle && (
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium">{title}</span>
+                  <span className="text-xs text-muted-foreground">{Math.round(progress)}%</span>
+                </div>
+              )}
+              {showProgress && (
+                <Progress value={progress} className="h-2 mb-3" />
+              )}
+              {description && (
+                <p className="text-sm text-muted-foreground text-center">{description}</p>
+              )}
+            </div>
+          </div>
+        );
+      }
+
       default:
         return null;
     }
@@ -1023,6 +1076,61 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
     
     return () => clearInterval(interval);
   }, [currentStageIndex, currentStage?.components]);
+
+  // Effect to handle loading progress
+  useEffect(() => {
+    if (loadingComponents.length === 0) return;
+    
+    const cleanupFns: (() => void)[] = [];
+    
+    loadingComponents.forEach(comp => {
+      const config = comp.config || {};
+      const delay = (config.loadingDelay || 0) * 1000;
+      const duration = (config.loadingDuration || 5) * 1000;
+      
+      // Reset progress and set active
+      setLoadingProgress(prev => ({ ...prev, [comp.id]: 0 }));
+      setLoadingActive(prev => ({ ...prev, [comp.id]: true }));
+      
+      // Start after delay
+      const delayTimeout = setTimeout(() => {
+        const startTime = Date.now();
+        const updateInterval = 50; // Update every 50ms for smooth animation
+        
+        const progressInterval = setInterval(() => {
+          const elapsed = Date.now() - startTime;
+          const progress = Math.min((elapsed / duration) * 100, 100);
+          
+          setLoadingProgress(prev => ({ ...prev, [comp.id]: progress }));
+          
+          // When complete, navigate
+          if (progress >= 100) {
+            clearInterval(progressInterval);
+            
+            // Handle navigation based on config
+            const navigation = config.loadingNavigation || 'next';
+            
+            if (navigation === 'link' && config.loadingDestinationUrl) {
+              window.location.href = config.loadingDestinationUrl;
+            } else if (navigation === 'submit') {
+              handleSubmit();
+            } else {
+              // Default: go to next stage
+              handleNext();
+            }
+          }
+        }, updateInterval);
+        
+        cleanupFns.push(() => clearInterval(progressInterval));
+      }, delay);
+      
+      cleanupFns.push(() => clearTimeout(delayTimeout));
+    });
+    
+    return () => {
+      cleanupFns.forEach(fn => fn());
+    };
+  }, [currentStageIndex, loadingComponents.length]);
 
   // Render notification overlay
   const renderNotificationOverlay = () => {

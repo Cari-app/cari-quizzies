@@ -111,6 +111,17 @@ export interface ComponentConfig {
   timerSeconds?: number;
   timerText?: string;
   timerStyle?: 'default' | 'red' | 'blue' | 'green' | 'yellow' | 'gray';
+  // Loading specific
+  loadingTitle?: string;
+  loadingDescription?: string;
+  loadingDuration?: number;
+  loadingDelay?: number;
+  loadingNavigation?: 'next' | 'submit' | 'specific' | 'link';
+  loadingDestination?: 'next' | 'specific';
+  loadingDestinationStageId?: string;
+  loadingDestinationUrl?: string;
+  showLoadingTitle?: boolean;
+  showLoadingProgress?: boolean;
 }
 
 interface ComponentEditorProps {
@@ -209,6 +220,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         return renderNotificationComponentTab();
       case 'timer':
         return renderTimerComponentTab();
+      case 'loading':
+        return renderLoadingComponentTab();
       default:
         return (
           <div className="text-center py-8">
@@ -1498,12 +1511,234 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     </div>
   );
 
+  const renderLoadingComponentTab = () => (
+    <div className="space-y-4">
+      {/* ID/Name */}
+      <div>
+        <Label className="text-xs text-muted-foreground">ID/Name</Label>
+        <Input
+          value={component.customId || ''}
+          onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
+          placeholder={`loading_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
+          className="mt-1 font-mono text-xs"
+        />
+      </div>
+
+      {/* Título */}
+      <div>
+        <Label className="text-xs text-muted-foreground">Título</Label>
+        <Input
+          value={config.loadingTitle || 'Carregando...'}
+          onChange={(e) => updateConfig({ loadingTitle: e.target.value })}
+          placeholder="Carregando..."
+          className="mt-1"
+        />
+      </div>
+
+      {/* Delay e Duration */}
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label className="text-xs text-muted-foreground">Começar em</Label>
+          <Input
+            type="number"
+            value={config.loadingDelay ?? 0}
+            onChange={(e) => updateConfig({ loadingDelay: parseInt(e.target.value) || 0 })}
+            className="mt-1"
+          />
+        </div>
+        <div>
+          <Label className="text-xs text-muted-foreground">Durar</Label>
+          <Input
+            type="number"
+            value={config.loadingDuration ?? 5}
+            onChange={(e) => updateConfig({ loadingDuration: parseInt(e.target.value) || 5 })}
+            className="mt-1"
+          />
+        </div>
+      </div>
+
+      {/* Tipo de Navegação */}
+      <div>
+        <Label className="text-xs text-muted-foreground">Tipo de navegação</Label>
+        <Select 
+          value={config.loadingNavigation || 'next'} 
+          onValueChange={(v) => updateConfig({ loadingNavigation: v as ComponentConfig['loadingNavigation'] })}
+        >
+          <SelectTrigger className="mt-1">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="next">Navegar entre etapas</SelectItem>
+            <SelectItem value="submit">Enviar formulário</SelectItem>
+            <SelectItem value="link">Redirecionar para URL</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Destino do redirecionamento */}
+      {config.loadingNavigation !== 'link' && (
+        <div>
+          <Label className="text-xs text-muted-foreground">Destino do redirecionamento</Label>
+          <Select 
+            value={config.loadingDestination || 'next'} 
+            onValueChange={(v) => updateConfig({ loadingDestination: v as ComponentConfig['loadingDestination'] })}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="next">Etapa seguinte</SelectItem>
+              <SelectItem value="specific">Etapa específica</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {/* URL de redirecionamento */}
+      {config.loadingNavigation === 'link' && (
+        <div>
+          <Label className="text-xs text-muted-foreground">URL de redirecionamento</Label>
+          <Input
+            value={config.loadingDestinationUrl || ''}
+            onChange={(e) => updateConfig({ loadingDestinationUrl: e.target.value })}
+            placeholder="https://..."
+            className="mt-1"
+          />
+        </div>
+      )}
+
+      {/* Descrição */}
+      <div>
+        <Label className="text-xs text-muted-foreground">Descrição</Label>
+        <Textarea
+          value={config.loadingDescription || ''}
+          onChange={(e) => updateConfig({ loadingDescription: e.target.value })}
+          placeholder="Aguarde enquanto preparamos tudo..."
+          className="mt-1"
+        />
+      </div>
+
+      {/* Opções */}
+      <div>
+        <Label className="text-xs text-muted-foreground mb-2 block">Opções</Label>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={config.showLoadingTitle !== false}
+              onCheckedChange={(checked) => updateConfig({ showLoadingTitle: checked })}
+            />
+            <Label className="text-sm cursor-pointer">Mostrar título</Label>
+          </div>
+          <div className="flex items-center gap-2">
+            <Switch
+              checked={config.showLoadingProgress !== false}
+              onCheckedChange={(checked) => updateConfig({ showLoadingProgress: checked })}
+            />
+            <Label className="text-sm cursor-pointer">Mostrar progresso</Label>
+          </div>
+        </div>
+      </div>
+
+      {/* Avançado */}
+      <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+        <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <Plus className={`w-4 h-4 transition-transform ${advancedOpen ? 'rotate-45' : ''}`} />
+          AVANÇADO
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-4 space-y-4">
+          <p className="text-xs text-muted-foreground">
+            Configurações avançadas em breve
+          </p>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  );
+
   // =========== APARÊNCIA TAB ===========
   const renderAppearanceTab = () => {
     const isOptionsComponent = ['options', 'single', 'multiple', 'yesno'].includes(component.type);
     const isAlertComponent = component.type === 'alert';
     const isNotificationComponent = component.type === 'notification';
     const isTimerComponent = component.type === 'timer';
+    const isLoadingComponent = component.type === 'loading';
+
+    // Loading component appearance
+    if (isLoadingComponent) {
+      return (
+        <div className="space-y-4">
+          {/* Width */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-xs text-muted-foreground">Largura</Label>
+              <div className="flex items-center gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.max(10, (config.width || 100) - 5) })}
+                >
+                  −
+                </Button>
+                <span className="text-sm font-medium w-12 text-center">{config.width || 100}%</span>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.min(100, (config.width || 100) + 5) })}
+                >
+                  +
+                </Button>
+              </div>
+            </div>
+            <Slider
+              value={[config.width || 100]}
+              onValueChange={(vals) => updateConfig({ width: vals[0] })}
+              min={10}
+              max={100}
+              step={5}
+              className="[&>span:first-child]:bg-primary"
+            />
+          </div>
+
+          {/* Horizontal and Vertical alignment */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento horizontal</Label>
+              <Select 
+                value={config.horizontalAlign || 'start'} 
+                onValueChange={(v) => updateConfig({ horizontalAlign: v as ComponentConfig['horizontalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento vertical</Label>
+              <Select 
+                value={config.verticalAlign || 'auto'} 
+                onValueChange={(v) => updateConfig({ verticalAlign: v as ComponentConfig['verticalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Auto</SelectItem>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     // Timer component appearance
     if (isTimerComponent) {
