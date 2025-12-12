@@ -123,13 +123,15 @@ export function QuizEditor() {
         {/* Steps Column */}
         <div className="w-72 bg-background border-r border-border flex flex-col">
           {/* Header with Logo */}
-          <div className="p-3 border-b border-border">
+          <div className="px-4 py-3 border-b border-border flex items-center justify-between">
             <Link 
               to="/admin"
-              className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity"
+              className="inline-flex items-center gap-3 group"
             >
-              <ChevronLeft className="w-4 h-4 text-muted-foreground" />
-              <Logo className="h-6" />
+              <div className="p-1.5 rounded-md bg-muted/50 group-hover:bg-muted transition-colors">
+                <ChevronLeft className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+              </div>
+              <Logo className="h-5" />
             </Link>
           </div>
 
