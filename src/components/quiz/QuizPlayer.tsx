@@ -219,29 +219,53 @@ interface PageSettings {
 }
 
 interface DesignSettings {
-  backgroundColor: string;
-  primaryColor: string;
-  textColor: string;
-  primaryFont: string;
-  fontSize: string;
-  showLogo: boolean;
+  // GERAL
+  alignment: 'left' | 'center' | 'right';
+  maxWidth: 'small' | 'medium' | 'large' | 'full';
+  elementSize: 'small' | 'medium' | 'large';
+  spacing: 'compact' | 'normal' | 'spacious';
+  borderRadius: 'none' | 'small' | 'medium' | 'large' | 'full';
+  
+  // HEADER
+  logo: {
+    type: 'image' | 'url' | 'emoji';
+    value: string;
+  };
+  logoSize: 'small' | 'medium' | 'large';
   logoPosition: 'left' | 'center' | 'right';
-  logoSize: string;
-  progressBarColor: string;
-  progressBarPosition: 'top' | 'bottom';
+  progressBar: 'hidden' | 'top' | 'bottom';
+  
+  // CORES
+  primaryColor: string;
+  backgroundColor: string;
+  textColor: string;
+  titleColor: string;
+  
+  // TIPOGRAFIA
+  fontSize: number;
+  titleSize: 'small' | 'medium' | 'large' | 'xlarge';
+  primaryFont: string;
+  secondaryFont: string;
 }
 
 const defaultDesignSettings: DesignSettings = {
-  backgroundColor: '#ffffff',
-  primaryColor: '#000000',
-  textColor: '#1a1a1a',
-  primaryFont: 'Inter',
-  fontSize: 'base',
-  showLogo: true,
+  alignment: 'center',
+  maxWidth: 'small',
+  elementSize: 'medium',
+  spacing: 'normal',
+  borderRadius: 'medium',
+  logo: { type: 'url', value: '' },
+  logoSize: 'medium',
   logoPosition: 'center',
-  logoSize: '32',
-  progressBarColor: '#000000',
-  progressBarPosition: 'top',
+  progressBar: 'top',
+  primaryColor: '#A855F7',
+  backgroundColor: '#FFFFFF',
+  textColor: '#1F2937',
+  titleColor: '#A855F7',
+  fontSize: 16,
+  titleSize: 'medium',
+  primaryFont: 'Inter',
+  secondaryFont: 'Inter',
 };
 
 interface QuizStage {
@@ -2033,12 +2057,12 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
             </button>
           )}
           {pageSettings?.showProgress && (
-            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: `${designSettings.progressBarColor}20` }}>
+            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: `${designSettings.primaryColor}20` }}>
               <div 
                 className="h-full transition-all duration-300"
                 style={{ 
                   width: `${progressValue}%`,
-                  backgroundColor: designSettings.progressBarColor,
+                  backgroundColor: designSettings.primaryColor,
                 }}
               />
             </div>
