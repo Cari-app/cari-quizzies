@@ -627,51 +627,161 @@ export function QuizEditor() {
                 </div>
               </div>
             ) : (
-              stages.map((stage, index) => (
-                <div 
-                  key={stage.id}
-                  onClick={() => {
-                    setSelectedStageId(stage.id);
-                    setEditorView('editor');
-                  }}
-                  className="bg-background rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col cursor-pointer transition-all hover:shadow-xl shrink-0"
-                  style={{ width: '375px', height: '667px' }}
-                >
-                  {/* Quiz Header - EXACT same as constructor */}
-                  <div className="shrink-0 border-b border-border p-3">
-                    <div className="flex items-center gap-3">
-                      {pageSettings.allowBack && (
-                        <button className="p-1 hover:bg-muted rounded transition-colors pointer-events-none">
-                          <ArrowLeft className="w-4 h-4 text-muted-foreground" />
-                        </button>
-                      )}
-                      {pageSettings.showLogo && pageSettings.logoUrl && (
-                        <img 
-                          src={pageSettings.logoUrl} 
-                          alt="Logo" 
-                          className="object-contain" 
-                          style={{ height: `${pageSettings.logoSize}px` }}
-                        />
-                      )}
-                      {pageSettings.showProgress && (
-                        <div className="flex-1">
-                          <Progress value={((index + 1) / stages.length) * 100} className="h-1.5" />
-                        </div>
-                      )}
+              stages.map((stage, index) => {
+                // Helper functions for design settings
+                const getSpacingClass = () => {
+                  switch (designSettings.spacing) {
+                    case 'compact': return 'gap-1';
+                    case 'spacious': return 'gap-4';
+                    default: return 'gap-2';
+                  }
+                };
+                
+                const getBorderRadiusClass = () => {
+                  switch (designSettings.borderRadius) {
+                    case 'none': return 'rounded-none';
+                    case 'small': return 'rounded-md';
+                    case 'large': return 'rounded-2xl';
+                    case 'full': return 'rounded-3xl';
+                    default: return 'rounded-xl';
+                  }
+                };
+
+                const getAlignmentClass = () => {
+                  switch (designSettings.alignment) {
+                    case 'left': return 'items-start text-left';
+                    case 'right': return 'items-end text-right';
+                    default: return 'items-center text-center';
+                  }
+                };
+
+                return (
+                  <div 
+                    key={stage.id}
+                    onClick={() => {
+                      setSelectedStageId(stage.id);
+                      setEditorView('editor');
+                    }}
+                    className={cn(
+                      "overflow-hidden flex flex-col cursor-pointer transition-all hover:shadow-xl shrink-0 shadow-lg border border-border",
+                      getBorderRadiusClass()
+                    )}
+                    style={{ 
+                      width: '375px', 
+                      height: '667px',
+                      backgroundColor: designSettings.backgroundColor,
+                      color: designSettings.textColor,
+                      fontFamily: designSettings.primaryFont,
+                      fontSize: `${designSettings.fontSize}px`,
+                    }}
+                  >
+                    {/* Quiz Header with design settings */}
+                    <div 
+                      className="shrink-0 p-3"
+                      style={{ 
+                        display: designSettings.progressBar === 'hidden' && !designSettings.logo.value ? 'none' : 'flex',
+                        flexDirection: 'column',
+                        gap: '8px',
+                      }}
+                    >
+                      <div className={cn(
+                        "flex items-center gap-3",
+                        designSettings.logoPosition === 'center' && "justify-center",
+                        designSettings.logoPosition === 'right' && "justify-end"
+                      )}>
+                        {pageSettings.allowBack && (
+                          <button 
+                            className="p-1 rounded transition-colors pointer-events-none"
+                            style={{ color: designSettings.textColor }}
+                          >
+                            <ArrowLeft className="w-4 h-4" />
+                          </button>
+                        )}
+                        {designSettings.logo.value && (
+                          designSettings.logo.type === 'emoji' ? (
+                            <span 
+                              className={cn(
+                                designSettings.logoSize === 'small' && 'text-xl',
+                                designSettings.logoSize === 'medium' && 'text-2xl',
+                                designSettings.logoSize === 'large' && 'text-4xl',
+                              )}
+                            >
+                              {designSettings.logo.value}
+                            </span>
+                          ) : (
+                            <img 
+                              src={designSettings.logo.value} 
+                              alt="Logo" 
+                              className={cn(
+                                "object-contain",
+                                designSettings.logoSize === 'small' && 'h-6',
+                                designSettings.logoSize === 'medium' && 'h-8',
+                                designSettings.logoSize === 'large' && 'h-12',
+                              )}
+                            />
+                          )
+                        )}
+                        {designSettings.progressBar === 'top' && (
+                          <div className="flex-1">
+                            <div 
+                              className="h-1.5 rounded-full overflow-hidden"
+                              style={{ backgroundColor: `${designSettings.primaryColor}30` }}
+                            >
+                              <div 
+                                className="h-full rounded-full transition-all"
+                                style={{ 
+                                  width: `${((index + 1) / stages.length) * 100}%`,
+                                  backgroundColor: designSettings.primaryColor,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
+                    
+                    {/* Stage Components with design settings applied */}
+                    <div 
+                      className={cn(
+                        "flex-1 min-h-0 overflow-y-auto pointer-events-none design-preview-mode",
+                        getAlignmentClass(),
+                        getSpacingClass()
+                      )}
+                      style={{
+                        '--quiz-primary-color': designSettings.primaryColor,
+                        '--quiz-text-color': designSettings.textColor,
+                        '--quiz-title-color': designSettings.titleColor,
+                        '--quiz-bg-color': designSettings.backgroundColor,
+                      } as React.CSSProperties}
+                    >
+                      <DropZone 
+                        components={stage.components}
+                        onComponentsChange={() => {}}
+                        selectedComponentId={null}
+                        onSelectComponent={() => {}}
+                      />
+                    </div>
+
+                    {/* Bottom progress bar */}
+                    {designSettings.progressBar === 'bottom' && (
+                      <div className="shrink-0 px-4 pb-4">
+                        <div 
+                          className="h-1.5 rounded-full overflow-hidden"
+                          style={{ backgroundColor: `${designSettings.primaryColor}30` }}
+                        >
+                          <div 
+                            className="h-full rounded-full transition-all"
+                            style={{ 
+                              width: `${((index + 1) / stages.length) * 100}%`,
+                              backgroundColor: designSettings.primaryColor,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  
-                  {/* Stage Components - EXACT same DropZone as constructor, just non-interactive */}
-                  <div className="flex-1 min-h-0 overflow-y-auto pointer-events-none design-preview-mode">
-                    <DropZone 
-                      components={stage.components}
-                      onComponentsChange={() => {}}
-                      selectedComponentId={null}
-                      onSelectComponent={() => {}}
-                    />
-                  </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         ) : (
