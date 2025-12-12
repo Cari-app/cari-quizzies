@@ -14,7 +14,8 @@ import { ScreenEditor } from './ScreenEditor';
 import { ScreenPreview } from './ScreenPreview';
 import { TemplateSelector } from './TemplateSelector';
 import { ComponentPalette } from './ComponentPalette';
-import { DropZone } from './DropZone';
+import { DropZone, DroppedComponent, ComponentConfig } from './DropZone';
+import { ComponentEditor } from './ComponentEditor';
 import { cn } from '@/lib/utils';
 import { screenTemplates } from '@/data/screenTemplates';
 
@@ -28,7 +29,8 @@ export function QuizEditor() {
   const [rightTab, setRightTab] = useState<'stage' | 'appearance'>('stage');
   const [widgetsExpanded, setWidgetsExpanded] = useState(false);
   const [slugCopied, setSlugCopied] = useState(false);
-  const [droppedComponents, setDroppedComponents] = useState<Array<{id: string; type: string; name: string; icon: string}>>([]);
+  const [droppedComponents, setDroppedComponents] = useState<DroppedComponent[]>([]);
+  const [selectedComponent, setSelectedComponent] = useState<DroppedComponent | null>(null);
 
   const generateSlug = (name: string) => {
     return name
@@ -338,17 +340,12 @@ export function QuizEditor() {
                 : "w-full max-w-4xl h-[640px]"
             )}
           >
-            {editingScreen ? (
-              <DropZone 
-                components={droppedComponents}
-                onComponentsChange={setDroppedComponents}
-              />
-            ) : (
-              <DropZone 
-                components={droppedComponents}
-                onComponentsChange={setDroppedComponents}
-              />
-            )}
+            <DropZone 
+              components={droppedComponents}
+              onComponentsChange={setDroppedComponents}
+              selectedComponentId={selectedComponent?.id}
+              onSelectComponent={setSelectedComponent}
+            />
           </div>
         </div>
       </div>
@@ -357,91 +354,58 @@ export function QuizEditor() {
       <div className="w-80 bg-background border-l border-border flex flex-col shrink-0">
         <Tabs value={rightTab} onValueChange={(v) => setRightTab(v as 'stage' | 'appearance')} className="flex flex-col h-full">
           <TabsList className="grid grid-cols-2 m-4 mb-0">
-            <TabsTrigger value="stage">Etapa</TabsTrigger>
+            <TabsTrigger value="stage">Componente</TabsTrigger>
             <TabsTrigger value="appearance">Aparência</TabsTrigger>
           </TabsList>
           
           <TabsContent value="stage" className="flex-1 overflow-y-auto p-4 mt-0">
-            {editingScreen ? (
-              <ScreenEditor quizId={currentQuiz.id} screen={editingScreen} />
+            {selectedComponent ? (
+              <ComponentEditor 
+                component={selectedComponent}
+                onUpdate={(config) => {
+                  setDroppedComponents(prev => 
+                    prev.map(c => c.id === selectedComponent.id ? { ...c, config } : c)
+                  );
+                  setSelectedComponent(prev => prev ? { ...prev, config } : null);
+                }}
+                onDelete={() => {
+                  setDroppedComponents(prev => prev.filter(c => c.id !== selectedComponent.id));
+                  setSelectedComponent(null);
+                }}
+              />
             ) : (
               <div className="text-center py-12">
-                <p className="text-sm text-muted-foreground">Selecione uma etapa</p>
+                <p className="text-sm text-muted-foreground">Selecione um componente</p>
+                <p className="text-xs text-muted-foreground mt-1">ou arraste da paleta</p>
               </div>
             )}
           </TabsContent>
           
           <TabsContent value="appearance" className="flex-1 overflow-y-auto p-4 mt-0">
-            {editingScreen ? (
-              <div className="space-y-6">
-                {/* Elementos */}
-                <div>
-                  <Label className="text-xs text-muted-foreground uppercase tracking-wide mb-3 block">Elementos</Label>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Mostrar título</span>
-                      <Switch 
-                        checked={editingScreen.showTitle !== false}
-                        onCheckedChange={(checked) => updateScreen(currentQuiz.id, editingScreen.id, { showTitle: checked })}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Mostrar subtítulo</span>
-                      <Switch 
-                        checked={editingScreen.showSubtitle !== false}
-                        onCheckedChange={(checked) => updateScreen(currentQuiz.id, editingScreen.id, { showSubtitle: checked })}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Mostrar botão</span>
-                      <Switch 
-                        checked={editingScreen.showButton !== false}
-                        onCheckedChange={(checked) => updateScreen(currentQuiz.id, editingScreen.id, { showButton: checked })}
-                      />
-                    </div>
+            <div className="space-y-6">
+              {/* Page Settings */}
+              <div>
+                <Label className="text-xs text-muted-foreground uppercase tracking-wide mb-3 block">Configurações da página</Label>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Mostrar header</span>
+                    <Switch defaultChecked />
                   </div>
-                </div>
-
-                {/* Header */}
-                <div>
-                  <Label className="text-xs text-muted-foreground uppercase tracking-wide mb-3 block">Header</Label>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Mostrar header</span>
-                      <Switch 
-                        checked={editingScreen.showHeader !== false}
-                        onCheckedChange={(checked) => updateScreen(currentQuiz.id, editingScreen.id, { showHeader: checked })}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Mostrar progresso</span>
-                      <Switch 
-                        checked={editingScreen.showProgress !== false}
-                        onCheckedChange={(checked) => updateScreen(currentQuiz.id, editingScreen.id, { showProgress: checked })}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Botão voltar</span>
-                      <Switch 
-                        checked={editingScreen.allowBack !== false}
-                        onCheckedChange={(checked) => updateScreen(currentQuiz.id, editingScreen.id, { allowBack: checked })}
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Mostrar logo</span>
-                      <Switch 
-                        checked={editingScreen.showLogo !== false}
-                        onCheckedChange={(checked) => updateScreen(currentQuiz.id, editingScreen.id, { showLogo: checked })}
-                      />
-                    </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Mostrar progresso</span>
+                    <Switch defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Botão voltar</span>
+                    <Switch defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Mostrar logo</span>
+                    <Switch defaultChecked />
                   </div>
                 </div>
               </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-sm text-muted-foreground">Selecione uma etapa</p>
-              </div>
-            )}
+            </div>
           </TabsContent>
         </Tabs>
       </div>
