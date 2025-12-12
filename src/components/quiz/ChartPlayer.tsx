@@ -257,14 +257,24 @@ function BarChartView({ config }: { config: ChartConfig }) {
 
   return (
     <ResponsiveContainer width="100%" height={220}>
-      <BarChart data={chartData} margin={{ top: 20, right: 20, left: -20, bottom: 5 }}>
+      <BarChart data={chartData} margin={{ top: 15, right: 15, left: 5, bottom: 5 }} barCategoryGap="20%">
+        <defs>
+          {dataSets.map(ds => (
+            <linearGradient key={`bar-gradient-${ds.id}`} id={`bar-gradient-${ds.id}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={ds.color} stopOpacity={1} />
+              <stop offset="100%" stopColor={ds.color} stopOpacity={0.7} />
+            </linearGradient>
+          ))}
+        </defs>
+        
         {(showGridX || showGridY) && (
           <CartesianGrid 
-            strokeDasharray="3 3" 
+            strokeDasharray="4 4" 
             vertical={showGridY} 
             horizontal={showGridX} 
-            stroke="hsl(var(--border))" 
-            strokeOpacity={0.5}
+            stroke="hsl(var(--muted-foreground))" 
+            strokeOpacity={0.15}
+            strokeWidth={1}
           />
         )}
         
@@ -273,8 +283,8 @@ function BarChartView({ config }: { config: ChartConfig }) {
             dataKey="name" 
             axisLine={false}
             tickLine={false}
-            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
-            dy={8}
+            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11, fontWeight: 500 }}
+            dy={10}
           />
         )}
         
@@ -285,7 +295,8 @@ function BarChartView({ config }: { config: ChartConfig }) {
             tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
             domain={[0, 100]}
             ticks={[0, 25, 50, 75, 100]}
-            width={35}
+            width={32}
+            dx={-2}
           />
         )}
         
@@ -295,8 +306,9 @@ function BarChartView({ config }: { config: ChartConfig }) {
           <Bar
             key={ds.id}
             dataKey={ds.id}
-            fill={ds.color}
-            radius={[4, 4, 0, 0]}
+            fill={`url(#bar-gradient-${ds.id})`}
+            radius={[6, 6, 0, 0]}
+            style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))' }}
           />
         ))}
       </BarChart>
