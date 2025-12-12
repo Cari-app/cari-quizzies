@@ -132,8 +132,8 @@ function CartesianChartView({ config }: { config: ChartConfig }) {
   };
 
   return (
-    <ResponsiveContainer width="100%" height={200}>
-      <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+    <ResponsiveContainer width="100%" height={220}>
+      <AreaChart data={chartData} margin={{ top: 20, right: 20, left: -20, bottom: 5 }}>
         <defs>
           {gradientDefs}
           {/* Vertical gradients for area fill */}
@@ -145,8 +145,14 @@ function CartesianChartView({ config }: { config: ChartConfig }) {
           ))}
         </defs>
         
-        {showGridX && showGridY && (
-          <CartesianGrid strokeDasharray="3 3" vertical={showGridY} horizontal={showGridX} stroke="hsl(var(--border))" />
+        {(showGridX || showGridY) && (
+          <CartesianGrid 
+            strokeDasharray="3 3" 
+            vertical={showGridY} 
+            horizontal={showGridX} 
+            stroke="hsl(var(--border))" 
+            strokeOpacity={0.5}
+          />
         )}
         
         {showXAxis && (
@@ -154,7 +160,8 @@ function CartesianChartView({ config }: { config: ChartConfig }) {
             dataKey="name" 
             axisLine={false}
             tickLine={false}
-            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+            dy={8}
           />
         )}
         
@@ -162,9 +169,10 @@ function CartesianChartView({ config }: { config: ChartConfig }) {
           <YAxis 
             axisLine={false}
             tickLine={false}
-            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
             domain={[0, 100]}
             ticks={[0, 25, 50, 75, 100]}
+            width={35}
           />
         )}
         
@@ -206,10 +214,16 @@ function BarChartView({ config }: { config: ChartConfig }) {
   }, [dataSets]);
 
   return (
-    <ResponsiveContainer width="100%" height={200}>
-      <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-        {showGridX && showGridY && (
-          <CartesianGrid strokeDasharray="3 3" vertical={showGridY} horizontal={showGridX} stroke="hsl(var(--border))" />
+    <ResponsiveContainer width="100%" height={220}>
+      <BarChart data={chartData} margin={{ top: 20, right: 20, left: -20, bottom: 5 }}>
+        {(showGridX || showGridY) && (
+          <CartesianGrid 
+            strokeDasharray="3 3" 
+            vertical={showGridY} 
+            horizontal={showGridX} 
+            stroke="hsl(var(--border))" 
+            strokeOpacity={0.5}
+          />
         )}
         
         {showXAxis && (
@@ -217,7 +231,8 @@ function BarChartView({ config }: { config: ChartConfig }) {
             dataKey="name" 
             axisLine={false}
             tickLine={false}
-            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+            dy={8}
           />
         )}
         
@@ -225,9 +240,10 @@ function BarChartView({ config }: { config: ChartConfig }) {
           <YAxis 
             axisLine={false}
             tickLine={false}
-            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
+            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
             domain={[0, 100]}
             ticks={[0, 25, 50, 75, 100]}
+            width={35}
           />
         )}
         
