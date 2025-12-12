@@ -63,6 +63,9 @@ const getComponentIcon = (type: string, iconName: string) => {
 
 export const StageNode = memo(({ data, selected }: NodeProps & { data: StageNodeData }) => {
   const allComponents = data.components;
+  
+  // Check if any component can navigate
+  const hasConnectableComponents = allComponents.some(comp => canConnect(comp));
 
   return (
     <div
@@ -107,7 +110,7 @@ export const StageNode = memo(({ data, selected }: NodeProps & { data: StageNode
                     <Handle
                       type="source"
                       position={Position.Right}
-                      id={`comp-${comp.id || idx}`}
+                      id={`comp-${comp.id}`}
                       className="!w-2.5 !h-2.5 !bg-primary/60 !border-2 !border-primary !right-[-10px] hover:!bg-primary transition-colors"
                     />
                   )}
@@ -117,18 +120,21 @@ export const StageNode = memo(({ data, selected }: NodeProps & { data: StageNode
           </>
         )}
       </div>
+      
+      {/* No connectable components message */}
+      {!hasConnectableComponents && allComponents.length > 0 && (
+        <div className="px-2 pb-2">
+          <div className="text-[9px] text-muted-foreground/60 italic text-center">
+            Sem componentes de navegação
+          </div>
+        </div>
+      )}
 
-      {/* Connection Handles */}
+      {/* Target Handle - always present to receive connections */}
       <Handle
         type="target"
         position={Position.Left}
         className="!w-3 !h-3 !bg-background !border-2 !border-muted-foreground/50 !-left-1.5"
-      />
-      <Handle
-        type="source"
-        position={Position.Right}
-        id="default"
-        className="!w-3 !h-3 !bg-background !border-2 !border-muted-foreground/50 !-right-1.5"
       />
     </div>
   );
