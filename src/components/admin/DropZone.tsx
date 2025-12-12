@@ -783,21 +783,15 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const displayText = text.replace('[time]', formattedTime);
         
         const widthValue = config.width || 100;
-        const horizontalAlign = config.horizontalAlign || 'start';
-        const justifyClass = {
-          start: 'justify-start',
-          center: 'justify-center',
-          end: 'justify-end',
-        }[horizontalAlign];
         
         return (
-          <div className={cn("w-full px-4 flex", justifyClass)}>
+          <div className="w-full px-4">
             <div 
               className={cn(
-                "rounded-lg px-4 py-3 text-center font-medium shrink-0",
+                "rounded-lg px-4 py-3 text-center font-medium",
                 timerStyles[style as keyof typeof timerStyles]
               )}
-              style={{ width: widthValue < 100 ? `${widthValue}%` : '100%' }}
+              style={{ width: `${widthValue}%` }}
             >
               {displayText}
             </div>
