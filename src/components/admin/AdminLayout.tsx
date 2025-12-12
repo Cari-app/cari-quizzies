@@ -1,11 +1,12 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, FileQuestion, ChevronLeft } from 'lucide-react';
+import { LayoutDashboard, FileQuestion, ChevronLeft, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
   { icon: FileQuestion, label: 'Quizzes', path: '/admin' },
+  { icon: Settings, label: 'Configurações', path: '/admin/settings' },
 ];
 
 export function AdminLayout() {

@@ -14,53 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
-      etapas: {
+      site_settings: {
         Row: {
+          accent_color: string | null
+          background_color: string | null
+          created_at: string
           id: string
-          ordem: number
-          quiz_id: string
-          texto: string
+          logo_url: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          site_name: string | null
+          text_color: string | null
+          updated_at: string
+          user_id: string
         }
         Insert: {
+          accent_color?: string | null
+          background_color?: string | null
+          created_at?: string
           id?: string
-          ordem: number
-          quiz_id: string
-          texto: string
+          logo_url?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          site_name?: string | null
+          text_color?: string | null
+          updated_at?: string
+          user_id: string
         }
         Update: {
+          accent_color?: string | null
+          background_color?: string | null
+          created_at?: string
           id?: string
-          ordem?: number
-          quiz_id?: string
-          texto?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "etapas_quiz_id_fkey"
-            columns: ["quiz_id"]
-            isOneToOne: false
-            referencedRelation: "quizzes"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      quizzes: {
-        Row: {
-          criado_em: string | null
-          criado_por: string
-          id: string
-          titulo: string
-        }
-        Insert: {
-          criado_em?: string | null
-          criado_por: string
-          id?: string
-          titulo: string
-        }
-        Update: {
-          criado_em?: string | null
-          criado_por?: string
-          id?: string
-          titulo?: string
+          logo_url?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          site_name?: string | null
+          text_color?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

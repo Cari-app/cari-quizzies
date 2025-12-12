@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import QuizPage from "./pages/QuizPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminQuizEditor from "./pages/admin/AdminQuizEditor";
+import AdminSettings from "./pages/admin/AdminSettings";
 import { AdminLayout } from "./components/admin/AdminLayout";
 import NotFound from "./pages/NotFound";
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/quiz" element={<QuizPage />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
+            <Route path="settings" element={<AdminSettings />} />
           </Route>
           {/* Editor em tela cheia, sem layout */}
           <Route path="/admin/quiz/:id" element={<AdminQuizEditor />} />
