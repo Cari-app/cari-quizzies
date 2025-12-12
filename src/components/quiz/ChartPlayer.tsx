@@ -133,10 +133,9 @@ function CartesianChartView({ config }: { config: ChartConfig }) {
 
   return (
     <ResponsiveContainer width="100%" height={220}>
-      <AreaChart data={chartData} margin={{ top: 20, right: 20, left: -20, bottom: 5 }}>
+      <AreaChart data={chartData} margin={{ top: 15, right: 15, left: 5, bottom: 5 }}>
         <defs>
           {gradientDefs}
-          {/* Vertical gradients for area fill */}
           {/* Horizontal gradient for stroke with vibrant colors */}
           {dataSets.map(ds => {
             if (ds.fillType === 'gradient' && ds.gradientColors.length > 0) {
@@ -147,7 +146,7 @@ function CartesianChartView({ config }: { config: ChartConfig }) {
                       key={index}
                       offset={`${(index / (ds.gradientColors.length - 1)) * 100}%`}
                       stopColor={color}
-                      stopOpacity={0.6}
+                      stopOpacity={0.55}
                     />
                   ))}
                 </linearGradient>
@@ -155,8 +154,8 @@ function CartesianChartView({ config }: { config: ChartConfig }) {
             }
             return (
               <linearGradient key={`fill-${ds.id}`} id={`fill-gradient-${ds.id}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={ds.color} stopOpacity={0.5} />
-                <stop offset="100%" stopColor={ds.color} stopOpacity={0.1} />
+                <stop offset="0%" stopColor={ds.color} stopOpacity={0.45} />
+                <stop offset="100%" stopColor={ds.color} stopOpacity={0.08} />
               </linearGradient>
             );
           })}
@@ -164,11 +163,12 @@ function CartesianChartView({ config }: { config: ChartConfig }) {
         
         {(showGridX || showGridY) && (
           <CartesianGrid 
-            strokeDasharray="3 3" 
+            strokeDasharray="4 4" 
             vertical={showGridY} 
             horizontal={showGridX} 
-            stroke="hsl(var(--border))" 
-            strokeOpacity={0.4}
+            stroke="hsl(var(--muted-foreground))" 
+            strokeOpacity={0.15}
+            strokeWidth={1}
           />
         )}
         
@@ -178,7 +178,7 @@ function CartesianChartView({ config }: { config: ChartConfig }) {
             axisLine={false}
             tickLine={false}
             tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11, fontWeight: 500 }}
-            dy={8}
+            dy={10}
           />
         )}
         
@@ -189,7 +189,8 @@ function CartesianChartView({ config }: { config: ChartConfig }) {
             tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
             domain={[0, 100]}
             ticks={[0, 25, 50, 75, 100]}
-            width={30}
+            width={32}
+            dx={-2}
           />
         )}
         
@@ -210,7 +211,7 @@ function CartesianChartView({ config }: { config: ChartConfig }) {
               type="monotone"
               dataKey={ds.id}
               stroke={getStrokeColor(ds)}
-              strokeWidth={3}
+              strokeWidth={2.5}
               fill={showArea ? `url(#fill-gradient-${ds.id})` : 'transparent'}
               dot={(props: any) => {
                 const { cx, cy, index } = props;
@@ -219,15 +220,15 @@ function CartesianChartView({ config }: { config: ChartConfig }) {
                   <circle
                     cx={cx}
                     cy={cy}
-                    r={6}
+                    r={5}
                     fill={color}
                     stroke="white"
                     strokeWidth={2}
-                    style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.15))' }}
+                    style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }}
                   />
                 );
               }}
-              activeDot={{ r: 8, stroke: 'white', strokeWidth: 2 }}
+              activeDot={{ r: 7, stroke: 'white', strokeWidth: 2.5, style: { filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.3))' } }}
             />
           );
         })}
