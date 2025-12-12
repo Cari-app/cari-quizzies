@@ -4,8 +4,10 @@ export const mockQuizzes: Quiz[] = [
   {
     id: '1',
     name: 'Quiz de Saúde e Bem-estar',
+    slug: 'saude-bem-estar',
     description: 'Descubra seu perfil de saúde personalizado',
     isPublished: true,
+    isActive: true,
     createdAt: new Date('2024-01-15'),
     updatedAt: new Date('2024-01-20'),
     screens: [

@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check } from 'lucide-react';
 import { Reorder } from 'framer-motion';
 import { Quiz, QuizScreen, QuizScreenType } from '@/types/quiz';
 import { ScreenEditor } from './ScreenEditor';
@@ -25,6 +25,25 @@ export function QuizEditor() {
   const [previewMode, setPreviewMode] = useState<'mobile' | 'desktop'>('mobile');
   const [rightTab, setRightTab] = useState<'stage' | 'appearance'>('stage');
   const [widgetsExpanded, setWidgetsExpanded] = useState(false);
+  const [slugCopied, setSlugCopied] = useState(false);
+
+  const generateSlug = (name: string) => {
+    return name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  };
+
+  const handleCopyUrl = () => {
+    if (currentQuiz?.slug) {
+      const url = `${window.location.origin}/${currentQuiz.slug}`;
+      navigator.clipboard.writeText(url);
+      setSlugCopied(true);
+      setTimeout(() => setSlugCopied(false), 2000);
+    }
+  };
 
   useEffect(() => {
     if (id === 'new') {
@@ -88,8 +107,12 @@ export function QuizEditor() {
   };
 
   const handlePreview = () => {
-    startSession(currentQuiz.id);
-    navigate('/quiz');
+    if (currentQuiz.slug) {
+      navigate(`/${currentQuiz.slug}`);
+    } else {
+      startSession(currentQuiz.id);
+      navigate(`/${currentQuiz.id}`);
+    }
   };
 
   return (
@@ -110,10 +133,42 @@ export function QuizEditor() {
             
             <Input
               value={currentQuiz.name}
-              onChange={(e) => updateQuiz(currentQuiz.id, { name: e.target.value })}
+              onChange={(e) => {
+                const newName = e.target.value;
+                const updates: Partial<Quiz> = { name: newName };
+                // Auto-generate slug if not set
+                if (!currentQuiz.slug) {
+                  updates.slug = generateSlug(newName);
+                }
+                updateQuiz(currentQuiz.id, updates);
+              }}
               className="font-medium border-none bg-transparent px-0 h-auto text-sm focus-visible:ring-0 shadow-none"
               placeholder="Nome do quiz"
             />
+            
+            {/* URL Slug */}
+            <div className="mt-2 flex items-center gap-1.5">
+              <Globe className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <Input
+                value={currentQuiz.slug || ''}
+                onChange={(e) => updateQuiz(currentQuiz.id, { slug: generateSlug(e.target.value) })}
+                className="text-xs border-none bg-transparent px-0 h-auto focus-visible:ring-0 shadow-none text-muted-foreground"
+                placeholder="url-do-quiz"
+              />
+              {currentQuiz.slug && (
+                <button
+                  onClick={handleCopyUrl}
+                  className="p-1 hover:bg-accent rounded transition-colors shrink-0"
+                  title="Copiar URL"
+                >
+                  {slugCopied ? (
+                    <Check className="w-3 h-3 text-green-500" />
+                  ) : (
+                    <Copy className="w-3 h-3 text-muted-foreground" />
+                  )}
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Steps Section */}

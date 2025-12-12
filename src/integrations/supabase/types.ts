@@ -14,6 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
+      etapas: {
+        Row: {
+          configuracoes: Json | null
+          descricao: string | null
+          id: string
+          opcoes: Json | null
+          ordem: number
+          quiz_id: string
+          subtitulo: string | null
+          texto_botao: string | null
+          tipo: string
+          titulo: string | null
+        }
+        Insert: {
+          configuracoes?: Json | null
+          descricao?: string | null
+          id?: string
+          opcoes?: Json | null
+          ordem: number
+          quiz_id: string
+          subtitulo?: string | null
+          texto_botao?: string | null
+          tipo?: string
+          titulo?: string | null
+        }
+        Update: {
+          configuracoes?: Json | null
+          descricao?: string | null
+          id?: string
+          opcoes?: Json | null
+          ordem?: number
+          quiz_id?: string
+          subtitulo?: string | null
+          texto_botao?: string | null
+          tipo?: string
+          titulo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "etapas_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quizzes: {
+        Row: {
+          atualizado_em: string | null
+          criado_em: string | null
+          criado_por: string
+          descricao: string | null
+          id: string
+          is_active: boolean | null
+          slug: string | null
+          titulo: string
+        }
+        Insert: {
+          atualizado_em?: string | null
+          criado_em?: string | null
+          criado_por: string
+          descricao?: string | null
+          id?: string
+          is_active?: boolean | null
+          slug?: string | null
+          titulo: string
+        }
+        Update: {
+          atualizado_em?: string | null
+          criado_em?: string | null
+          criado_por?: string
+          descricao?: string | null
+          id?: string
+          is_active?: boolean | null
+          slug?: string | null
+          titulo?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           accent_color: string | null

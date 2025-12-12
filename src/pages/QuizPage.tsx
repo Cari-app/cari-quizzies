@@ -1,5 +1,8 @@
+import { useParams } from 'react-router-dom';
 import { QuizPlayer } from '@/components/quiz/QuizPlayer';
 
 export default function QuizPage() {
-  return <QuizPlayer />;
+  const { slug } = useParams<{ slug: string }>();
+  
+  return <QuizPlayer slug={slug} />;
 }
