@@ -672,7 +672,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const alignClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
         
         return (
-          <div className={cn("px-4", `flex ${alignClass}`)}>
+          <div className={cn("w-full flex", alignClass)}>
             <div 
               className={cn(
                 "rounded-lg border",
