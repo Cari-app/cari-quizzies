@@ -335,8 +335,8 @@ export function ReadonlyDropZone({ components }: ReadonlyDropZoneProps) {
   }
 
   return (
-    <div className="flex flex-col items-center py-2.5 px-4">
-      <div className="w-full max-w-md">
+    <div className="flex-1 flex flex-col items-center py-2.5 px-4 overflow-y-auto">
+      <div className="w-full max-w-md my-auto">
         <div className="flex flex-wrap gap-2">
           {components.map((comp) => {
             const config = (comp.config || {}) as Record<string, any>;
