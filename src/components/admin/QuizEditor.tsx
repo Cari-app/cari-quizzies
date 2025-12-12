@@ -568,15 +568,13 @@ export function QuizEditor() {
 
         {/* Widgets Palette - Floating toggle when closed */}
         {!widgetsExpanded && (
-          <div className="relative">
-            <button
-              onClick={() => setWidgetsExpanded(true)}
-              className="absolute top-4 left-2 z-10 p-2.5 rounded-lg border border-border bg-background shadow-sm hover:bg-muted transition-colors"
-              title="Abrir paleta de componentes"
-            >
-              <PanelLeftOpen className="w-4 h-4 text-muted-foreground" />
-            </button>
-          </div>
+          <button
+            onClick={() => setWidgetsExpanded(true)}
+            className="m-3 p-1.5 rounded hover:bg-muted/80 transition-colors"
+            title="Abrir paleta de componentes"
+          >
+            <PanelLeftOpen className="w-4 h-4 text-muted-foreground" />
+          </button>
         )}
         
         {/* Widgets Palette - Expanded */}
