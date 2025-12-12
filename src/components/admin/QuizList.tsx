@@ -10,6 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Quiz } from '@/types/quiz';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -28,6 +29,8 @@ export function QuizList() {
   const navigate = useNavigate();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [quizToDelete, setQuizToDelete] = useState<string | null>(null);
 
   // Load quizzes from Supabase
   useEffect(() => {
@@ -76,21 +79,29 @@ export function QuizList() {
     navigate('/admin/quiz/' + quiz.id);
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Tem certeza que deseja excluir este quiz?')) {
-      try {
-        // Delete etapas first
-        await supabase.from('etapas').delete().eq('quiz_id', id);
-        // Then delete quiz
-        const { error } = await supabase.from('quizzes').delete().eq('id', id);
-        if (error) throw error;
-        
-        setQuizzes(prev => prev.filter(q => q.id !== id));
-        toast.success('Quiz excluído com sucesso');
-      } catch (error: any) {
-        console.error('Error deleting quiz:', error);
-        toast.error('Erro ao excluir quiz');
-      }
+  const handleDeleteClick = (id: string) => {
+    setQuizToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!quizToDelete) return;
+    
+    try {
+      // Delete etapas first
+      await supabase.from('etapas').delete().eq('quiz_id', quizToDelete);
+      // Then delete quiz
+      const { error } = await supabase.from('quizzes').delete().eq('id', quizToDelete);
+      if (error) throw error;
+      
+      setQuizzes(prev => prev.filter(q => q.id !== quizToDelete));
+      toast.success('Quiz excluído com sucesso');
+    } catch (error: any) {
+      console.error('Error deleting quiz:', error);
+      toast.error('Erro ao excluir quiz');
+    } finally {
+      setDeleteDialogOpen(false);
+      setQuizToDelete(null);
     }
   };
 
@@ -187,7 +198,7 @@ export function QuizList() {
                       Visualizar
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      onClick={() => handleDelete(quiz.id)}
+                      onClick={() => handleDeleteClick(quiz.id)}
                       className="text-sm text-destructive focus:text-destructive"
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
@@ -200,6 +211,16 @@ export function QuizList() {
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Excluir quiz"
+        description="Tem certeza que deseja excluir este quiz? Esta ação não pode ser desfeita."
+        confirmText="Excluir"
+        onConfirm={handleDeleteConfirm}
+        variant="destructive"
+      />
     </div>
   );
 }
