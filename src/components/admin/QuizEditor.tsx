@@ -617,7 +617,7 @@ export function QuizEditor() {
           <div className="flex-1 flex flex-col items-center p-6 overflow-y-auto gap-4">
             {stages.length === 0 ? (
               <div 
-                className="w-[375px] h-[667px] rounded-[2.5rem] shadow-xl border-[8px] border-foreground/10 flex items-center justify-center"
+                className="w-[375px] min-h-[667px] rounded-3xl shadow-lg border border-border/30 flex items-center justify-center"
                 style={{ backgroundColor: designSettings.backgroundColor }}
               >
                 <p className="text-sm opacity-60" style={{ color: designSettings.textColor }}>
@@ -632,10 +632,7 @@ export function QuizEditor() {
                     setSelectedStageId(stage.id);
                     setEditorView('editor');
                   }}
-                  className={cn(
-                    "relative w-[375px] h-[667px] rounded-[2.5rem] shadow-xl border-[8px] overflow-hidden flex flex-col cursor-pointer transition-all hover:scale-[1.02] hover:shadow-2xl",
-                    selectedStageId === stage.id ? "border-primary" : "border-foreground/10"
-                  )}
+                  className="relative w-[375px] min-h-[667px] rounded-3xl shadow-lg border border-border/30 overflow-hidden flex flex-col cursor-pointer transition-all hover:shadow-xl"
                   style={{
                     backgroundColor: designSettings.backgroundColor,
                     fontFamily: designSettings.primaryFont,
