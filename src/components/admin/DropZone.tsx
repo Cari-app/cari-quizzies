@@ -134,6 +134,15 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             { id: '3', name: 'Carlos', platform: 'Facebook', number: '5' },
           ]
         };
+      case 'timer':
+        return {
+          timerSeconds: 20,
+          timerText: 'Resgate agora seu desconto: [time]',
+          timerStyle: 'red',
+          width: 100,
+          horizontalAlign: 'start',
+          verticalAlign: 'auto'
+        };
       default:
         return {};
     }
@@ -747,6 +756,50 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   {description}
                 </p>
               </div>
+            </div>
+          </div>
+        );
+      }
+      case 'timer': {
+        const timerStyles = {
+          default: 'bg-primary text-primary-foreground',
+          red: 'bg-red-100 text-red-700 border border-red-200',
+          blue: 'bg-blue-100 text-blue-700 border border-blue-200',
+          green: 'bg-green-100 text-green-700 border border-green-200',
+          yellow: 'bg-yellow-100 text-yellow-700 border border-yellow-200',
+          gray: 'bg-gray-100 text-gray-700 border border-gray-200',
+        };
+        
+        const style = config.timerStyle || 'red';
+        const seconds = config.timerSeconds || 20;
+        const text = config.timerText || 'Resgate agora seu desconto: [time]';
+        
+        // Format seconds to MM:SS
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        const formattedTime = `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+        
+        // Replace [time] with formatted time
+        const displayText = text.replace('[time]', formattedTime);
+        
+        const widthValue = config.width || 100;
+        const horizontalAlign = config.horizontalAlign || 'start';
+        const justifyClass = {
+          start: 'justify-start',
+          center: 'justify-center',
+          end: 'justify-end',
+        }[horizontalAlign];
+        
+        return (
+          <div className={cn("w-full px-4 flex", justifyClass)}>
+            <div 
+              className={cn(
+                "rounded-lg px-4 py-3 text-center font-medium",
+                timerStyles[style as keyof typeof timerStyles]
+              )}
+              style={{ width: `${widthValue}%` }}
+            >
+              {displayText}
             </div>
           </div>
         );
