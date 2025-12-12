@@ -1,9 +1,7 @@
-import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { GripVertical, Copy } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { GripVertical, Trash2 } from 'lucide-react';
 
 export interface MetricItem {
   id: string;
@@ -105,9 +103,8 @@ export function MetricItemEditor({
           size="icon"
           className="h-8 w-8 text-muted-foreground hover:text-destructive"
           onClick={onRemove}
-          disabled={totalItems <= 1}
         >
-          <Copy className="w-4 h-4" />
+          <Trash2 className="w-4 h-4" />
         </Button>
       </div>
     </div>
