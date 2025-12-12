@@ -1,16 +1,21 @@
 import { useNavigate } from 'react-router-dom';
 import { useQuizStore } from '@/store/quizStore';
 import { Button } from '@/components/ui/button';
-import { Settings, Play, ChevronRight } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { Settings, Play, ChevronRight, LogIn } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
-  const { quizzes, startSession } = useQuizStore();
+  const { quizzes } = useQuizStore();
+  const { isAuthenticated } = useAuth();
   const publishedQuizzes = quizzes.filter(q => q.isPublished);
 
-  const handleStartQuiz = (quizId: string) => {
-    startSession(quizId);
-    navigate('/quiz');
+  const handleStartQuiz = (quiz: typeof quizzes[0]) => {
+    if (quiz.slug) {
+      navigate(`/${quiz.slug}`);
+    } else {
+      navigate(`/${quiz.id}`);
+    }
   };
 
   return (
@@ -22,15 +27,27 @@ const Index = () => {
             <span className="text-lg">📋</span>
             <span className="font-medium">QuizFlow</span>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/admin')}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            Admin
-          </Button>
+          {isAuthenticated ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/admin')}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Admin
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/login')}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <LogIn className="w-4 h-4 mr-2" />
+              Entrar
+            </Button>
+          )}
         </div>
       </header>
 
@@ -51,14 +68,17 @@ const Index = () => {
             </div>
             <h3 className="font-medium mb-1">Nenhum quiz disponível</h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Acesse o painel admin para criar e publicar quizzes.
+              {isAuthenticated 
+                ? 'Acesse o painel admin para criar e publicar quizzes.'
+                : 'Entre com sua conta para criar quizzes.'
+              }
             </p>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => navigate('/admin')}
+              onClick={() => navigate(isAuthenticated ? '/admin' : '/login')}
             >
-              Ir para Admin
+              {isAuthenticated ? 'Ir para Admin' : 'Fazer login'}
             </Button>
           </div>
         ) : (
@@ -66,7 +86,7 @@ const Index = () => {
             {publishedQuizzes.map((quiz) => (
               <button
                 key={quiz.id}
-                onClick={() => handleStartQuiz(quiz.id)}
+                onClick={() => handleStartQuiz(quiz)}
                 className="w-full text-left p-4 rounded-md border border-border hover:bg-accent transition-colors group"
               >
                 <div className="flex items-center justify-between">

@@ -4,11 +4,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import AuthPage from "./pages/AuthPage";
 import QuizPage from "./pages/QuizPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminQuizEditor from "./pages/admin/AdminQuizEditor";
 import AdminSettings from "./pages/admin/AdminSettings";
 import { AdminLayout } from "./components/admin/AdminLayout";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,15 +22,32 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/admin" element={<AdminLayout />}>
+          {/* Auth routes */}
+          <Route path="/login" element={<AuthPage />} />
+          
+          {/* Protected admin routes */}
+          <Route path="/admin" element={
+            <ProtectedRoute>
+              <AdminLayout />
+            </ProtectedRoute>
+          }>
             <Route index element={<AdminDashboard />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
-          {/* Editor em tela cheia, sem layout */}
-          <Route path="/admin/quiz/:id" element={<AdminQuizEditor />} />
+          
+          {/* Editor em tela cheia, protegido */}
+          <Route path="/admin/quiz/:id" element={
+            <ProtectedRoute>
+              <AdminQuizEditor />
+            </ProtectedRoute>
+          } />
+          
+          {/* Public routes */}
+          <Route path="/" element={<Index />} />
+          
           {/* Quiz público por slug */}
           <Route path="/:slug" element={<QuizPage />} />
+          
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

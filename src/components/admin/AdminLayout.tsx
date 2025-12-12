@@ -1,7 +1,18 @@
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, FileQuestion, ChevronLeft, Settings } from 'lucide-react';
+import { LayoutDashboard, FileQuestion, Settings, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/useAuth';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useToast } from '@/hooks/use-toast';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
@@ -11,6 +22,29 @@ const navItems = [
 
 export function AdminLayout() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { user, profile, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast({
+        title: 'Erro',
+        description: 'Erro ao sair da conta',
+        variant: 'destructive',
+      });
+    } else {
+      navigate('/login');
+    }
+  };
+
+  const getInitials = () => {
+    if (profile?.full_name) {
+      return profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+    return user?.email?.charAt(0).toUpperCase() || '?';
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -44,12 +78,37 @@ export function AdminLayout() {
             </nav>
           </div>
 
-          <Link to="/">
-            <Button variant="ghost" size="sm" className="text-muted-foreground text-sm">
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Voltar ao site
-            </Button>
-          </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="gap-2">
+                <Avatar className="w-6 h-6">
+                  <AvatarImage src={profile?.avatar_url || undefined} />
+                  <AvatarFallback className="text-xs">{getInitials()}</AvatarFallback>
+                </Avatar>
+                <span className="text-sm hidden sm:inline">
+                  {profile?.full_name || user?.email}
+                </span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuLabel>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">{profile?.full_name || 'Usuário'}</span>
+                  <span className="text-xs text-muted-foreground">{user?.email}</span>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/admin/settings')}>
+                <Settings className="w-4 h-4 mr-2" />
+                Configurações
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                <LogOut className="w-4 h-4 mr-2" />
+                Sair
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 
