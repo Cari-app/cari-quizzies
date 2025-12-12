@@ -634,10 +634,8 @@ export function QuizEditor() {
                     setSelectedStageId(stage.id);
                     setEditorView('editor');
                   }}
-                  className={cn(
-                    "bg-background rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col cursor-pointer transition-all hover:shadow-xl",
-                    "w-[375px] h-[667px]"
-                  )}
+                  className="bg-background rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col cursor-pointer transition-all hover:shadow-xl shrink-0"
+                  style={{ width: '375px', height: '667px' }}
                 >
                   {/* Quiz Header - EXACT same as constructor */}
                   <div className="shrink-0 border-b border-border p-3">
