@@ -279,17 +279,7 @@ export function QuizEditor() {
         {/* Widgets Column - Closes completely */}
         {widgetsExpanded && (
           <div className="w-52 bg-background border-r border-border flex flex-col">
-            <div className="p-3 border-b border-border flex items-center justify-between">
-              <span className="text-sm font-medium">Componentes</span>
-              <button
-                onClick={() => setWidgetsExpanded(false)}
-                className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-                title="Fechar"
-              >
-                <PanelLeftClose className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-2">
+            <div className="flex-1 overflow-y-auto p-3">
               <ComponentPalette expanded={true} />
             </div>
           </div>
