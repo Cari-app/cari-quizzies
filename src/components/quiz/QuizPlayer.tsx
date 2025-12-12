@@ -42,6 +42,9 @@ interface ComponentConfig {
   fontSize?: string;
   mediaUrl?: string;
   altText?: string;
+  // Video specific
+  videoType?: 'url' | 'embed';
+  embedCode?: string;
   height?: number;
   options?: OptionItem[];
   allowMultiple?: boolean;
@@ -714,12 +717,123 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         );
       }
 
-      case 'video':
-        return config.mediaUrl ? (
-          <div className="py-4">
-            <video src={config.mediaUrl} controls className="w-full rounded-lg" />
-          </div>
-        ) : null;
+      case 'video': {
+        // If embed code is provided, use it
+        if (config.videoType === 'embed' && config.embedCode) {
+          return (
+            <div className="py-4">
+              <div 
+                className="w-full aspect-video rounded-lg overflow-hidden"
+                dangerouslySetInnerHTML={{ __html: config.embedCode }}
+              />
+            </div>
+          );
+        }
+        
+        // If URL is provided, try to convert to embed
+        if (config.mediaUrl) {
+          const url = config.mediaUrl;
+          
+          // YouTube
+          const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+          if (youtubeMatch) {
+            return (
+              <div className="py-4">
+                <iframe
+                  src={`https://www.youtube.com/embed/${youtubeMatch[1]}`}
+                  className="w-full aspect-video rounded-lg"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            );
+          }
+          
+          // Vimeo
+          const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+          if (vimeoMatch) {
+            return (
+              <div className="py-4">
+                <iframe
+                  src={`https://player.vimeo.com/video/${vimeoMatch[1]}`}
+                  className="w-full aspect-video rounded-lg"
+                  allow="autoplay; fullscreen; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            );
+          }
+          
+          // Panda Video - check for various formats
+          if (url.includes('pandavideo') || url.includes('player-vz')) {
+            // If it's already an embed URL, use it directly
+            const pandaMatch = url.match(/player-vz-[a-z0-9-]+\.tv\.pandavideo\.com\.br\/embed\/\?v=([a-f0-9-]+)/i);
+            if (pandaMatch) {
+              return (
+                <div className="py-4">
+                  <iframe
+                    src={url}
+                    className="w-full aspect-video rounded-lg"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              );
+            }
+            // Try to extract video ID
+            const pandaIdMatch = url.match(/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i);
+            if (pandaIdMatch) {
+              return (
+                <div className="py-4">
+                  <iframe
+                    src={url}
+                    className="w-full aspect-video rounded-lg"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              );
+            }
+          }
+          
+          // Vturb
+          if (url.includes('vturb.com')) {
+            return (
+              <div className="py-4">
+                <iframe
+                  src={url}
+                  className="w-full aspect-video rounded-lg"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            );
+          }
+          
+          // Default: try as direct video or iframe
+          if (url.match(/\.(mp4|webm|ogg)(\?.*)?$/i)) {
+            return (
+              <div className="py-4">
+                <video src={url} controls className="w-full rounded-lg" />
+              </div>
+            );
+          }
+          
+          // Fallback: use as iframe source
+          return (
+            <div className="py-4">
+              <iframe
+                src={url}
+                className="w-full aspect-video rounded-lg"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          );
+        }
+        
+        return null;
+      }
 
       case 'spacer':
         return <div style={{ height: config.height || 24 }} />;
