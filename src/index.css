@@ -173,6 +173,23 @@
   }
 }
 
+/* Design preview mode - hide edit UI */
+.design-preview-mode .group {
+  border-color: transparent !important;
+}
+
+.design-preview-mode .group:hover {
+  border-color: transparent !important;
+}
+
+.design-preview-mode .group > .absolute {
+  display: none !important;
+}
+
+.design-preview-mode [class*="border-dashed"] {
+  display: none !important;
+}
+
 /* Notification shrink animation */
 @keyframes shrink {
   from {

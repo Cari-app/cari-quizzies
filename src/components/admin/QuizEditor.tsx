@@ -613,16 +613,18 @@ export function QuizEditor() {
             />
           </div>
         ) : editorView === 'design' ? (
-          /* Design View - Mobile-sized preview of entire funnel */
-          <div className="flex-1 flex flex-col items-center p-6 overflow-y-auto gap-4">
+          /* Design View - Exact same structure as constructor for each stage */
+          <div className="flex-1 flex flex-col items-center p-6 overflow-y-auto gap-6">
             {stages.length === 0 ? (
               <div 
-                className="w-[375px] min-h-[667px] rounded-3xl shadow-lg border border-border/30 flex items-center justify-center"
-                style={{ backgroundColor: designSettings.backgroundColor }}
+                className={cn(
+                  "bg-background rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col",
+                  "w-[375px] h-[667px]"
+                )}
               >
-                <p className="text-sm opacity-60" style={{ color: designSettings.textColor }}>
-                  Nenhuma etapa criada
-                </p>
+                <div className="flex-1 flex items-center justify-center">
+                  <p className="text-muted-foreground text-sm">Nenhuma etapa criada</p>
+                </div>
               </div>
             ) : (
               stages.map((stage, index) => (
@@ -632,9 +634,12 @@ export function QuizEditor() {
                     setSelectedStageId(stage.id);
                     setEditorView('editor');
                   }}
-                  className="relative w-[375px] h-[667px] rounded-2xl shadow-lg border border-border flex flex-col cursor-pointer transition-all hover:shadow-xl bg-background"
+                  className={cn(
+                    "bg-background rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col cursor-pointer transition-all hover:shadow-xl",
+                    "w-[375px] h-[667px]"
+                  )}
                 >
-                  {/* Quiz Header - same as constructor */}
+                  {/* Quiz Header - EXACT same as constructor */}
                   <div className="shrink-0 border-b border-border p-3">
                     <div className="flex items-center gap-3">
                       {pageSettings.allowBack && (
@@ -658,8 +663,8 @@ export function QuizEditor() {
                     </div>
                   </div>
                   
-                  {/* Stage Components - clean preview mode with scroll */}
-                  <div className="flex-1 min-h-0 overflow-y-auto pointer-events-none [&_.group]:border-transparent [&_.group]:hover:border-transparent [&_.group_.absolute]:hidden [&_[class*='border-dashed']]:hidden">
+                  {/* Stage Components - EXACT same DropZone as constructor, just non-interactive */}
+                  <div className="flex-1 pointer-events-none design-preview-mode">
                     <DropZone 
                       components={stage.components}
                       onComponentsChange={() => {}}
