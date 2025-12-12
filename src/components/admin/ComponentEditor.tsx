@@ -157,7 +157,7 @@ export interface ComponentConfig {
   argumentDisposition?: 'image-text' | 'text-image' | 'image-left' | 'image-right';
   // Testimonials specific
   testimonialItems?: TestimonialItem[];
-  testimonialLayout?: 'list' | 'grid-2';
+  testimonialLayout?: 'list' | 'grid-2' | 'carousel';
   testimonialBorderRadius?: 'none' | 'small' | 'medium' | 'large';
   testimonialShadow?: 'none' | 'sm' | 'md' | 'lg';
   testimonialSpacing?: 'compact' | 'simple' | 'relaxed';
@@ -2201,6 +2201,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             <SelectContent>
               <SelectItem value="list">Lista</SelectItem>
               <SelectItem value="grid-2">Grade de 2 colunas</SelectItem>
+              <SelectItem value="carousel">Carrossel</SelectItem>
             </SelectContent>
           </Select>
         </div>

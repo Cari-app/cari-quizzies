@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Loader2, CalendarIcon, ChevronLeft } from 'lucide-react';
+import { ArrowLeft, Loader2, CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
@@ -12,6 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import useEmblaCarousel from 'embla-carousel-react';
 
 interface QuizPlayerProps {
   slug?: string;
@@ -122,7 +123,7 @@ interface ComponentConfig {
     avatarUrl?: string;
     photoUrl?: string;
   }>;
-  testimonialLayout?: 'list' | 'grid-2';
+  testimonialLayout?: 'list' | 'grid-2' | 'carousel';
   testimonialBorderRadius?: 'none' | 'small' | 'medium' | 'large';
   testimonialShadow?: 'none' | 'sm' | 'md' | 'lg';
   testimonialSpacing?: 'compact' | 'simple' | 'relaxed';
@@ -158,6 +159,101 @@ interface QuizData {
   titulo: string;
   descricao: string | null;
   slug: string | null;
+}
+
+// Testimonial Carousel Component
+interface TestimonialCarouselProps {
+  items: Array<{
+    id: string;
+    name: string;
+    handle: string;
+    rating: number;
+    text: string;
+    avatarUrl?: string;
+    photoUrl?: string;
+  }>;
+  widthValue: number;
+  justifyClass: string;
+  renderCard: (item: TestimonialCarouselProps['items'][0]) => React.ReactNode;
+}
+
+function TestimonialCarousel({ items, widthValue, justifyClass, renderCard }: TestimonialCarouselProps) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: 'start' });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [canScrollPrev, setCanScrollPrev] = useState(false);
+  const [canScrollNext, setCanScrollNext] = useState(false);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    
+    const onSelect = () => {
+      setSelectedIndex(emblaApi.selectedScrollSnap());
+      setCanScrollPrev(emblaApi.canScrollPrev());
+      setCanScrollNext(emblaApi.canScrollNext());
+    };
+    
+    emblaApi.on('select', onSelect);
+    onSelect();
+    
+    return () => {
+      emblaApi.off('select', onSelect);
+    };
+  }, [emblaApi]);
+
+  const scrollPrev = () => emblaApi?.scrollPrev();
+  const scrollNext = () => emblaApi?.scrollNext();
+
+  return (
+    <div className={cn("w-full px-4 flex", justifyClass)}>
+      <div className="relative" style={{ width: `${widthValue}%` }}>
+        <div ref={emblaRef} className="overflow-hidden">
+          <div className="flex gap-3">
+            {items.map((item) => (
+              <div key={item.id} className="flex-shrink-0 min-w-0" style={{ flex: '0 0 85%' }}>
+                {renderCard(item)}
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Navigation buttons */}
+        {items.length > 1 && (
+          <>
+            <button
+              onClick={scrollPrev}
+              disabled={!canScrollPrev}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 w-8 h-8 rounded-full bg-background border border-border shadow-md flex items-center justify-center disabled:opacity-30 transition-opacity"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={scrollNext}
+              disabled={!canScrollNext}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-8 h-8 rounded-full bg-background border border-border shadow-md flex items-center justify-center disabled:opacity-30 transition-opacity"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </>
+        )}
+        
+        {/* Dots */}
+        {items.length > 1 && (
+          <div className="flex justify-center gap-1.5 mt-3">
+            {items.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => emblaApi?.scrollTo(i)}
+                className={cn(
+                  "w-2 h-2 rounded-full transition-colors",
+                  i === selectedIndex ? "bg-primary" : "bg-muted-foreground/30"
+                )}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export function QuizPlayer({ slug }: QuizPlayerProps) {
@@ -1281,8 +1377,6 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         const shadow = config.testimonialShadow || 'none';
         const spacing = config.testimonialSpacing || 'simple';
         
-        const gridClass = layout === 'grid-2' ? 'grid-cols-2' : 'grid-cols-1';
-        
         const borderRadiusClass = {
           'none': 'rounded-none',
           'small': 'rounded-lg',
@@ -1302,6 +1396,62 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           'simple': 'p-4 gap-3',
           'relaxed': 'p-5 gap-4',
         }[spacing] || 'p-4 gap-3';
+
+        const renderTestimonialCard = (item: typeof testimonialItems[0]) => (
+          <div 
+            key={item.id} 
+            className={cn(
+              "border border-border bg-background flex flex-col h-full",
+              borderRadiusClass,
+              shadowClass,
+              spacingClass
+            )}
+          >
+            {/* Rating stars */}
+            <div className="flex gap-0.5 mb-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <span key={i} className={cn("text-sm", i < item.rating ? "text-amber-400" : "text-muted-foreground/30")}>
+                  ★
+                </span>
+              ))}
+            </div>
+            
+            {/* Author info */}
+            <div className="flex items-center gap-2 mb-2">
+              {item.avatarUrl && (
+                <img src={item.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover" />
+              )}
+              <div>
+                <div className="font-semibold text-sm">{item.name}</div>
+                <div className="text-xs text-muted-foreground">{item.handle}</div>
+              </div>
+            </div>
+            
+            {/* Text */}
+            <div 
+              className="text-sm text-muted-foreground rich-text flex-1"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.text) }}
+            />
+            
+            {/* Photo */}
+            {item.photoUrl && (
+              <img src={item.photoUrl} alt="" className={cn("w-full h-32 object-cover mt-3", borderRadiusClass)} />
+            )}
+          </div>
+        );
+
+        if (layout === 'carousel') {
+          return (
+            <TestimonialCarousel 
+              items={testimonialItems}
+              widthValue={widthValue}
+              justifyClass={justifyClass}
+              renderCard={renderTestimonialCard}
+            />
+          );
+        }
+        
+        const gridClass = layout === 'grid-2' ? 'grid-cols-2' : 'grid-cols-1';
         
         return (
           <div className={cn("w-full px-4 flex", justifyClass)}>
@@ -1309,48 +1459,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
               className={cn("grid gap-3", gridClass)}
               style={{ width: `${widthValue}%` }}
             >
-              {testimonialItems.map((item) => (
-                <div 
-                  key={item.id} 
-                  className={cn(
-                    "border border-border bg-background flex flex-col",
-                    borderRadiusClass,
-                    shadowClass,
-                    spacingClass
-                  )}
-                >
-                  {/* Rating stars */}
-                  <div className="flex gap-0.5 mb-2">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <span key={i} className={cn("text-sm", i < item.rating ? "text-amber-400" : "text-muted-foreground/30")}>
-                        ★
-                      </span>
-                    ))}
-                  </div>
-                  
-                  {/* Author info */}
-                  <div className="flex items-center gap-2 mb-2">
-                    {item.avatarUrl && (
-                      <img src={item.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover" />
-                    )}
-                    <div>
-                      <div className="font-semibold text-sm">{item.name}</div>
-                      <div className="text-xs text-muted-foreground">{item.handle}</div>
-                    </div>
-                  </div>
-                  
-                  {/* Text */}
-                  <div 
-                    className="text-sm text-muted-foreground rich-text flex-1"
-                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.text) }}
-                  />
-                  
-                  {/* Photo */}
-                  {item.photoUrl && (
-                    <img src={item.photoUrl} alt="" className={cn("w-full h-32 object-cover mt-3", borderRadiusClass)} />
-                  )}
-                </div>
-              ))}
+              {testimonialItems.map((item) => renderTestimonialCard(item))}
             </div>
           </div>
         );
