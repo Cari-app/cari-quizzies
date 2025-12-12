@@ -216,7 +216,11 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               
               {/* Ruler */}
               <div className="relative py-4">
-                <div className="flex justify-between items-end h-8 mb-2">
+                {/* Indicator - pointing down from top */}
+                <div className="absolute left-1/2 -translate-x-1/2 -top-1 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-foreground" />
+                <div className="absolute left-1/2 -translate-x-1/2 top-2 w-px h-4 bg-foreground" />
+                
+                <div className="flex justify-between items-end h-8 mt-4">
                   {Array.from({ length: 21 }, (_, i) => {
                     const isMajor = i % 5 === 0;
                     return (
@@ -230,13 +234,11 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                     );
                   })}
                 </div>
-                <div className="flex justify-between text-xs text-muted-foreground">
+                <div className="flex justify-between text-xs text-muted-foreground mt-2">
                   <span>{minVal + Math.round((maxVal - minVal) * 0.25)}</span>
                   <span>{defaultVal}</span>
                   <span>{minVal + Math.round((maxVal - minVal) * 0.75)}</span>
                 </div>
-                {/* Indicator */}
-                <div className="absolute left-1/2 -translate-x-1/2 bottom-6 w-0 h-0 border-l-[6px] border-r-[6px] border-b-[8px] border-l-transparent border-r-transparent border-b-foreground" />
               </div>
               
               <p className="text-center text-xs text-muted-foreground mt-2">Arraste para ajustar</p>

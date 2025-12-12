@@ -274,7 +274,11 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
               
               {/* Ruler with Slider */}
               <div className="relative py-4">
-                <div className="flex justify-between items-end h-8 mb-2">
+                {/* Indicator - pointing down from top */}
+                <div className="absolute left-1/2 -translate-x-1/2 -top-1 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-foreground z-10" />
+                <div className="absolute left-1/2 -translate-x-1/2 top-2 w-px h-4 bg-foreground z-10" />
+                
+                <div className="flex justify-between items-end h-8 mt-4">
                   {Array.from({ length: 21 }, (_, i) => {
                     const isMajor = i % 5 === 0;
                     return (
@@ -295,10 +299,10 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                   min={minVal}
                   max={maxVal}
                   step={1}
-                  className="absolute inset-x-0 top-6"
+                  className="mt-2"
                 />
                 
-                <div className="flex justify-between text-xs text-muted-foreground mt-6">
+                <div className="flex justify-between text-xs text-muted-foreground mt-2">
                   <span>{minVal + Math.round((maxVal - minVal) * 0.25)}</span>
                   <span>{Math.round((minVal + maxVal) / 2)}</span>
                   <span>{minVal + Math.round((maxVal - minVal) * 0.75)}</span>
