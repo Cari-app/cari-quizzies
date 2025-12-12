@@ -1,5 +1,5 @@
 import { useQuizStore } from '@/store/quizStore';
-import { QuizScreen, QuizOption } from '@/types/quiz';
+import { QuizScreen, QuizOption, QuizScreenType } from '@/types/quiz';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
@@ -12,6 +12,24 @@ interface ScreenEditorProps {
   quizId: string;
   screen: QuizScreen;
 }
+
+const screenTypeLabels: Record<QuizScreenType, string> = {
+  'welcome': 'Boas-vindas',
+  'single-choice': 'Escolha única',
+  'multiple-choice': 'Múltipla escolha',
+  'text-input': 'Texto',
+  'email': 'E-mail',
+  'phone': 'Telefone',
+  'number': 'Número',
+  'slider': 'Slider',
+  'date': 'Data',
+  'image-choice': 'Imagem',
+  'rating': 'Avaliação',
+  'info': 'Info',
+  'result': 'Resultado',
+  'progress': 'Progresso',
+  'checkout': 'Checkout',
+};
 
 export function ScreenEditor({ quizId, screen }: ScreenEditorProps) {
   const { updateScreen } = useQuizStore();
@@ -45,14 +63,14 @@ export function ScreenEditor({ quizId, screen }: ScreenEditorProps) {
   };
 
   return (
-    <div className="max-w-xl space-y-6">
+    <div className="space-y-4">
       <div>
-        <Label className="text-xs text-muted-foreground">Título</Label>
+        <Label className="text-xs text-muted-foreground">Título da etapa</Label>
         <Input
           value={screen.title}
           onChange={(e) => handleUpdate({ title: e.target.value })}
-          className="mt-1"
-          placeholder="Título da tela"
+          className="mt-1 h-8 text-sm"
+          placeholder="Ex: Etapa 1"
         />
       </div>
 
@@ -61,7 +79,7 @@ export function ScreenEditor({ quizId, screen }: ScreenEditorProps) {
         <Input
           value={screen.subtitle || ''}
           onChange={(e) => handleUpdate({ subtitle: e.target.value })}
-          className="mt-1"
+          className="mt-1 h-8 text-sm"
           placeholder="Opcional"
         />
       </div>
@@ -71,7 +89,7 @@ export function ScreenEditor({ quizId, screen }: ScreenEditorProps) {
         <Textarea
           value={screen.description || ''}
           onChange={(e) => handleUpdate({ description: e.target.value })}
-          className="mt-1"
+          className="mt-1 text-sm min-h-[60px]"
           placeholder="Opcional"
           rows={2}
         />
@@ -83,15 +101,27 @@ export function ScreenEditor({ quizId, screen }: ScreenEditorProps) {
           <Input
             value={screen.buttonText || ''}
             onChange={(e) => handleUpdate({ buttonText: e.target.value })}
-            className="mt-1"
+            className="mt-1 h-8 text-sm"
             placeholder="Continuar"
           />
         </div>
       )}
 
-      {screen.type !== 'welcome' && screen.type !== 'result' && screen.type !== 'info' && (
+      {(screen.type === 'text-input' || screen.type === 'email' || screen.type === 'phone' || screen.type === 'number') && (
+        <div>
+          <Label className="text-xs text-muted-foreground">Placeholder</Label>
+          <Input
+            value={screen.placeholder || ''}
+            onChange={(e) => handleUpdate({ placeholder: e.target.value })}
+            className="mt-1 h-8 text-sm"
+            placeholder="Digite aqui..."
+          />
+        </div>
+      )}
+
+      {screen.type !== 'welcome' && screen.type !== 'result' && screen.type !== 'info' && screen.type !== 'progress' && (
         <div className="flex items-center justify-between py-2">
-          <Label className="text-sm">Resposta obrigatória</Label>
+          <Label className="text-sm">Obrigatório</Label>
           <Switch
             checked={screen.required || false}
             onCheckedChange={(checked) => handleUpdate({ required: checked })}
@@ -99,26 +129,26 @@ export function ScreenEditor({ quizId, screen }: ScreenEditorProps) {
         </div>
       )}
 
-      {screen.type === 'slider' && (
-        <div className="space-y-4 p-4 bg-muted rounded-md">
-          <Label className="text-xs text-muted-foreground uppercase tracking-wide">Slider</Label>
-          <div className="grid grid-cols-3 gap-3">
+      {(screen.type === 'slider' || screen.type === 'rating') && (
+        <div className="space-y-3 p-3 bg-muted rounded-md">
+          <Label className="text-xs text-muted-foreground uppercase tracking-wide">Configuração</Label>
+          <div className="grid grid-cols-3 gap-2">
             <div>
-              <Label className="text-xs text-muted-foreground">Mínimo</Label>
+              <Label className="text-xs text-muted-foreground">Mín</Label>
               <Input
                 type="number"
                 value={screen.sliderMin ?? 0}
                 onChange={(e) => handleUpdate({ sliderMin: parseInt(e.target.value) || 0 })}
-                className="mt-1"
+                className="mt-1 h-8 text-sm"
               />
             </div>
             <div>
-              <Label className="text-xs text-muted-foreground">Máximo</Label>
+              <Label className="text-xs text-muted-foreground">Máx</Label>
               <Input
                 type="number"
                 value={screen.sliderMax ?? 100}
                 onChange={(e) => handleUpdate({ sliderMax: parseInt(e.target.value) || 100 })}
-                className="mt-1"
+                className="mt-1 h-8 text-sm"
               />
             </div>
             <div>
@@ -127,54 +157,48 @@ export function ScreenEditor({ quizId, screen }: ScreenEditorProps) {
                 type="number"
                 value={screen.sliderStep ?? 1}
                 onChange={(e) => handleUpdate({ sliderStep: parseInt(e.target.value) || 1 })}
-                className="mt-1"
+                className="mt-1 h-8 text-sm"
               />
             </div>
           </div>
-          <div>
-            <Label className="text-xs text-muted-foreground">Unidade</Label>
-            <Input
-              value={screen.sliderUnit || ''}
-              onChange={(e) => handleUpdate({ sliderUnit: e.target.value })}
-              className="mt-1"
-              placeholder="ex: anos, kg"
-            />
-          </div>
+          {screen.type === 'slider' && (
+            <div>
+              <Label className="text-xs text-muted-foreground">Unidade</Label>
+              <Input
+                value={screen.sliderUnit || ''}
+                onChange={(e) => handleUpdate({ sliderUnit: e.target.value })}
+                className="mt-1 h-8 text-sm"
+                placeholder="ex: anos"
+              />
+            </div>
+          )}
         </div>
       )}
 
       {(screen.type === 'single-choice' || screen.type === 'multiple-choice' || screen.type === 'image-choice') && (
-        <div className="space-y-3">
+        <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label className="text-xs text-muted-foreground uppercase tracking-wide">Opções</Label>
-            <Button size="sm" variant="ghost" onClick={handleAddOption} className="h-7">
+            <Button size="sm" variant="ghost" onClick={handleAddOption} className="h-6 text-xs">
               <Plus className="w-3 h-3 mr-1" />
               Adicionar
             </Button>
           </div>
 
           {screen.options && screen.options.length > 0 ? (
-            <Reorder.Group axis="y" values={screen.options} onReorder={handleReorderOptions} className="space-y-2">
+            <Reorder.Group axis="y" values={screen.options} onReorder={handleReorderOptions} className="space-y-1">
               {screen.options.map((option) => (
                 <Reorder.Item key={option.id} value={option}>
-                  <div className="flex items-center gap-2 p-2 bg-muted rounded-md group">
+                  <div className="flex items-center gap-1 p-1.5 bg-muted rounded group">
                     <GripVertical className="w-3 h-3 text-muted-foreground cursor-grab shrink-0" />
-                    <div className="flex-1 grid grid-cols-2 gap-2">
-                      <Input
-                        value={option.text}
-                        onChange={(e) => handleOptionUpdate(option.id, { text: e.target.value })}
-                        placeholder="Texto"
-                        className="h-8 text-sm"
-                      />
-                      <Input
-                        value={option.value as string || ''}
-                        onChange={(e) => handleOptionUpdate(option.id, { value: e.target.value })}
-                        placeholder="Valor"
-                        className="h-8 text-sm"
-                      />
-                    </div>
+                    <Input
+                      value={option.text}
+                      onChange={(e) => handleOptionUpdate(option.id, { text: e.target.value })}
+                      placeholder="Texto"
+                      className="h-7 text-xs flex-1"
+                    />
                     <button
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:text-destructive"
+                      className="opacity-0 group-hover:opacity-100 p-1 hover:text-destructive"
                       onClick={() => handleDeleteOption(option.id)}
                     >
                       <Trash2 className="w-3 h-3" />
@@ -184,12 +208,8 @@ export function ScreenEditor({ quizId, screen }: ScreenEditorProps) {
               ))}
             </Reorder.Group>
           ) : (
-            <div className="text-center py-6 border border-dashed border-border rounded-md">
-              <p className="text-xs text-muted-foreground mb-2">Nenhuma opção</p>
-              <Button size="sm" variant="outline" onClick={handleAddOption}>
-                <Plus className="w-3 h-3 mr-1" />
-                Adicionar
-              </Button>
+            <div className="text-center py-4 border border-dashed border-border rounded">
+              <p className="text-xs text-muted-foreground">Sem opções</p>
             </div>
           )}
         </div>

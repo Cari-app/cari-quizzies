@@ -3,10 +3,35 @@ export type QuizScreenType =
   | 'single-choice'
   | 'multiple-choice'
   | 'text-input'
+  | 'email'
+  | 'phone'
+  | 'number'
   | 'slider'
+  | 'date'
   | 'image-choice'
+  | 'rating'
   | 'info'
-  | 'result';
+  | 'result'
+  | 'progress'
+  | 'checkout';
+
+export type ComponentType = 
+  | 'heading'
+  | 'text'
+  | 'image'
+  | 'video'
+  | 'button'
+  | 'input'
+  | 'options'
+  | 'slider'
+  | 'progress'
+  | 'spacer';
+
+export interface QuizComponent {
+  id: string;
+  type: ComponentType;
+  props: Record<string, unknown>;
+}
 
 export interface QuizOption {
   id: string;
@@ -30,8 +55,21 @@ export interface QuizScreen {
   sliderStep?: number;
   sliderUnit?: string;
   required?: boolean;
+  components?: QuizComponent[];
+  // Appearance settings
+  showLogo?: boolean;
+  showProgress?: boolean;
+  allowBack?: boolean;
   backgroundColor?: string;
   textColor?: string;
+}
+
+export interface ScreenTemplate {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+  screen: Partial<QuizScreen>;
 }
 
 export interface Quiz {

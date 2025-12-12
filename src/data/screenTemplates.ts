@@ -1,0 +1,189 @@
+import { ScreenTemplate, QuizScreenType } from '@/types/quiz';
+
+export const screenTemplates: ScreenTemplate[] = [
+  {
+    id: 'welcome',
+    name: 'Página Inicial',
+    icon: '🏠',
+    description: 'Tela de boas-vindas com título e botão',
+    screen: {
+      type: 'welcome' as QuizScreenType,
+      title: 'Bem-vindo ao Quiz',
+      subtitle: 'Responda algumas perguntas rápidas',
+      buttonText: 'Começar',
+      showProgress: false,
+      allowBack: false,
+    },
+  },
+  {
+    id: 'single-choice',
+    name: 'Escolha Única',
+    icon: '☑️',
+    description: 'Pergunta com uma única resposta',
+    screen: {
+      type: 'single-choice' as QuizScreenType,
+      title: 'Qual sua preferência?',
+      required: true,
+      options: [
+        { id: '1', text: 'Opção A', value: 'a' },
+        { id: '2', text: 'Opção B', value: 'b' },
+        { id: '3', text: 'Opção C', value: 'c' },
+      ],
+    },
+  },
+  {
+    id: 'multiple-choice',
+    name: 'Múltipla Escolha',
+    icon: '✅',
+    description: 'Pergunta com várias respostas',
+    screen: {
+      type: 'multiple-choice' as QuizScreenType,
+      title: 'Selecione todas que se aplicam',
+      subtitle: 'Você pode escolher mais de uma opção',
+      required: true,
+      options: [
+        { id: '1', text: 'Opção 1', value: '1' },
+        { id: '2', text: 'Opção 2', value: '2' },
+        { id: '3', text: 'Opção 3', value: '3' },
+        { id: '4', text: 'Opção 4', value: '4' },
+      ],
+    },
+  },
+  {
+    id: 'text-input',
+    name: 'Campo de Texto',
+    icon: '📝',
+    description: 'Campo para texto livre',
+    screen: {
+      type: 'text-input' as QuizScreenType,
+      title: 'Conte-nos mais',
+      placeholder: 'Digite sua resposta...',
+      required: true,
+    },
+  },
+  {
+    id: 'email',
+    name: 'E-mail',
+    icon: '✉️',
+    description: 'Campo para captura de e-mail',
+    screen: {
+      type: 'email' as QuizScreenType,
+      title: 'Qual seu e-mail?',
+      subtitle: 'Enviaremos seu resultado',
+      placeholder: 'seu@email.com',
+      required: true,
+    },
+  },
+  {
+    id: 'phone',
+    name: 'Telefone',
+    icon: '📱',
+    description: 'Campo para número de telefone',
+    screen: {
+      type: 'phone' as QuizScreenType,
+      title: 'Qual seu telefone?',
+      placeholder: '(00) 00000-0000',
+      required: true,
+    },
+  },
+  {
+    id: 'number',
+    name: 'Número',
+    icon: '🔢',
+    description: 'Campo para valor numérico',
+    screen: {
+      type: 'number' as QuizScreenType,
+      title: 'Digite um número',
+      placeholder: '0',
+      required: true,
+    },
+  },
+  {
+    id: 'slider',
+    name: 'Escala/Slider',
+    icon: '🎚️',
+    description: 'Seleção com slider',
+    screen: {
+      type: 'slider' as QuizScreenType,
+      title: 'De 0 a 10, como você avalia?',
+      sliderMin: 0,
+      sliderMax: 10,
+      sliderStep: 1,
+      required: true,
+    },
+  },
+  {
+    id: 'rating',
+    name: 'Escala de Like',
+    icon: '⭐',
+    description: 'Avaliação com estrelas ou emojis',
+    screen: {
+      type: 'rating' as QuizScreenType,
+      title: 'Como você avalia sua experiência?',
+      sliderMin: 1,
+      sliderMax: 5,
+      required: true,
+    },
+  },
+  {
+    id: 'image-choice',
+    name: 'Quiz em Colunas',
+    icon: '🖼️',
+    description: 'Opções com imagens',
+    screen: {
+      type: 'image-choice' as QuizScreenType,
+      title: 'Escolha uma opção',
+      options: [
+        { id: '1', text: 'Opção 1', value: '1' },
+        { id: '2', text: 'Opção 2', value: '2' },
+      ],
+    },
+  },
+  {
+    id: 'progress',
+    name: 'Progresso',
+    icon: '📊',
+    description: 'Tela de carregamento/progresso',
+    screen: {
+      type: 'progress' as QuizScreenType,
+      title: 'Analisando suas respostas...',
+      subtitle: 'Aguarde um momento',
+    },
+  },
+  {
+    id: 'result',
+    name: 'Resultado',
+    icon: '🎉',
+    description: 'Tela final com resultado',
+    screen: {
+      type: 'result' as QuizScreenType,
+      title: 'Seu resultado está pronto!',
+      subtitle: 'Baseado nas suas respostas',
+      buttonText: 'Ver resultado',
+    },
+  },
+];
+
+export const componentPalette = {
+  form: [
+    { type: 'input', name: 'Campo', icon: '📝' },
+    { type: 'email', name: 'E-mail', icon: '✉️' },
+    { type: 'phone', name: 'Telefone', icon: '📱' },
+    { type: 'button', name: 'Botão', icon: '🔘' },
+    { type: 'number', name: 'Número', icon: '🔢' },
+    { type: 'textarea', name: 'Textarea', icon: '📄' },
+    { type: 'date', name: 'Data', icon: '📅' },
+  ],
+  quiz: [
+    { type: 'options', name: 'Opções', icon: '☑️' },
+    { type: 'multiple', name: 'Múltipla Escolha', icon: '✅' },
+    { type: 'single', name: 'Escolha Única', icon: '⭕' },
+    { type: 'yesno', name: 'Sim/Não', icon: '👍' },
+    { type: 'rating', name: 'Avaliação', icon: '⭐' },
+  ],
+  media: [
+    { type: 'heading', name: 'Texto', icon: '📝' },
+    { type: 'image', name: 'Imagem', icon: '🖼️' },
+    { type: 'video', name: 'Vídeo', icon: '🎬' },
+  ],
+};
