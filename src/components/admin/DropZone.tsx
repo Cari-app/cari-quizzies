@@ -1314,9 +1314,9 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           </p>
         </div>
       ) : (
-        <div className="w-full max-w-md p-4 pt-12">
-          <div>
-            <Reorder.Group axis="y" values={components} onReorder={onComponentsChange} className="space-y-4">
+        <div className="w-full max-w-md p-4 pt-14">
+          <div className="space-y-6">
+            <Reorder.Group axis="y" values={components} onReorder={onComponentsChange} className="space-y-6">
               {components.map((comp) => (
                 <Reorder.Item key={comp.id} value={comp}>
                   <div 
