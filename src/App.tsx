@@ -23,9 +23,9 @@ const App = () => (
           <Route path="/quiz" element={<QuizPage />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
-            <Route path="quiz/:id" element={<AdminQuizEditor />} />
           </Route>
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          {/* Editor em tela cheia, sem layout */}
+          <Route path="/admin/quiz/:id" element={<AdminQuizEditor />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

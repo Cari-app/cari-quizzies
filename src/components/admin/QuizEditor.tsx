@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuizStore } from '@/store/quizStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,24 +15,6 @@ import { TemplateSelector } from './TemplateSelector';
 import { ComponentPalette } from './ComponentPalette';
 import { cn } from '@/lib/utils';
 import { screenTemplates } from '@/data/screenTemplates';
-
-const screenTypeLabels: Record<QuizScreenType, string> = {
-  'welcome': 'Boas-vindas',
-  'single-choice': 'Escolha única',
-  'multiple-choice': 'Múltipla escolha',
-  'text-input': 'Texto',
-  'email': 'E-mail',
-  'phone': 'Telefone',
-  'number': 'Número',
-  'slider': 'Slider',
-  'date': 'Data',
-  'image-choice': 'Imagem',
-  'rating': 'Avaliação',
-  'info': 'Info',
-  'result': 'Resultado',
-  'progress': 'Progresso',
-  'checkout': 'Checkout',
-};
 
 export function QuizEditor() {
   const { id } = useParams();
@@ -66,7 +48,7 @@ export function QuizEditor() {
 
   if (!currentQuiz) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
+      <div className="flex items-center justify-center h-screen">
         <p className="text-muted-foreground text-sm">Quiz não encontrado</p>
       </div>
     );
@@ -110,49 +92,47 @@ export function QuizEditor() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-3rem)] bg-muted/30">
-      {/* Left Sidebar - Screens & Components */}
-      <div className="w-64 bg-background border-r border-border flex flex-col">
+    <div className="flex h-screen w-screen overflow-hidden bg-muted/30">
+      {/* Left Sidebar */}
+      <div className="w-60 bg-background border-r border-border flex flex-col shrink-0">
         {/* Header */}
-        <div className="p-3 border-b border-border">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => navigate('/admin')} 
-            className="text-muted-foreground mb-2 -ml-2 h-8"
+        <div className="p-4 border-b border-border">
+          <Link 
+            to="/admin"
+            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-3"
           >
             <ChevronLeft className="w-4 h-4 mr-1" />
             Voltar
-          </Button>
+          </Link>
           
           <Input
             value={currentQuiz.name}
             onChange={(e) => updateQuiz(currentQuiz.id, { name: e.target.value })}
-            className="font-medium border-none bg-transparent px-0 h-auto text-sm focus-visible:ring-0 shadow-none"
+            className="font-medium border-none bg-transparent px-0 h-auto text-base focus-visible:ring-0 shadow-none"
             placeholder="Nome do quiz"
           />
         </div>
 
         {/* Screens List */}
-        <div className="p-3 border-b border-border">
-          <div className="flex items-center justify-between mb-2">
+        <div className="p-4 border-b border-border">
+          <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Etapas</span>
           </div>
           
-          <div className="flex gap-2 mb-3">
+          <div className="flex gap-2 mb-4">
             <Button 
               size="sm" 
               variant="outline"
-              className="flex-1 h-8 text-xs"
+              className="flex-1 h-9"
               onClick={() => setShowTemplates(true)}
             >
-              <Plus className="w-3 h-3 mr-1" />
+              <Plus className="w-4 h-4 mr-1" />
               Em branco
             </Button>
             <Button 
               size="sm" 
               variant="outline"
-              className="flex-1 h-8 text-xs"
+              className="flex-1 h-9"
               onClick={() => setShowTemplates(true)}
             >
               Modelos
@@ -160,32 +140,32 @@ export function QuizEditor() {
           </div>
 
           {currentQuiz.screens.length === 0 ? (
-            <div className="text-center py-4 border border-dashed border-border rounded-md">
+            <div className="text-center py-6 border border-dashed border-border rounded-md">
               <p className="text-xs text-muted-foreground">Nenhuma etapa</p>
             </div>
           ) : (
-            <Reorder.Group axis="y" values={currentQuiz.screens} onReorder={handleReorder} className="space-y-1 max-h-40 overflow-y-auto">
-              {currentQuiz.screens.map((screen, index) => (
+            <Reorder.Group axis="y" values={currentQuiz.screens} onReorder={handleReorder} className="space-y-1 max-h-48 overflow-y-auto">
+              {currentQuiz.screens.map((screen) => (
                 <Reorder.Item key={screen.id} value={screen}>
                   <div
                     className={cn(
-                      "flex items-center gap-2 px-2 py-1.5 rounded text-xs cursor-pointer transition-colors group",
+                      "flex items-center gap-2 px-3 py-2 rounded-md text-sm cursor-pointer transition-colors group",
                       editingScreen?.id === screen.id
                         ? "bg-accent"
                         : "hover:bg-accent/50"
                     )}
                     onClick={() => setEditingScreen(screen)}
                   >
-                    <GripVertical className="w-3 h-3 text-muted-foreground cursor-grab shrink-0" />
+                    <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab shrink-0" />
                     <span className="flex-1 truncate">{screen.title || 'Sem título'}</span>
                     <button
-                      className="opacity-0 group-hover:opacity-100 p-0.5 hover:text-destructive"
+                      className="opacity-0 group-hover:opacity-100 p-1 hover:text-destructive"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDeleteScreen(screen.id);
                       }}
                     >
-                      <Trash2 className="w-3 h-3" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </Reorder.Item>
@@ -195,19 +175,19 @@ export function QuizEditor() {
         </div>
 
         {/* Component Palette */}
-        <div className="flex-1 overflow-y-auto p-3">
+        <div className="flex-1 overflow-y-auto p-4">
           <ComponentPalette />
         </div>
       </div>
 
       {/* Center - Preview */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Top Bar */}
-        <div className="h-12 border-b border-border bg-background flex items-center justify-center gap-4 px-4">
-          <div className="flex items-center gap-1 border border-border rounded-md p-0.5">
+        <div className="h-14 border-b border-border bg-background flex items-center justify-center gap-6 px-4 shrink-0">
+          <div className="flex items-center gap-1 border border-border rounded-md p-1">
             <button
               className={cn(
-                "p-1.5 rounded transition-colors",
+                "p-2 rounded transition-colors",
                 previewMode === 'mobile' ? "bg-accent" : "hover:bg-accent/50"
               )}
               onClick={() => setPreviewMode('mobile')}
@@ -216,7 +196,7 @@ export function QuizEditor() {
             </button>
             <button
               className={cn(
-                "p-1.5 rounded transition-colors",
+                "p-2 rounded transition-colors",
                 previewMode === 'desktop' ? "bg-accent" : "hover:bg-accent/50"
               )}
               onClick={() => setPreviewMode('desktop')}
@@ -226,16 +206,16 @@ export function QuizEditor() {
           </div>
 
           <div className="flex items-center gap-1">
-            <button className="p-1.5 rounded hover:bg-accent/50 transition-colors">
+            <button className="p-2 rounded hover:bg-accent/50 transition-colors">
               <Undo className="w-4 h-4 text-muted-foreground" />
             </button>
-            <button className="p-1.5 rounded hover:bg-accent/50 transition-colors">
+            <button className="p-2 rounded hover:bg-accent/50 transition-colors">
               <Redo className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
 
-          <Button size="sm" onClick={handlePreview}>
-            <Eye className="w-4 h-4 mr-1" />
+          <Button onClick={handlePreview}>
+            <Eye className="w-4 h-4 mr-2" />
             Testar
           </Button>
         </div>
@@ -244,16 +224,16 @@ export function QuizEditor() {
         <div className="flex-1 flex items-center justify-center p-8 overflow-auto">
           <div 
             className={cn(
-              "bg-background rounded-xl border border-border shadow-sm overflow-hidden transition-all",
+              "bg-background rounded-2xl border border-border shadow-sm overflow-hidden transition-all flex flex-col",
               previewMode === 'mobile' 
-                ? "w-[375px] h-[667px]" 
-                : "w-full max-w-4xl h-[600px]"
+                ? "w-[390px] h-[700px]" 
+                : "w-full max-w-5xl h-[680px]"
             )}
           >
             {editingScreen ? (
               <ScreenPreview screen={editingScreen} />
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-muted-foreground border-2 border-dashed border-border m-4 rounded-lg">
+              <div className="flex flex-col items-center justify-center h-full text-muted-foreground border-2 border-dashed border-border m-6 rounded-xl">
                 <p className="text-sm">Arraste e solte os componentes aqui</p>
                 <p className="text-xs mt-1">ou selecione uma etapa</p>
               </div>
@@ -262,30 +242,30 @@ export function QuizEditor() {
         </div>
       </div>
 
-      {/* Right Sidebar - Settings */}
-      <div className="w-72 bg-background border-l border-border flex flex-col">
+      {/* Right Sidebar */}
+      <div className="w-72 bg-background border-l border-border flex flex-col shrink-0">
         <Tabs value={rightTab} onValueChange={(v) => setRightTab(v as 'stage' | 'appearance')} className="flex flex-col h-full">
-          <TabsList className="grid grid-cols-2 m-3 mb-0">
-            <TabsTrigger value="stage" className="text-xs">Etapa</TabsTrigger>
-            <TabsTrigger value="appearance" className="text-xs">Aparência</TabsTrigger>
+          <TabsList className="grid grid-cols-2 m-4 mb-0">
+            <TabsTrigger value="stage">Etapa</TabsTrigger>
+            <TabsTrigger value="appearance">Aparência</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="stage" className="flex-1 overflow-y-auto p-3 mt-0">
+          <TabsContent value="stage" className="flex-1 overflow-y-auto p-4 mt-0">
             {editingScreen ? (
               <ScreenEditor quizId={currentQuiz.id} screen={editingScreen} />
             ) : (
-              <div className="text-center py-8">
-                <p className="text-xs text-muted-foreground">Selecione uma etapa</p>
+              <div className="text-center py-12">
+                <p className="text-sm text-muted-foreground">Selecione uma etapa</p>
               </div>
             )}
           </TabsContent>
           
-          <TabsContent value="appearance" className="flex-1 overflow-y-auto p-3 mt-0">
-            {editingScreen && (
-              <div className="space-y-4">
+          <TabsContent value="appearance" className="flex-1 overflow-y-auto p-4 mt-0">
+            {editingScreen ? (
+              <div className="space-y-6">
                 <div>
-                  <Label className="text-xs text-muted-foreground mb-2 block">Header</Label>
-                  <div className="space-y-3">
+                  <Label className="text-xs text-muted-foreground uppercase tracking-wide mb-3 block">Header</Label>
+                  <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Mostrar logo</span>
                       <Switch 
@@ -309,6 +289,10 @@ export function QuizEditor() {
                     </div>
                   </div>
                 </div>
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-sm text-muted-foreground">Selecione uma etapa</p>
               </div>
             )}
           </TabsContent>
