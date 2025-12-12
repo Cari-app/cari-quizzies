@@ -218,12 +218,39 @@ interface PageSettings {
   logoSize?: string;
 }
 
+interface DesignSettings {
+  backgroundColor: string;
+  primaryColor: string;
+  textColor: string;
+  primaryFont: string;
+  fontSize: string;
+  showLogo: boolean;
+  logoPosition: 'left' | 'center' | 'right';
+  logoSize: string;
+  progressBarColor: string;
+  progressBarPosition: 'top' | 'bottom';
+}
+
+const defaultDesignSettings: DesignSettings = {
+  backgroundColor: '#ffffff',
+  primaryColor: '#000000',
+  textColor: '#1a1a1a',
+  primaryFont: 'Inter',
+  fontSize: 'base',
+  showLogo: true,
+  logoPosition: 'center',
+  logoSize: '32',
+  progressBarColor: '#000000',
+  progressBarPosition: 'top',
+};
+
 interface QuizStage {
   id: string;
   titulo: string | null;
   ordem: number;
   components: DroppedComponent[];
   pageSettings?: PageSettings;
+  designSettings?: DesignSettings;
 }
 
 interface QuizData {
@@ -389,6 +416,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [selectedDate, setSelectedDate] = useState<Record<string, Date | undefined>>({});
+  const [designSettings, setDesignSettings] = useState<DesignSettings>(defaultDesignSettings);
   const [activeNotification, setActiveNotification] = useState<{
     compId: string;
     variationIndex: number;
@@ -460,6 +488,14 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           };
         });
         setStages(formattedStages);
+        
+        // Load design settings from first stage
+        if (etapasData && etapasData.length > 0) {
+          const firstConfig = etapasData[0].configuracoes as Record<string, any> | null;
+          if (firstConfig?.designSettings) {
+            setDesignSettings({ ...defaultDesignSettings, ...firstConfig.designSettings });
+          }
+        }
       } catch (error) {
         console.error('Error loading quiz:', error);
         setNotFound(true);
@@ -1973,17 +2009,39 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
   const showHeader = pageSettings?.showProgress || (pageSettings?.allowBack && currentStageIndex > 0);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div 
+      className="min-h-screen flex flex-col"
+      style={{ 
+        backgroundColor: designSettings.backgroundColor,
+        color: designSettings.textColor,
+        fontFamily: designSettings.primaryFont,
+      }}
+    >
       {/* Header */}
       {showHeader && (
-        <div className="p-4 border-b border-border flex items-center gap-4 shrink-0">
+        <div 
+          className="p-4 flex items-center gap-4 shrink-0"
+          style={{ borderBottom: `1px solid ${designSettings.primaryColor}20` }}
+        >
           {pageSettings?.allowBack && currentStageIndex > 0 && (
-            <button onClick={handleBack} className="p-1 hover:bg-accent rounded">
+            <button 
+              onClick={handleBack} 
+              className="p-1 rounded transition-colors"
+              style={{ color: designSettings.textColor }}
+            >
               <ChevronLeft className="w-5 h-5" />
             </button>
           )}
           {pageSettings?.showProgress && (
-            <Progress value={progressValue} className="h-1.5 flex-1" />
+            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: `${designSettings.progressBarColor}20` }}>
+              <div 
+                className="h-full transition-all duration-300"
+                style={{ 
+                  width: `${progressValue}%`,
+                  backgroundColor: designSettings.progressBarColor,
+                }}
+              />
+            </div>
           )}
         </div>
       )}
