@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { Logo } from '@/components/Logo';
 import { useQuizStore } from '@/store/quizStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -121,16 +122,19 @@ export function QuizEditor() {
       <div className="flex shrink-0">
         {/* Steps Column */}
         <div className="w-72 bg-background border-r border-border flex flex-col">
-          {/* Header */}
-          <div className="p-4 border-b border-border">
+          {/* Header with Logo */}
+          <div className="p-3 border-b border-border">
             <Link 
               to="/admin"
-              className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-3"
+              className="inline-flex items-center gap-2 hover:opacity-80 transition-opacity"
             >
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Voltar
+              <ChevronLeft className="w-4 h-4 text-muted-foreground" />
+              <Logo className="h-6" />
             </Link>
-            
+          </div>
+
+          {/* Quiz Name */}
+          <div className="p-4 border-b border-border">
             <Input
               value={currentQuiz.name}
               onChange={(e) => {
@@ -169,7 +173,6 @@ export function QuizEditor() {
               )}
             </div>
           </div>
-
           {/* Add Buttons */}
           <div className="p-3 border-b border-border">
             <div className="flex gap-2">
