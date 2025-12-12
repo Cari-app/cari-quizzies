@@ -71,6 +71,14 @@ interface ComponentConfig {
   imagePosition?: 'top' | 'left' | 'right' | 'bottom';
   imageRatio?: '1:1' | '16:9' | '4:3' | '3:2';
   transparentImageBg?: boolean;
+  // Appearance
+  width?: number;
+  horizontalAlign?: 'start' | 'center' | 'end';
+  verticalAlign?: 'auto' | 'start' | 'center' | 'end';
+  // Timer specific
+  timerSeconds?: number;
+  timerText?: string;
+  timerStyle?: 'default' | 'red' | 'blue' | 'green' | 'yellow' | 'gray';
 }
 
 interface DroppedComponent {
@@ -119,6 +127,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
     variationIndex: number;
     visible: boolean;
   } | null>(null);
+  const [timerValues, setTimerValues] = useState<Record<string, number>>({});
 
   const currentStage = stages[currentStageIndex];
   const pageSettings = currentStage?.pageSettings;
@@ -885,6 +894,53 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         return null;
       }
 
+      case 'timer': {
+        const timerStyles = {
+          default: 'bg-primary text-primary-foreground',
+          red: 'bg-red-100 text-red-700 border border-red-200',
+          blue: 'bg-blue-100 text-blue-700 border border-blue-200',
+          green: 'bg-green-100 text-green-700 border border-green-200',
+          yellow: 'bg-yellow-100 text-yellow-700 border border-yellow-200',
+          gray: 'bg-gray-100 text-gray-700 border border-gray-200',
+        };
+        
+        const style = config.timerStyle || 'red';
+        const text = config.timerText || 'Resgate agora seu desconto: [time]';
+        
+        // Get timer value from state
+        const timerValue = timerValues[comp.id] ?? (config.timerSeconds || 20);
+        
+        // Format seconds to MM:SS
+        const minutes = Math.floor(timerValue / 60);
+        const remainingSeconds = timerValue % 60;
+        const formattedTime = `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+        
+        // Replace [time] with formatted time
+        const displayText = text.replace('[time]', formattedTime);
+        
+        const widthValue = config.width || 100;
+        const horizontalAlign = config.horizontalAlign || 'start';
+        const justifyClass = {
+          start: 'justify-start',
+          center: 'justify-center',
+          end: 'justify-end',
+        }[horizontalAlign];
+        
+        return (
+          <div className={cn("w-full px-4 flex", justifyClass)}>
+            <div 
+              className={cn(
+                "rounded-lg px-4 py-3 text-center font-medium",
+                timerStyles[style as keyof typeof timerStyles]
+              )}
+              style={{ width: `${widthValue}%` }}
+            >
+              {displayText}
+            </div>
+          </div>
+        );
+      }
+
       default:
         return null;
     }
@@ -932,6 +988,41 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       clearTimeout(hideTimeout);
     };
   }, [currentStageIndex, notificationComponents.length]);
+
+  // Effect to handle timers countdown
+  useEffect(() => {
+    const timerComponents = currentStage?.components.filter(c => c.type === 'timer') || [];
+    
+    if (timerComponents.length === 0) return;
+    
+    // Initialize timer values
+    const initialValues: Record<string, number> = {};
+    timerComponents.forEach(comp => {
+      const seconds = comp.config?.timerSeconds || 20;
+      if (timerValues[comp.id] === undefined) {
+        initialValues[comp.id] = seconds;
+      }
+    });
+    
+    if (Object.keys(initialValues).length > 0) {
+      setTimerValues(prev => ({ ...prev, ...initialValues }));
+    }
+    
+    // Start countdown interval
+    const interval = setInterval(() => {
+      setTimerValues(prev => {
+        const updated = { ...prev };
+        timerComponents.forEach(comp => {
+          if (updated[comp.id] !== undefined && updated[comp.id] > 0) {
+            updated[comp.id] = updated[comp.id] - 1;
+          }
+        });
+        return updated;
+      });
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [currentStageIndex, currentStage?.components]);
 
   // Render notification overlay
   const renderNotificationOverlay = () => {
