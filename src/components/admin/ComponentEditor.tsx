@@ -50,11 +50,13 @@ function ThemeColorPicker({ value, useTheme, themeColor, onChange, onUseThemeCha
         </button>
         <div className="flex-1 flex gap-2">
           <div 
-            className={cn(
-              "relative w-12 h-9 rounded-md border overflow-hidden cursor-pointer",
-              useTheme && "opacity-50 pointer-events-none"
-            )}
+            className="relative w-12 h-9 rounded-md border overflow-hidden cursor-pointer"
             style={{ backgroundColor: displayColor }}
+            onClick={() => {
+              if (useTheme) {
+                onUseThemeChange(false);
+              }
+            }}
           >
             <input
               type="color"
