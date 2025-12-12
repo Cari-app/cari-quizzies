@@ -145,6 +145,10 @@ export function QuizEditor() {
             const loadedStages: Stage[] = etapasData.map((etapa) => {
               const config = etapa.configuracoes as Record<string, any> || {};
               const components = config.components || [];
+              console.log(`Loading stage ${etapa.titulo}:`, {
+                position: config.position,
+                connections: config.connections,
+              });
               return {
                 id: etapa.id,
                 name: etapa.titulo || 'Nova etapa',
@@ -153,6 +157,7 @@ export function QuizEditor() {
                 connections: config.connections || [],
               };
             });
+            console.log('Loaded stages with connections:', loadedStages.map(s => ({ name: s.name, connections: s.connections })));
             setStages(loadedStages);
             // Select first stage by default
             if (loadedStages.length > 0) {
@@ -280,21 +285,30 @@ export function QuizEditor() {
 
       // Insert stages
       if (stages.length > 0) {
-        const etapas = stages.map((stage, index) => ({
-          id: stage.id,
-          quiz_id: currentQuiz.id,
-          tipo: 'stage',
-          titulo: stage.name,
-          ordem: index,
-          configuracoes: JSON.parse(JSON.stringify({
-            components: stage.components,
-            pageSettings: pageSettings,
-            position: stage.position,
-            connections: stage.connections || [],
-            // Save designSettings only on first stage
-            ...(index === 0 ? { designSettings } : {}),
-          })),
-        }));
+        const etapas = stages.map((stage, index) => {
+          console.log(`Stage ${stage.name} connections:`, stage.connections);
+          return {
+            id: stage.id,
+            quiz_id: currentQuiz.id,
+            tipo: 'stage',
+            titulo: stage.name,
+            ordem: index,
+            configuracoes: JSON.parse(JSON.stringify({
+              components: stage.components,
+              pageSettings: pageSettings,
+              position: stage.position,
+              connections: stage.connections || [],
+              // Save designSettings only on first stage
+              ...(index === 0 ? { designSettings } : {}),
+            })),
+          };
+        });
+
+        console.log('Saving etapas with configurations:', etapas.map(e => ({ 
+          id: e.id, 
+          titulo: e.titulo, 
+          connections: e.configuracoes.connections 
+        })));
 
         const { error: etapasError } = await supabase
           .from('etapas')

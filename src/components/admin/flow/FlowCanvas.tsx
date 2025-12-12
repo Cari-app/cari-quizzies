@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useEffect } from 'react';
 import {
   ReactFlow,
   Controls,
@@ -37,6 +37,19 @@ const nodeTypes = {
   stage: StageNode,
 };
 
+const createEdgeStyle = () => ({
+  stroke: 'hsl(var(--muted-foreground))',
+  strokeWidth: 1.5,
+  strokeDasharray: '5,5',
+});
+
+const createMarkerEnd = () => ({
+  type: MarkerType.ArrowClosed as const,
+  color: 'hsl(var(--muted-foreground))',
+  width: 15,
+  height: 15,
+});
+
 export function FlowCanvas({ 
   stages, 
   selectedStageId, 
@@ -45,74 +58,69 @@ export function FlowCanvas({
 }: FlowCanvasProps) {
   
   // Convert stages to nodes
-  const initialNodes: Node[] = useMemo(() => {
-    return stages.map((stage, index) => ({
+  const buildNodes = useCallback((stgs: Stage[], selId: string | null): Node[] => {
+    return stgs.map((stage, index) => ({
       id: stage.id,
       type: 'stage',
-      position: stage.position || { x: 100 + (index % 4) * 220, y: 100 + Math.floor(index / 4) * 180 },
+      position: stage.position || { x: 100 + (index % 4) * 250, y: 100 + Math.floor(index / 4) * 200 },
       data: { 
         label: stage.name, 
         components: stage.components,
         index: index + 1,
-        isSelected: stage.id === selectedStageId,
+        isSelected: stage.id === selId,
       },
-      selected: stage.id === selectedStageId,
+      selected: stage.id === selId,
     }));
-  }, [stages, selectedStageId]);
+  }, []);
 
   // Convert connections to edges
-  const initialEdges: Edge[] = useMemo(() => {
+  const buildEdges = useCallback((stgs: Stage[]): Edge[] => {
     const edges: Edge[] = [];
-    stages.forEach((stage) => {
-      if (stage.connections) {
+    stgs.forEach((stage) => {
+      if (stage.connections && stage.connections.length > 0) {
         stage.connections.forEach((conn, connIndex) => {
           edges.push({
-            id: `${stage.id}-${conn.targetId}-${connIndex}`,
+            id: `${stage.id}-${conn.targetId}-${conn.sourceHandle || 'default'}-${connIndex}`,
             source: stage.id,
             target: conn.targetId,
             sourceHandle: conn.sourceHandle || 'default',
             type: 'smoothstep',
             animated: false,
-            style: { stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1.5, strokeDasharray: '5,5' },
-            markerEnd: {
-              type: MarkerType.ArrowClosed,
-              color: 'hsl(var(--muted-foreground))',
-              width: 15,
-              height: 15,
-            },
+            style: createEdgeStyle(),
+            markerEnd: createMarkerEnd(),
           });
         });
       }
     });
     return edges;
-  }, [stages]);
+  }, []);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState(buildNodes(stages, selectedStageId));
+  const [edges, setEdges, onEdgesChange] = useEdgesState(buildEdges(stages));
+
+  // Sync nodes when stages change
+  useEffect(() => {
+    setNodes(buildNodes(stages, selectedStageId));
+  }, [stages, selectedStageId, buildNodes, setNodes]);
+
+  // Sync edges when stages connections change
+  useEffect(() => {
+    setEdges(buildEdges(stages));
+  }, [stages, buildEdges, setEdges]);
 
   // Handle new connections
   const onConnect = useCallback(
     (params: Connection) => {
-      const newEdge: Edge = {
-        ...params,
-        id: `${params.source}-${params.target}-${Date.now()}`,
-        type: 'smoothstep',
-        animated: false,
-        style: { stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1.5, strokeDasharray: '5,5' },
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          color: 'hsl(var(--muted-foreground))',
-          width: 15,
-          height: 15,
-        },
-      } as Edge;
-      
-      setEdges((eds) => addEdge(newEdge, eds));
-      
-      // Update stages with new connection
+      // Update stages with new connection - edges will sync via useEffect
       const updatedStages = stages.map(stage => {
         if (stage.id === params.source) {
           const connections = stage.connections || [];
+          // Check if connection already exists
+          const exists = connections.some(c => 
+            c.targetId === params.target && c.sourceHandle === (params.sourceHandle || 'default')
+          );
+          if (exists) return stage;
+          
           return {
             ...stage,
             connections: [...connections, { targetId: params.target!, sourceHandle: params.sourceHandle || 'default' }],
@@ -122,7 +130,7 @@ export function FlowCanvas({
       });
       onStagesChange(updatedStages);
     },
-    [stages, onStagesChange, setEdges]
+    [stages, onStagesChange]
   );
 
   // Handle node click
@@ -167,9 +175,7 @@ export function FlowCanvas({
   // Handle edge double-click to delete
   const onEdgeDoubleClick = useCallback(
     (_: React.MouseEvent, edge: Edge) => {
-      setEdges((eds) => eds.filter((e) => e.id !== edge.id));
-      
-      // Update stages to remove the connection
+      // Update stages to remove the connection - edges will sync via useEffect
       const updatedStages = stages.map(stage => {
         if (stage.id === edge.source) {
           const stageConnections = stage.connections || [];
@@ -182,7 +188,7 @@ export function FlowCanvas({
       });
       onStagesChange(updatedStages);
     },
-    [stages, onStagesChange, setEdges]
+    [stages, onStagesChange]
   );
 
   // Auto-organize nodes
