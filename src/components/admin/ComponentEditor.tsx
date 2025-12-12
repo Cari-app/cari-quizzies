@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { RichTextInput } from '@/components/ui/rich-text-input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -208,9 +209,9 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
       {/* Título/Label */}
       <div>
         <Label className="text-xs text-muted-foreground">Título</Label>
-        <Input
+        <RichTextInput
           value={config.label || ''}
-          onChange={(e) => updateConfig({ label: e.target.value })}
+          onChange={(label) => updateConfig({ label })}
           placeholder="Ex: Nome"
           className="mt-1"
         />
@@ -457,9 +458,9 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
       </div>
       <div>
         <Label className="text-xs text-muted-foreground">Texto do botão</Label>
-        <Input
+        <RichTextInput
           value={config.buttonText || 'Continuar'}
-          onChange={(e) => updateConfig({ buttonText: e.target.value })}
+          onChange={(buttonText) => updateConfig({ buttonText })}
           className="mt-1"
         />
       </div>
@@ -554,18 +555,18 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             </SelectContent>
           </Select>
 
-          <div className="text-center p-4 border border-border rounded-lg bg-muted/20">
-            <Input
+          <div className="text-center p-4 border border-border rounded-lg bg-muted/20 space-y-2">
+            <RichTextInput
               value={config.label || 'Qual a questão a ser respondida?'}
-              onChange={(e) => updateConfig({ label: e.target.value })}
-              className="text-center font-semibold border-0 bg-transparent text-lg mb-2"
+              onChange={(label) => updateConfig({ label })}
               placeholder="Título da pergunta"
+              className="text-center"
             />
-            <Input
+            <RichTextInput
               value={config.description || ''}
-              onChange={(e) => updateConfig({ description: e.target.value })}
-              className="text-center text-sm text-muted-foreground border-0 bg-transparent"
+              onChange={(description) => updateConfig({ description })}
               placeholder="Digite aqui uma descrição de ajuda para introduzir o usuário à questão."
+              className="text-sm"
             />
           </div>
         </div>
@@ -863,11 +864,12 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
       </div>
       <div>
         <Label className="text-xs text-muted-foreground">Conteúdo</Label>
-        <Textarea
+        <RichTextInput
           value={config.content || ''}
-          onChange={(e) => updateConfig({ content: e.target.value })}
+          onChange={(content) => updateConfig({ content })}
           placeholder="Digite o texto aqui..."
-          className="mt-1 min-h-[100px]"
+          className="mt-1"
+          minHeight="100px"
         />
       </div>
     </div>
