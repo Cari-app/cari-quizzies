@@ -319,14 +319,14 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           </p>
         </div>
       ) : (
-        <div className="w-full max-w-md p-4">
+        <div className="w-full max-w-md p-4 pt-12">
           <div>
-            <Reorder.Group axis="y" values={components} onReorder={onComponentsChange} className="space-y-2">
+            <Reorder.Group axis="y" values={components} onReorder={onComponentsChange} className="space-y-4">
               {components.map((comp) => (
                 <Reorder.Item key={comp.id} value={comp}>
                   <div 
                     className={cn(
-                      "group relative bg-background border rounded-lg overflow-hidden cursor-pointer transition-all",
+                      "group relative bg-background border rounded-lg cursor-pointer transition-all",
                       selectedComponentId === comp.id 
                         ? "border-primary ring-2 ring-primary/20" 
                         : "border-border hover:border-primary/50"
@@ -334,7 +334,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                     onClick={() => onSelectComponent(comp)}
                   >
                     {/* Floating toolbar */}
-                    <div className="absolute -top-9 left-1 opacity-0 group-hover:opacity-100 transition-opacity z-20 flex items-center gap-0.5 bg-primary rounded-md p-1 shadow-lg">
+                    <div className="absolute -top-10 left-0 opacity-0 group-hover:opacity-100 transition-all z-20 flex items-center gap-0.5 bg-primary rounded-md p-1 shadow-lg">
                       <button 
                         className="p-1.5 hover:bg-primary-foreground/20 rounded cursor-grab"
                         onMouseDown={(e) => e.stopPropagation()}
@@ -361,8 +361,10 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                       </button>
                     </div>
                     {/* Tooltip arrow */}
-                    <div className="absolute -top-1 left-4 w-2 h-2 bg-primary rotate-45 opacity-0 group-hover:opacity-100 transition-opacity z-10" />
-                    {renderComponentPreview(comp)}
+                    <div className="absolute -top-2 left-4 w-2 h-2 bg-primary rotate-45 opacity-0 group-hover:opacity-100 transition-all z-10" />
+                    <div className="overflow-hidden rounded-lg">
+                      {renderComponentPreview(comp)}
+                    </div>
                   </div>
                 </Reorder.Item>
               ))}
