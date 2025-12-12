@@ -675,7 +675,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b border-border shrink-0">
+      <div className="flex items-center gap-3 p-4 shrink-0">
         <span className="text-2xl">{component.icon}</span>
         <div className="flex-1">
           <h3 className="font-medium text-sm">{component.name}</h3>

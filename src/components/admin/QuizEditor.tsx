@@ -504,7 +504,7 @@ export function QuizEditor() {
             className="w-64 border-r border-border bg-background flex flex-col overflow-hidden animate-fade-in"
           >
             {/* Toggle Button */}
-            <div className="p-3 flex items-center justify-between border-b border-border shrink-0">
+            <div className="p-3 flex items-center justify-between shrink-0">
               <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Componentes</span>
               <button
                 onClick={() => setWidgetsExpanded(false)}
