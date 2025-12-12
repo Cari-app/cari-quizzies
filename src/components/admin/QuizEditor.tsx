@@ -246,32 +246,48 @@ export function QuizEditor() {
               </Reorder.Group>
             )}
           </div>
-        </div>
 
-        {/* Widgets Column */}
-        <div className={cn(
-          "bg-background border-r border-border flex flex-col transition-all duration-200 overflow-hidden",
-          widgetsExpanded ? "w-48" : "w-10"
-        )}>
-          <div className="p-2 border-b border-border flex justify-center">
-            <button
+          {/* Toggle Widgets Button */}
+          <div className="border-t border-border p-3">
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setWidgetsExpanded(!widgetsExpanded)}
-              className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-              title={widgetsExpanded ? "Recolher" : "Expandir componentes"}
+              className="w-full h-9 text-xs gap-2"
             >
               {widgetsExpanded ? (
-                <PanelLeftClose className="w-4 h-4" />
+                <>
+                  <PanelLeftClose className="w-4 h-4" />
+                  Fechar componentes
+                </>
               ) : (
-                <PanelLeftOpen className="w-4 h-4" />
+                <>
+                  <PanelLeftOpen className="w-4 h-4" />
+                  Componentes
+                </>
               )}
-            </button>
+            </Button>
           </div>
-          {widgetsExpanded && (
+        </div>
+
+        {/* Widgets Column - Closes completely */}
+        {widgetsExpanded && (
+          <div className="w-52 bg-background border-r border-border flex flex-col">
+            <div className="p-3 border-b border-border flex items-center justify-between">
+              <span className="text-sm font-medium">Componentes</span>
+              <button
+                onClick={() => setWidgetsExpanded(false)}
+                className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+                title="Fechar"
+              >
+                <PanelLeftClose className="w-4 h-4" />
+              </button>
+            </div>
             <div className="flex-1 overflow-y-auto p-2">
               <ComponentPalette expanded={true} />
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Center - Preview */}
