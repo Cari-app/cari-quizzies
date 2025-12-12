@@ -605,41 +605,40 @@ export function QuizEditor() {
       </div>
 
       {/* Right Sidebar */}
-      <div className="w-80 bg-background border-l border-border flex flex-col shrink-0">
-        <Tabs value={rightTab} onValueChange={(v) => setRightTab(v as 'stage' | 'appearance')} className="flex flex-col h-full">
-          <TabsList className="grid grid-cols-2 m-4 mb-0">
-            <TabsTrigger value="stage">Componente</TabsTrigger>
-            <TabsTrigger value="appearance">Aparência</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="stage" className="flex-1 overflow-y-auto p-4 mt-0">
-            {selectedComponent ? (
-              <ComponentEditor 
-                component={selectedComponent}
-                onUpdate={(config) => {
-                  setDroppedComponents(prev => 
-                    prev.map(c => c.id === selectedComponent.id ? { ...c, config } : c)
-                  );
-                  setSelectedComponent(prev => prev ? { ...prev, config } : null);
-                }}
-                onUpdateCustomId={(customId) => {
-                  setDroppedComponents(prev => 
-                    prev.map(c => c.id === selectedComponent.id ? { ...c, customId } : c)
-                  );
-                  setSelectedComponent(prev => prev ? { ...prev, customId } : null);
-                }}
-                onDelete={() => {
-                  setDroppedComponents(prev => prev.filter(c => c.id !== selectedComponent.id));
-                  setSelectedComponent(null);
-                }}
-              />
-            ) : (
+      <div className="w-80 bg-background border-l border-border flex flex-col shrink-0 overflow-hidden">
+        {selectedComponent ? (
+          <ComponentEditor 
+            component={selectedComponent}
+            onUpdate={(config) => {
+              setDroppedComponents(prev => 
+                prev.map(c => c.id === selectedComponent.id ? { ...c, config } : c)
+              );
+              setSelectedComponent(prev => prev ? { ...prev, config } : null);
+            }}
+            onUpdateCustomId={(customId) => {
+              setDroppedComponents(prev => 
+                prev.map(c => c.id === selectedComponent.id ? { ...c, customId } : c)
+              );
+              setSelectedComponent(prev => prev ? { ...prev, customId } : null);
+            }}
+            onDelete={() => {
+              setDroppedComponents(prev => prev.filter(c => c.id !== selectedComponent.id));
+              setSelectedComponent(null);
+            }}
+          />
+        ) : (
+          <Tabs value={rightTab} onValueChange={(v) => setRightTab(v as 'stage' | 'appearance')} className="flex flex-col h-full">
+            <TabsList className="grid grid-cols-2 m-4 mb-0">
+              <TabsTrigger value="stage">Etapa</TabsTrigger>
+              <TabsTrigger value="appearance">Aparência</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="stage" className="flex-1 overflow-y-auto p-4 mt-0">
               <div className="text-center py-12">
                 <p className="text-sm text-muted-foreground">Selecione um componente</p>
                 <p className="text-xs text-muted-foreground mt-1">ou arraste da paleta</p>
               </div>
-            )}
-          </TabsContent>
+            </TabsContent>
           
           <TabsContent value="appearance" className="flex-1 overflow-y-auto p-4 mt-0">
             <div className="space-y-6">
@@ -749,6 +748,7 @@ export function QuizEditor() {
             </div>
           </TabsContent>
         </Tabs>
+        )}
       </div>
 
       {/* Template Modal */}
