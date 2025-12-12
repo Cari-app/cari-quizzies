@@ -4,12 +4,12 @@
 
 @layer base {
   :root {
-    /* Background & Foreground */
+    /* Background & Foreground - Pure white */
     --background: 0 0% 100%;
     --foreground: 0 0% 4%;
 
-    /* Card surfaces */
-    --card: 78 92% 95%;
+    /* Card surfaces - Neutral, minimal */
+    --card: 0 0% 100%;
     --card-foreground: 0 0% 4%;
 
     /* Popover */
@@ -20,41 +20,41 @@
     --primary: 84 81% 44%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Lime 100 */
-    --secondary: 80 89% 89%;
-    --secondary-foreground: 85 69% 18%;
+    /* Secondary - Very subtle gray */
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 15%;
 
-    /* Muted */
-    --muted: 78 92% 95%;
-    --muted-foreground: 0 0% 25%;
+    /* Muted - Subtle gray */
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    /* Accent - Lime 200 */
-    --accent: 81 88% 80%;
-    --accent-foreground: 85 69% 18%;
+    /* Accent - Subtle hover */
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 9%;
 
     /* Destructive */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Border & Input */
-    --border: 0 0% 90%;
-    --input: 80 73% 69%;
+    /* Border & Input - Very subtle */
+    --border: 0 0% 92%;
+    --input: 0 0% 92%;
     --ring: 84 81% 44%;
 
     /* Radius */
     --radius: 0.625rem;
 
-    /* Sidebar */
-    --sidebar-background: 78 92% 95%;
+    /* Sidebar - Minimal */
+    --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 0 0% 4%;
     --sidebar-primary: 84 81% 44%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 81 88% 80%;
-    --sidebar-accent-foreground: 85 69% 18%;
-    --sidebar-border: 80 89% 89%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 9%;
+    --sidebar-border: 0 0% 92%;
     --sidebar-ring: 84 81% 44%;
 
-    /* Custom Lime tokens */
+    /* Lime tokens for accents only */
     --lime-50: 78 92% 95%;
     --lime-100: 80 89% 89%;
     --lime-200: 81 88% 80%;
@@ -66,41 +66,36 @@
     --lime-800: 86 72% 22%;
     --lime-900: 88 74% 20%;
     --lime-950: 89 80% 10%;
-
-    /* Shadows */
-    --shadow-sm: 0 2px 4px hsl(var(--lime-100) / 0.20);
-    --shadow-md: 0 4px 8px hsl(var(--lime-200) / 0.30);
-    --shadow-lg: 0 8px 16px hsl(var(--lime-200) / 0.35);
   }
 
   .dark {
-    /* Background & Foreground */
+    /* Background & Foreground - Pure black */
     --background: 0 0% 0%;
     --foreground: 0 0% 98%;
 
-    /* Card surfaces - Lime 900 */
-    --card: 88 74% 20%;
+    /* Card surfaces - Very dark, neutral */
+    --card: 0 0% 6%;
     --card-foreground: 0 0% 98%;
 
     /* Popover */
-    --popover: 88 74% 20%;
+    --popover: 0 0% 6%;
     --popover-foreground: 0 0% 98%;
 
     /* Primary - Lime 500 */
     --primary: 84 81% 44%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Lime 800 */
-    --secondary: 86 72% 22%;
-    --secondary-foreground: 81 88% 80%;
+    /* Secondary - Dark neutral */
+    --secondary: 0 0% 12%;
+    --secondary-foreground: 0 0% 90%;
 
     /* Muted */
-    --muted: 88 74% 20%;
-    --muted-foreground: 0 0% 83%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 55%;
 
-    /* Accent - Lime 700 */
-    --accent: 86 77% 25%;
-    --accent-foreground: 81 88% 80%;
+    /* Accent - Subtle dark hover */
+    --accent: 0 0% 12%;
+    --accent-foreground: 0 0% 98%;
 
     /* Destructive */
     --destructive: 0 62% 30%;
@@ -108,23 +103,18 @@
 
     /* Border & Input */
     --border: 0 0% 15%;
-    --input: 86 72% 22%;
-    --ring: 83 78% 55%;
+    --input: 0 0% 15%;
+    --ring: 84 81% 44%;
 
     /* Sidebar */
-    --sidebar-background: 89 80% 10%;
+    --sidebar-background: 0 0% 4%;
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 84 81% 44%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 86 77% 25%;
-    --sidebar-accent-foreground: 81 88% 80%;
-    --sidebar-border: 86 72% 22%;
-    --sidebar-ring: 83 78% 55%;
-
-    /* Shadows */
-    --shadow-sm: 0 2px 4px hsl(var(--lime-900) / 0.30);
-    --shadow-md: 0 4px 8px hsl(var(--lime-700) / 0.40);
-    --shadow-lg: 0 8px 16px hsl(var(--lime-700) / 0.50);
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 15%;
+    --sidebar-ring: 84 81% 44%;
   }
 }
 
@@ -147,17 +137,5 @@
 @layer utilities {
   .hover-bg {
     @apply transition-colors hover:bg-accent;
-  }
-
-  .shadow-lime-sm {
-    box-shadow: var(--shadow-sm);
-  }
-
-  .shadow-lime-md {
-    box-shadow: var(--shadow-md);
-  }
-
-  .shadow-lime-lg {
-    box-shadow: var(--shadow-lg);
   }
 }
