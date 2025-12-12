@@ -4,8 +4,9 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Plus, Minus } from 'lucide-react';
+import { Plus, Minus, Copy } from 'lucide-react';
 import { ComponentConfig } from './ComponentEditor';
+import { toast } from 'sonner';
 
 interface SpacerComponentEditorProps {
   config: ComponentConfig;
@@ -119,14 +120,44 @@ export function SpacerComponentEditor({
           AVANÇADO
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-4 space-y-4">
-          <div>
-            <Label className="text-xs text-muted-foreground">ID/Name</Label>
-            <Input
-              value={customId || ''}
-              onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-              placeholder={`spacer_${componentId.split('-')[1]?.slice(0, 6) || 'id'}`}
-              className="mt-1 font-mono text-xs"
-            />
+          <div className="space-y-2">
+            <div>
+              <Label className="text-xs text-muted-foreground">ID Customizado</Label>
+              <div className="flex gap-1 mt-1">
+                <Input
+                  value={customId || ''}
+                  onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
+                  placeholder={`spacer_${componentId.slice(0, 8)}`}
+                  className="flex-1 font-mono text-xs"
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-9 w-9 shrink-0"
+                  onClick={() => {
+                    navigator.clipboard.writeText(customId || componentId);
+                    toast.success('ID copiado!');
+                  }}
+                  title="Copiar ID"
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-[10px] text-muted-foreground font-mono bg-muted/50 px-2 py-1 rounded">
+              <span className="text-muted-foreground/60">UUID:</span>
+              <span className="truncate flex-1">{componentId}</span>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(componentId);
+                  toast.success('UUID copiado!');
+                }}
+                className="hover:text-foreground transition-colors"
+                title="Copiar UUID"
+              >
+                <Copy className="h-3 w-3" />
+              </button>
+            </div>
           </div>
         </CollapsibleContent>
       </Collapsible>
