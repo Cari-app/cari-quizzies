@@ -251,6 +251,20 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           horizontalAlign: 'start',
           verticalAlign: 'auto'
         };
+      case 'metrics':
+        return {
+          metricItems: [
+            { id: '1', type: 'bar', color: 'theme', value: 30, label: 'Fusce vitae tellus in risus sagittis condimentum' },
+            { id: '2', type: 'circular', color: 'theme', value: 30, label: 'Fusce vitae tellus in risus sagittis condimentum' },
+            { id: '3', type: 'circular', color: 'yellow', value: 30, label: 'Fusce vitae tellus in risus sagittis condimentum' },
+            { id: '4', type: 'bar', color: 'theme', value: 30, label: 'Fusce vitae tellus in risus sagittis condimentum' }
+          ],
+          metricsLayout: 'grid-2',
+          metricsDisposition: 'legend-chart',
+          width: 100,
+          horizontalAlign: 'start',
+          verticalAlign: 'auto'
+        };
       default:
         return {};
     }
@@ -1505,6 +1519,138 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+        );
+      }
+      case 'metrics': {
+        const items = config.metricItems || [];
+        const layout = config.metricsLayout || 'grid-2';
+        const disposition = config.metricsDisposition || 'legend-chart';
+        const widthValue = config.width || 100;
+        const hAlign = config.horizontalAlign || 'start';
+        
+        const justifyClass = hAlign === 'center' ? 'justify-center' : hAlign === 'end' ? 'justify-end' : 'justify-start';
+        
+        const layoutClasses: Record<string, string> = {
+          'list': 'flex flex-col',
+          'grid-2': 'grid grid-cols-2',
+          'grid-3': 'grid grid-cols-3',
+          'grid-4': 'grid grid-cols-4',
+        };
+
+        const colorBgClasses: Record<string, string> = {
+          theme: 'bg-primary',
+          green: 'bg-green-500',
+          blue: 'bg-blue-500',
+          yellow: 'bg-yellow-500',
+          orange: 'bg-orange-500',
+          red: 'bg-red-500',
+          black: 'bg-foreground',
+        };
+
+        const colorStrokeClasses: Record<string, string> = {
+          theme: 'stroke-primary',
+          green: 'stroke-green-500',
+          blue: 'stroke-blue-500',
+          yellow: 'stroke-yellow-500',
+          orange: 'stroke-orange-500',
+          red: 'stroke-red-500',
+          black: 'stroke-foreground',
+        };
+
+        const colorTextClasses: Record<string, string> = {
+          theme: 'text-primary',
+          green: 'text-green-500',
+          blue: 'text-blue-500',
+          yellow: 'text-yellow-500',
+          orange: 'text-orange-500',
+          red: 'text-red-500',
+          black: 'text-foreground',
+        };
+        
+        const renderBarChart = (value: number, color: string) => {
+          const height = Math.max(10, (value / 100) * 80);
+          return (
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-xs text-muted-foreground">{value}%</span>
+              <div className="w-8 h-14 bg-muted/30 rounded-sm flex items-end justify-center overflow-hidden">
+                <div 
+                  className={cn("w-6 rounded-t-sm", colorBgClasses[color] || 'bg-primary')}
+                  style={{ height: `${height}%` }}
+                />
+              </div>
+            </div>
+          );
+        };
+
+        const renderCircularChart = (value: number, color: string) => {
+          const radius = 20;
+          const circumference = 2 * Math.PI * radius;
+          const strokeDashoffset = circumference - (value / 100) * circumference;
+          
+          return (
+            <div className="relative w-14 h-14 flex items-center justify-center">
+              <svg className="w-full h-full -rotate-90" viewBox="0 0 50 50">
+                <circle
+                  cx="25"
+                  cy="25"
+                  r={radius}
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                  className="text-muted/30"
+                />
+                <circle
+                  cx="25"
+                  cy="25"
+                  r={radius}
+                  fill="none"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeDasharray={circumference}
+                  strokeDashoffset={strokeDashoffset}
+                  className={colorStrokeClasses[color] || 'stroke-primary'}
+                />
+              </svg>
+              <span className={cn("absolute text-xs font-semibold", colorTextClasses[color] || 'text-primary')}>
+                {value}%
+              </span>
+            </div>
+          );
+        };
+        
+        return (
+          <div className={cn("w-full px-4 py-4 flex", justifyClass)}>
+            <div 
+              className={cn("gap-2", layoutClasses[layout])}
+              style={{ width: `${widthValue}%` }}
+            >
+              {items.map((item: any) => (
+                <div key={item.id} className="flex flex-col items-center justify-center gap-2 p-3 bg-card rounded-lg border border-border">
+                  {disposition === 'legend-chart' ? (
+                    <>
+                      <p className="text-xs text-center text-muted-foreground px-1 leading-relaxed line-clamp-2">
+                        {item.label}
+                      </p>
+                      {item.type === 'bar' 
+                        ? renderBarChart(item.value, item.color)
+                        : renderCircularChart(item.value, item.color)
+                      }
+                    </>
+                  ) : (
+                    <>
+                      {item.type === 'bar' 
+                        ? renderBarChart(item.value, item.color)
+                        : renderCircularChart(item.value, item.color)
+                      }
+                      <p className="text-xs text-center text-muted-foreground px-1 leading-relaxed line-clamp-2">
+                        {item.label}
+                      </p>
+                    </>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         );
