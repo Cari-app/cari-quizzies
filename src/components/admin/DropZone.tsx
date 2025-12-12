@@ -821,26 +821,20 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         };
         const style = config.alertStyle || 'red';
         const padding = config.alertPadding || 'default';
-        const width = config.width || 100;
-        const horizontalAlign = config.horizontalAlign || 'start';
-        const alignClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
         
         return (
-          <div className={cn("w-full flex", alignClass)}>
+          <div 
+            className={cn(
+              "w-full rounded-lg border",
+              alertStyles[style as keyof typeof alertStyles],
+              paddingStyles[padding as keyof typeof paddingStyles],
+              config.alertHighlight && "ring-2 ring-offset-2 ring-current"
+            )}
+          >
             <div 
-              className={cn(
-                "rounded-lg border",
-                alertStyles[style as keyof typeof alertStyles],
-                paddingStyles[padding as keyof typeof paddingStyles],
-                config.alertHighlight && "ring-2 ring-offset-2 ring-current"
-              )}
-              style={{ width: `${width}%` }}
-            >
-              <div 
-                className="text-sm rich-text"
-                dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.description || 'Texto do alerta') }}
-              />
-            </div>
+              className="text-sm rich-text"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.description || 'Texto do alerta') }}
+            />
           </div>
         );
       }
@@ -913,48 +907,38 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         // Replace [time] with formatted time
         const displayText = text.replace('[time]', formattedTime);
         
-        const widthValue = config.width || 100;
         
         return (
-          <div className="w-full">
-            <div 
-              className={cn(
-                "rounded-lg px-4 py-3 text-center font-medium",
-                timerStyles[style as keyof typeof timerStyles]
-              )}
-              style={{ width: `${widthValue}%` }}
-            >
-              {displayText}
-            </div>
+          <div 
+            className={cn(
+              "w-full rounded-lg px-4 py-3 text-center font-medium",
+              timerStyles[style as keyof typeof timerStyles]
+            )}
+          >
+            {displayText}
           </div>
         );
       }
       case 'loading': {
-        const widthValue = config.width || 100;
         const title = config.loadingTitle || 'Carregando...';
         const description = config.loadingDescription || '';
         const showTitle = config.showLoadingTitle !== false;
         const showProgress = config.showLoadingProgress !== false;
         
         return (
-          <div className="w-full">
-            <div 
-              className="border border-border rounded-lg p-4 bg-background"
-              style={{ width: `${widthValue}%` }}
-            >
-              {showTitle && (
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium">{title}</span>
-                  <span className="text-xs text-muted-foreground">100%</span>
-                </div>
-              )}
-              {showProgress && (
-                <div className="h-2 bg-foreground rounded-full mb-3" />
-              )}
-              {description && (
-                <p className="text-sm text-muted-foreground text-center">{description}</p>
-              )}
-            </div>
+          <div className="w-full border border-border rounded-lg p-4 bg-background">
+            {showTitle && (
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium">{title}</span>
+                <span className="text-xs text-muted-foreground">100%</span>
+              </div>
+            )}
+            {showProgress && (
+              <div className="h-2 bg-foreground rounded-full mb-3" />
+            )}
+            {description && (
+              <p className="text-sm text-muted-foreground text-center">{description}</p>
+            )}
           </div>
         );
       }
@@ -969,9 +953,6 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const showProgress = config.showLevelProgress !== false;
         const levelType = config.levelType || 'line';
         const levelColor = config.levelColor || 'theme';
-        const widthValue = config.width || 100;
-        const horizontalAlign = config.horizontalAlign || 'start';
-        const alignClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
         
         // Get gradient/color based on levelColor
         const getBarBackground = () => {
@@ -1074,36 +1055,31 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         };
         
         return (
-          <div className={cn("w-full flex", alignClass)}>
-            <div 
-              className="border border-border rounded-lg p-4 bg-background"
-              style={{ width: `${widthValue}%` }}
-            >
-              {/* Header with title and percentage */}
-              <div className="flex justify-between items-start mb-1">
-                <div className="font-semibold text-sm">{title}</div>
-                {showProgress && (
-                  <div className="text-sm text-muted-foreground">{percentage}%</div>
-                )}
-              </div>
-              
-              {/* Subtitle */}
-              {subtitle && (
-                <div className="text-sm text-muted-foreground mb-2">{subtitle}</div>
-              )}
-              
-              {/* Level bar - always visible */}
-              <div className={cn("mt-2", indicatorText ? "pt-6" : "")}>
-                {levelType === 'segments' ? renderSegmentsBar() : renderLineBar()}
-              </div>
-              
-              {/* Legends */}
-              {legends.length > 0 && (
-                <div className="text-xs text-muted-foreground mt-2">
-                  {legends.join(' · ')}
-                </div>
+          <div className="w-full border border-border rounded-lg p-4 bg-background">
+            {/* Header with title and percentage */}
+            <div className="flex justify-between items-start mb-1">
+              <div className="font-semibold text-sm">{title}</div>
+              {showProgress && (
+                <div className="text-sm text-muted-foreground">{percentage}%</div>
               )}
             </div>
+            
+            {/* Subtitle */}
+            {subtitle && (
+              <div className="text-sm text-muted-foreground mb-2">{subtitle}</div>
+            )}
+            
+            {/* Level bar - always visible */}
+            <div className={cn("mt-2", indicatorText ? "pt-6" : "")}>
+              {levelType === 'segments' ? renderSegmentsBar() : renderLineBar()}
+            </div>
+            
+            {/* Legends */}
+            {legends.length > 0 && (
+              <div className="text-xs text-muted-foreground mt-2">
+                {legends.join(' · ')}
+              </div>
+            )}
           </div>
         );
       }
@@ -1118,9 +1094,6 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         }>;
         const layout = config.argumentLayout || 'grid-2';
         const disposition = config.argumentDisposition || 'image-text';
-        const widthValue = config.width || 100;
-        const horizontalAlign = config.horizontalAlign || 'start';
-        const alignClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
         
         const gridClass = {
           'list': 'grid-cols-1',
@@ -1133,11 +1106,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const imageFirst = disposition === 'image-text' || disposition === 'image-left';
         
         return (
-          <div className={cn("w-full flex", alignClass)}>
-            <div 
-              className={cn("grid gap-3 p-4", gridClass)}
-              style={{ width: `${widthValue}%` }}
-            >
+          <div className={cn("w-full grid gap-3 p-4", gridClass)}>
               {argumentItems.map((item) => (
                 <div 
                   key={item.id} 
@@ -1177,7 +1146,6 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   </div>
                 </div>
               ))}
-            </div>
           </div>
         );
       }
@@ -1192,9 +1160,6 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           photoUrl?: string;
         }>;
         const layout = config.testimonialLayout || 'list';
-        const widthValue = config.width || 100;
-        const horizontalAlign = config.horizontalAlign || 'start';
-        const alignClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
         const borderRadius = config.testimonialBorderRadius || 'small';
         const shadow = config.testimonialShadow || 'none';
         const spacing = config.testimonialSpacing || 'simple';
@@ -1264,23 +1229,21 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
 
         if (layout === 'carousel') {
           return (
-            <div className={cn("w-full flex", alignClass)}>
-              <div className="w-full p-4 overflow-hidden" style={{ width: `${widthValue}%` }}>
-                <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                  {testimonialItems.map((item) => (
-                    <div key={item.id} className="flex-shrink-0 w-[280px] snap-center">
-                      {renderTestimonialCard(item)}
-                    </div>
+            <div className="w-full p-4 overflow-hidden">
+              <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                {testimonialItems.map((item) => (
+                  <div key={item.id} className="flex-shrink-0 w-[280px] snap-center">
+                    {renderTestimonialCard(item)}
+                  </div>
+                ))}
+              </div>
+              {testimonialItems.length > 1 && (
+                <div className="flex justify-center gap-1.5 mt-3">
+                  {testimonialItems.map((_, i) => (
+                    <div key={i} className={cn("w-2 h-2 rounded-full", i === 0 ? "bg-primary" : "bg-muted-foreground/30")} />
                   ))}
                 </div>
-                {testimonialItems.length > 1 && (
-                  <div className="flex justify-center gap-1.5 mt-3">
-                    {testimonialItems.map((_, i) => (
-                      <div key={i} className={cn("w-2 h-2 rounded-full", i === 0 ? "bg-primary" : "bg-muted-foreground/30")} />
-                    ))}
-                  </div>
-                )}
-              </div>
+              )}
             </div>
           );
         }
@@ -1288,13 +1251,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const gridClass = layout === 'grid-2' ? 'grid-cols-2' : 'grid-cols-1';
         
         return (
-          <div className={cn("w-full flex", alignClass)}>
-            <div 
-              className={cn("grid gap-3 p-4", gridClass)}
-              style={{ width: `${widthValue}%` }}
-            >
-              {testimonialItems.map((item) => renderTestimonialCard(item))}
-            </div>
+          <div className={cn("w-full grid gap-3 p-4", gridClass)}>
+            {testimonialItems.map((item) => renderTestimonialCard(item))}
           </div>
         );
       }
