@@ -158,6 +158,21 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           horizontalAlign: 'start',
           verticalAlign: 'auto'
         };
+      case 'level':
+        return {
+          levelTitle: 'Nível',
+          levelSubtitle: 'Fusce vitae tellus',
+          levelPercentage: 75,
+          levelIndicatorText: '',
+          levelLegends: '',
+          showLevelMeter: true,
+          showLevelProgress: true,
+          levelType: 'line',
+          levelColor: 'theme',
+          width: 100,
+          horizontalAlign: 'start',
+          verticalAlign: 'auto'
+        };
       default:
         return {};
     }
@@ -837,6 +852,118 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               )}
               {description && (
                 <p className="text-sm text-muted-foreground text-center">{description}</p>
+              )}
+            </div>
+          </div>
+        );
+      }
+      case 'level': {
+        const title = config.levelTitle || 'Nível';
+        const subtitle = config.levelSubtitle || '';
+        const percentage = config.levelPercentage ?? 75;
+        const showMeter = config.showLevelMeter !== false;
+        const showProgress = config.showLevelProgress !== false;
+        const levelType = config.levelType || 'line';
+        const levelColor = config.levelColor || 'theme';
+        const widthValue = config.width || 100;
+        const horizontalAlign = config.horizontalAlign || 'start';
+        const alignClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
+        
+        // Get gradient/color based on levelColor
+        const getBarBackground = () => {
+          switch (levelColor) {
+            case 'green-red':
+              return 'linear-gradient(to right, #22c55e, #eab308, #f97316, #ef4444)';
+            case 'red-green':
+              return 'linear-gradient(to right, #ef4444, #f97316, #eab308, #22c55e)';
+            case 'opaque':
+              return 'hsl(var(--foreground))';
+            case 'red':
+              return '#ef4444';
+            case 'blue':
+              return '#3b82f6';
+            case 'green':
+              return '#22c55e';
+            case 'yellow':
+              return '#eab308';
+            default:
+              return 'hsl(var(--foreground))';
+          }
+        };
+        
+        const renderLineBar = () => (
+          <div className="relative w-full">
+            <div className="h-2 bg-muted rounded-full overflow-hidden relative">
+              <div 
+                className="h-full rounded-full absolute left-0 top-0"
+                style={{ 
+                  width: `${percentage}%`,
+                  background: getBarBackground()
+                }}
+              />
+            </div>
+            {/* Indicator circle */}
+            <div 
+              className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-background border-2 border-foreground rounded-full shadow-md pointer-events-none"
+              style={{ left: `calc(${percentage}% - 8px)` }}
+            />
+          </div>
+        );
+        
+        const renderSegmentsBar = () => {
+          const segmentCount = 5;
+          const filledSegments = Math.ceil((percentage / 100) * segmentCount);
+          
+          return (
+            <div className="flex gap-1 w-full relative">
+              {Array.from({ length: segmentCount }, (_, i) => {
+                const isFilled = i < filledSegments;
+                const isPartial = i === filledSegments - 1 && percentage % (100 / segmentCount) !== 0;
+                
+                return (
+                  <div 
+                    key={i}
+                    className={cn(
+                      "h-2 flex-1 rounded-full transition-colors",
+                      isFilled ? "" : "bg-muted"
+                    )}
+                    style={isFilled ? { background: levelColor === 'theme' || levelColor === 'opaque' ? 'hsl(var(--foreground))' : getBarBackground() } : undefined}
+                  />
+                );
+              })}
+              {/* Indicator circle */}
+              <div 
+                className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-background border-2 border-foreground rounded-full shadow-md pointer-events-none"
+                style={{ left: `calc(${percentage}% - 8px)` }}
+              />
+            </div>
+          );
+        };
+        
+        return (
+          <div className={cn("w-full flex", alignClass)}>
+            <div 
+              className="border border-border rounded-lg p-4 bg-background"
+              style={{ width: `${widthValue}%` }}
+            >
+              {/* Header with title and percentage */}
+              <div className="flex justify-between items-start mb-1">
+                <div className="font-semibold text-sm">{title}</div>
+                {showProgress && (
+                  <div className="text-sm text-muted-foreground">{percentage}%</div>
+                )}
+              </div>
+              
+              {/* Subtitle */}
+              {subtitle && (
+                <div className="text-sm text-muted-foreground mb-2">{subtitle}</div>
+              )}
+              
+              {/* Level bar */}
+              {showMeter && (
+                <div className="mt-2">
+                  {levelType === 'segments' ? renderSegmentsBar() : renderLineBar()}
+                </div>
               )}
             </div>
           </div>
