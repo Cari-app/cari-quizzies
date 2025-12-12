@@ -135,31 +135,27 @@ export function BeforeAfterSlider({
           )}
         </div>
         
-        {/* Slider line */}
+        {/* Slider handle - no line, just floating handle */}
         <div 
-          className="absolute top-0 bottom-0 w-0.5 bg-white/90 shadow-lg pointer-events-none z-10"
-          style={{ left: `${sliderPosition}%`, transform: 'translateX(-50%)' }}
+          className="absolute top-1/2 -translate-y-1/2 z-10 pointer-events-none"
+          style={{ left: `${sliderPosition}%`, transform: `translateX(-50%) translateY(-50%)` }}
         >
-          {/* Slider handle */}
           <div 
             className={cn(
-              "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
-              "w-12 h-12 rounded-full bg-white shadow-2xl",
+              "w-10 h-10 rounded-full",
+              "bg-white/95 backdrop-blur-sm",
+              "shadow-[0_2px_12px_rgba(0,0,0,0.15)]",
               "flex items-center justify-center",
-              "border-2 border-white/50",
-              "transition-transform duration-150",
-              isDragging && "scale-110"
+              "transition-all duration-150",
+              isDragging ? "scale-110 shadow-[0_4px_20px_rgba(0,0,0,0.2)]" : "hover:scale-105"
             )}
           >
-            <div className="flex items-center gap-0.5">
-              <ChevronLeft className="w-4 h-4 text-muted-foreground" />
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            <div className="flex items-center">
+              <ChevronLeft className="w-3.5 h-3.5 text-neutral-400" />
+              <ChevronRight className="w-3.5 h-3.5 text-neutral-400 -ml-1" />
             </div>
           </div>
         </div>
-
-        {/* Overlay gradient for premium effect */}
-        <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/10 via-transparent to-black/5" />
       </div>
     </div>
   );

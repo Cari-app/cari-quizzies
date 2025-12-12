@@ -1410,15 +1410,12 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                 )}
               </div>
               
-              {/* Slider handle */}
+              {/* Slider handle - floating, no line */}
               <div 
-                className="absolute top-0 bottom-0 w-1 bg-background shadow-lg"
-                style={{ left: '50%', transform: 'translateX(-50%)' }}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/95 shadow-[0_2px_12px_rgba(0,0,0,0.15)] flex items-center justify-center z-10"
               >
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-background shadow-xl border border-border flex items-center justify-center">
-                  <ChevronLeft className="w-4 h-4 text-muted-foreground -mr-1" />
-                  <ChevronRight className="w-4 h-4 text-muted-foreground -ml-1" />
-                </div>
+                <ChevronLeft className="w-3.5 h-3.5 text-neutral-400" />
+                <ChevronRight className="w-3.5 h-3.5 text-neutral-400 -ml-1" />
               </div>
             </div>
           </div>
