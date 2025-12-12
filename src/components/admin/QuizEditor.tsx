@@ -499,28 +499,27 @@ export function QuizEditor() {
         )}
         
         {/* Widgets Palette - Expanded */}
-        <div 
-          className={cn(
-            "border-r border-border bg-background transition-all duration-300 ease-out flex flex-col overflow-hidden",
-            widgetsExpanded ? "w-64 opacity-100" : "w-0 opacity-0"
-          )}
-        >
-          {/* Toggle Button */}
-          <div className="p-3 flex items-center justify-between border-b border-border shrink-0">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Componentes</span>
-            <button
-              onClick={() => setWidgetsExpanded(false)}
-              className="p-1.5 rounded-md hover:bg-muted transition-colors"
-            >
-              <PanelLeftClose className="w-4 h-4 text-muted-foreground" />
-            </button>
-          </div>
+        {widgetsExpanded && (
+          <div 
+            className="w-64 border-r border-border bg-background flex flex-col overflow-hidden animate-fade-in"
+          >
+            {/* Toggle Button */}
+            <div className="p-3 flex items-center justify-between border-b border-border shrink-0">
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Componentes</span>
+              <button
+                onClick={() => setWidgetsExpanded(false)}
+                className="p-1.5 rounded-md hover:bg-muted transition-colors"
+              >
+                <PanelLeftClose className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
 
-          {/* Component Palette */}
-          <div className="flex-1 overflow-y-auto p-3">
-            <ComponentPalette />
+            {/* Component Palette */}
+            <div className="flex-1 overflow-y-auto p-3">
+              <ComponentPalette />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Preview Area */}
