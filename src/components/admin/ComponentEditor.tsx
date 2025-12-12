@@ -1891,127 +1891,156 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         {/* Argumentos */}
         <div>
           <Label className="text-xs text-muted-foreground mb-2 block">Argumentos</Label>
-          <div className="space-y-3">
-            {argumentItems.map((item) => (
-              <div key={item.id} className="border border-border rounded-lg p-3 space-y-3 bg-muted/30">
-                {/* Drag handle and image area */}
-                <div className="flex items-start gap-2">
-                  <div className="flex-shrink-0 cursor-grab">
-                    <GripVertical className="w-4 h-4 text-muted-foreground" />
+          <div className="space-y-2">
+            {argumentItems.map((item, index) => (
+              <div key={item.id} className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
+                {/* Header with drag handle and actions */}
+                <div className="flex items-center justify-between px-3 py-2 bg-muted/40 border-b border-border/50">
+                  <div className="flex items-center gap-2">
+                    <div className="cursor-grab hover:text-foreground transition-colors">
+                      <GripVertical className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    <span className="text-xs font-medium text-muted-foreground">#{index + 1}</span>
                   </div>
-                  
-                  {/* Image/Emoji selector */}
-                  <div className="flex-shrink-0 w-24 h-16 border border-dashed border-border rounded flex items-center justify-center bg-muted/50 relative overflow-hidden">
-                    {item.mediaType === 'image' && item.imageUrl ? (
-                      <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
-                    ) : item.mediaType === 'emoji' && item.emoji ? (
-                      <span className="text-2xl">{item.emoji}</span>
-                    ) : (
-                      <Image className="w-6 h-6 text-muted-foreground" />
-                    )}
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 space-y-2">
-                    <RichTextInput
-                      value={item.title}
-                      onChange={(val) => updateArgument(item.id, { title: val })}
-                      placeholder="Título"
-                      className="font-semibold text-sm"
-                    />
-                    <RichTextInput
-                      value={item.description}
-                      onChange={(val) => updateArgument(item.id, { description: val })}
-                      placeholder="Descrição"
-                      className="text-xs text-muted-foreground"
-                    />
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 hover:bg-muted"
+                      onClick={() => duplicateArgument(item)}
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
+                      onClick={() => removeArgument(item.id)}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
                   </div>
                 </div>
 
-                {/* Media type tabs */}
-                <div className="flex items-center gap-2">
-                  <Tabs 
-                    value={item.mediaType} 
-                    onValueChange={(v) => updateArgument(item.id, { mediaType: v as ArgumentItem['mediaType'] })}
-                    className="flex-1"
-                  >
-                    <TabsList className="h-8 w-full grid grid-cols-3">
-                      <TabsTrigger value="none" className="text-xs h-7">Nenhum</TabsTrigger>
-                      <TabsTrigger value="emoji" className="text-xs h-7">Emoji</TabsTrigger>
-                      <TabsTrigger value="image" className="text-xs h-7">Imagem</TabsTrigger>
-                    </TabsList>
-                  </Tabs>
-                  
-                  {/* Actions */}
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={() => duplicateArgument(item)}
-                  >
-                    <Copy className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-destructive hover:text-destructive"
-                    onClick={() => removeArgument(item.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                {/* Content area */}
+                <div className="p-3 space-y-3">
+                  {/* Image and text side by side */}
+                  <div className="flex gap-3">
+                    {/* Image/Emoji area */}
+                    <div 
+                      className={cn(
+                        "flex-shrink-0 w-16 h-16 rounded-lg flex items-center justify-center transition-all",
+                        item.mediaType === 'none' 
+                          ? "border-2 border-dashed border-muted-foreground/30 bg-muted/30" 
+                          : "border border-border bg-muted/50"
+                      )}
+                    >
+                      {item.mediaType === 'image' && item.imageUrl ? (
+                        <img src={item.imageUrl} alt="" className="w-full h-full object-cover rounded-lg" />
+                      ) : item.mediaType === 'emoji' && item.emoji ? (
+                        <span className="text-2xl">{item.emoji}</span>
+                      ) : (
+                        <Image className="w-5 h-5 text-muted-foreground/50" />
+                      )}
+                    </div>
+
+                    {/* Text inputs */}
+                    <div className="flex-1 space-y-2">
+                      <div className="bg-muted/30 rounded-lg px-3 py-2 border border-transparent focus-within:border-primary/50 transition-colors">
+                        <RichTextInput
+                          value={item.title}
+                          onChange={(val) => updateArgument(item.id, { title: val })}
+                          placeholder="Título do argumento"
+                          className="font-medium text-sm"
+                        />
+                      </div>
+                      <div className="bg-muted/20 rounded-lg px-3 py-2 border border-transparent focus-within:border-primary/30 transition-colors">
+                        <RichTextInput
+                          value={item.description}
+                          onChange={(val) => updateArgument(item.id, { description: val })}
+                          placeholder="Descrição breve..."
+                          className="text-xs text-muted-foreground"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Media type selector */}
+                  <div className="flex items-center gap-1 p-1 bg-muted/30 rounded-lg">
+                    {(['none', 'emoji', 'image'] as const).map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => updateArgument(item.id, { mediaType: type })}
+                        className={cn(
+                          "flex-1 py-1.5 px-3 text-xs font-medium rounded-md transition-all",
+                          item.mediaType === type 
+                            ? "bg-background shadow-sm text-foreground" 
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        {type === 'none' ? 'Nenhum' : type === 'emoji' ? 'Emoji' : 'Imagem'}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Emoji picker */}
                 {item.mediaType === 'emoji' && (
-                  <div className="pt-2 border-t border-border">
-                    <Label className="text-xs text-muted-foreground mb-2 block">Escolha um emoji</Label>
-                    <div className="flex flex-wrap gap-1">
-                      {commonEmojis.map((emoji) => (
-                        <button
-                          key={emoji}
-                          type="button"
-                          onClick={() => updateArgument(item.id, { emoji })}
-                          className={cn(
-                            "w-8 h-8 flex items-center justify-center text-lg rounded hover:bg-muted transition-colors",
-                            item.emoji === emoji && "bg-primary/20 ring-1 ring-primary"
-                          )}
-                        >
-                          {emoji}
-                        </button>
-                      ))}
+                  <div className="px-3 pb-3">
+                    <div className="bg-muted/20 rounded-lg p-2">
+                      <Label className="text-xs text-muted-foreground mb-2 block">Escolha um emoji</Label>
+                      <div className="flex flex-wrap gap-1">
+                        {commonEmojis.map((emoji) => (
+                          <button
+                            key={emoji}
+                            type="button"
+                            onClick={() => updateArgument(item.id, { emoji })}
+                            className={cn(
+                              "w-7 h-7 flex items-center justify-center text-base rounded-md hover:bg-background transition-all",
+                              item.emoji === emoji && "bg-primary/20 ring-2 ring-primary shadow-sm"
+                            )}
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
 
                 {/* Image input */}
                 {item.mediaType === 'image' && (
-                  <div className="pt-2 border-t border-border space-y-2">
-                    <div className="flex gap-2">
-                      <Input
-                        value={item.imageUrl || ''}
-                        onChange={(e) => updateArgument(item.id, { imageUrl: e.target.value })}
-                        placeholder="URL da imagem"
-                        className="flex-1 text-xs"
-                      />
-                      <input
-                        ref={(el) => { fileInputRefs[item.id] = el; }}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) handleImageUpload(item.id, file);
-                        }}
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => fileInputRefs[item.id]?.click()}
-                        className="text-xs"
-                      >
-                        <Upload className="w-3 h-3 mr-1" />
-                        Upload
-                      </Button>
+                  <div className="px-3 pb-3">
+                    <div className="bg-muted/20 rounded-lg p-2 space-y-2">
+                      <Label className="text-xs text-muted-foreground">URL ou upload</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          value={item.imageUrl || ''}
+                          onChange={(e) => updateArgument(item.id, { imageUrl: e.target.value })}
+                          placeholder="https://exemplo.com/imagem.jpg"
+                          className="flex-1 text-xs h-8"
+                        />
+                        <input
+                          ref={(el) => { fileInputRefs[item.id] = el; }}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) handleImageUpload(item.id, file);
+                          }}
+                        />
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => fileInputRefs[item.id]?.click()}
+                          className="text-xs h-8 px-3"
+                        >
+                          <Upload className="w-3 h-3 mr-1" />
+                          Upload
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 )}
