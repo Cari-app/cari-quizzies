@@ -287,60 +287,21 @@ export function ChartEditorAppearanceTab({ config, onUpdate }: ChartEditorProps)
 
   return (
     <div className="space-y-5">
-      {/* Display Options (for Cartesian) */}
-      {config.chartType === 'cartesian' && (
+      {/* Display Options (for Cartesian and Bar) */}
+      {(config.chartType === 'cartesian' || config.chartType === 'bar') && (
         <div className="space-y-3">
           <Label className="text-xs text-muted-foreground">Exibição</Label>
           <div className="space-y-2 pl-1">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <Switch
-                checked={config.showArea}
-                onCheckedChange={(v) => onUpdate({ showArea: v })}
-                className="scale-75"
-              />
-              <span className="text-sm">Mostrar área?</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <Switch
-                checked={config.showXAxis}
-                onCheckedChange={(v) => onUpdate({ showXAxis: v })}
-                className="scale-75"
-              />
-              <span className="text-sm">Mostrar eixo X?</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <Switch
-                checked={config.showYAxis}
-                onCheckedChange={(v) => onUpdate({ showYAxis: v })}
-                className="scale-75"
-              />
-              <span className="text-sm">Mostrar eixo Y?</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <Switch
-                checked={config.showGridX}
-                onCheckedChange={(v) => onUpdate({ showGridX: v })}
-                className="scale-75"
-              />
-              <span className="text-sm">Mostrar grade X?</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <Switch
-                checked={config.showGridY}
-                onCheckedChange={(v) => onUpdate({ showGridY: v })}
-                className="scale-75"
-              />
-              <span className="text-sm">Mostrar grade Y?</span>
-            </label>
-          </div>
-        </div>
-      )}
-
-      {/* Display Options (for Bar) */}
-      {config.chartType === 'bar' && (
-        <div className="space-y-3">
-          <Label className="text-xs text-muted-foreground">Exibição</Label>
-          <div className="space-y-2 pl-1">
+            {config.chartType === 'cartesian' && (
+              <label className="flex items-center gap-2 cursor-pointer">
+                <Switch
+                  checked={config.showArea}
+                  onCheckedChange={(v) => onUpdate({ showArea: v })}
+                  className="scale-75"
+                />
+                <span className="text-sm">Mostrar área?</span>
+              </label>
+            )}
             <label className="flex items-center gap-2 cursor-pointer">
               <Switch
                 checked={config.showXAxis}
