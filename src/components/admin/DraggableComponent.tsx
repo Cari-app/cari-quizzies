@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { icons } from 'lucide-react';
 
 interface DraggableComponentProps {
   type: string;
@@ -16,6 +17,13 @@ export function DraggableComponent({ type, name, icon, isNew, expanded }: Dragga
     e.dataTransfer.effectAllowed = 'copy';
   };
 
+  // Convert kebab-case to PascalCase for Lucide icon lookup
+  const toPascalCase = (str: string) => 
+    str.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('');
+  
+  const iconKey = toPascalCase(icon) as keyof typeof icons;
+  const LucideIcon = icons[iconKey];
+
   return (
     <div
       draggable
@@ -25,6 +33,11 @@ export function DraggableComponent({ type, name, icon, isNew, expanded }: Dragga
         expanded && "flex-col gap-1 py-3 justify-center"
       )}
     >
+      {LucideIcon ? (
+        <LucideIcon className={cn("h-4 w-4 text-muted-foreground", expanded && "h-5 w-5")} />
+      ) : (
+        <span className={cn("text-base", expanded && "text-xl")}>{icon}</span>
+      )}
       <span className={cn("truncate", expanded && "text-center text-[10px]")}>{name}</span>
       {isNew && (
         <span className={cn(
