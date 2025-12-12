@@ -1688,7 +1688,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                       flexShrink: 0,
                     }}
                     className={cn(
-                      "flex",
+                      "flex transition-[width] duration-300 ease-out",
                       justifyClass,
                       alignClass
                     )}
