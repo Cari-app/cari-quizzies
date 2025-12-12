@@ -270,6 +270,52 @@ function TestimonialCarousel({ items, widthValue, justifyClass, renderCard }: Te
   );
 }
 
+interface FaqAccordionProps {
+  faqItems: Array<{ id: string; question: string; answer: string }>;
+  widthValue: number;
+  justifyClass: string;
+  detailType: string;
+  firstOpen: boolean;
+}
+
+function FaqAccordion({ faqItems, widthValue, justifyClass, detailType, firstOpen }: FaqAccordionProps) {
+  const [openItems, setOpenItems] = useState<string[]>(firstOpen && faqItems[0] ? [faqItems[0].id] : []);
+  
+  const toggleItem = (id: string) => {
+    setOpenItems(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
+  
+  return (
+    <div className={cn("w-full px-4 flex", justifyClass)}>
+      <div className="space-y-2" style={{ width: `${widthValue}%` }}>
+        {faqItems.map((item) => {
+          const isOpen = openItems.includes(item.id);
+          return (
+            <div key={item.id} className="border border-border rounded-lg overflow-hidden bg-background">
+              <button
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors"
+                onClick={() => toggleItem(item.id)}
+              >
+                <span className="font-medium text-sm">{item.question}</span>
+                {detailType === 'arrow' ? (
+                  <ChevronUp className={cn("w-4 h-4 text-muted-foreground transition-transform", !isOpen && "rotate-180")} />
+                ) : (
+                  isOpen ? <Minus className="w-4 h-4 text-muted-foreground" /> : <Plus className="w-4 h-4 text-muted-foreground" />
+                )}
+              </button>
+              {isOpen && (
+                <div className="px-4 pb-4 text-sm text-muted-foreground border-t border-border pt-3">
+                  {item.answer}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export function QuizPlayer({ slug }: QuizPlayerProps) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -1487,40 +1533,14 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         const detailType = config.faqDetailType || 'arrow';
         const firstOpen = config.faqFirstOpen !== false;
         
-        const [openItems, setOpenItems] = useState<string[]>(firstOpen && faqItems[0] ? [faqItems[0].id] : []);
-        
-        const toggleItem = (id: string) => {
-          setOpenItems(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
-        };
-        
         return (
-          <div className={cn("w-full px-4 flex", justifyClass)}>
-            <div className="space-y-2" style={{ width: `${widthValue}%` }}>
-              {faqItems.map((item) => {
-                const isOpen = openItems.includes(item.id);
-                return (
-                  <div key={item.id} className="border border-border rounded-lg overflow-hidden bg-background">
-                    <button
-                      className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors"
-                      onClick={() => toggleItem(item.id)}
-                    >
-                      <span className="font-medium text-sm">{item.question}</span>
-                      {detailType === 'arrow' ? (
-                        <ChevronUp className={cn("w-4 h-4 text-muted-foreground transition-transform", !isOpen && "rotate-180")} />
-                      ) : (
-                        isOpen ? <Minus className="w-4 h-4 text-muted-foreground" /> : <Plus className="w-4 h-4 text-muted-foreground" />
-                      )}
-                    </button>
-                    {isOpen && (
-                      <div className="px-4 pb-4 text-sm text-muted-foreground border-t border-border pt-3">
-                        {item.answer}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <FaqAccordion
+            faqItems={faqItems}
+            widthValue={widthValue}
+            justifyClass={justifyClass}
+            detailType={detailType}
+            firstOpen={firstOpen}
+          />
         );
       }
 
