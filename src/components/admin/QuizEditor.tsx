@@ -689,7 +689,15 @@ export function QuizEditor() {
                   
                   {/* Stage Components - scrollable */}
                   <div className="flex-1 overflow-y-auto">
-                    <ReadonlyDropZone components={stage.components} />
+                    <ReadonlyDropZone 
+                      components={stage.components} 
+                      designSettings={{
+                        primaryFont: designSettings.primaryFont,
+                        fontSize: designSettings.fontSize,
+                        textColor: designSettings.textColor,
+                        primaryColor: designSettings.primaryColor,
+                      }}
+                    />
                   </div>
 
                   {designSettings.progressBar === 'bottom' && (

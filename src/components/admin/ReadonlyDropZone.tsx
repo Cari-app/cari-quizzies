@@ -9,11 +9,19 @@ import { CarouselPlayer } from '../quiz/CarouselPlayer';
 import { MetricsPlayer } from '../quiz/MetricsPlayer';
 import { BeforeAfterSlider } from '../quiz/BeforeAfterSlider';
 
-interface ReadonlyDropZoneProps {
-  components: DroppedComponent[];
+interface DesignSettings {
+  primaryFont?: string;
+  fontSize?: number;
+  textColor?: string;
+  primaryColor?: string;
 }
 
-export function ReadonlyDropZone({ components }: ReadonlyDropZoneProps) {
+interface ReadonlyDropZoneProps {
+  components: DroppedComponent[];
+  designSettings?: DesignSettings;
+}
+
+export function ReadonlyDropZone({ components, designSettings }: ReadonlyDropZoneProps) {
   const renderComponentPreview = (comp: DroppedComponent) => {
     const config = (comp.config || {}) as Record<string, any>;
     
@@ -335,7 +343,14 @@ export function ReadonlyDropZone({ components }: ReadonlyDropZoneProps) {
   }
 
   return (
-    <div className="flex-1 flex flex-col items-center py-2.5 px-4 overflow-y-auto">
+    <div 
+      className="flex-1 flex flex-col items-center py-2.5 px-4 overflow-y-auto"
+      style={{
+        fontFamily: designSettings?.primaryFont || 'inherit',
+        fontSize: designSettings?.fontSize ? `${designSettings.fontSize}px` : 'inherit',
+        color: designSettings?.textColor || 'inherit',
+      }}
+    >
       <div className="w-full max-w-md my-auto">
         <div className="flex flex-wrap gap-2">
           {components.map((comp) => {
