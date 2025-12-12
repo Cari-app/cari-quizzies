@@ -120,6 +120,20 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           horizontalAlign: 'start',
           verticalAlign: 'auto'
         };
+      case 'notification':
+        return { 
+          notificationTitle: '@1 acabou de se cadastrar via @2!',
+          notificationDescription: 'Corra! Faltam apenas @3 ofertas disponíveis nessa promoção',
+          notificationPosition: 'default',
+          notificationDuration: 5,
+          notificationInterval: 2,
+          notificationStyle: 'default',
+          notificationVariations: [
+            { id: '1', name: 'Rafael', platform: 'Instagram', number: '7' },
+            { id: '2', name: 'Beatriz', platform: 'Whatsapp', number: '6' },
+            { id: '3', name: 'Carlos', platform: 'Facebook', number: '5' },
+          ]
+        };
       default:
         return {};
     }
@@ -686,6 +700,57 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                 className="text-sm rich-text"
                 dangerouslySetInnerHTML={{ __html: config.description || 'Texto do alerta' }}
               />
+            </div>
+          </div>
+        );
+      }
+      case 'notification': {
+        const notificationStyles = {
+          default: 'bg-background border-primary/20 shadow-lg',
+          white: 'bg-white border-gray-200 shadow-lg',
+          red: 'bg-red-50 border-red-200',
+          blue: 'bg-blue-50 border-blue-200',
+          green: 'bg-green-50 border-green-200',
+          yellow: 'bg-yellow-50 border-yellow-200',
+          gray: 'bg-gray-50 border-gray-200',
+        };
+        
+        const style = config.notificationStyle || 'default';
+        const variations = config.notificationVariations || [];
+        const firstVariation = variations[0] || { name: 'Rafael', platform: 'Instagram', number: '7' };
+        
+        // Replace @1, @2, @3 with first variation values
+        const title = (config.notificationTitle || '@1 acabou de se cadastrar via @2!')
+          .replace(/@1/g, firstVariation.name)
+          .replace(/@2/g, firstVariation.platform)
+          .replace(/@3/g, firstVariation.number);
+          
+        const description = (config.notificationDescription || 'Corra! Faltam apenas @3 ofertas disponíveis')
+          .replace(/@1/g, firstVariation.name)
+          .replace(/@2/g, firstVariation.platform)
+          .replace(/@3/g, firstVariation.number);
+        
+        return (
+          <div className="w-full px-4">
+            <div 
+              className={cn(
+                "rounded-lg border p-4 relative overflow-hidden",
+                notificationStyles[style as keyof typeof notificationStyles]
+              )}
+            >
+              <div className="space-y-1">
+                <p className="font-semibold text-sm">
+                  <span className="font-bold">{firstVariation.name}</span>
+                  {title.replace(firstVariation.name, '')}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {description}
+                </p>
+              </div>
+              {/* Progress bar */}
+              <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted">
+                <div className="h-full bg-primary/50 w-1/2" />
+              </div>
             </div>
           </div>
         );

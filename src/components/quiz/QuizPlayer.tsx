@@ -114,9 +114,15 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [selectedDate, setSelectedDate] = useState<Record<string, Date | undefined>>({});
+  const [activeNotification, setActiveNotification] = useState<{
+    compId: string;
+    variationIndex: number;
+    visible: boolean;
+  } | null>(null);
 
   const currentStage = stages[currentStageIndex];
   const pageSettings = currentStage?.pageSettings;
+  const notificationComponents = currentStage?.components.filter(c => c.type === 'notification') || [];
 
   // Load quiz by slug or id from Supabase
   useEffect(() => {
@@ -873,9 +879,133 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         );
       }
 
+      case 'notification': {
+        // Notification is rendered as an overlay, not inline
+        // It will be handled by a separate effect
+        return null;
+      }
+
       default:
         return null;
     }
+  };
+
+  // Effect to handle notification cycling
+  useEffect(() => {
+    if (notificationComponents.length === 0) {
+      setActiveNotification(null);
+      return;
+    }
+
+    const notifComp = notificationComponents[0];
+    const config = notifComp.config || {};
+    const variations = (config as any).notificationVariations || [];
+    const duration = ((config as any).notificationDuration || 5) * 1000;
+    const interval = ((config as any).notificationInterval || 2) * 1000;
+
+    if (variations.length === 0) return;
+
+    let variationIndex = 0;
+    let showTimeout: NodeJS.Timeout;
+    let hideTimeout: NodeJS.Timeout;
+
+    const showNext = () => {
+      setActiveNotification({
+        compId: notifComp.id,
+        variationIndex,
+        visible: true
+      });
+
+      hideTimeout = setTimeout(() => {
+        setActiveNotification(prev => prev ? { ...prev, visible: false } : null);
+        
+        variationIndex = (variationIndex + 1) % variations.length;
+        showTimeout = setTimeout(showNext, interval);
+      }, duration);
+    };
+
+    // Start after a short delay
+    showTimeout = setTimeout(showNext, 1000);
+
+    return () => {
+      clearTimeout(showTimeout);
+      clearTimeout(hideTimeout);
+    };
+  }, [currentStageIndex, notificationComponents.length]);
+
+  // Render notification overlay
+  const renderNotificationOverlay = () => {
+    if (!activeNotification) return null;
+    
+    const notifComp = notificationComponents.find(c => c.id === activeNotification.compId);
+    if (!notifComp) return null;
+    
+    const config = notifComp.config || {};
+    const variations = (config as any).notificationVariations || [];
+    const variation = variations[activeNotification.variationIndex];
+    if (!variation) return null;
+    
+    const notificationStyles = {
+      default: 'bg-background border-border shadow-lg',
+      white: 'bg-white border-gray-200 shadow-lg',
+      red: 'bg-red-50 border-red-200',
+      blue: 'bg-blue-50 border-blue-200',
+      green: 'bg-green-50 border-green-200',
+      yellow: 'bg-yellow-50 border-yellow-200',
+      gray: 'bg-gray-50 border-gray-200',
+    };
+    
+    const style = (config as any).notificationStyle || 'default';
+    const position = (config as any).notificationPosition || 'default';
+    
+    const title = ((config as any).notificationTitle || '@1 acabou de se cadastrar via @2!')
+      .replace(/@1/g, variation.name)
+      .replace(/@2/g, variation.platform)
+      .replace(/@3/g, variation.number);
+      
+    const description = ((config as any).notificationDescription || '')
+      .replace(/@1/g, variation.name)
+      .replace(/@2/g, variation.platform)
+      .replace(/@3/g, variation.number);
+    
+    const positionClasses = {
+      default: 'bottom-4 left-4 right-4',
+      top: 'top-4 left-4 right-4',
+      bottom: 'bottom-4 left-4 right-4',
+    };
+    
+    return (
+      <div 
+        className={cn(
+          "fixed z-50 max-w-sm transition-all duration-300",
+          positionClasses[position as keyof typeof positionClasses],
+          activeNotification.visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4 pointer-events-none"
+        )}
+      >
+        <div 
+          className={cn(
+            "rounded-lg border p-4 relative overflow-hidden",
+            notificationStyles[style as keyof typeof notificationStyles]
+          )}
+        >
+          <div className="space-y-1">
+            <p className="font-semibold text-sm" dangerouslySetInnerHTML={{ __html: title.replace(variation.name, `<strong>${variation.name}</strong>`) }} />
+            {description && (
+              <p className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: description.replace(variation.number, `<strong>${variation.number}</strong>`) }} />
+            )}
+          </div>
+          {/* Progress bar */}
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted">
+            <div 
+              className="h-full bg-primary/50 animate-shrink"
+              style={{ 
+                animation: activeNotification.visible ? `shrink ${(config as any).notificationDuration || 5}s linear forwards` : 'none'
+              }} 
+            />
+          </div>
+        </div>
+      </div>
+    );
   };
 
   if (isLoading) {
@@ -940,6 +1070,9 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           </div>
         </div>
       </div>
+      
+      {/* Notification overlay */}
+      {renderNotificationOverlay()}
     </div>
   );
 }

@@ -99,6 +99,14 @@ export interface ComponentConfig {
   alertStyle?: 'red' | 'yellow' | 'green' | 'blue' | 'gray';
   alertHighlight?: boolean;
   alertPadding?: 'compact' | 'default' | 'relaxed';
+  // Notification specific
+  notificationTitle?: string;
+  notificationDescription?: string;
+  notificationPosition?: 'default' | 'top' | 'bottom';
+  notificationDuration?: number;
+  notificationInterval?: number;
+  notificationStyle?: 'default' | 'white' | 'red' | 'blue' | 'green' | 'yellow' | 'gray';
+  notificationVariations?: Array<{ id: string; name: string; platform: string; number: string }>;
 }
 
 interface ComponentEditorProps {
@@ -193,6 +201,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         return renderSpacerComponentTab();
       case 'alert':
         return renderAlertComponentTab();
+      case 'notification':
+        return renderNotificationComponentTab();
       default:
         return (
           <div className="text-center py-8">
@@ -1276,10 +1286,233 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     </div>
   );
 
+  const renderNotificationComponentTab = () => {
+    const variations = config.notificationVariations || [];
+    
+    const addVariation = () => {
+      const newVariation = {
+        id: Date.now().toString(),
+        name: '',
+        platform: '',
+        number: ''
+      };
+      updateConfig({ notificationVariations: [...variations, newVariation] });
+    };
+    
+    const updateVariation = (id: string, field: string, value: string) => {
+      const updated = variations.map(v => 
+        v.id === id ? { ...v, [field]: value } : v
+      );
+      updateConfig({ notificationVariations: updated });
+    };
+    
+    const removeVariation = (id: string) => {
+      updateConfig({ notificationVariations: variations.filter(v => v.id !== id) });
+    };
+    
+    return (
+      <div className="space-y-4">
+        {/* Título */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Título</Label>
+          <Input
+            value={config.notificationTitle || ''}
+            onChange={(e) => updateConfig({ notificationTitle: e.target.value })}
+            placeholder="@1 acabou de se cadastrar via @2!"
+            className="mt-1"
+          />
+        </div>
+
+        {/* Descrição */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Descrição</Label>
+          <Textarea
+            value={config.notificationDescription || ''}
+            onChange={(e) => updateConfig({ notificationDescription: e.target.value })}
+            placeholder="Corra! Faltam apenas @3 ofertas disponíveis"
+            className="mt-1"
+            rows={2}
+          />
+        </div>
+
+        {/* Posição na tela */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Posição na tela</Label>
+          <Select 
+            value={config.notificationPosition || 'default'} 
+            onValueChange={(v) => updateConfig({ notificationPosition: v as ComponentConfig['notificationPosition'] })}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="default">Padrão</SelectItem>
+              <SelectItem value="top">Topo</SelectItem>
+              <SelectItem value="bottom">Rodapé</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Duração e Intervalo */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs text-muted-foreground">Duração (em segundos)</Label>
+            <Input
+              type="number"
+              value={config.notificationDuration || 5}
+              onChange={(e) => updateConfig({ notificationDuration: parseInt(e.target.value) || 5 })}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Intervalo (em segundos)</Label>
+            <Input
+              type="number"
+              value={config.notificationInterval || 2}
+              onChange={(e) => updateConfig({ notificationInterval: parseInt(e.target.value) || 2 })}
+              className="mt-1"
+            />
+          </div>
+        </div>
+
+        {/* Variações */}
+        <div>
+          <Label className="text-xs text-muted-foreground mb-2 block">Variações</Label>
+          <div className="space-y-2 border border-border rounded-lg p-3">
+            {variations.map((variation) => (
+              <div key={variation.id} className="flex items-center gap-2">
+                <GripVertical className="w-4 h-4 text-muted-foreground shrink-0" />
+                <Input
+                  value={variation.name}
+                  onChange={(e) => updateVariation(variation.id, 'name', e.target.value)}
+                  placeholder="Nome"
+                  className="flex-1"
+                />
+                <Input
+                  value={variation.platform}
+                  onChange={(e) => updateVariation(variation.id, 'platform', e.target.value)}
+                  placeholder="Plataforma"
+                  className="flex-1"
+                />
+                <Input
+                  value={variation.number}
+                  onChange={(e) => updateVariation(variation.id, 'number', e.target.value)}
+                  placeholder="Nº"
+                  className="w-16"
+                />
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="shrink-0 text-muted-foreground hover:text-destructive"
+                  onClick={() => removeVariation(variation.id)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            ))}
+            <Button variant="outline" size="sm" onClick={addVariation} className="w-full mt-2">
+              <Plus className="w-4 h-4 mr-2" />
+              Adicionar
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2 p-3 bg-muted/50 rounded-lg">
+            Utilize <strong>@1</strong>, <strong>@2</strong> ou <strong>@3</strong> como variáveis nos campos de título ou descrição, para gerar uma sequência de notificações personalizadas.
+          </p>
+        </div>
+
+        {/* Avançado */}
+        <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+          <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Plus className={`w-4 h-4 transition-transform ${advancedOpen ? 'rotate-45' : ''}`} />
+            AVANÇADO
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-4 space-y-4">
+            <div>
+              <Label className="text-xs text-muted-foreground">ID/Name</Label>
+              <Input
+                value={component.customId || ''}
+                onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
+                placeholder={`notification_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
+                className="mt-1 font-mono text-xs"
+              />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+    );
+  };
+
   // =========== APARÊNCIA TAB ===========
   const renderAppearanceTab = () => {
     const isOptionsComponent = ['options', 'single', 'multiple', 'yesno'].includes(component.type);
     const isAlertComponent = component.type === 'alert';
+    const isNotificationComponent = component.type === 'notification';
+
+    // Notification component appearance
+    if (isNotificationComponent) {
+      return (
+        <div className="space-y-4">
+          {/* Estilo */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Estilo</Label>
+            <Select 
+              value={config.notificationStyle || 'default'} 
+              onValueChange={(v) => updateConfig({ notificationStyle: v as ComponentConfig['notificationStyle'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">Padrão</SelectItem>
+                <SelectItem value="white">Branco</SelectItem>
+                <SelectItem value="red">Vermelho</SelectItem>
+                <SelectItem value="blue">Azul</SelectItem>
+                <SelectItem value="green">Verde</SelectItem>
+                <SelectItem value="yellow">Amarelo</SelectItem>
+                <SelectItem value="gray">Cinza</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Horizontal and Vertical alignment */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento horizontal</Label>
+              <Select 
+                value={config.horizontalAlign || 'start'} 
+                onValueChange={(v) => updateConfig({ horizontalAlign: v as ComponentConfig['horizontalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento vertical</Label>
+              <Select 
+                value={config.verticalAlign || 'auto'} 
+                onValueChange={(v) => updateConfig({ verticalAlign: v as ComponentConfig['verticalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Auto</SelectItem>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     // Alert component appearance
     if (isAlertComponent) {

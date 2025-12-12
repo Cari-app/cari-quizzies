@@ -172,3 +172,13 @@
     @apply transition-colors hover:bg-accent;
   }
 }
+
+/* Notification shrink animation */
+@keyframes shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
