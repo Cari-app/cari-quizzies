@@ -902,11 +902,13 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                 }}
               />
             </div>
-            {/* Indicator circle */}
-            <div 
-              className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-background border-2 border-foreground rounded-full shadow-md pointer-events-none"
-              style={{ left: `calc(${percentage}% - 8px)` }}
-            />
+            {/* Indicator circle - only shown when showMeter is true */}
+            {showMeter && (
+              <div 
+                className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-background border-2 border-foreground rounded-full shadow-md pointer-events-none"
+                style={{ left: `calc(${percentage}% - 8px)` }}
+              />
+            )}
           </div>
         );
         
@@ -918,7 +920,6 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             <div className="flex gap-1 w-full relative">
               {Array.from({ length: segmentCount }, (_, i) => {
                 const isFilled = i < filledSegments;
-                const isPartial = i === filledSegments - 1 && percentage % (100 / segmentCount) !== 0;
                 
                 return (
                   <div 
@@ -931,11 +932,13 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   />
                 );
               })}
-              {/* Indicator circle */}
-              <div 
-                className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-background border-2 border-foreground rounded-full shadow-md pointer-events-none"
-                style={{ left: `calc(${percentage}% - 8px)` }}
-              />
+              {/* Indicator circle - only shown when showMeter is true */}
+              {showMeter && (
+                <div 
+                  className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-background border-2 border-foreground rounded-full shadow-md pointer-events-none"
+                  style={{ left: `calc(${percentage}% - 8px)` }}
+                />
+              )}
             </div>
           );
         };
@@ -959,12 +962,10 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                 <div className="text-sm text-muted-foreground mb-2">{subtitle}</div>
               )}
               
-              {/* Level bar */}
-              {showMeter && (
-                <div className="mt-2">
-                  {levelType === 'segments' ? renderSegmentsBar() : renderLineBar()}
-                </div>
-              )}
+              {/* Level bar - always visible */}
+              <div className="mt-2">
+                {levelType === 'segments' ? renderSegmentsBar() : renderLineBar()}
+              </div>
             </div>
           </div>
         );
