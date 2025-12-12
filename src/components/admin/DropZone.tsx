@@ -747,10 +747,6 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   {description}
                 </p>
               </div>
-              {/* Progress bar */}
-              <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted">
-                <div className="h-full bg-primary/50 w-1/2" />
-              </div>
             </div>
           </div>
         );
