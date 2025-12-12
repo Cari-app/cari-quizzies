@@ -14,6 +14,7 @@ import { ScreenEditor } from './ScreenEditor';
 import { ScreenPreview } from './ScreenPreview';
 import { TemplateSelector } from './TemplateSelector';
 import { ComponentPalette } from './ComponentPalette';
+import { DropZone } from './DropZone';
 import { cn } from '@/lib/utils';
 import { screenTemplates } from '@/data/screenTemplates';
 
@@ -27,6 +28,7 @@ export function QuizEditor() {
   const [rightTab, setRightTab] = useState<'stage' | 'appearance'>('stage');
   const [widgetsExpanded, setWidgetsExpanded] = useState(false);
   const [slugCopied, setSlugCopied] = useState(false);
+  const [droppedComponents, setDroppedComponents] = useState<Array<{id: string; type: string; name: string; icon: string}>>([]);
 
   const generateSlug = (name: string) => {
     return name
@@ -337,12 +339,15 @@ export function QuizEditor() {
             )}
           >
             {editingScreen ? (
-              <ScreenPreview screen={editingScreen} />
+              <DropZone 
+                components={droppedComponents}
+                onComponentsChange={setDroppedComponents}
+              />
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-muted-foreground border-2 border-dashed border-border m-4 rounded-lg">
-                <p className="text-sm">Selecione uma etapa</p>
-                <p className="text-xs text-muted-foreground mt-1">ou crie uma nova</p>
-              </div>
+              <DropZone 
+                components={droppedComponents}
+                onComponentsChange={setDroppedComponents}
+              />
             )}
           </div>
         </div>
