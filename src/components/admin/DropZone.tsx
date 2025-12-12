@@ -173,6 +173,18 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           horizontalAlign: 'start',
           verticalAlign: 'auto'
         };
+      case 'arguments':
+        return {
+          argumentLayout: 'grid-2',
+          argumentDisposition: 'image-text',
+          argumentItems: [
+            { id: '1', title: 'Titulo aqui', description: 'Descrição aqui oi tudo bem isso aqui e uma descrição', mediaType: 'none' },
+            { id: '2', title: 'Fusce vitae', description: 'Tellus in risus sagittis condimentum', mediaType: 'none' },
+          ],
+          width: 100,
+          horizontalAlign: 'start',
+          verticalAlign: 'auto'
+        };
       default:
         return {};
     }
@@ -1002,6 +1014,74 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   {legends.join(' · ')}
                 </div>
               )}
+            </div>
+          </div>
+        );
+      }
+      case 'arguments': {
+        const argumentItems = (config.argumentItems || []) as Array<{
+          id: string;
+          title: string;
+          description: string;
+          mediaType: 'none' | 'emoji' | 'image';
+          emoji?: string;
+          imageUrl?: string;
+        }>;
+        const layout = config.argumentLayout || 'grid-2';
+        const disposition = config.argumentDisposition || 'image-text';
+        const widthValue = config.width || 100;
+        const horizontalAlign = config.horizontalAlign || 'start';
+        const alignClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
+        
+        const gridClass = {
+          'list': 'grid-cols-1',
+          'grid-2': 'grid-cols-2',
+          'grid-3': 'grid-cols-3',
+          'grid-4': 'grid-cols-4',
+        }[layout] || 'grid-cols-2';
+        
+        const isVertical = disposition === 'image-text' || disposition === 'text-image';
+        const imageFirst = disposition === 'image-text' || disposition === 'image-left';
+        
+        return (
+          <div className={cn("w-full flex", alignClass)}>
+            <div 
+              className={cn("grid gap-3 p-4", gridClass)}
+              style={{ width: `${widthValue}%` }}
+            >
+              {argumentItems.map((item) => (
+                <div 
+                  key={item.id} 
+                  className={cn(
+                    "border border-primary/30 rounded-lg p-4 bg-background flex",
+                    isVertical ? "flex-col" : "flex-row gap-3",
+                    !imageFirst && isVertical && "flex-col-reverse",
+                    !imageFirst && !isVertical && "flex-row-reverse"
+                  )}
+                >
+                  {/* Media area */}
+                  {item.mediaType !== 'none' && (
+                    <div className={cn(
+                      "flex items-center justify-center bg-muted/30 rounded",
+                      isVertical ? "w-full h-20 mb-3" : "w-16 h-16 flex-shrink-0"
+                    )}>
+                      {item.mediaType === 'image' && item.imageUrl ? (
+                        <img src={item.imageUrl} alt="" className="w-full h-full object-cover rounded" />
+                      ) : item.mediaType === 'emoji' && item.emoji ? (
+                        <span className="text-3xl">{item.emoji}</span>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">Imagem</span>
+                      )}
+                    </div>
+                  )}
+                  
+                  {/* Content */}
+                  <div className={cn("text-center", !isVertical && "text-left flex-1")}>
+                    <div className="font-semibold text-sm">{item.title}</div>
+                    <div className="text-xs text-muted-foreground mt-1">{item.description}</div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         );
