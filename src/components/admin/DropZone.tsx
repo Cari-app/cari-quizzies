@@ -104,6 +104,10 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         };
       case 'text':
         return { content: 'Clique para editar este texto', textAlign: 'left', fontSize: 'base' };
+      case 'image':
+        return { mediaUrl: '', altText: '' };
+      case 'video':
+        return { mediaUrl: '', altText: '' };
       case 'spacer':
         return { height: 24 };
       default:
@@ -512,11 +516,18 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             </div>
           </div>
         );
-      case 'image':
+      case 'image': {
+        const isEmoji = config.mediaUrl && config.mediaUrl.length <= 4 && !/^https?:\/\//.test(config.mediaUrl);
         return (
           <div className="p-4">
             {config.mediaUrl ? (
-              <img src={config.mediaUrl} alt={config.altText || ''} className="w-full rounded-lg" />
+              isEmoji ? (
+                <div className="flex items-center justify-center py-8">
+                  <span className="text-6xl">{config.mediaUrl}</span>
+                </div>
+              ) : (
+                <img src={config.mediaUrl} alt={config.altText || ''} className="w-full rounded-lg" />
+              )
             ) : (
               <div className="p-8 bg-muted/30 rounded-lg flex items-center justify-center border-2 border-dashed border-border">
                 <span className="text-2xl">🖼️</span>
@@ -525,6 +536,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             )}
           </div>
         );
+      }
       case 'video':
         return (
           <div className="p-4">
