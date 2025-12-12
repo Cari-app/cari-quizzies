@@ -952,6 +952,7 @@ export function QuizEditor() {
         {selectedComponent ? (
           <ComponentEditor 
             component={selectedComponent}
+            themeColor={designSettings.primaryColor}
             onUpdate={(config) => {
               const updatedComponents = currentComponents.map(c => 
                 c.id === selectedComponent.id ? { ...c, config } : c
