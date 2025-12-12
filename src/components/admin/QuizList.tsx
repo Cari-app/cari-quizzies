@@ -1,10 +1,8 @@
 import { useQuizStore } from '@/store/quizStore';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit, Trash2, Play, Eye, MoreVertical } from 'lucide-react';
+import { Plus, MoreHorizontal, Eye, Trash2, Pencil } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,14 +32,16 @@ export function QuizList() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div>
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Meus Quizzes</h1>
-          <p className="text-muted-foreground">Gerencie e crie novos quizzes</p>
+          <h1 className="text-2xl font-semibold tracking-tight">Quizzes</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Gerencie e crie novos quizzes
+          </p>
         </div>
         <Link to="/admin/quiz/new">
-          <Button className="gradient-primary text-primary-foreground rounded-xl shadow-soft">
+          <Button size="sm">
             <Plus className="w-4 h-4 mr-2" />
             Novo Quiz
           </Button>
@@ -49,90 +49,67 @@ export function QuizList() {
       </div>
 
       {quizzes.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-              <Play className="w-8 h-8 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold mb-2">Nenhum quiz criado</h3>
-            <p className="text-muted-foreground text-center mb-4">
-              Crie seu primeiro quiz para começar a engajar seus usuários
-            </p>
-            <Link to="/admin/quiz/new">
-              <Button className="gradient-primary text-primary-foreground rounded-xl">
-                <Plus className="w-4 h-4 mr-2" />
-                Criar Primeiro Quiz
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
+        <div className="border border-dashed border-border rounded-md p-12 text-center">
+          <p className="text-sm text-muted-foreground mb-4">
+            Nenhum quiz criado ainda
+          </p>
+          <Link to="/admin/quiz/new">
+            <Button size="sm" variant="outline">
+              <Plus className="w-4 h-4 mr-2" />
+              Criar primeiro quiz
+            </Button>
+          </Link>
+        </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {quizzes.map((quiz, index) => (
-            <motion.div
+        <div className="border border-border rounded-md divide-y divide-border">
+          {quizzes.map((quiz) => (
+            <div
               key={quiz.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
+              className="flex items-center justify-between p-4 hover:bg-accent/50 transition-colors"
             >
-              <Card className="group hover:shadow-soft transition-all duration-300 overflow-hidden">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg line-clamp-1">{quiz.name}</CardTitle>
-                      <CardDescription className="line-clamp-2 mt-1">
-                        {quiz.description || 'Sem descrição'}
-                      </CardDescription>
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="shrink-0">
-                          <MoreVertical className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEdit(quiz)}>
-                          <Edit className="w-4 h-4 mr-2" />
-                          Editar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handlePreview(quiz)}>
-                          <Eye className="w-4 h-4 mr-2" />
-                          Visualizar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          onClick={() => handleDelete(quiz.id)}
-                          className="text-destructive"
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Excluir
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Badge variant={quiz.isPublished ? "default" : "secondary"}>
-                        {quiz.isPublished ? 'Publicado' : 'Rascunho'}
-                      </Badge>
-                      <span className="text-sm text-muted-foreground">
-                        {quiz.screens.length} telas
-                      </span>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleEdit(quiz)}
-                      className="rounded-lg"
-                    >
-                      <Edit className="w-3 h-3 mr-1" />
-                      Editar
+              <div className="flex-1 min-w-0 mr-4">
+                <div className="flex items-center gap-3">
+                  <h3 className="font-medium truncate">{quiz.name}</h3>
+                  <Badge variant={quiz.isPublished ? "default" : "secondary"} className="text-xs">
+                    {quiz.isPublished ? 'Publicado' : 'Rascunho'}
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  {quiz.screens.length} telas · Atualizado em {quiz.updatedAt.toLocaleDateString('pt-BR')}
+                </p>
+              </div>
+              
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleEdit(quiz)}
+                >
+                  <Pencil className="w-4 h-4 mr-1" />
+                  Editar
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <MoreHorizontal className="w-4 h-4" />
                     </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => handlePreview(quiz)}>
+                      <Eye className="w-4 h-4 mr-2" />
+                      Visualizar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => handleDelete(quiz.id)}
+                      className="text-destructive"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Excluir
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
           ))}
         </div>
       )}

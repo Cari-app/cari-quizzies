@@ -7,7 +7,6 @@ import { MultipleChoiceScreen } from './screens/MultipleChoiceScreen';
 import { SliderScreen } from './screens/SliderScreen';
 import { ResultScreen } from './screens/ResultScreen';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
-import { AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
 export function QuizPlayer() {
@@ -24,7 +23,7 @@ export function QuizPlayer() {
   if (!currentQuiz || !currentSession) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p>Nenhum quiz ativo</p>
+        <p className="text-muted-foreground text-sm">Nenhum quiz ativo</p>
       </div>
     );
   }
@@ -81,7 +80,7 @@ export function QuizPlayer() {
       case 'result':
         return <ResultScreen screen={currentScreen} onComplete={handleComplete} />;
       default:
-        return <p>Tipo de tela não suportado</p>;
+        return <p className="text-muted-foreground text-sm">Tipo de tela não suportado</p>;
     }
   };
 
@@ -89,46 +88,35 @@ export function QuizPlayer() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Progress bar */}
       {showNavigation && (
-        <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border/50 px-6 py-4">
-          <div className="max-w-2xl mx-auto">
-            <Progress value={progress} className="h-2" />
-            <p className="text-sm text-muted-foreground text-center mt-2">
-              {currentSession.currentScreenIndex + 1} de {currentQuiz.screens.length}
+        <div className="sticky top-0 z-50 bg-background border-b border-border px-6 py-3">
+          <div className="max-w-md mx-auto">
+            <Progress value={progress} className="h-1" />
+            <p className="text-xs text-muted-foreground text-center mt-2">
+              {currentSession.currentScreenIndex + 1} / {currentQuiz.screens.length}
             </p>
           </div>
         </div>
       )}
 
-      {/* Screen content */}
       <div className="flex-1">
-        <AnimatePresence mode="wait">
-          <div key={currentScreen.id}>
-            {renderScreen()}
-          </div>
-        </AnimatePresence>
+        {renderScreen()}
       </div>
 
-      {/* Navigation buttons */}
       {showNavigation && (
-        <div className="sticky bottom-0 bg-background/80 backdrop-blur-lg border-t border-border/50 px-6 py-4">
-          <div className="max-w-2xl mx-auto flex justify-between gap-4">
+        <div className="sticky bottom-0 bg-background border-t border-border px-6 py-4">
+          <div className="max-w-md mx-auto flex justify-between gap-4">
             <Button
               variant="outline"
-              size="lg"
               onClick={previousScreen}
               disabled={isFirstScreen}
-              className="rounded-xl"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Voltar
             </Button>
             <Button
-              size="lg"
               onClick={nextScreen}
               disabled={!canProceed() || isLastScreen}
-              className="gradient-primary text-primary-foreground rounded-xl px-8"
             >
               Próximo
               <ArrowRight className="w-4 h-4 ml-2" />
