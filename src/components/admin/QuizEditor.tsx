@@ -16,9 +16,9 @@ import { Quiz } from '@/types/quiz';
 import { TemplateSelector } from './TemplateSelector';
 import { ComponentPalette } from './ComponentPalette';
 import { DropZone, DroppedComponent, ComponentConfig } from './DropZone';
+import { ReadonlyDropZone } from './ReadonlyDropZone';
 import { ComponentEditor } from './ComponentEditor';
 import { DesignEditor, QuizDesignSettings, defaultDesignSettings } from './DesignEditor';
-import { StagePreview } from './StagePreview';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { cn } from '@/lib/utils';
 import { screenTemplates } from '@/data/screenTemplates';
@@ -702,10 +702,7 @@ export function QuizEditor() {
                   
                   {/* Stage Components - scrollable */}
                   <div className="flex-1 overflow-y-auto">
-                    <StagePreview 
-                      components={stage.components}
-                      designSettings={designSettings}
-                    />
+                    <ReadonlyDropZone components={stage.components} />
                   </div>
 
                   {designSettings.progressBar === 'bottom' && (
