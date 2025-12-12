@@ -137,12 +137,29 @@ function CartesianChartView({ config }: { config: ChartConfig }) {
         <defs>
           {gradientDefs}
           {/* Vertical gradients for area fill */}
-          {dataSets.map(ds => (
-            <linearGradient key={`fill-${ds.id}`} id={`fill-gradient-${ds.id}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor={ds.fillType === 'gradient' ? ds.gradientColors[0] : ds.color} stopOpacity={0.4} />
-              <stop offset="100%" stopColor={ds.fillType === 'gradient' ? ds.gradientColors[ds.gradientColors.length - 1] : ds.color} stopOpacity={0.05} />
-            </linearGradient>
-          ))}
+          {/* Horizontal gradient for stroke with vibrant colors */}
+          {dataSets.map(ds => {
+            if (ds.fillType === 'gradient' && ds.gradientColors.length > 0) {
+              return (
+                <linearGradient key={`fill-${ds.id}`} id={`fill-gradient-${ds.id}`} x1="0" y1="0" x2="1" y2="0">
+                  {ds.gradientColors.map((color, index) => (
+                    <stop
+                      key={index}
+                      offset={`${(index / (ds.gradientColors.length - 1)) * 100}%`}
+                      stopColor={color}
+                      stopOpacity={0.6}
+                    />
+                  ))}
+                </linearGradient>
+              );
+            }
+            return (
+              <linearGradient key={`fill-${ds.id}`} id={`fill-gradient-${ds.id}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={ds.color} stopOpacity={0.5} />
+                <stop offset="100%" stopColor={ds.color} stopOpacity={0.1} />
+              </linearGradient>
+            );
+          })}
         </defs>
         
         {(showGridX || showGridY) && (
@@ -151,7 +168,7 @@ function CartesianChartView({ config }: { config: ChartConfig }) {
             vertical={showGridY} 
             horizontal={showGridX} 
             stroke="hsl(var(--border))" 
-            strokeOpacity={0.5}
+            strokeOpacity={0.4}
           />
         )}
         
@@ -160,7 +177,7 @@ function CartesianChartView({ config }: { config: ChartConfig }) {
             dataKey="name" 
             axisLine={false}
             tickLine={false}
-            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11, fontWeight: 500 }}
             dy={8}
           />
         )}
@@ -172,24 +189,48 @@ function CartesianChartView({ config }: { config: ChartConfig }) {
             tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
             domain={[0, 100]}
             ticks={[0, 25, 50, 75, 100]}
-            width={35}
+            width={30}
           />
         )}
         
         <Tooltip content={<CustomTooltip dataSets={dataSets} />} />
         
-        {dataSets.map((ds, index) => (
-          <Area
-            key={ds.id}
-            type="monotone"
-            dataKey={ds.id}
-            stroke={getStrokeColor(ds)}
-            strokeWidth={3}
-            fill={showArea ? `url(#fill-gradient-${ds.id})` : 'transparent'}
-            dot={{ fill: ds.fillType === 'gradient' ? ds.gradientColors[0] : ds.color, strokeWidth: 2, r: 5, stroke: 'white' }}
-            activeDot={{ r: 7, stroke: 'white', strokeWidth: 2 }}
-          />
-        ))}
+        {dataSets.map((ds) => {
+          // Get color for dots based on position
+          const getDotColor = (index: number) => {
+            if (ds.fillType === 'gradient' && ds.gradientColors.length > 0) {
+              return ds.gradientColors[Math.min(index, ds.gradientColors.length - 1)];
+            }
+            return ds.color;
+          };
+
+          return (
+            <Area
+              key={ds.id}
+              type="monotone"
+              dataKey={ds.id}
+              stroke={getStrokeColor(ds)}
+              strokeWidth={3}
+              fill={showArea ? `url(#fill-gradient-${ds.id})` : 'transparent'}
+              dot={(props: any) => {
+                const { cx, cy, index } = props;
+                const color = getDotColor(index);
+                return (
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    r={6}
+                    fill={color}
+                    stroke="white"
+                    strokeWidth={2}
+                    style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.15))' }}
+                  />
+                );
+              }}
+              activeDot={{ r: 8, stroke: 'white', strokeWidth: 2 }}
+            />
+          );
+        })}
       </AreaChart>
     </ResponsiveContainer>
   );
