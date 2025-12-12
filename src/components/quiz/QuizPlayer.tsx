@@ -1233,8 +1233,14 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                   
                   {/* Content */}
                   <div className={cn("text-center", !isVertical && "text-left flex-1")}>
-                    <div className="font-semibold text-sm">{item.title}</div>
-                    <div className="text-xs text-muted-foreground mt-1">{item.description}</div>
+                    <div 
+                      className="font-semibold text-sm rich-text"
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.title) }}
+                    />
+                    <div 
+                      className="text-xs text-muted-foreground mt-1 rich-text"
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.description) }}
+                    />
                   </div>
                 </div>
               ))}
