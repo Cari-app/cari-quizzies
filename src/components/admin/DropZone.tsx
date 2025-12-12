@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Plus, GripVertical, Trash2 } from 'lucide-react';
+import { Plus, GripVertical, Trash2, CalendarIcon } from 'lucide-react';
 import { Reorder } from 'framer-motion';
 import { DroppedComponent, ComponentConfig } from './ComponentEditor';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 interface DropZoneProps {
   components: DroppedComponent[];
@@ -136,7 +140,6 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'email':
       case 'phone':
       case 'number':
-      case 'date':
       case 'textarea':
       case 'height':
       case 'weight':
@@ -152,12 +155,36 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               />
             ) : (
               <input 
-                type={comp.type === 'email' ? 'email' : comp.type === 'number' || comp.type === 'height' || comp.type === 'weight' ? 'number' : comp.type === 'date' ? 'date' : 'text'}
+                type={comp.type === 'email' ? 'email' : comp.type === 'number' || comp.type === 'height' || comp.type === 'weight' ? 'number' : 'text'}
                 placeholder={config.placeholder}
                 className="w-full px-4 py-3 bg-muted/30 border border-border rounded-lg text-sm"
                 disabled
               />
             )}
+            {config.helpText && <p className="text-xs text-muted-foreground mt-1">{config.helpText}</p>}
+          </div>
+        );
+      case 'date':
+        return (
+          <div className="p-4">
+            {config.label && <label className="text-sm font-medium mb-2 block">{config.label}</label>}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className="w-full px-4 py-3 bg-muted/30 border border-border rounded-lg text-sm flex items-center justify-between text-muted-foreground"
+                >
+                  <span>dd/mm/aaaa</span>
+                  <CalendarIcon className="h-4 w-4" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  locale={ptBR}
+                  className="pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
             {config.helpText && <p className="text-xs text-muted-foreground mt-1">{config.helpText}</p>}
           </div>
         );
