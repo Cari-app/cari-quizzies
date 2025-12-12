@@ -180,8 +180,6 @@ export const componentPalette = {
     { type: 'options', name: 'Opções', icon: '☑️' },
     { type: 'multiple', name: 'Múltipla Escolha', icon: '✅' },
     { type: 'single', name: 'Escolha Única', icon: '⭕' },
-    { type: 'yesno', name: 'Sim/Não', icon: '👍' },
-    { type: 'video-response', name: 'Vídeo Resposta', icon: '🎥', isNew: true },
   ],
   media: [
     { type: 'text', name: 'Texto', icon: '🔤' },
