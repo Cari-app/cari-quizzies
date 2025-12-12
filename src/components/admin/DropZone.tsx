@@ -107,7 +107,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'image':
         return { mediaUrl: '', altText: '' };
       case 'video':
-        return { mediaUrl: '', altText: '' };
+        return { mediaUrl: '', altText: '', videoType: 'url', embedCode: '' };
       case 'spacer':
         return { height: 24 };
       default:
@@ -537,15 +537,105 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           </div>
         );
       }
-      case 'video':
-        return (
-          <div className="p-4">
-            <div className="p-8 bg-muted/30 rounded-lg flex items-center justify-center border-2 border-dashed border-border">
-              <span className="text-2xl">🎬</span>
-              <span className="text-sm text-muted-foreground ml-2">Adicionar vídeo</span>
+      case 'video': {
+        // Check if there's a video URL or embed code
+        const hasVideo = config.mediaUrl || config.embedCode;
+        
+        if (!hasVideo) {
+          return (
+            <div className="p-4">
+              <div className="p-8 bg-muted/30 rounded-lg flex items-center justify-center border-2 border-dashed border-border">
+                <span className="text-2xl">🎬</span>
+                <span className="text-sm text-muted-foreground ml-2">Adicionar vídeo</span>
+              </div>
             </div>
-          </div>
-        );
+          );
+        }
+        
+        // If embed code is provided, use it
+        if (config.videoType === 'embed' && config.embedCode) {
+          return (
+            <div className="p-4">
+              <div 
+                className="w-full aspect-video rounded-lg overflow-hidden"
+                dangerouslySetInnerHTML={{ __html: config.embedCode }}
+              />
+            </div>
+          );
+        }
+        
+        // If URL is provided, try to convert to embed
+        if (config.mediaUrl) {
+          const url = config.mediaUrl;
+          
+          // YouTube
+          const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+          if (youtubeMatch) {
+            return (
+              <div className="p-4">
+                <iframe
+                  src={`https://www.youtube.com/embed/${youtubeMatch[1]}`}
+                  className="w-full aspect-video rounded-lg"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            );
+          }
+          
+          // Vimeo
+          const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+          if (vimeoMatch) {
+            return (
+              <div className="p-4">
+                <iframe
+                  src={`https://player.vimeo.com/video/${vimeoMatch[1]}`}
+                  className="w-full aspect-video rounded-lg"
+                  allow="autoplay; fullscreen; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            );
+          }
+          
+          // PandaVideo / Vturb / other platforms - use iframe
+          if (url.includes('pandavideo') || url.includes('player-vz') || url.includes('vturb')) {
+            return (
+              <div className="p-4">
+                <iframe
+                  src={url}
+                  className="w-full aspect-video rounded-lg"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            );
+          }
+          
+          // Direct video file
+          if (url.match(/\.(mp4|webm|ogg)(\?.*)?$/i)) {
+            return (
+              <div className="p-4">
+                <video src={url} controls className="w-full rounded-lg" />
+              </div>
+            );
+          }
+          
+          // Fallback: use as iframe
+          return (
+            <div className="p-4">
+              <iframe
+                src={url}
+                className="w-full aspect-video rounded-lg"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          );
+        }
+        
+        return null;
+      }
       case 'spacer':
         return (
           <div className="flex items-center justify-center" style={{ height: config.height || 24 }}>
