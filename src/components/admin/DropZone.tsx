@@ -254,7 +254,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
   return (
     <div 
       className={cn(
-        "flex-1 transition-colors duration-200 overflow-y-auto",
+        "flex-1 flex flex-col items-center justify-center transition-colors duration-200 overflow-y-auto",
         isDragOver && "bg-primary/5"
       )}
       onDragOver={handleDragOver}
@@ -275,8 +275,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           </p>
         </div>
       ) : (
-        <div className="flex-1 flex flex-col justify-center p-4 min-h-0">
-          <div className="max-w-full">
+        <div className="w-full max-w-md p-4">
+          <div>
             <Reorder.Group axis="y" values={components} onReorder={onComponentsChange} className="space-y-2">
               {components.map((comp) => (
                 <Reorder.Item key={comp.id} value={comp}>
