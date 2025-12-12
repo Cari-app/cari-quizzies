@@ -156,15 +156,24 @@ export function RichTextInput({
           }}
           onMouseDown={(e) => e.preventDefault()}
         >
-          {/* Font Size */}
+          {/* Text Size / Heading */}
           <select
-            className="h-6 px-1.5 text-xs bg-transparent border-0 outline-none cursor-pointer hover:bg-foreground/10 rounded"
-            defaultValue="3"
-            onChange={(e) => execCommand("fontSize", e.target.value)}
+            className="h-6 px-1.5 text-xs bg-transparent border-0 outline-none cursor-pointer hover:bg-foreground/10 rounded min-w-[80px]"
+            defaultValue="p"
+            onChange={(e) => {
+              const value = e.target.value;
+              if (value === 'small') {
+                execCommand("fontSize", "2");
+              } else {
+                execCommand("formatBlock", value);
+              }
+            }}
           >
-            <option value="2">Pequeno</option>
-            <option value="3">Normal</option>
-            <option value="5">Grande</option>
+            <option value="h1">Título 1</option>
+            <option value="h2">Título 2</option>
+            <option value="h3">Título 3</option>
+            <option value="p">Normal</option>
+            <option value="small">Pequeno</option>
           </select>
 
           <div className="w-px h-4 bg-border mx-0.5" />
