@@ -658,8 +658,8 @@ export function QuizEditor() {
                     </div>
                   </div>
                   
-                  {/* Stage Components - using DropZone in readonly mode */}
-                  <div className="flex-1 overflow-hidden pointer-events-none">
+                  {/* Stage Components - clean preview mode */}
+                  <div className="flex-1 overflow-hidden pointer-events-none [&_.group]:border-transparent [&_.group]:hover:border-transparent [&_.group_.absolute]:hidden">
                     <DropZone 
                       components={stage.components}
                       onComponentsChange={() => {}}
