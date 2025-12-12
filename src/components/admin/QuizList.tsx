@@ -1,7 +1,8 @@
+import { useEffect, useState } from 'react';
 import { useQuizStore } from '@/store/quizStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, MoreHorizontal, Eye, Trash2, Pencil, FileQuestion } from 'lucide-react';
+import { Plus, MoreHorizontal, Eye, Trash2, Pencil, FileQuestion, Loader2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   DropdownMenu,
@@ -10,26 +11,96 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Quiz } from '@/types/quiz';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+
+interface SupabaseQuiz {
+  id: string;
+  titulo: string;
+  descricao: string | null;
+  slug: string | null;
+  is_active: boolean | null;
+  criado_em: string | null;
+  atualizado_em: string | null;
+}
 
 export function QuizList() {
-  const { quizzes, deleteQuiz, setCurrentQuiz, startSession } = useQuizStore();
   const navigate = useNavigate();
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load quizzes from Supabase
+  useEffect(() => {
+    const loadQuizzes = async () => {
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('quizzes')
+          .select('*')
+          .order('atualizado_em', { ascending: false });
+
+        if (error) throw error;
+
+        const formattedQuizzes: Quiz[] = (data || []).map((q: SupabaseQuiz) => ({
+          id: q.id,
+          name: q.titulo,
+          description: q.descricao || '',
+          slug: q.slug || undefined,
+          screens: [],
+          createdAt: new Date(q.criado_em || ''),
+          updatedAt: new Date(q.atualizado_em || ''),
+          isPublished: q.is_active || false,
+        }));
+
+        setQuizzes(formattedQuizzes);
+      } catch (error: any) {
+        console.error('Error loading quizzes:', error);
+        toast.error('Erro ao carregar quizzes');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadQuizzes();
+  }, []);
 
   const handlePreview = (quiz: Quiz) => {
-    startSession(quiz.id);
-    navigate('/quiz');
+    if (quiz.slug) {
+      navigate(`/${quiz.slug}`);
+    } else {
+      navigate(`/${quiz.id}`);
+    }
   };
 
   const handleEdit = (quiz: Quiz) => {
-    setCurrentQuiz(quiz);
     navigate('/admin/quiz/' + quiz.id);
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Tem certeza que deseja excluir este quiz?')) {
-      deleteQuiz(id);
+      try {
+        // Delete etapas first
+        await supabase.from('etapas').delete().eq('quiz_id', id);
+        // Then delete quiz
+        const { error } = await supabase.from('quizzes').delete().eq('id', id);
+        if (error) throw error;
+        
+        setQuizzes(prev => prev.filter(q => q.id !== id));
+        toast.success('Quiz excluído com sucesso');
+      } catch (error: any) {
+        console.error('Error deleting quiz:', error);
+        toast.error('Erro ao excluir quiz');
+      }
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -85,7 +156,9 @@ export function QuizList() {
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {quiz.screens.length} telas · Atualizado em {quiz.updatedAt.toLocaleDateString('pt-BR')}
+                  {quiz.slug && <span className="text-primary">/{quiz.slug}</span>}
+                  {quiz.slug && ' · '}
+                  Atualizado em {quiz.updatedAt.toLocaleDateString('pt-BR')}
                 </p>
               </div>
               
