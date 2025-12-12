@@ -446,50 +446,8 @@ export function QuizEditor() {
       {editorView === 'editor' && (
       <div className="flex shrink-0">
         <div className="w-72 bg-background border-r border-border flex flex-col">
-
-          {/* Quiz Name */}
-          <div className="px-4 pb-4">
-            <Input
-              value={currentQuiz.name}
-              onChange={(e) => {
-                const newName = e.target.value;
-                const updates: Partial<Quiz> = { name: newName };
-                if (!currentQuiz.slug) {
-                  updates.slug = generateSlug(newName);
-                }
-                updateQuiz(currentQuiz.id, updates);
-              }}
-              className="font-semibold border-none bg-transparent px-0 h-auto text-base focus-visible:ring-0 shadow-none"
-              placeholder="Nome do quiz"
-            />
-            
-            {/* URL Slug */}
-            <div className="mt-1 flex items-center gap-2">
-              <Globe className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-              <Input
-                value={currentQuiz.slug || ''}
-                onChange={(e) => updateQuiz(currentQuiz.id, { slug: generateSlug(e.target.value) })}
-                className="text-xs border-none bg-transparent px-0 h-auto focus-visible:ring-0 shadow-none text-muted-foreground"
-                placeholder="url-do-quiz"
-              />
-              {currentQuiz.slug && (
-                <button
-                  onClick={handleCopyUrl}
-                  className="p-1 hover:bg-muted rounded transition-colors shrink-0"
-                  title="Copiar URL"
-                >
-                  {slugCopied ? (
-                    <Check className="w-3.5 h-3.5 text-primary" />
-                  ) : (
-                    <Copy className="w-3.5 h-3.5 text-muted-foreground" />
-                  )}
-                </button>
-              )}
-            </div>
-          </div>
-
           {/* Add Stage Buttons */}
-          <div className="px-4 pb-4">
+          <div className="p-4">
             <div className="flex gap-2">
               <Button 
                 size="sm" 
