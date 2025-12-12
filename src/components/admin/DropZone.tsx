@@ -110,6 +110,16 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         return { mediaUrl: '', altText: '', videoType: 'url', embedCode: '' };
       case 'spacer':
         return { height: 24 };
+      case 'alert':
+        return { 
+          description: 'Texto do alerta aqui!', 
+          alertStyle: 'red', 
+          alertHighlight: false,
+          alertPadding: 'default',
+          width: 100,
+          horizontalAlign: 'start',
+          verticalAlign: 'auto'
+        };
       default:
         return {};
     }
@@ -642,6 +652,41 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             <div className="border-t border-dashed border-border w-full mx-4" />
           </div>
         );
+      case 'alert': {
+        const alertStyles = {
+          red: 'bg-red-50 border-red-200 text-red-700',
+          yellow: 'bg-yellow-50 border-yellow-200 text-yellow-700',
+          green: 'bg-green-50 border-green-200 text-green-700',
+          blue: 'bg-blue-50 border-blue-200 text-blue-700',
+          gray: 'bg-gray-50 border-gray-200 text-gray-700',
+        };
+        const paddingStyles = {
+          compact: 'p-2',
+          default: 'p-4',
+          relaxed: 'p-6',
+        };
+        const style = config.alertStyle || 'red';
+        const padding = config.alertPadding || 'default';
+        const width = config.width || 100;
+        const horizontalAlign = config.horizontalAlign || 'start';
+        const alignClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
+        
+        return (
+          <div className={cn("px-4", `flex ${alignClass}`)}>
+            <div 
+              className={cn(
+                "rounded-lg border",
+                alertStyles[style as keyof typeof alertStyles],
+                paddingStyles[padding as keyof typeof paddingStyles],
+                config.alertHighlight && "ring-2 ring-offset-2 ring-current"
+              )}
+              style={{ width: `${width}%` }}
+            >
+              <p className="text-sm">{config.description || 'Texto do alerta'}</p>
+            </div>
+          </div>
+        );
+      }
       default:
         return (
           <div className="p-4 bg-muted/30 rounded-lg flex items-center gap-2 m-4">

@@ -95,6 +95,10 @@ export interface ComponentConfig {
   minValue?: number;
   maxValue?: number;
   defaultValue?: number;
+  // Alert specific
+  alertStyle?: 'red' | 'yellow' | 'green' | 'blue' | 'gray';
+  alertHighlight?: boolean;
+  alertPadding?: 'compact' | 'default' | 'relaxed';
 }
 
 interface ComponentEditorProps {
@@ -187,6 +191,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         return renderMediaComponentTab();
       case 'spacer':
         return renderSpacerComponentTab();
+      case 'alert':
+        return renderAlertComponentTab();
       default:
         return (
           <div className="text-center py-8">
@@ -1236,9 +1242,173 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     </div>
   );
 
+  const renderAlertComponentTab = () => (
+    <div className="space-y-4">
+      {/* Descrição */}
+      <div>
+        <Label className="text-xs text-muted-foreground">Descrição</Label>
+        <Textarea
+          value={config.description || ''}
+          onChange={(e) => updateConfig({ description: e.target.value })}
+          placeholder="Texto do alerta..."
+          className="mt-1"
+          rows={3}
+        />
+      </div>
+
+      {/* Avançado */}
+      <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+        <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <Plus className={`w-4 h-4 transition-transform ${advancedOpen ? 'rotate-45' : ''}`} />
+          AVANÇADO
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-4 space-y-4">
+          <div>
+            <Label className="text-xs text-muted-foreground">ID/Name</Label>
+            <Input
+              value={component.customId || ''}
+              onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
+              placeholder={`alert_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
+              className="mt-1 font-mono text-xs"
+            />
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  );
+
   // =========== APARÊNCIA TAB ===========
   const renderAppearanceTab = () => {
     const isOptionsComponent = ['options', 'single', 'multiple', 'yesno'].includes(component.type);
+    const isAlertComponent = component.type === 'alert';
+
+    // Alert component appearance
+    if (isAlertComponent) {
+      return (
+        <div className="space-y-4">
+          {/* Estilo */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Estilo</Label>
+            <Select 
+              value={config.alertStyle || 'red'} 
+              onValueChange={(v) => updateConfig({ alertStyle: v as ComponentConfig['alertStyle'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="red">Vermelho</SelectItem>
+                <SelectItem value="yellow">Amarelo</SelectItem>
+                <SelectItem value="green">Verde</SelectItem>
+                <SelectItem value="blue">Azul</SelectItem>
+                <SelectItem value="gray">Cinza</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Destacar */}
+          <div className="flex items-center gap-2">
+            <input 
+              type="checkbox" 
+              id="alertHighlight" 
+              checked={config.alertHighlight || false}
+              onChange={(e) => updateConfig({ alertHighlight: e.target.checked })}
+              className="rounded border-border"
+            />
+            <Label htmlFor="alertHighlight" className="text-sm cursor-pointer">Destacar</Label>
+          </div>
+
+          {/* Margem interna */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Margem interna</Label>
+            <Select 
+              value={config.alertPadding || 'default'} 
+              onValueChange={(v) => updateConfig({ alertPadding: v as ComponentConfig['alertPadding'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="compact">Compacto</SelectItem>
+                <SelectItem value="default">Padrão</SelectItem>
+                <SelectItem value="relaxed">Relaxado</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Width */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-xs text-muted-foreground">Largura</Label>
+              <div className="flex items-center gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.max(10, (config.width || 100) - 5) })}
+                >
+                  −
+                </Button>
+                <span className="text-sm font-medium w-12 text-center">{config.width || 100}%</span>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.min(100, (config.width || 100) + 5) })}
+                >
+                  +
+                </Button>
+              </div>
+            </div>
+            <Slider
+              value={[config.width || 100]}
+              onValueChange={([value]) => updateConfig({ width: value })}
+              min={10}
+              max={100}
+              step={5}
+              className="w-full"
+            />
+          </div>
+
+          {/* Horizontal and Vertical alignment */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento horizontal</Label>
+              <Select 
+                value={config.horizontalAlign || 'start'} 
+                onValueChange={(v) => updateConfig({ horizontalAlign: v as ComponentConfig['horizontalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento vertical</Label>
+              <Select 
+                value={config.verticalAlign || 'auto'} 
+                onValueChange={(v) => updateConfig({ verticalAlign: v as ComponentConfig['verticalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Auto</SelectItem>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      );
+    }
     
     if (isOptionsComponent) {
       return (
