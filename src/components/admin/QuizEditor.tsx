@@ -337,7 +337,8 @@ export function QuizEditor() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-background">
-      {/* Left Sidebar - Stages */}
+      {/* Left Sidebar - Stages (hidden in flow view) */}
+      {editorView === 'editor' && (
       <div className="flex shrink-0">
         <div className="w-72 bg-background border-r border-border flex flex-col">
           {/* Header with Logo */}
@@ -538,6 +539,7 @@ export function QuizEditor() {
           </div>
         )}
       </div>
+      )}
 
       {/* Preview Area */}
       <div className="flex-1 flex flex-col bg-muted/30 overflow-hidden">
@@ -553,7 +555,7 @@ export function QuizEditor() {
               )}
             >
               <Layers className="w-3.5 h-3.5" />
-              Etapas
+              Construtor
             </button>
             <button
               onClick={() => setEditorView('flow')}
@@ -674,7 +676,8 @@ export function QuizEditor() {
         )}
       </div>
 
-      {/* Right Sidebar */}
+      {/* Right Sidebar (hidden in flow view) */}
+      {editorView === 'editor' && (
       <div className="w-96 bg-background border-l border-border flex flex-col shrink-0 overflow-hidden">
         {selectedComponent ? (
           <ComponentEditor 
@@ -823,6 +826,7 @@ export function QuizEditor() {
           </Tabs>
         )}
       </div>
+      )}
 
       {/* Template Modal */}
       {showTemplates && (
