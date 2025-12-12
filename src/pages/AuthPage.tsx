@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Mail, Lock, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Logo } from '@/components/Logo';
 import { z } from 'zod';
 
 const loginSchema = z.object({
@@ -134,9 +135,9 @@ export default function AuthPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <span className="text-4xl">📋</span>
+            <Logo className="h-10" />
           </div>
-          <CardTitle className="text-2xl">QuizFlow</CardTitle>
+          <CardTitle className="text-2xl">Cari</CardTitle>
           <CardDescription>
             Acesse sua conta para gerenciar seus quizzes
           </CardDescription>

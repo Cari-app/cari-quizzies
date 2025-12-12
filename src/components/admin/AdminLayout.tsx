@@ -1,8 +1,10 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, FileQuestion, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, FileQuestion, Settings, LogOut, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
+import { Logo } from '@/components/Logo';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -25,6 +27,7 @@ export function AdminLayout() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, profile, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const handleSignOut = async () => {
     const { error } = await signOut();
@@ -52,9 +55,8 @@ export function AdminLayout() {
       <header className="sticky top-0 z-50 bg-background border-b border-border">
         <div className="max-w-6xl mx-auto px-6 h-12 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <Link to="/admin" className="flex items-center gap-2">
-              <span className="text-lg">📋</span>
-              <span className="font-medium text-sm">QuizFlow</span>
+            <Link to="/admin" className="flex items-center">
+              <Logo className="h-6" />
             </Link>
             
             <nav className="flex items-center gap-1">
@@ -78,7 +80,12 @@ export function AdminLayout() {
             </nav>
           </div>
 
-          <DropdownMenu>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-8 w-8">
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
+
+            <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="sm" className="gap-2">
                 <Avatar className="w-6 h-6">
@@ -109,6 +116,7 @@ export function AdminLayout() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+          </div>
         </div>
       </header>
 

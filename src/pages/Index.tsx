@@ -2,12 +2,15 @@ import { useNavigate } from 'react-router-dom';
 import { useQuizStore } from '@/store/quizStore';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
-import { Settings, Play, ChevronRight, LogIn } from 'lucide-react';
+import { useTheme } from '@/hooks/useTheme';
+import { Logo } from '@/components/Logo';
+import { Settings, Play, ChevronRight, LogIn, Sun, Moon } from 'lucide-react';
 
 const Index = () => {
   const navigate = useNavigate();
   const { quizzes } = useQuizStore();
   const { isAuthenticated } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const publishedQuizzes = quizzes.filter(q => q.isPublished);
 
   const handleStartQuiz = (quiz: typeof quizzes[0]) => {
@@ -23,31 +26,33 @@ const Index = () => {
       {/* Header */}
       <header className="border-b border-border">
         <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
+          <Logo className="h-6" />
           <div className="flex items-center gap-2">
-            <span className="text-lg">📋</span>
-            <span className="font-medium">QuizFlow</span>
+            <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-8 w-8">
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
+            {isAuthenticated ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/admin')}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Admin
+              </Button>
+            ) : (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/login')}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <LogIn className="w-4 h-4 mr-2" />
+                Entrar
+              </Button>
+            )}
           </div>
-          {isAuthenticated ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/admin')}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              Admin
-            </Button>
-          ) : (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/login')}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              <LogIn className="w-4 h-4 mr-2" />
-              Entrar
-            </Button>
-          )}
         </div>
       </header>
 
