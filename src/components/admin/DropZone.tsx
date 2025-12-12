@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { sanitizeHtml, sanitizeEmbed } from '@/lib/sanitize';
-import { Plus, GripVertical, Trash2, CalendarIcon, Pencil, Copy } from 'lucide-react';
+import { Plus, GripVertical, Trash2, CalendarIcon, Pencil, Copy, ChevronUp, ChevronDown, Minus } from 'lucide-react';
 import { Reorder } from 'framer-motion';
-import { DroppedComponent, ComponentConfig } from './ComponentEditor';
+import { DroppedComponent, ComponentConfig, FaqItem } from './ComponentEditor';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
@@ -195,6 +195,18 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             { id: '1', name: 'Rafael Nascimento', handle: '@rafael.nascimento', rating: 5, text: 'A experiência foi excelente do início ao fim. Atendimento rápido, equipe super atenciosa e resultados acima do esperado. Com certeza recomendaria!' },
             { id: '2', name: 'Camila Ferreira', handle: '@camila.ferreira', rating: 5, text: 'Fiquei impressionado com a qualidade e o cuidado em cada detalhe. Superou todas as minhas expectativas. Já virei cliente fiel!' },
           ],
+          width: 100,
+          horizontalAlign: 'start',
+          verticalAlign: 'auto'
+        };
+      case 'faq':
+        return {
+          faqItems: [
+            { id: '1', question: 'Qual a primeira dúvida a ser resolvida?', answer: 'Este é apenas um texto de exemplo utilizado para ilustrar como a resposta de uma dúvida frequente será exibida nesta seção.' },
+            { id: '2', question: 'Descreva outra dúvida a ser resolvida.', answer: 'Texto genérico de demonstração. Serve apenas como modelo visual para representar uma resposta real a ser inserida posteriormente.' },
+          ],
+          faqDetailType: 'arrow',
+          faqFirstOpen: true,
           width: 100,
           horizontalAlign: 'start',
           verticalAlign: 'auto'
@@ -1219,6 +1231,51 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               style={{ width: `${widthValue}%` }}
             >
               {testimonialItems.map((item) => renderTestimonialCard(item))}
+            </div>
+          </div>
+        );
+      }
+      case 'faq': {
+        const faqItems = (config.faqItems || []) as FaqItem[];
+        const widthValue = config.width || 100;
+        const horizontalAlign = config.horizontalAlign || 'start';
+        const alignClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
+        const detailType = config.faqDetailType || 'arrow';
+        const firstOpen = config.faqFirstOpen !== false;
+        
+        return (
+          <div className={cn("w-full flex", alignClass)}>
+            <div 
+              className="p-4 space-y-2"
+              style={{ width: `${widthValue}%` }}
+            >
+              {faqItems.map((item, index) => (
+                <div 
+                  key={item.id}
+                  className="border border-border rounded-lg overflow-hidden bg-background"
+                >
+                  <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors">
+                    <span className="font-medium text-sm">{item.question}</span>
+                    {detailType === 'arrow' ? (
+                      <ChevronUp className={cn(
+                        "w-4 h-4 text-muted-foreground transition-transform",
+                        !(firstOpen && index === 0) && "rotate-180"
+                      )} />
+                    ) : (
+                      firstOpen && index === 0 ? (
+                        <Minus className="w-4 h-4 text-muted-foreground" />
+                      ) : (
+                        <Plus className="w-4 h-4 text-muted-foreground" />
+                      )
+                    )}
+                  </div>
+                  {(firstOpen && index === 0) && (
+                    <div className="px-4 pb-4 text-sm text-muted-foreground border-t border-border pt-3">
+                      {item.answer}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         );

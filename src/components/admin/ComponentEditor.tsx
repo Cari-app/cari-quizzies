@@ -55,6 +55,12 @@ export interface TestimonialItem {
   photoUrl?: string;
 }
 
+export interface FaqItem {
+  id: string;
+  question: string;
+  answer: string;
+}
+
 export interface ComponentConfig {
   label?: string;
   placeholder?: string;
@@ -161,6 +167,10 @@ export interface ComponentConfig {
   testimonialBorderRadius?: 'none' | 'small' | 'medium' | 'large';
   testimonialShadow?: 'none' | 'sm' | 'md' | 'lg';
   testimonialSpacing?: 'compact' | 'simple' | 'relaxed';
+  // FAQ specific
+  faqItems?: FaqItem[];
+  faqDetailType?: 'arrow' | 'plus-minus';
+  faqFirstOpen?: boolean;
 }
 
 interface ComponentEditorProps {
@@ -267,6 +277,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         return renderArgumentsComponentTab();
       case 'testimonials':
         return renderTestimonialsComponentTab();
+      case 'faq':
+        return renderFaqComponentTab();
       default:
         return (
           <div className="text-center py-8">
@@ -2413,6 +2425,141 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     );
   };
 
+  // =========== FAQ COMPONENT TAB ===========
+  const renderFaqComponentTab = () => {
+    const faqItems: FaqItem[] = config.faqItems || [];
+
+    const addFaq = () => {
+      const newItem: FaqItem = {
+        id: Date.now().toString(),
+        question: 'Qual a primeira dúvida a ser resolvida?',
+        answer: 'Este é apenas um texto de exemplo utilizado para ilustrar como a resposta de uma dúvida frequente será exibida nesta seção.',
+      };
+      updateConfig({ faqItems: [...faqItems, newItem] });
+    };
+
+    const updateFaq = (id: string, updates: Partial<FaqItem>) => {
+      const newItems = faqItems.map(item =>
+        item.id === id ? { ...item, ...updates } : item
+      );
+      updateConfig({ faqItems: newItems });
+    };
+
+    const removeFaq = (id: string) => {
+      updateConfig({ faqItems: faqItems.filter(item => item.id !== id) });
+    };
+
+    const duplicateFaq = (item: FaqItem) => {
+      const newItem: FaqItem = {
+        ...item,
+        id: Date.now().toString(),
+      };
+      const index = faqItems.findIndex(f => f.id === item.id);
+      const newItems = [...faqItems];
+      newItems.splice(index + 1, 0, newItem);
+      updateConfig({ faqItems: newItems });
+    };
+
+    return (
+      <div className="space-y-4">
+        {/* Perguntas */}
+        <div className="border border-border rounded-lg p-3">
+          <Label className="text-xs text-muted-foreground uppercase tracking-wide mb-3 block">Perguntas</Label>
+          
+          <div className="space-y-3">
+            {faqItems.map((item, index) => (
+              <div
+                key={item.id}
+                className="border border-border rounded-lg p-3 bg-muted/30 group"
+              >
+                <div className="flex items-start gap-2">
+                  <GripVertical className="w-4 h-4 text-muted-foreground mt-1 shrink-0 cursor-grab" />
+                  <div className="flex-1 space-y-2">
+                    {/* Question */}
+                    <Input
+                      value={item.question}
+                      onChange={(e) => updateFaq(item.id, { question: e.target.value })}
+                      placeholder="Pergunta"
+                      className="font-medium"
+                    />
+                    {/* Answer */}
+                    <Textarea
+                      value={item.answer}
+                      onChange={(e) => updateFaq(item.id, { answer: e.target.value })}
+                      placeholder="Resposta..."
+                      className="resize-none"
+                      rows={3}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => duplicateFaq(item)}
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-destructive"
+                      onClick={() => removeFaq(item.id)}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Add FAQ button */}
+          <Button
+            variant="outline"
+            className="w-full mt-3"
+            onClick={addFaq}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            adicionar pergunta
+          </Button>
+        </div>
+
+        {/* Opções */}
+        <div className="border border-border rounded-lg p-3">
+          <Label className="text-xs text-muted-foreground uppercase tracking-wide mb-3 block">Opções</Label>
+          <div className="flex items-center gap-2">
+            <Switch
+              id="faqFirstOpen"
+              checked={config.faqFirstOpen !== false}
+              onCheckedChange={(checked) => updateConfig({ faqFirstOpen: checked })}
+            />
+            <Label htmlFor="faqFirstOpen" className="text-sm cursor-pointer">Primeira pergunta ativa</Label>
+          </div>
+        </div>
+
+        {/* Avançado */}
+        <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+          <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Plus className={`w-4 h-4 transition-transform ${advancedOpen ? 'rotate-45' : ''}`} />
+            AVANÇADO
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-4 space-y-4">
+            <div>
+              <Label className="text-xs text-muted-foreground">ID/Name</Label>
+              <Input
+                value={component.customId || ''}
+                onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
+                placeholder={`faq_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
+                className="mt-1 font-mono text-xs"
+              />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+    );
+  };
+
   // =========== APARÊNCIA TAB ===========
   const renderAppearanceTab = () => {
     const isOptionsComponent = ['options', 'single', 'multiple', 'yesno'].includes(component.type);
@@ -2422,6 +2569,102 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     const isLoadingComponent = component.type === 'loading';
     const isLevelComponent = component.type === 'level';
     const isTestimonialsComponent = component.type === 'testimonials';
+    const isFaqComponent = component.type === 'faq';
+
+    // FAQ component appearance
+    if (isFaqComponent) {
+      return (
+        <div className="space-y-4">
+          {/* Detalhe */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Detalhe</Label>
+            <Select 
+              value={config.faqDetailType || 'arrow'} 
+              onValueChange={(v) => updateConfig({ faqDetailType: v as ComponentConfig['faqDetailType'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="arrow">Seta</SelectItem>
+                <SelectItem value="plus-minus">Mais e menos</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Width */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-xs text-muted-foreground">Largura</Label>
+              <div className="flex items-center gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.max(10, (config.width || 100) - 5) })}
+                >
+                  −
+                </Button>
+                <span className="text-sm font-medium w-12 text-center">{config.width || 100}%</span>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.min(100, (config.width || 100) + 5) })}
+                >
+                  +
+                </Button>
+              </div>
+            </div>
+            <Slider
+              value={[config.width || 100]}
+              onValueChange={([value]) => updateConfig({ width: value })}
+              min={10}
+              max={100}
+              step={5}
+              className="w-full"
+            />
+          </div>
+
+          {/* Horizontal and Vertical alignment */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento horizontal</Label>
+              <Select 
+                value={config.horizontalAlign || 'start'} 
+                onValueChange={(v) => updateConfig({ horizontalAlign: v as ComponentConfig['horizontalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento vertical</Label>
+              <Select 
+                value={config.verticalAlign || 'auto'} 
+                onValueChange={(v) => updateConfig({ verticalAlign: v as ComponentConfig['verticalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Auto</SelectItem>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     // Loading component appearance
     if (isLoadingComponent) {

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Loader2, CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Loader2, CalendarIcon, ChevronLeft, ChevronRight, ChevronUp, Minus, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
@@ -1466,6 +1466,51 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
               style={{ width: `${widthValue}%` }}
             >
               {testimonialItems.map((item) => renderTestimonialCard(item))}
+            </div>
+          </div>
+        );
+      }
+
+      case 'faq': {
+        const faqItems = (config.faqItems || []) as Array<{ id: string; question: string; answer: string }>;
+        const widthValue = config.width || 100;
+        const horizontalAlign = config.horizontalAlign || 'start';
+        const justifyClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
+        const detailType = config.faqDetailType || 'arrow';
+        const firstOpen = config.faqFirstOpen !== false;
+        
+        const [openItems, setOpenItems] = useState<string[]>(firstOpen && faqItems[0] ? [faqItems[0].id] : []);
+        
+        const toggleItem = (id: string) => {
+          setOpenItems(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+        };
+        
+        return (
+          <div className={cn("w-full px-4 flex", justifyClass)}>
+            <div className="space-y-2" style={{ width: `${widthValue}%` }}>
+              {faqItems.map((item) => {
+                const isOpen = openItems.includes(item.id);
+                return (
+                  <div key={item.id} className="border border-border rounded-lg overflow-hidden bg-background">
+                    <button
+                      className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors"
+                      onClick={() => toggleItem(item.id)}
+                    >
+                      <span className="font-medium text-sm">{item.question}</span>
+                      {detailType === 'arrow' ? (
+                        <ChevronUp className={cn("w-4 h-4 text-muted-foreground transition-transform", !isOpen && "rotate-180")} />
+                      ) : (
+                        isOpen ? <Minus className="w-4 h-4 text-muted-foreground" /> : <Plus className="w-4 h-4 text-muted-foreground" />
+                      )}
+                    </button>
+                    {isOpen && (
+                      <div className="px-4 pb-4 text-sm text-muted-foreground border-t border-border pt-3">
+                        {item.answer}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         );
