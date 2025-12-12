@@ -21,6 +21,8 @@ interface OptionItem {
   text: string;
   value: string;
   imageUrl?: string;
+  icon?: string;
+  mediaType?: 'none' | 'icon' | 'image';
   points?: number;
   destination?: 'next' | 'submit' | 'specific';
   destinationStageId?: string;
@@ -525,6 +527,16 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           );
         };
         
+        const renderOptionMedia = (opt: OptionItem) => {
+          if (opt.mediaType === 'icon' && opt.icon) {
+            return <span className="text-lg shrink-0">{opt.icon}</span>;
+          }
+          if (opt.mediaType === 'image' && opt.imageUrl) {
+            return <img src={opt.imageUrl} alt="" className="w-6 h-6 object-cover rounded shrink-0" />;
+          }
+          return null;
+        };
+        
         return (
           <div className="py-4">
             {config.label && <p className="text-sm font-medium mb-1">{config.label}</p>}
@@ -563,6 +575,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                         detailPosition === 'end' && "flex-row-reverse"
                       )}>
                         {renderDetail(isSelected, i)}
+                        {renderOptionMedia(opt)}
                         <span className="flex-1">{opt.text}</span>
                       </div>
                       {(imagePosition === 'bottom' || imagePosition === 'right') && (
@@ -597,6 +610,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                         detailPosition === 'end' && "flex-row-reverse"
                       )}>
                         {renderDetail(isSelected, i)}
+                        {renderOptionMedia(opt)}
                         <span className="flex-1">{opt.text}</span>
                       </div>
                     </button>
@@ -620,6 +634,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                       detailPosition === 'end' && "flex-row-reverse"
                     )}>
                       {renderDetail(isSelected, i)}
+                      {renderOptionMedia(opt)}
                       <span className="flex-1">{opt.text}</span>
                     </div>
                   </button>
