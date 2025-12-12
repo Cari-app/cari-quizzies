@@ -13,6 +13,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import useEmblaCarousel from 'embla-carousel-react';
+import { BeforeAfterSlider } from './BeforeAfterSlider';
 
 interface QuizPlayerProps {
   slug?: string;
@@ -1641,9 +1642,6 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         const img1 = config.beforeAfterImage1 || '';
         const img2 = config.beforeAfterImage2 || '';
         const initialPosition = config.beforeAfterInitialPosition || 50;
-
-        // Import BeforeAfterSlider dynamically to avoid circular deps
-        const BeforeAfterSlider = require('./BeforeAfterSlider').BeforeAfterSlider;
 
         return (
           <BeforeAfterSlider
