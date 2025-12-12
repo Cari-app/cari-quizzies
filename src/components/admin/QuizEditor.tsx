@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils';
 import { screenTemplates } from '@/data/screenTemplates';
 import { supabase } from '@/integrations/supabase/client';
 import { FlowCanvas } from './flow';
+import { StageBackgroundEditor, StageBackground, defaultStageBackground, getStageBackgroundCSS } from './StageBackgroundEditor';
 
 // Stage type - cada etapa contém seus próprios componentes
 interface Stage {
@@ -32,6 +33,7 @@ interface Stage {
   components: DroppedComponent[];
   position?: { x: number; y: number };
   connections?: { targetId: string; sourceHandle?: string }[];
+  background?: StageBackground;
 }
 
 export function QuizEditor() {
@@ -155,6 +157,7 @@ export function QuizEditor() {
                 components: components as DroppedComponent[],
                 position: config.position,
                 connections: config.connections || [],
+                background: config.background,
               };
             });
             console.log('Loaded stages with connections:', loadedStages.map(s => ({ name: s.name, connections: s.connections })));
@@ -298,6 +301,7 @@ export function QuizEditor() {
               pageSettings: pageSettings,
               position: stage.position,
               connections: stage.connections || [],
+              background: stage.background,
               // Save designSettings only on first stage
               ...(index === 0 ? { designSettings } : {}),
             })),
@@ -858,20 +862,28 @@ export function QuizEditor() {
             </div>
             
             <div className="flex-1 flex items-start justify-center p-8 overflow-y-auto">
-              <div 
-                className={cn(
-                  "rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col",
-                  previewMode === 'mobile' 
-                    ? "w-[375px] h-[667px]" 
-                    : "w-full max-w-4xl h-[640px]"
-                )}
-                style={{
-                  backgroundColor: designSettings.backgroundColor,
-                  color: designSettings.textColor,
-                  fontFamily: designSettings.primaryFont,
-                  fontSize: `${designSettings.fontSize}px`,
-                }}
-              >
+              {(() => {
+                const stageBackgroundCSS = getStageBackgroundCSS(currentStage?.background);
+                return (
+                  <div 
+                    className={cn(
+                      "rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col relative",
+                      previewMode === 'mobile' 
+                        ? "w-[375px] h-[667px]" 
+                        : "w-full max-w-4xl h-[640px]"
+                    )}
+                    style={{
+                      backgroundColor: currentStage?.background ? undefined : designSettings.backgroundColor,
+                      color: designSettings.textColor,
+                      fontFamily: designSettings.primaryFont,
+                      fontSize: `${designSettings.fontSize}px`,
+                      ...stageBackgroundCSS.backgroundStyle,
+                    }}
+                  >
+                    {/* Stage background overlay */}
+                    {stageBackgroundCSS.overlayStyle && (
+                      <div style={stageBackgroundCSS.overlayStyle} />
+                    )}
                 {/* Quiz Header Preview - using design settings */}
                 <div 
                   className="shrink-0 p-3"
@@ -971,7 +983,9 @@ export function QuizEditor() {
                     </div>
                   </div>
                 )}
-              </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         )}
@@ -1011,10 +1025,28 @@ export function QuizEditor() {
             </TabsList>
             
             <TabsContent value="stage" className="flex-1 overflow-y-auto p-4 mt-0">
-              <div className="text-center py-12">
-                <p className="text-sm text-muted-foreground">Selecione um componente</p>
-                <p className="text-xs text-muted-foreground mt-1">ou arraste da paleta</p>
-              </div>
+              {selectedStageId ? (
+                <div className="space-y-6">
+                  {/* Stage Background Editor */}
+                  <div className="border border-border rounded-lg p-4">
+                    <Label className="text-xs text-muted-foreground uppercase tracking-wide mb-3 block">Fundo da Etapa</Label>
+                    <StageBackgroundEditor
+                      background={currentStage?.background || defaultStageBackground}
+                      onChange={(background) => {
+                        setStages(prev => prev.map(s => 
+                          s.id === selectedStageId ? { ...s, background } : s
+                        ));
+                        setHasUnsavedChanges(true);
+                      }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-sm text-muted-foreground">Selecione uma etapa</p>
+                  <p className="text-xs text-muted-foreground mt-1">para editar o fundo</p>
+                </div>
+              )}
             </TabsContent>
           
             <TabsContent value="appearance" className="flex-1 overflow-y-auto p-4 mt-0">

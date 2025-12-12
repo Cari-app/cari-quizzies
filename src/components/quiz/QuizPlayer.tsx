@@ -274,6 +274,25 @@ interface StageConnection {
   sourceHandle?: string;
 }
 
+interface StageBackground {
+  type: 'color' | 'gradient' | 'image';
+  color?: string;
+  gradientType?: 'linear' | 'radial';
+  gradientAngle?: number;
+  gradientStops?: Array<{ color: string; position: number }>;
+  imageUrl?: string;
+  imageSize?: 'cover' | 'contain' | 'auto';
+  imagePosition?: 'center' | 'top' | 'bottom' | 'left' | 'right';
+  imageRepeat?: 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y';
+  overlayEnabled?: boolean;
+  overlayType?: 'color' | 'gradient';
+  overlayColor?: string;
+  overlayOpacity?: number;
+  overlayGradientType?: 'linear' | 'radial';
+  overlayGradientAngle?: number;
+  overlayGradientStops?: Array<{ color: string; position: number }>;
+}
+
 interface QuizStage {
   id: string;
   titulo: string | null;
@@ -282,6 +301,7 @@ interface QuizStage {
   pageSettings?: PageSettings;
   designSettings?: DesignSettings;
   connections?: StageConnection[];
+  background?: StageBackground;
 }
 
 interface QuizData {
@@ -518,6 +538,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
             components: (configuracoes?.components as DroppedComponent[]) || [],
             pageSettings: configuracoes?.pageSettings as PageSettings | undefined,
             connections: (configuracoes?.connections as StageConnection[]) || [],
+            background: configuracoes?.background as StageBackground | undefined,
           };
         });
         setStages(formattedStages);
@@ -2122,15 +2143,55 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
   const progressValue = stages.length > 1 ? ((currentStageIndex + 1) / stages.length) * 100 : 100;
   const showHeader = pageSettings?.showProgress || (pageSettings?.allowBack && currentStageIndex > 0);
 
+  // Get background styles for current stage
+  const getBackgroundStyles = () => {
+    const bg = currentStage?.background;
+    if (!bg) return { main: { backgroundColor: designSettings.backgroundColor }, overlay: null };
+    
+    const main: React.CSSProperties = {};
+    if (bg.type === 'color') {
+      main.backgroundColor = bg.color;
+    } else if (bg.type === 'gradient') {
+      const stops = bg.gradientStops?.map(s => `${s.color} ${s.position}%`).join(', ') || '';
+      main.background = bg.gradientType === 'linear' 
+        ? `linear-gradient(${bg.gradientAngle}deg, ${stops})`
+        : `radial-gradient(circle, ${stops})`;
+    } else if (bg.type === 'image' && bg.imageUrl) {
+      main.backgroundImage = `url(${bg.imageUrl})`;
+      main.backgroundSize = bg.imageSize;
+      main.backgroundPosition = bg.imagePosition;
+      main.backgroundRepeat = bg.imageRepeat;
+    }
+
+    let overlay: React.CSSProperties | null = null;
+    if (bg.overlayEnabled) {
+      const opacity = (bg.overlayOpacity || 50) / 100;
+      overlay = { position: 'absolute', inset: 0, pointerEvents: 'none', opacity };
+      if (bg.overlayType === 'color') {
+        overlay.backgroundColor = bg.overlayColor;
+      } else {
+        const stops = bg.overlayGradientStops?.map(s => `${s.color} ${s.position}%`).join(', ') || '';
+        overlay.background = bg.overlayGradientType === 'linear'
+          ? `linear-gradient(${bg.overlayGradientAngle}deg, ${stops})`
+          : `radial-gradient(circle, ${stops})`;
+      }
+    }
+    return { main, overlay };
+  };
+
+  const bgStyles = getBackgroundStyles();
+
   return (
     <div 
-      className="min-h-screen flex flex-col"
+      className="min-h-screen flex flex-col relative"
       style={{ 
-        backgroundColor: designSettings.backgroundColor,
         color: designSettings.textColor,
         fontFamily: designSettings.primaryFont,
+        ...bgStyles.main,
       }}
     >
+      {/* Background overlay */}
+      {bgStyles.overlay && <div style={bgStyles.overlay} />}
       {/* Header */}
       {showHeader && (
         <div 
