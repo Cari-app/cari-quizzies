@@ -156,6 +156,16 @@ export function QuizEditor() {
             if (loadedStages.length > 0) {
               setSelectedStageId(loadedStages[0].id);
             }
+            
+            // Load designSettings and pageSettings from first stage
+            const firstEtapa = etapasData[0];
+            const firstConfig = firstEtapa.configuracoes as Record<string, any> || {};
+            if (firstConfig.designSettings) {
+              setDesignSettings({ ...defaultDesignSettings, ...firstConfig.designSettings });
+            }
+            if (firstConfig.pageSettings) {
+              setPageSettings(prev => ({ ...prev, ...firstConfig.pageSettings }));
+            }
           }
           setHasUnsavedChanges(false);
         }
@@ -277,6 +287,8 @@ export function QuizEditor() {
           configuracoes: JSON.parse(JSON.stringify({
             components: stage.components,
             pageSettings: pageSettings,
+            // Save designSettings only on first stage
+            ...(index === 0 ? { designSettings } : {}),
           })),
         }));
 
