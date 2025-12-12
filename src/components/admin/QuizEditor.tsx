@@ -149,6 +149,8 @@ export function QuizEditor() {
                 id: etapa.id,
                 name: etapa.titulo || 'Nova etapa',
                 components: components as DroppedComponent[],
+                position: config.position,
+                connections: config.connections || [],
               };
             });
             setStages(loadedStages);
@@ -287,6 +289,8 @@ export function QuizEditor() {
           configuracoes: JSON.parse(JSON.stringify({
             components: stage.components,
             pageSettings: pageSettings,
+            position: stage.position,
+            connections: stage.connections || [],
             // Save designSettings only on first stage
             ...(index === 0 ? { designSettings } : {}),
           })),
