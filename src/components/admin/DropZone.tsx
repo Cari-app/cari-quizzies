@@ -1710,56 +1710,79 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       ) : (
         <div className="min-h-full flex flex-col items-center py-2.5 px-4">
           <div className="w-full max-w-md my-auto">
-            <Reorder.Group axis="y" values={components} onReorder={onComponentsChange} className="space-y-4">
-              {components.map((comp) => (
-                <Reorder.Item key={comp.id} value={comp}>
-                  <div 
+            <Reorder.Group axis="y" values={components} onReorder={onComponentsChange} className="flex flex-wrap gap-2">
+              {components.map((comp) => {
+                const config = comp.config || {};
+                const widthValue = config.width || 100;
+                const horizontalAlign = config.horizontalAlign || 'start';
+                const verticalAlign = config.verticalAlign || 'auto';
+                
+                // Calculate alignment classes for the component content
+                const justifyClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
+                const alignClass = verticalAlign === 'center' ? 'items-center' : verticalAlign === 'end' ? 'items-end' : verticalAlign === 'start' ? 'items-start' : '';
+                
+                return (
+                  <Reorder.Item 
+                    key={comp.id} 
+                    value={comp}
+                    style={{ 
+                      width: widthValue === 100 ? '100%' : `calc(${widthValue}% - 4px)`,
+                      flexShrink: 0,
+                    }}
                     className={cn(
-                      "group relative bg-background border rounded-lg cursor-pointer transition-all",
-                      selectedComponentId === comp.id 
-                        ? "border-primary ring-2 ring-primary/20" 
-                        : "border-border hover:border-primary/50"
+                      "flex",
+                      justifyClass,
+                      alignClass
                     )}
-                    onClick={() => onSelectComponent(comp)}
                   >
-                    {/* Inline toolbar at top - visible on hover */}
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all z-20 flex items-center gap-0.5 bg-primary rounded-md p-1 shadow-lg">
-                      <button 
-                        className="p-1.5 hover:bg-primary-foreground/20 rounded cursor-grab"
-                        onMouseDown={(e) => e.stopPropagation()}
-                      >
-                        <GripVertical className="w-3.5 h-3.5 text-primary-foreground" />
-                      </button>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); handleEdit(comp); }}
-                        className="p-1.5 hover:bg-primary-foreground/20 rounded"
-                      >
-                        <Pencil className="w-3.5 h-3.5 text-primary-foreground" />
-                      </button>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); handleDuplicate(comp); }}
-                        className="p-1.5 hover:bg-primary-foreground/20 rounded"
-                      >
-                        <Copy className="w-3.5 h-3.5 text-primary-foreground" />
-                      </button>
-                      <button 
-                        onClick={(e) => { e.stopPropagation(); handleRemove(comp.id); }}
-                        className="p-1.5 hover:bg-primary-foreground/20 rounded"
-                      >
-                        <Trash2 className="w-3.5 h-3.5 text-primary-foreground" />
-                      </button>
+                    <div 
+                      className={cn(
+                        "group relative bg-background border rounded-lg cursor-pointer transition-all w-full",
+                        selectedComponentId === comp.id 
+                          ? "border-primary ring-2 ring-primary/20" 
+                          : "border-border hover:border-primary/50"
+                      )}
+                      onClick={() => onSelectComponent(comp)}
+                    >
+                      {/* Inline toolbar at top - visible on hover */}
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all z-20 flex items-center gap-0.5 bg-primary rounded-md p-1 shadow-lg">
+                        <button 
+                          className="p-1.5 hover:bg-primary-foreground/20 rounded cursor-grab"
+                          onMouseDown={(e) => e.stopPropagation()}
+                        >
+                          <GripVertical className="w-3.5 h-3.5 text-primary-foreground" />
+                        </button>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleEdit(comp); }}
+                          className="p-1.5 hover:bg-primary-foreground/20 rounded"
+                        >
+                          <Pencil className="w-3.5 h-3.5 text-primary-foreground" />
+                        </button>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleDuplicate(comp); }}
+                          className="p-1.5 hover:bg-primary-foreground/20 rounded"
+                        >
+                          <Copy className="w-3.5 h-3.5 text-primary-foreground" />
+                        </button>
+                        <button 
+                          onClick={(e) => { e.stopPropagation(); handleRemove(comp.id); }}
+                          className="p-1.5 hover:bg-primary-foreground/20 rounded"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 text-primary-foreground" />
+                        </button>
+                      </div>
+                      <div className="overflow-hidden rounded-lg">
+                        {renderComponentPreview(comp)}
+                      </div>
                     </div>
-                    <div className="overflow-hidden rounded-lg">
-                      {renderComponentPreview(comp)}
-                    </div>
-                  </div>
-                </Reorder.Item>
-              ))}
+                  </Reorder.Item>
+                );
+              })}
             </Reorder.Group>
             
             {/* Drop indicator at the end */}
             <div className={cn(
-              "mt-4 p-4 border-2 border-dashed rounded-lg flex items-center justify-center transition-colors",
+              "mt-4 p-4 border-2 border-dashed rounded-lg flex items-center justify-center transition-colors w-full",
               isDragOver ? "border-primary bg-primary/5" : "border-border/50"
             )}>
               <Plus className={cn("w-4 h-4 mr-2", isDragOver ? "text-primary" : "text-muted-foreground")} />

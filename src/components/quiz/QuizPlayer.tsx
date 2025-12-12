@@ -2036,12 +2036,35 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         <div className="flex-1 flex flex-col items-center justify-center py-2.5 px-4">
           <div className="w-full max-w-md">
             {/* Stage components */}
-            <div className="space-y-2">
-              {currentStage?.components.map((comp) => (
-                <div key={comp.id}>
-                  {renderComponent(comp)}
-                </div>
-              ))}
+            <div className="flex flex-wrap gap-2">
+              {currentStage?.components.map((comp) => {
+                const config = comp.config || {};
+                const widthValue = config.width || 100;
+                const horizontalAlign = config.horizontalAlign || 'start';
+                const verticalAlign = config.verticalAlign || 'auto';
+                
+                const justifyClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
+                const alignClass = verticalAlign === 'center' ? 'items-center' : verticalAlign === 'end' ? 'items-end' : verticalAlign === 'start' ? 'items-start' : '';
+                
+                return (
+                  <div 
+                    key={comp.id}
+                    style={{ 
+                      width: widthValue === 100 ? '100%' : `calc(${widthValue}% - 4px)`,
+                      flexShrink: 0,
+                    }}
+                    className={cn(
+                      "flex",
+                      justifyClass,
+                      alignClass
+                    )}
+                  >
+                    <div className="w-full">
+                      {renderComponent(comp)}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
