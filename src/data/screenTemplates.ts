@@ -178,7 +178,7 @@ export const componentPalette = {
   ],
   quiz: [
     { type: 'options', name: 'Opções', icon: 'list' },
-    { type: 'multiple', name: 'Múltipla Escolha', icon: 'check-square' },
+    { type: 'multiple', name: 'Múltipla Escolha', icon: 'square-check' },
     { type: 'single', name: 'Escolha Única', icon: 'circle-dot' },
   ],
   media: [
