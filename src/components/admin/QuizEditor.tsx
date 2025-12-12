@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check, Save, Upload } from 'lucide-react';
+import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check, Save, Upload, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Reorder } from 'framer-motion';
 import { Quiz, QuizScreen, QuizScreenType } from '@/types/quiz';
@@ -19,6 +19,7 @@ import { DropZone, DroppedComponent, ComponentConfig } from './DropZone';
 import { ComponentEditor } from './ComponentEditor';
 import { cn } from '@/lib/utils';
 import { screenTemplates } from '@/data/screenTemplates';
+import { supabase } from '@/integrations/supabase/client';
 
 export function QuizEditor() {
   const { id } = useParams();
@@ -32,6 +33,9 @@ export function QuizEditor() {
   const [slugCopied, setSlugCopied] = useState(false);
   const [droppedComponents, setDroppedComponents] = useState<DroppedComponent[]>([]);
   const [selectedComponent, setSelectedComponent] = useState<DroppedComponent | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const generateSlug = (name: string) => {
     return name
@@ -121,15 +125,126 @@ export function QuizEditor() {
     }
   };
 
-  const handleSave = () => {
-    // TODO: Save to database
-    toast.success('Quiz salvo com sucesso!');
+  const handleSave = async () => {
+    if (!currentQuiz) return;
+    
+    setIsSaving(true);
+    try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Você precisa estar logado para salvar');
+        return;
+      }
+
+      // Check if quiz exists in database
+      const { data: existingQuiz } = await supabase
+        .from('quizzes')
+        .select('id')
+        .eq('id', currentQuiz.id)
+        .maybeSingle();
+
+      if (existingQuiz) {
+        // Update existing quiz
+        const { error: quizError } = await supabase
+          .from('quizzes')
+          .update({
+            titulo: currentQuiz.name,
+            descricao: currentQuiz.description || null,
+            slug: currentQuiz.slug || null,
+            atualizado_em: new Date().toISOString(),
+          })
+          .eq('id', currentQuiz.id);
+
+        if (quizError) throw quizError;
+      } else {
+        // Create new quiz
+        const { error: quizError } = await supabase
+          .from('quizzes')
+          .insert({
+            id: currentQuiz.id,
+            titulo: currentQuiz.name,
+            descricao: currentQuiz.description || null,
+            slug: currentQuiz.slug || null,
+            criado_por: user.id,
+            is_active: false,
+          });
+
+        if (quizError) throw quizError;
+      }
+
+      // Delete existing etapas for this quiz
+      await supabase
+        .from('etapas')
+        .delete()
+        .eq('quiz_id', currentQuiz.id);
+
+      // Insert new etapas from droppedComponents
+      if (droppedComponents.length > 0) {
+        const etapas = droppedComponents.map((comp, index) => ({
+          quiz_id: currentQuiz.id,
+          tipo: comp.type,
+          titulo: comp.config?.label || comp.name,
+          subtitulo: comp.config?.helpText || null,
+          texto_botao: comp.config?.buttonText || null,
+          ordem: index,
+          opcoes: comp.config?.options || null,
+          configuracoes: {
+            ...comp.config,
+            customId: comp.customId,
+            componentName: comp.name,
+            icon: comp.icon,
+          },
+        }));
+
+        const { error: etapasError } = await supabase
+          .from('etapas')
+          .insert(etapas);
+
+        if (etapasError) throw etapasError;
+      }
+
+      setHasUnsavedChanges(false);
+      toast.success('Quiz salvo com sucesso!');
+    } catch (error: any) {
+      console.error('Error saving quiz:', error);
+      toast.error('Erro ao salvar: ' + error.message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handlePublish = () => {
-    updateQuiz(currentQuiz.id, { isPublished: true });
-    toast.success('Quiz publicado com sucesso!');
+  const handlePublish = async () => {
+    if (!currentQuiz) return;
+    
+    if (hasUnsavedChanges) {
+      toast.error('Salve as alterações antes de publicar');
+      return;
+    }
+
+    setIsPublishing(true);
+    try {
+      const { error } = await supabase
+        .from('quizzes')
+        .update({ is_active: true, atualizado_em: new Date().toISOString() })
+        .eq('id', currentQuiz.id);
+
+      if (error) throw error;
+
+      updateQuiz(currentQuiz.id, { isPublished: true });
+      toast.success('Quiz publicado com sucesso!');
+    } catch (error: any) {
+      console.error('Error publishing quiz:', error);
+      toast.error('Erro ao publicar: ' + error.message);
+    } finally {
+      setIsPublishing(false);
+    }
   };
+
+  // Track unsaved changes
+  useEffect(() => {
+    setHasUnsavedChanges(true);
+  }, [droppedComponents, currentQuiz?.name, currentQuiz?.slug, currentQuiz?.description]);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-background">
@@ -345,17 +460,25 @@ export function QuizEditor() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" onClick={handleSave} className="gap-2">
-              <Save className="w-4 h-4" />
-              Salvar
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={handleSave} 
+              className="gap-2"
+              disabled={isSaving}
+            >
+              {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+              {isSaving ? 'Salvando...' : 'Salvar'}
             </Button>
             <Button 
               size="sm" 
               onClick={handlePublish} 
               className="gap-2"
+              disabled={isPublishing || hasUnsavedChanges}
+              title={hasUnsavedChanges ? 'Salve antes de publicar' : ''}
             >
-              <Upload className="w-4 h-4" />
-              Publicar
+              {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              {isPublishing ? 'Publicando...' : 'Publicar'}
             </Button>
           </div>
         </div>
