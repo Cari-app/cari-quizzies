@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor } from 'lucide-react';
+import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { Reorder } from 'framer-motion';
 import { Quiz, QuizScreen, QuizScreenType } from '@/types/quiz';
 import { ScreenEditor } from './ScreenEditor';
@@ -24,6 +24,7 @@ export function QuizEditor() {
   const [showTemplates, setShowTemplates] = useState(false);
   const [previewMode, setPreviewMode] = useState<'mobile' | 'desktop'>('mobile');
   const [rightTab, setRightTab] = useState<'stage' | 'appearance'>('stage');
+  const [widgetsExpanded, setWidgetsExpanded] = useState(false);
 
   useEffect(() => {
     if (id === 'new') {
@@ -193,9 +194,26 @@ export function QuizEditor() {
         </div>
 
         {/* Widgets Column */}
-        <div className="w-44 bg-background border-r border-border flex flex-col overflow-hidden">
+        <div className={cn(
+          "bg-background border-r border-border flex flex-col overflow-hidden transition-all duration-200",
+          widgetsExpanded ? "w-64" : "w-44"
+        )}>
+          {/* Toggle Button */}
+          <div className="p-2 border-b border-border flex justify-end">
+            <button
+              onClick={() => setWidgetsExpanded(!widgetsExpanded)}
+              className="p-1.5 rounded-md hover:bg-accent/50 transition-colors text-muted-foreground hover:text-foreground"
+              title={widgetsExpanded ? "Recolher" : "Expandir"}
+            >
+              {widgetsExpanded ? (
+                <PanelLeftClose className="w-4 h-4" />
+              ) : (
+                <PanelLeftOpen className="w-4 h-4" />
+              )}
+            </button>
+          </div>
           <div className="flex-1 overflow-y-auto p-2">
-            <ComponentPalette />
+            <ComponentPalette expanded={widgetsExpanded} />
           </div>
         </div>
       </div>
