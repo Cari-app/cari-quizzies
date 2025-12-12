@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check, Save, Upload, Loader2, ArrowLeft, Image, GitBranch, Layers } from 'lucide-react';
+import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check, Save, Upload, Loader2, ArrowLeft, Image, GitBranch, Layers, Palette } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
@@ -17,6 +17,7 @@ import { TemplateSelector } from './TemplateSelector';
 import { ComponentPalette } from './ComponentPalette';
 import { DropZone, DroppedComponent, ComponentConfig } from './DropZone';
 import { ComponentEditor } from './ComponentEditor';
+import { DesignEditor, QuizDesignSettings, defaultDesignSettings } from './DesignEditor';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { cn } from '@/lib/utils';
 import { screenTemplates } from '@/data/screenTemplates';
@@ -42,7 +43,10 @@ export function QuizEditor() {
   const [rightTab, setRightTab] = useState<'stage' | 'appearance'>('stage');
   const [widgetsExpanded, setWidgetsExpanded] = useState(false);
   const [slugCopied, setSlugCopied] = useState(false);
-  const [editorView, setEditorView] = useState<'editor' | 'flow'>('editor');
+  const [editorView, setEditorView] = useState<'editor' | 'flow' | 'design'>('editor');
+  
+  // Design settings
+  const [designSettings, setDesignSettings] = useState<QuizDesignSettings>(defaultDesignSettings);
   
   // Stages management
   const [stages, setStages] = useState<Stage[]>([]);
@@ -395,6 +399,21 @@ export function QuizEditor() {
               <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
             )}
           </button>
+          <button
+            onClick={() => setEditorView('design')}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors relative",
+              editorView === 'design' 
+                ? "text-foreground" 
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Palette className="w-4 h-4" />
+            Design
+            {editorView === 'design' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+            )}
+          </button>
         </nav>
 
         {/* Right: Actions */}
@@ -592,6 +611,125 @@ export function QuizEditor() {
               }}
             />
           </div>
+        ) : editorView === 'design' ? (
+          /* Design View - Full width preview with settings on right */
+          <div className="flex-1 flex items-start justify-center p-8 overflow-y-auto">
+            <div 
+              className={cn(
+                "bg-background rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col",
+                "w-[375px] h-[667px]"
+              )}
+              style={{
+                backgroundColor: designSettings.backgroundColor,
+                fontFamily: designSettings.primaryFont,
+                fontSize: `${designSettings.fontSize}px`,
+              }}
+            >
+              {/* Quiz Header Preview with design settings */}
+              <div 
+                className="shrink-0 p-3"
+                style={{
+                  display: designSettings.progressBar === 'hidden' && !designSettings.logo.value ? 'none' : 'block',
+                }}
+              >
+                <div className={cn(
+                  "flex items-center gap-3",
+                  designSettings.logoPosition === 'center' && "justify-center",
+                  designSettings.logoPosition === 'right' && "justify-end"
+                )}>
+                  {designSettings.logo.value && (
+                    designSettings.logo.type === 'emoji' ? (
+                      <span 
+                        className={cn(
+                          designSettings.logoSize === 'small' && 'text-xl',
+                          designSettings.logoSize === 'medium' && 'text-2xl',
+                          designSettings.logoSize === 'large' && 'text-4xl',
+                        )}
+                      >
+                        {designSettings.logo.value}
+                      </span>
+                    ) : (
+                      <img 
+                        src={designSettings.logo.value} 
+                        alt="Logo" 
+                        className={cn(
+                          "object-contain",
+                          designSettings.logoSize === 'small' && 'h-6',
+                          designSettings.logoSize === 'medium' && 'h-8',
+                          designSettings.logoSize === 'large' && 'h-12',
+                        )}
+                      />
+                    )
+                  )}
+                </div>
+                {designSettings.progressBar === 'top' && (
+                  <div className="mt-3">
+                    <Progress 
+                      value={progressValue} 
+                      className="h-1.5"
+                      style={{ 
+                        ['--progress-background' as string]: designSettings.primaryColor 
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+              
+              {/* Content Preview */}
+              <div 
+                className={cn(
+                  "flex-1 flex flex-col p-6",
+                  designSettings.alignment === 'center' && "items-center text-center",
+                  designSettings.alignment === 'right' && "items-end text-right",
+                )}
+                style={{ color: designSettings.textColor }}
+              >
+                <h2 
+                  className={cn(
+                    "font-bold mb-4",
+                    designSettings.titleSize === 'small' && 'text-xl',
+                    designSettings.titleSize === 'medium' && 'text-2xl',
+                    designSettings.titleSize === 'large' && 'text-3xl',
+                    designSettings.titleSize === 'xlarge' && 'text-4xl',
+                  )}
+                  style={{ 
+                    color: designSettings.titleColor,
+                    fontFamily: designSettings.primaryFont,
+                  }}
+                >
+                  Título de exemplo
+                </h2>
+                <p 
+                  className="mb-6 opacity-80"
+                  style={{ fontFamily: designSettings.secondaryFont }}
+                >
+                  Este é um texto de exemplo para visualizar as configurações de design do seu quiz.
+                </p>
+                <button
+                  className={cn(
+                    "w-full py-3 px-6 font-medium text-white transition-colors",
+                    designSettings.borderRadius === 'none' && 'rounded-none',
+                    designSettings.borderRadius === 'small' && 'rounded',
+                    designSettings.borderRadius === 'medium' && 'rounded-lg',
+                    designSettings.borderRadius === 'large' && 'rounded-xl',
+                    designSettings.borderRadius === 'full' && 'rounded-full',
+                  )}
+                  style={{ backgroundColor: designSettings.primaryColor }}
+                >
+                  Botão de exemplo
+                </button>
+              </div>
+
+              {designSettings.progressBar === 'bottom' && (
+                <div className="px-3 pb-3">
+                  <Progress 
+                    value={progressValue} 
+                    className="h-1.5"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
         ) : (
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Preview Mode Toggle */}
@@ -686,6 +824,7 @@ export function QuizEditor() {
           </div>
         )}
       </div>
+      {/* Right Sidebar - Editor or Design */}
       {editorView === 'editor' && (
       <div className="w-96 bg-background border-l border-border flex flex-col shrink-0 overflow-hidden">
         {selectedComponent ? (
@@ -835,6 +974,19 @@ export function QuizEditor() {
           </Tabs>
         )}
       </div>
+      )}
+      
+      {/* Design Editor Sidebar */}
+      {editorView === 'design' && (
+        <div className="w-80 bg-background border-l border-border flex flex-col shrink-0 overflow-hidden">
+          <DesignEditor 
+            settings={designSettings}
+            onSettingsChange={(newSettings) => {
+              setDesignSettings(newSettings);
+              setHasUnsavedChanges(true);
+            }}
+          />
+        </div>
       )}
       </div> {/* End Main Content Area */}
 
