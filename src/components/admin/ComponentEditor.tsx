@@ -3074,7 +3074,6 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     };
 
     const removeItem = (id: string) => {
-      if (items.length <= 1) return;
       updateConfig({ metricItems: items.filter(item => item.id !== id) });
     };
 
