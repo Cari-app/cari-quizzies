@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { QuizScreen } from '@/types/quiz';
 import { Slider } from '@/components/ui/slider';
 import { useState, useEffect } from 'react';
@@ -27,37 +26,27 @@ export function SliderScreen({ screen, value, onChange }: SliderScreenProps) {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="flex flex-col items-center px-6 py-8"
-    >
+    <div className="flex flex-col items-center px-6 py-8">
       <div className="text-center mb-12 max-w-lg">
-        <h2 className="text-2xl md:text-3xl font-bold mb-2">{screen.title}</h2>
+        <h2 className="text-xl md:text-2xl font-semibold tracking-tight mb-2">{screen.title}</h2>
         {screen.subtitle && (
-          <p className="text-muted-foreground">{screen.subtitle}</p>
+          <p className="text-sm text-muted-foreground">{screen.subtitle}</p>
         )}
       </div>
 
       <div className="w-full max-w-md">
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="text-center mb-8"
-        >
-          <span className="text-6xl font-bold bg-clip-text text-transparent gradient-primary">
+        <div className="text-center mb-8">
+          <span className="text-4xl font-semibold tabular-nums">
             {internalValue}
           </span>
           {screen.sliderUnit && (
-            <span className="text-2xl text-muted-foreground ml-2">
+            <span className="text-lg text-muted-foreground ml-2">
               {screen.sliderUnit}
             </span>
           )}
-        </motion.div>
+        </div>
 
-        <div className="px-4">
+        <div className="px-2">
           <Slider
             value={[internalValue]}
             onValueChange={handleChange}
@@ -66,12 +55,12 @@ export function SliderScreen({ screen, value, onChange }: SliderScreenProps) {
             step={step}
             className="cursor-pointer"
           />
-          <div className="flex justify-between mt-4 text-sm text-muted-foreground">
-            <span>{min} {screen.sliderUnit}</span>
-            <span>{max} {screen.sliderUnit}</span>
+          <div className="flex justify-between mt-3 text-xs text-muted-foreground">
+            <span>{min}</span>
+            <span>{max}</span>
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

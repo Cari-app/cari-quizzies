@@ -4,11 +4,10 @@ import { useQuizStore } from '@/store/quizStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Plus, Eye, Save, GripVertical, Trash2 } from 'lucide-react';
-import { motion, Reorder } from 'framer-motion';
+import { ChevronLeft, Plus, Eye, Trash2, GripVertical } from 'lucide-react';
+import { Reorder } from 'framer-motion';
 import { Quiz, QuizScreen, QuizScreenType } from '@/types/quiz';
 import { ScreenEditor } from './ScreenEditor';
 import { ScreenPreview } from './ScreenPreview';
@@ -20,20 +19,9 @@ const screenTypeLabels: Record<QuizScreenType, string> = {
   'multiple-choice': 'Múltipla escolha',
   'text-input': 'Texto',
   'slider': 'Slider',
-  'image-choice': 'Escolha com imagem',
-  'info': 'Informativo',
+  'image-choice': 'Imagem',
+  'info': 'Info',
   'result': 'Resultado',
-};
-
-const screenTypeIcons: Record<QuizScreenType, string> = {
-  'welcome': '👋',
-  'single-choice': '☑️',
-  'multiple-choice': '✅',
-  'text-input': '📝',
-  'slider': '🎚️',
-  'image-choice': '🖼️',
-  'info': 'ℹ️',
-  'result': '🎉',
 };
 
 export function QuizEditor() {
@@ -43,7 +31,6 @@ export function QuizEditor() {
 
   const [showAddScreen, setShowAddScreen] = useState(false);
 
-  // Initialize quiz if creating new or load existing
   useState(() => {
     if (id === 'new') {
       const newQuiz: Quiz = {
@@ -68,7 +55,7 @@ export function QuizEditor() {
   if (!currentQuiz) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <p className="text-muted-foreground">Quiz não encontrado</p>
+        <p className="text-muted-foreground text-sm">Quiz não encontrado</p>
       </div>
     );
   }
@@ -77,7 +64,7 @@ export function QuizEditor() {
     const newScreen: QuizScreen = {
       id: Date.now().toString(),
       type,
-      title: `Nova tela de ${screenTypeLabels[type]}`,
+      title: `Nova tela`,
       options: type.includes('choice') ? [
         { id: '1', text: 'Opção 1', value: 'option-1' },
         { id: '2', text: 'Opção 2', value: 'option-2' },
@@ -93,7 +80,7 @@ export function QuizEditor() {
   };
 
   const handleDeleteScreen = (screenId: string) => {
-    if (confirm('Tem certeza que deseja excluir esta tela?')) {
+    if (confirm('Excluir esta tela?')) {
       deleteScreen(currentQuiz.id, screenId);
     }
   };
@@ -108,29 +95,36 @@ export function QuizEditor() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-4rem)]">
-      {/* Left sidebar - Screen list */}
-      <div className="w-80 border-r border-border bg-card flex flex-col">
+    <div className="flex h-[calc(100vh-3rem)]">
+      {/* Left sidebar */}
+      <div className="w-72 border-r border-border bg-background flex flex-col">
         <div className="p-4 border-b border-border">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/admin')} className="mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate('/admin')} 
+            className="text-muted-foreground mb-3 -ml-2"
+          >
+            <ChevronLeft className="w-4 h-4 mr-1" />
             Voltar
           </Button>
+          
           <Input
             value={currentQuiz.name}
             onChange={(e) => updateQuiz(currentQuiz.id, { name: e.target.value })}
-            className="font-semibold text-lg border-none bg-transparent px-0 focus-visible:ring-0"
+            className="font-medium border-none bg-transparent px-0 h-auto text-base focus-visible:ring-0 shadow-none"
             placeholder="Nome do quiz"
           />
           <Textarea
             value={currentQuiz.description || ''}
             onChange={(e) => updateQuiz(currentQuiz.id, { description: e.target.value })}
-            className="mt-2 resize-none border-none bg-transparent px-0 focus-visible:ring-0 text-sm text-muted-foreground"
-            placeholder="Descrição do quiz"
-            rows={2}
+            className="mt-1 resize-none border-none bg-transparent px-0 focus-visible:ring-0 text-sm text-muted-foreground shadow-none min-h-0"
+            placeholder="Descrição..."
+            rows={1}
           />
-          <div className="flex items-center justify-between mt-4">
-            <Label htmlFor="published" className="text-sm">Publicado</Label>
+          
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
+            <Label htmlFor="published" className="text-sm text-muted-foreground">Publicado</Label>
             <Switch
               id="published"
               checked={currentQuiz.isPublished}
@@ -140,78 +134,71 @@ export function QuizEditor() {
         </div>
 
         <div className="flex-1 overflow-y-auto p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-medium text-sm text-muted-foreground">TELAS</h3>
-            <Button size="sm" variant="ghost" onClick={() => setShowAddScreen(!showAddScreen)}>
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Telas</span>
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              className="h-6 w-6 p-0"
+              onClick={() => setShowAddScreen(!showAddScreen)}
+            >
               <Plus className="w-4 h-4" />
             </Button>
           </div>
 
           {showAddScreen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              className="mb-4 p-3 bg-muted rounded-xl"
-            >
-              <p className="text-sm font-medium mb-2">Tipo de tela</p>
-              <div className="grid grid-cols-2 gap-2">
+            <div className="mb-4 p-3 bg-muted rounded-md">
+              <p className="text-xs font-medium mb-2">Tipo de tela</p>
+              <div className="grid grid-cols-2 gap-1">
                 {(Object.keys(screenTypeLabels) as QuizScreenType[]).map((type) => (
-                  <Button
+                  <button
                     key={type}
-                    variant="outline"
-                    size="sm"
-                    className="justify-start text-xs"
+                    className="text-left text-xs px-2 py-1.5 rounded hover:bg-background transition-colors"
                     onClick={() => handleAddScreen(type)}
                   >
-                    <span className="mr-1">{screenTypeIcons[type]}</span>
                     {screenTypeLabels[type]}
-                  </Button>
+                  </button>
                 ))}
               </div>
-            </motion.div>
+            </div>
           )}
 
           {currentQuiz.screens.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-sm text-muted-foreground mb-2">Nenhuma tela criada</p>
-              <Button size="sm" onClick={() => setShowAddScreen(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Adicionar tela
+              <p className="text-xs text-muted-foreground mb-2">Nenhuma tela</p>
+              <Button size="sm" variant="outline" onClick={() => setShowAddScreen(true)}>
+                <Plus className="w-3 h-3 mr-1" />
+                Adicionar
               </Button>
             </div>
           ) : (
-            <Reorder.Group axis="y" values={currentQuiz.screens} onReorder={handleReorder} className="space-y-2">
+            <Reorder.Group axis="y" values={currentQuiz.screens} onReorder={handleReorder} className="space-y-1">
               {currentQuiz.screens.map((screen, index) => (
                 <Reorder.Item key={screen.id} value={screen}>
-                  <motion.div
+                  <div
                     className={cn(
-                      "p-3 rounded-xl border cursor-pointer transition-all group",
+                      "flex items-center gap-2 px-2 py-2 rounded-md cursor-pointer transition-colors group text-sm",
                       editingScreen?.id === screen.id
-                        ? "border-primary bg-primary/5 shadow-soft"
-                        : "border-border hover:border-primary/50 hover:bg-muted/50"
+                        ? "bg-accent"
+                        : "hover:bg-accent/50"
                     )}
                     onClick={() => setEditingScreen(screen)}
                   >
-                    <div className="flex items-center gap-2">
-                      <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
-                      <span className="text-lg">{screenTypeIcons[screen.type]}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{screen.title}</p>
-                        <p className="text-xs text-muted-foreground">{screenTypeLabels[screen.type]}</p>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteScreen(screen.id);
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </Button>
+                    <GripVertical className="w-3 h-3 text-muted-foreground cursor-grab shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="truncate text-sm">{screen.title}</p>
+                      <p className="text-xs text-muted-foreground">{screenTypeLabels[screen.type]}</p>
                     </div>
-                  </motion.div>
+                    <button
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:text-destructive"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteScreen(screen.id);
+                      }}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
                 </Reorder.Item>
               ))}
             </Reorder.Group>
@@ -219,44 +206,38 @@ export function QuizEditor() {
         </div>
 
         <div className="p-4 border-t border-border">
-          <Button onClick={handlePreview} className="w-full gradient-primary text-primary-foreground rounded-xl">
+          <Button onClick={handlePreview} variant="outline" className="w-full" size="sm">
             <Eye className="w-4 h-4 mr-2" />
-            Visualizar Quiz
+            Visualizar
           </Button>
         </div>
       </div>
 
-      {/* Main content - Editor and Preview */}
+      {/* Main content */}
       <div className="flex-1 flex">
-        {/* Editor panel */}
-        <div className="flex-1 overflow-y-auto p-6 bg-muted/30">
+        <div className="flex-1 overflow-y-auto p-8 bg-muted/30">
           {editingScreen ? (
             <ScreenEditor quizId={currentQuiz.id} screen={editingScreen} />
           ) : (
             <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <p className="text-muted-foreground mb-4">Selecione uma tela para editar</p>
-                {currentQuiz.screens.length === 0 && (
-                  <Button onClick={() => setShowAddScreen(true)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Criar primeira tela
-                  </Button>
-                )}
-              </div>
+              <p className="text-sm text-muted-foreground">
+                {currentQuiz.screens.length === 0 
+                  ? 'Adicione uma tela para começar'
+                  : 'Selecione uma tela para editar'
+                }
+              </p>
             </div>
           )}
         </div>
 
-        {/* Preview panel */}
-        <div className="w-96 border-l border-border bg-background p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-medium text-sm text-muted-foreground">PREVIEW</h3>
-          </div>
-          <div className="rounded-2xl border border-border overflow-hidden bg-background shadow-soft aspect-[9/16] max-h-[600px]">
+        {/* Preview */}
+        <div className="w-80 border-l border-border bg-background p-4">
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Preview</span>
+          <div className="mt-3 rounded-md border border-border overflow-hidden bg-background aspect-[9/16] max-h-[500px]">
             {editingScreen ? (
               <ScreenPreview screen={editingScreen} />
             ) : (
-              <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+              <div className="flex items-center justify-center h-full text-muted-foreground text-xs">
                 Selecione uma tela
               </div>
             )}

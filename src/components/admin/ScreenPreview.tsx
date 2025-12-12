@@ -25,22 +25,21 @@ export function ScreenPreview({ screen }: ScreenPreviewProps) {
       case 'info':
         return (
           <div className="flex flex-col items-center justify-center min-h-full text-center p-6">
-            <h2 className="text-xl font-bold mb-2">{screen.title}</h2>
-            {screen.subtitle && <p className="text-muted-foreground">{screen.subtitle}</p>}
-            {screen.description && <p className="text-sm text-muted-foreground mt-4">{screen.description}</p>}
+            <h2 className="text-lg font-semibold mb-2">{screen.title}</h2>
+            {screen.subtitle && <p className="text-sm text-muted-foreground">{screen.subtitle}</p>}
           </div>
         );
       default:
         return (
-          <div className="flex items-center justify-center min-h-full text-muted-foreground">
-            Preview não disponível
+          <div className="flex items-center justify-center min-h-full text-muted-foreground text-xs">
+            Preview indisponível
           </div>
         );
     }
   };
 
   return (
-    <div className="h-full overflow-y-auto scale-[0.65] origin-top">
+    <div className="h-full overflow-y-auto scale-[0.55] origin-top">
       {renderScreen()}
     </div>
   );
