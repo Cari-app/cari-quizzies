@@ -268,6 +268,11 @@ const defaultDesignSettings: DesignSettings = {
   secondaryFont: 'Inter',
 };
 
+interface StageConnection {
+  targetId: string;
+  sourceHandle?: string;
+}
+
 interface QuizStage {
   id: string;
   titulo: string | null;
@@ -275,6 +280,7 @@ interface QuizStage {
   components: DroppedComponent[];
   pageSettings?: PageSettings;
   designSettings?: DesignSettings;
+  connections?: StageConnection[];
 }
 
 interface QuizData {
@@ -509,6 +515,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
             ordem: e.ordem,
             components: (configuracoes?.components as DroppedComponent[]) || [],
             pageSettings: configuracoes?.pageSettings as PageSettings | undefined,
+            connections: (configuracoes?.connections as StageConnection[]) || [],
           };
         });
         setStages(formattedStages);
@@ -548,6 +555,29 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
     if (currentStageIndex < stages.length - 1) {
       setCurrentStageIndex(prev => prev + 1);
     }
+  };
+
+  // Navigate based on flow connections
+  const handleNavigateByComponent = (componentId: string) => {
+    const currentStage = stages[currentStageIndex];
+    const connections = currentStage?.connections || [];
+    
+    // Find connection for this specific component
+    const connection = connections.find(conn => 
+      conn.sourceHandle === `comp-${componentId}`
+    );
+    
+    if (connection) {
+      // Navigate to the connected stage
+      const targetIndex = stages.findIndex(s => s.id === connection.targetId);
+      if (targetIndex !== -1) {
+        setCurrentStageIndex(targetIndex);
+        return;
+      }
+    }
+    
+    // Default: go to next stage
+    handleNext();
   };
 
   const handleBack = () => {
@@ -697,7 +727,13 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         return (
           <div className="py-4">
             <Button
-              onClick={buttonAction === 'submit' ? handleSubmit : handleNext}
+              onClick={() => {
+                if (buttonAction === 'submit') {
+                  handleSubmit();
+                } else {
+                  handleNavigateByComponent(comp.id);
+                }
+              }}
               className={cn(
                 "w-full",
                 config.buttonStyle === 'secondary' && "bg-secondary text-secondary-foreground",
@@ -783,7 +819,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           } else {
             handleInputChange(comp.id, customId, optValue);
             if (autoAdvance) {
-              setTimeout(handleNext, 300);
+              setTimeout(() => handleNavigateByComponent(comp.id), 300);
             }
           }
         };
@@ -1907,8 +1943,25 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
             } else if (navigation === 'submit') {
               handleSubmit();
             } else {
+              // Check for flow connection first
+              const currentStage = stages[currentStageIndex];
+              const connections = currentStage?.connections || [];
+              const connection = connections.find(conn => 
+                conn.sourceHandle === `comp-${comp.id}`
+              );
+              
+              if (connection) {
+                const targetIndex = stages.findIndex(s => s.id === connection.targetId);
+                if (targetIndex !== -1) {
+                  setCurrentStageIndex(targetIndex);
+                  return;
+                }
+              }
+              
               // Default: go to next stage
-              handleNext();
+              if (currentStageIndex < stages.length - 1) {
+                setCurrentStageIndex(prev => prev + 1);
+              }
             }
           }
         }, updateInterval);
