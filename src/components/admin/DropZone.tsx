@@ -794,10 +794,10 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           <div className={cn("w-full px-4 flex", justifyClass)}>
             <div 
               className={cn(
-                "rounded-lg px-4 py-3 text-center font-medium",
+                "rounded-lg px-4 py-3 text-center font-medium shrink-0",
                 timerStyles[style as keyof typeof timerStyles]
               )}
-              style={{ width: `${widthValue}%` }}
+              style={{ width: widthValue < 100 ? `${widthValue}%` : '100%' }}
             >
               {displayText}
             </div>
