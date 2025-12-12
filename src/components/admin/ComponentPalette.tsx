@@ -1,5 +1,6 @@
 import { componentPalette } from '@/data/screenTemplates';
 import { cn } from '@/lib/utils';
+import { DraggableComponent } from './DraggableComponent';
 
 const categories = [
   { key: 'form', label: 'Formulário' },
@@ -31,25 +32,14 @@ export function ComponentPalette({ expanded = false }: ComponentPaletteProps) {
               expanded ? "grid grid-cols-2 gap-1.5" : "space-y-1"
             )}>
               {items.map((comp) => (
-                <button
+                <DraggableComponent
                   key={comp.type}
-                  className={cn(
-                    "flex items-center gap-2 px-2 py-2 text-xs rounded-md border border-border hover:bg-accent/50 transition-colors text-left w-full relative",
-                    expanded && "flex-col gap-1 py-3 justify-center"
-                  )}
-                  draggable
-                >
-                  <span className={cn("text-base", expanded && "text-xl")}>{comp.icon}</span>
-                  <span className={cn("truncate", expanded && "text-center text-[10px]")}>{comp.name}</span>
-                  {'isNew' in comp && comp.isNew && (
-                    <span className={cn(
-                      "text-[8px] bg-green-100 text-green-700 px-1 py-0.5 rounded font-medium",
-                      expanded ? "absolute top-1 right-1" : "absolute right-1.5 top-1/2 -translate-y-1/2"
-                    )}>
-                      novo
-                    </span>
-                  )}
-                </button>
+                  type={comp.type}
+                  name={comp.name}
+                  icon={comp.icon}
+                  isNew={'isNew' in comp ? comp.isNew : undefined}
+                  expanded={expanded}
+                />
               ))}
             </div>
           </div>
