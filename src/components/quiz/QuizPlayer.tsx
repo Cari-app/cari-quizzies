@@ -242,7 +242,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       case 'number':
         return (
           <div className="py-4">
-            {config.label && <label className="text-sm font-medium mb-2 block">{config.label}</label>}
+            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: config.label }} />}
             <Input
               type={comp.type === 'email' ? 'email' : comp.type === 'number' ? 'number' : 'text'}
               placeholder={config.placeholder || ''}
@@ -338,7 +338,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         
         return (
           <div className="py-4">
-            {config.label && <label className="text-sm font-medium mb-2 block">{config.label}</label>}
+            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: config.label }} />}
             <Input
               type="number"
               placeholder={config.placeholder || ''}
@@ -355,7 +355,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       case 'textarea':
         return (
           <div className="py-4">
-            {config.label && <label className="text-sm font-medium mb-2 block">{config.label}</label>}
+            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: config.label }} />}
             <textarea
               placeholder={config.placeholder || ''}
               value={value}
@@ -370,7 +370,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       case 'date':
         return (
           <div className="py-4">
-            {config.label && <label className="text-sm font-medium mb-2 block">{config.label}</label>}
+            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: config.label }} />}
             <Popover>
               <PopoverTrigger asChild>
                 <button
@@ -537,8 +537,8 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         
         return (
           <div className="py-4">
-            {config.label && <p className="text-sm font-medium mb-1">{config.label}</p>}
-            {config.description && <p className="text-xs text-muted-foreground mb-3">{config.description}</p>}
+            {config.label && <div className="rich-text text-sm font-medium mb-1" dangerouslySetInnerHTML={{ __html: config.label }} />}
+            {config.description && <div className="rich-text text-xs text-muted-foreground mb-3" dangerouslySetInnerHTML={{ __html: config.description }} />}
             <div className={cn(getLayoutClass(), getSpacing())}>
               {(config.options || []).map((opt, i) => {
                 const isSelected = isOptionSelected(opt.value);
@@ -656,7 +656,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       case 'yesno':
         return (
           <div className="py-4">
-            {config.label && <p className="text-sm font-medium mb-3">{config.label}</p>}
+            {config.label && <div className="rich-text text-sm font-medium mb-3" dangerouslySetInnerHTML={{ __html: config.label }} />}
             <div className="flex gap-3">
               {(config.options || [{ id: '1', text: 'Sim', value: 'yes' }, { id: '2', text: 'Não', value: 'no' }]).map((opt) => (
                 <button
@@ -680,7 +680,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         const sliderValue = typeof value === 'number' ? value : config.sliderMin || 0;
         return (
           <div className="py-4">
-            {config.label && <label className="text-sm font-medium mb-2 block">{config.label}</label>}
+            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: config.label }} />}
             <div className="pt-4">
               <Slider
                 value={[sliderValue]}
