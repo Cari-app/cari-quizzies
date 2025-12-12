@@ -163,15 +163,21 @@ export function RichTextInput({
             onMouseDown={(e) => e.stopPropagation()}
             onChange={(e) => {
               const size = e.target.value;
-              // Wrap selection in span with inline style
-              const selection = window.getSelection();
-              if (selection && !selection.isCollapsed) {
-                const range = selection.getRangeAt(0);
-                const span = document.createElement('span');
-                span.style.fontSize = `${size}px`;
-                range.surroundContents(span);
-                handleInput();
-              }
+              // Use execCommand with fontSize (1-7) then replace with inline style
+              execCommand("fontSize", "7");
+              // Find all font elements with size 7 and replace with span
+              setTimeout(() => {
+                if (editorRef.current) {
+                  const fonts = editorRef.current.querySelectorAll('font[size="7"]');
+                  fonts.forEach((font) => {
+                    const span = document.createElement('span');
+                    span.style.fontSize = `${size}px`;
+                    span.innerHTML = font.innerHTML;
+                    font.parentNode?.replaceChild(span, font);
+                  });
+                  handleInput();
+                }
+              }, 0);
             }}
           >
             <option value="12">12px</option>
