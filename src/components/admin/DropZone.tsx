@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Plus, GripVertical, Trash2, CalendarIcon } from 'lucide-react';
+import { Plus, GripVertical, Trash2, CalendarIcon, Pencil, Copy } from 'lucide-react';
 import { Reorder } from 'framer-motion';
 import { DroppedComponent, ComponentConfig } from './ComponentEditor';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -116,6 +116,23 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
     if (selectedComponentId === id) {
       onSelectComponent(null);
     }
+  };
+
+  const handleDuplicate = (comp: DroppedComponent) => {
+    const newComponent: DroppedComponent = {
+      ...comp,
+      id: `${comp.type}-${Date.now()}`,
+      config: comp.config ? { ...comp.config } : undefined,
+    };
+    const index = components.findIndex(c => c.id === comp.id);
+    const newComponents = [...components];
+    newComponents.splice(index + 1, 0, newComponent);
+    onComponentsChange(newComponents);
+    onSelectComponent(newComponent);
+  };
+
+  const handleEdit = (comp: DroppedComponent) => {
+    onSelectComponent(comp);
   };
 
   const renderComponentPreview = (comp: DroppedComponent) => {
@@ -316,17 +333,35 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                     )}
                     onClick={() => onSelectComponent(comp)}
                   >
-                    <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                      <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
-                    </div>
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    {/* Floating toolbar */}
+                    <div className="absolute -top-9 left-1 opacity-0 group-hover:opacity-100 transition-opacity z-20 flex items-center gap-0.5 bg-primary rounded-md p-1 shadow-lg">
+                      <button 
+                        className="p-1.5 hover:bg-primary-foreground/20 rounded cursor-grab"
+                        onMouseDown={(e) => e.stopPropagation()}
+                      >
+                        <GripVertical className="w-3.5 h-3.5 text-primary-foreground" />
+                      </button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleEdit(comp); }}
+                        className="p-1.5 hover:bg-primary-foreground/20 rounded"
+                      >
+                        <Pencil className="w-3.5 h-3.5 text-primary-foreground" />
+                      </button>
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleDuplicate(comp); }}
+                        className="p-1.5 hover:bg-primary-foreground/20 rounded"
+                      >
+                        <Copy className="w-3.5 h-3.5 text-primary-foreground" />
+                      </button>
                       <button 
                         onClick={(e) => { e.stopPropagation(); handleRemove(comp.id); }}
-                        className="p-1 hover:bg-destructive/10 rounded text-destructive"
+                        className="p-1.5 hover:bg-primary-foreground/20 rounded"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5 text-primary-foreground" />
                       </button>
                     </div>
+                    {/* Tooltip arrow */}
+                    <div className="absolute -top-1 left-4 w-2 h-2 bg-primary rotate-45 opacity-0 group-hover:opacity-100 transition-opacity z-10" />
                     {renderComponentPreview(comp)}
                   </div>
                 </Reorder.Item>
