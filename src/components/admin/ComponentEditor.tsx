@@ -7,8 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
-import { Trash2, Plus, ChevronDown } from 'lucide-react';
+import { Trash2, Plus, ChevronDown, GripVertical } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { cn } from '@/lib/utils';
 
 export interface DroppedComponent {
   id: string;
@@ -19,11 +20,22 @@ export interface DroppedComponent {
   customId?: string;
 }
 
+export interface OptionItem {
+  id: string;
+  text: string;
+  value: string;
+  imageUrl?: string;
+  points?: number;
+  destination?: 'next' | 'submit' | 'specific';
+  destinationStageId?: string;
+}
+
 export interface ComponentConfig {
   label?: string;
   placeholder?: string;
   required?: boolean;
   helpText?: string;
+  description?: string;
   // Input specific
   inputType?: 'text' | 'email' | 'tel' | 'number' | 'date';
   mask?: string;
@@ -35,8 +47,22 @@ export interface ComponentConfig {
   buttonAction?: 'next' | 'submit' | 'link';
   buttonLink?: string;
   // Options specific
-  options?: Array<{ id: string; text: string; value: string }>;
+  options?: OptionItem[];
   allowMultiple?: boolean;
+  autoAdvance?: boolean;
+  introType?: 'text' | 'image' | 'video';
+  // Options appearance
+  optionStyle?: 'simple' | 'card' | 'image';
+  optionLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
+  optionOrientation?: 'vertical' | 'horizontal';
+  imageRatio?: '1:1' | '16:9' | '4:3' | '3:2';
+  imagePosition?: 'top' | 'left' | 'right' | 'bottom';
+  detailType?: 'none' | 'checkbox' | 'radio' | 'number';
+  detailPosition?: 'start' | 'end';
+  optionBorderRadius?: 'none' | 'small' | 'medium' | 'large' | 'full';
+  optionShadow?: 'none' | 'sm' | 'md' | 'lg';
+  optionSpacing?: 'compact' | 'simple' | 'relaxed';
+  transparentImageBg?: boolean;
   // Text/Media specific
   content?: string;
   textAlign?: 'left' | 'center' | 'right';
@@ -88,17 +114,19 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
   const addOption = () => {
     const currentOptions = config.options || [];
-    updateConfig({
-      options: [
-        ...currentOptions,
-        { id: Date.now().toString(), text: `Opção ${currentOptions.length + 1}`, value: `opt_${currentOptions.length + 1}` }
-      ]
-    });
+    const newOption: OptionItem = {
+      id: Date.now().toString(),
+      text: `Opção ${currentOptions.length + 1}`,
+      value: `opt_${currentOptions.length + 1}`,
+      points: 1,
+      destination: 'next',
+    };
+    updateConfig({ options: [...currentOptions, newOption] });
   };
 
-  const updateOption = (id: string, text: string) => {
+  const updateOption = (id: string, updates: Partial<OptionItem>) => {
     const options = (config.options || []).map(opt => 
-      opt.id === id ? { ...opt, text } : opt
+      opt.id === id ? { ...opt, ...updates } : opt
     );
     updateConfig({ options });
   };
@@ -472,79 +500,203 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     </div>
   );
 
-  const renderOptionsComponentTab = () => (
-    <div className="space-y-4">
-      <div>
-        <Label className="text-xs text-muted-foreground">ID/Name</Label>
-        <Input
-          value={component.customId || ''}
-          onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
-          placeholder={`options_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
-          className="mt-1 font-mono text-xs"
-        />
-      </div>
-      <div>
-        <Label className="text-xs text-muted-foreground">Título da pergunta</Label>
-        <Input
-          value={config.label || ''}
-          onChange={(e) => updateConfig({ label: e.target.value })}
-          placeholder="Ex: Qual sua preferência?"
-          className="mt-1"
-        />
-      </div>
-      
-      {['multiple', 'options'].includes(component.type) && (
-        <div className="flex items-center gap-2">
-          <input 
-            type="checkbox" 
-            id="allowMultiple" 
-            checked={config.allowMultiple || component.type === 'multiple'}
-            onChange={(e) => updateConfig({ allowMultiple: e.target.checked })}
-            className="rounded border-border"
+  const [expandedOptionId, setExpandedOptionId] = useState<string | null>(null);
+
+  const renderOptionsComponentTab = () => {
+    const defaultOptions: OptionItem[] = [
+      { id: '1', text: 'Opção 1', value: 'opt1', points: 1, destination: 'next' },
+      { id: '2', text: 'Opção 2', value: 'opt2', points: 1, destination: 'next' },
+      { id: '3', text: 'Opção 3', value: 'opt3', points: 1, destination: 'next' },
+      { id: '4', text: 'Opção 4', value: 'opt4', points: 1, destination: 'next' },
+    ];
+    const options = config.options || defaultOptions;
+
+    return (
+      <div className="space-y-4">
+        {/* ID/Name */}
+        <div>
+          <Label className="text-xs text-muted-foreground">ID/Name</Label>
+          <Input
+            value={component.customId || ''}
+            onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
+            placeholder={`opcoes_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
+            className="mt-1 font-mono text-xs"
           />
-          <Label htmlFor="allowMultiple" className="text-sm cursor-pointer">Permitir múltiplas seleções</Label>
         </div>
-      )}
-      
-      <div>
-        <Label className="text-xs text-muted-foreground mb-2 block">Opções</Label>
-        <div className="space-y-2">
-          {(config.options || [{ id: '1', text: 'Opção 1', value: 'opt1' }, { id: '2', text: 'Opção 2', value: 'opt2' }]).map((opt) => (
-            <div key={opt.id} className="flex gap-2">
-              <Input
-                value={opt.text}
-                onChange={(e) => updateOption(opt.id, e.target.value)}
-                className="flex-1"
-              />
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="shrink-0 text-destructive hover:text-destructive"
-                onClick={() => removeOption(opt.id)}
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
-          ))}
-          <Button variant="outline" size="sm" onClick={addOption} className="w-full mt-2">
+
+        {/* Introdução */}
+        <div className="border border-border rounded-lg p-3">
+          <Label className="text-xs text-muted-foreground mb-2 block">Introdução</Label>
+          <Select 
+            value={config.introType || 'text'} 
+            onValueChange={(v) => updateConfig({ introType: v as ComponentConfig['introType'] })}
+          >
+            <SelectTrigger className="mb-2">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="text">Texto</SelectItem>
+              <SelectItem value="image">Imagem</SelectItem>
+              <SelectItem value="video">Vídeo</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <div className="text-center p-4 border border-border rounded-lg bg-muted/20">
+            <Input
+              value={config.label || 'Qual a questão a ser respondida?'}
+              onChange={(e) => updateConfig({ label: e.target.value })}
+              className="text-center font-semibold border-0 bg-transparent text-lg mb-2"
+              placeholder="Título da pergunta"
+            />
+            <Input
+              value={config.description || ''}
+              onChange={(e) => updateConfig({ description: e.target.value })}
+              className="text-center text-sm text-muted-foreground border-0 bg-transparent"
+              placeholder="Digite aqui uma descrição de ajuda para introduzir o usuário à questão."
+            />
+          </div>
+        </div>
+
+        {/* Opções */}
+        <div className="border border-border rounded-lg p-3">
+          <Label className="text-xs text-muted-foreground mb-2 block">Opções</Label>
+          <div className="space-y-2">
+            {options.map((opt) => (
+              <div key={opt.id} className="border border-border rounded-lg overflow-hidden">
+                <div 
+                  className="flex items-center gap-2 p-2 hover:bg-muted/50 cursor-pointer"
+                  onClick={() => setExpandedOptionId(expandedOptionId === opt.id ? null : opt.id)}
+                >
+                  <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
+                  <div className="w-10 h-10 bg-muted rounded flex items-center justify-center text-muted-foreground text-xs">
+                    {opt.imageUrl ? (
+                      <img src={opt.imageUrl} alt="" className="w-full h-full object-cover rounded" />
+                    ) : (
+                      '📷'
+                    )}
+                  </div>
+                  <Input
+                    value={opt.text}
+                    onChange={(e) => { e.stopPropagation(); updateOption(opt.id, { text: e.target.value }); }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex-1 border-0 bg-transparent"
+                    placeholder="Texto da opção"
+                  />
+                  <button 
+                    onClick={(e) => { e.stopPropagation(); setExpandedOptionId(expandedOptionId === opt.id ? null : opt.id); }}
+                    className="p-1 hover:bg-muted rounded"
+                  >
+                    <ChevronDown className={cn("w-4 h-4 text-muted-foreground transition-transform", expandedOptionId === opt.id && "rotate-180")} />
+                  </button>
+                </div>
+
+                {expandedOptionId === opt.id && (
+                  <div className="p-3 border-t border-border bg-muted/20 space-y-3">
+                    <div className="grid grid-cols-3 gap-2">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Pontos</Label>
+                        <Input
+                          type="number"
+                          value={opt.points || 1}
+                          onChange={(e) => updateOption(opt.id, { points: parseInt(e.target.value) || 1 })}
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Valor</Label>
+                        <Input
+                          value={opt.value}
+                          onChange={(e) => updateOption(opt.id, { value: e.target.value })}
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Destino</Label>
+                        <Select 
+                          value={opt.destination || 'next'} 
+                          onValueChange={(v) => updateOption(opt.id, { destination: v as OptionItem['destination'] })}
+                        >
+                          <SelectTrigger className="mt-1">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="next">Próxima etapa</SelectItem>
+                            <SelectItem value="submit">Enviar</SelectItem>
+                            <SelectItem value="specific">Etapa específica</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="flex justify-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => removeOption(opt.id)}
+                      >
+                        <Trash2 className="w-4 h-4 mr-1" />
+                        Remover
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          
+          <Button variant="outline" size="sm" onClick={addOption} className="w-full mt-3">
             <Plus className="w-4 h-4 mr-2" />
-            Adicionar opção
+            adicionar opção
           </Button>
         </div>
-      </div>
 
-      <div className="flex items-center gap-2">
-        <input 
-          type="checkbox" 
-          id="optRequired" 
-          checked={config.required || false}
-          onChange={(e) => updateConfig({ required: e.target.checked })}
-          className="rounded border-border"
-        />
-        <Label htmlFor="optRequired" className="text-sm cursor-pointer">Obrigatório</Label>
+        {/* Checkboxes */}
+        <div className="space-y-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <input 
+                type="checkbox" 
+                id="optRequired" 
+                checked={config.required !== false}
+                onChange={(e) => updateConfig({ required: e.target.checked })}
+                className="rounded border-border"
+              />
+              <Label htmlFor="optRequired" className="text-sm cursor-pointer font-medium">Seleção obrigatória</Label>
+            </div>
+            <p className="text-xs text-muted-foreground ml-5">O usuário é obrigado a selecionar alguma opção para prosseguir.</p>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-2">
+              <input 
+                type="checkbox" 
+                id="allowMultiple" 
+                checked={config.allowMultiple || false}
+                onChange={(e) => updateConfig({ allowMultiple: e.target.checked })}
+                className="rounded border-border"
+              />
+              <Label htmlFor="allowMultiple" className="text-sm cursor-pointer font-medium">Permitir múltipla escolha</Label>
+            </div>
+            <p className="text-xs text-muted-foreground ml-5">O usuário poderá selecionar mais de uma opção, a próxima etapa terá que ser definida através de componente do tipo "botão".</p>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-2">
+              <input 
+                type="checkbox" 
+                id="autoAdvance" 
+                checked={config.autoAdvance !== false}
+                onChange={(e) => updateConfig({ autoAdvance: e.target.checked })}
+                className="rounded border-border"
+              />
+              <Label htmlFor="autoAdvance" className="text-sm cursor-pointer font-medium">Avançar automaticamente</Label>
+            </div>
+            <p className="text-xs text-muted-foreground ml-5">Avança para próxima etapa ao selecionar (apenas escolha única).</p>
+          </div>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderTextComponentTab = () => (
     <div className="space-y-4">
@@ -625,114 +777,397 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
   );
 
   // =========== APARÊNCIA TAB ===========
-  const renderAppearanceTab = () => (
-    <div className="space-y-4">
-      {/* Label style */}
-      <div>
-        <Label className="text-xs text-muted-foreground">Label</Label>
-        <Select 
-          value={config.labelStyle || 'default'} 
-          onValueChange={(v) => updateConfig({ labelStyle: v as ComponentConfig['labelStyle'] })}
-        >
-          <SelectTrigger className="mt-1">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="default">Padrão</SelectItem>
-            <SelectItem value="floating">Flutuante</SelectItem>
-            <SelectItem value="hidden">Oculto</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Text align */}
-      <div>
-        <Label className="text-xs text-muted-foreground">Alinhamento do texto</Label>
-        <Select 
-          value={config.textAlign || 'left'} 
-          onValueChange={(v) => updateConfig({ textAlign: v as ComponentConfig['textAlign'] })}
-        >
-          <SelectTrigger className="mt-1">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="left">text-left</SelectItem>
-            <SelectItem value="center">text-center</SelectItem>
-            <SelectItem value="right">text-right</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Width */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <Label className="text-xs text-muted-foreground">Largura</Label>
-          <div className="flex items-center gap-1">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-6 w-6"
-              onClick={() => updateConfig({ width: Math.max(10, (config.width || 100) - 5) })}
+  const renderAppearanceTab = () => {
+    const isOptionsComponent = ['options', 'single', 'multiple', 'yesno'].includes(component.type);
+    
+    if (isOptionsComponent) {
+      return (
+        <div className="space-y-4">
+          {/* Estilo */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Estilo</Label>
+            <Select 
+              value={config.optionStyle || 'simple'} 
+              onValueChange={(v) => updateConfig({ optionStyle: v as ComponentConfig['optionStyle'] })}
             >
-              −
-            </Button>
-            <span className="text-sm font-medium w-12 text-center">{config.width || 100}%</span>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-6 w-6"
-              onClick={() => updateConfig({ width: Math.min(100, (config.width || 100) + 5) })}
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="simple">Simples</SelectItem>
+                <SelectItem value="card">Card</SelectItem>
+                <SelectItem value="image">Com imagem</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {config.optionStyle === 'image' && (
+            <div className="flex items-center gap-2">
+              <input 
+                type="checkbox" 
+                id="transparentBg" 
+                checked={config.transparentImageBg || false}
+                onChange={(e) => updateConfig({ transparentImageBg: e.target.checked })}
+                className="rounded border-border"
+              />
+              <Label htmlFor="transparentBg" className="text-sm cursor-pointer">Imagem com fundo transparente</Label>
+            </div>
+          )}
+
+          {/* Layout & Orientação */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs text-muted-foreground">Layout</Label>
+              <Select 
+                value={config.optionLayout || 'list'} 
+                onValueChange={(v) => updateConfig({ optionLayout: v as ComponentConfig['optionLayout'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="list">Lista</SelectItem>
+                  <SelectItem value="grid-2">Grade de 2 colunas</SelectItem>
+                  <SelectItem value="grid-3">Grade de 3 colunas</SelectItem>
+                  <SelectItem value="grid-4">Grade de 4 colunas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Orientação</Label>
+              <Select 
+                value={config.optionOrientation || 'vertical'} 
+                onValueChange={(v) => updateConfig({ optionOrientation: v as ComponentConfig['optionOrientation'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="vertical">Vertical</SelectItem>
+                  <SelectItem value="horizontal">Horizontal</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {config.optionStyle === 'image' && (
+            <>
+              {/* Proporção de imagens */}
+              <div>
+                <Label className="text-xs text-muted-foreground">Proporção de imagens</Label>
+                <Select 
+                  value={config.imageRatio || '1:1'} 
+                  onValueChange={(v) => updateConfig({ imageRatio: v as ComponentConfig['imageRatio'] })}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1:1">1:1 (Quadrado)</SelectItem>
+                    <SelectItem value="16:9">16:9 (Widescreen)</SelectItem>
+                    <SelectItem value="4:3">4:3 (Clássico)</SelectItem>
+                    <SelectItem value="3:2">3:2 (Foto)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Disposição */}
+              <div>
+                <Label className="text-xs text-muted-foreground">Disposição</Label>
+                <Select 
+                  value={config.imagePosition || 'top'} 
+                  onValueChange={(v) => updateConfig({ imagePosition: v as ComponentConfig['imagePosition'] })}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="top">Imagem | Texto</SelectItem>
+                    <SelectItem value="bottom">Texto | Imagem</SelectItem>
+                    <SelectItem value="left">Imagem à esquerda</SelectItem>
+                    <SelectItem value="right">Imagem à direita</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
+          )}
+
+          {/* Detalhe & Posição */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs text-muted-foreground">Detalhe</Label>
+              <Select 
+                value={config.detailType || 'checkbox'} 
+                onValueChange={(v) => updateConfig({ detailType: v as ComponentConfig['detailType'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhum</SelectItem>
+                  <SelectItem value="checkbox">Checkbox</SelectItem>
+                  <SelectItem value="radio">Radio</SelectItem>
+                  <SelectItem value="number">Número</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Posição do detalhe</Label>
+              <Select 
+                value={config.detailPosition || 'start'} 
+                onValueChange={(v) => updateConfig({ detailPosition: v as ComponentConfig['detailPosition'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="start">Início</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Bordas */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Bordas</Label>
+            <Select 
+              value={config.optionBorderRadius || 'small'} 
+              onValueChange={(v) => updateConfig({ optionBorderRadius: v as ComponentConfig['optionBorderRadius'] })}
             >
-              +
-            </Button>
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sem borda</SelectItem>
+                <SelectItem value="small">Pequeno</SelectItem>
+                <SelectItem value="medium">Médio</SelectItem>
+                <SelectItem value="large">Grande</SelectItem>
+                <SelectItem value="full">Completo</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Sombra */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Sombra</Label>
+            <Select 
+              value={config.optionShadow || 'none'} 
+              onValueChange={(v) => updateConfig({ optionShadow: v as ComponentConfig['optionShadow'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Sem sombra</SelectItem>
+                <SelectItem value="sm">Pequena</SelectItem>
+                <SelectItem value="md">Média</SelectItem>
+                <SelectItem value="lg">Grande</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Espaçamento */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Espaçamento</Label>
+            <Select 
+              value={config.optionSpacing || 'simple'} 
+              onValueChange={(v) => updateConfig({ optionSpacing: v as ComponentConfig['optionSpacing'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="compact">Compacto</SelectItem>
+                <SelectItem value="simple">Simples</SelectItem>
+                <SelectItem value="relaxed">Relaxado</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Width */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-xs text-muted-foreground">Largura</Label>
+              <div className="flex items-center gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.max(10, (config.width || 100) - 5) })}
+                >
+                  −
+                </Button>
+                <span className="text-sm font-medium w-12 text-center">{config.width || 100}%</span>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.min(100, (config.width || 100) + 5) })}
+                >
+                  +
+                </Button>
+              </div>
+            </div>
+            <Slider
+              value={[config.width || 100]}
+              onValueChange={([value]) => updateConfig({ width: value })}
+              min={10}
+              max={100}
+              step={5}
+              className="w-full"
+            />
+          </div>
+
+          {/* Horizontal and Vertical alignment */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento horizontal</Label>
+              <Select 
+                value={config.horizontalAlign || 'start'} 
+                onValueChange={(v) => updateConfig({ horizontalAlign: v as ComponentConfig['horizontalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento vertical</Label>
+              <Select 
+                value={config.verticalAlign || 'auto'} 
+                onValueChange={(v) => updateConfig({ verticalAlign: v as ComponentConfig['verticalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Auto</SelectItem>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
-        <Slider
-          value={[config.width || 100]}
-          onValueChange={([value]) => updateConfig({ width: value })}
-          min={10}
-          max={100}
-          step={5}
-          className="w-full"
-        />
-      </div>
+      );
+    }
 
-      {/* Horizontal and Vertical alignment */}
-      <div className="grid grid-cols-2 gap-3">
+    // Default appearance tab for other components
+    return (
+      <div className="space-y-4">
+        {/* Label style */}
         <div>
-          <Label className="text-xs text-muted-foreground">Alinhamento horizontal</Label>
+          <Label className="text-xs text-muted-foreground">Label</Label>
           <Select 
-            value={config.horizontalAlign || 'start'} 
-            onValueChange={(v) => updateConfig({ horizontalAlign: v as ComponentConfig['horizontalAlign'] })}
+            value={config.labelStyle || 'default'} 
+            onValueChange={(v) => updateConfig({ labelStyle: v as ComponentConfig['labelStyle'] })}
           >
             <SelectTrigger className="mt-1">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="start">Começo</SelectItem>
-              <SelectItem value="center">Centro</SelectItem>
-              <SelectItem value="end">Fim</SelectItem>
+              <SelectItem value="default">Padrão</SelectItem>
+              <SelectItem value="floating">Flutuante</SelectItem>
+              <SelectItem value="hidden">Oculto</SelectItem>
             </SelectContent>
           </Select>
         </div>
+
+        {/* Text align */}
         <div>
-          <Label className="text-xs text-muted-foreground">Alinhamento vertical</Label>
+          <Label className="text-xs text-muted-foreground">Alinhamento do texto</Label>
           <Select 
-            value={config.verticalAlign || 'auto'} 
-            onValueChange={(v) => updateConfig({ verticalAlign: v as ComponentConfig['verticalAlign'] })}
+            value={config.textAlign || 'left'} 
+            onValueChange={(v) => updateConfig({ textAlign: v as ComponentConfig['textAlign'] })}
           >
             <SelectTrigger className="mt-1">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="auto">Auto</SelectItem>
-              <SelectItem value="start">Começo</SelectItem>
+              <SelectItem value="left">Esquerda</SelectItem>
               <SelectItem value="center">Centro</SelectItem>
-              <SelectItem value="end">Fim</SelectItem>
+              <SelectItem value="right">Direita</SelectItem>
             </SelectContent>
           </Select>
         </div>
-      </div>
+
+        {/* Width */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <Label className="text-xs text-muted-foreground">Largura</Label>
+            <div className="flex items-center gap-1">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-6 w-6"
+                onClick={() => updateConfig({ width: Math.max(10, (config.width || 100) - 5) })}
+              >
+                −
+              </Button>
+              <span className="text-sm font-medium w-12 text-center">{config.width || 100}%</span>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-6 w-6"
+                onClick={() => updateConfig({ width: Math.min(100, (config.width || 100) + 5) })}
+              >
+                +
+              </Button>
+            </div>
+          </div>
+          <Slider
+            value={[config.width || 100]}
+            onValueChange={([value]) => updateConfig({ width: value })}
+            min={10}
+            max={100}
+            step={5}
+            className="w-full"
+          />
+        </div>
+
+        {/* Horizontal and Vertical alignment */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs text-muted-foreground">Alinhamento horizontal</Label>
+            <Select 
+              value={config.horizontalAlign || 'start'} 
+              onValueChange={(v) => updateConfig({ horizontalAlign: v as ComponentConfig['horizontalAlign'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="start">Começo</SelectItem>
+                <SelectItem value="center">Centro</SelectItem>
+                <SelectItem value="end">Fim</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Alinhamento vertical</Label>
+            <Select 
+              value={config.verticalAlign || 'auto'} 
+              onValueChange={(v) => updateConfig({ verticalAlign: v as ComponentConfig['verticalAlign'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="auto">Auto</SelectItem>
+                <SelectItem value="start">Começo</SelectItem>
+                <SelectItem value="center">Centro</SelectItem>
+                <SelectItem value="end">Fim</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
       {/* Font size for text components */}
       {['text', 'button'].includes(component.type) && (
@@ -753,7 +1188,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         </div>
       )}
     </div>
-  );
+    );
+  };
 
   // =========== EXIBIÇÃO TAB ===========
   const renderDisplayTab = () => (
