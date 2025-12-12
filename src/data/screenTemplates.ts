@@ -191,7 +191,7 @@ export const componentPalette = {
     { type: 'notification', name: 'Notificação', icon: 'bell' },
     { type: 'timer', name: 'Timer', icon: 'clock' },
     { type: 'loading', name: 'Loading', icon: 'loader' },
-    { type: 'level', name: 'Nível', icon: 'bar-chart-2' },
+    { type: 'level', name: 'Nível', icon: 'chart-bar' },
   ],
   argumentation: [
     { type: 'arguments', name: 'Argumentos', icon: 'message-square' },
