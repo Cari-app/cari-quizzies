@@ -127,6 +127,14 @@ interface ComponentConfig {
   testimonialBorderRadius?: 'none' | 'small' | 'medium' | 'large';
   testimonialShadow?: 'none' | 'sm' | 'md' | 'lg';
   testimonialSpacing?: 'compact' | 'simple' | 'relaxed';
+  // FAQ specific
+  faqItems?: Array<{
+    id: string;
+    question: string;
+    answer: string;
+  }>;
+  faqDetailType?: 'arrow' | 'plus-minus';
+  faqFirstOpen?: boolean;
 }
 
 interface DroppedComponent {
