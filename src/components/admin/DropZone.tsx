@@ -143,6 +143,20 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           horizontalAlign: 'start',
           verticalAlign: 'auto'
         };
+      case 'loading':
+        return {
+          loadingTitle: 'Carregando...',
+          loadingDescription: 'Aguarde enquanto preparamos tudo para você!',
+          loadingDuration: 5,
+          loadingDelay: 0,
+          loadingNavigation: 'next',
+          loadingDestination: 'next',
+          showLoadingTitle: true,
+          showLoadingProgress: true,
+          width: 100,
+          horizontalAlign: 'start',
+          verticalAlign: 'auto'
+        };
       default:
         return {};
     }
@@ -794,6 +808,35 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               style={{ width: `${widthValue}%` }}
             >
               {displayText}
+            </div>
+          </div>
+        );
+      }
+      case 'loading': {
+        const widthValue = config.width || 100;
+        const title = config.loadingTitle || 'Carregando...';
+        const description = config.loadingDescription || '';
+        const showTitle = config.showLoadingTitle !== false;
+        const showProgress = config.showLoadingProgress !== false;
+        
+        return (
+          <div className="w-full">
+            <div 
+              className="border border-border rounded-lg p-4 bg-background"
+              style={{ width: `${widthValue}%` }}
+            >
+              {showTitle && (
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium">{title}</span>
+                  <span className="text-xs text-muted-foreground">100%</span>
+                </div>
+              )}
+              {showProgress && (
+                <div className="h-2 bg-foreground rounded-full mb-3" />
+              )}
+              {description && (
+                <p className="text-sm text-muted-foreground text-center">{description}</p>
+              )}
             </div>
           </div>
         );
