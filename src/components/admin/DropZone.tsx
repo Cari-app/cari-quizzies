@@ -1148,67 +1148,41 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           <div 
             key={item.id} 
             className={cn(
-              "relative overflow-hidden bg-gradient-to-br from-background to-muted/30 flex flex-col border border-border/50",
+              "border border-border bg-background flex flex-col",
               borderRadiusClass,
-              "shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)]",
+              shadowClass,
               spacingClass
             )}
           >
-            {/* Subtle accent gradient overlay */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/60 via-primary to-primary/60" />
-            
             {/* Rating stars */}
-            <div className="flex gap-1 mb-3">
+            <div className="flex gap-0.5 mb-2">
               {Array.from({ length: 5 }).map((_, i) => (
-                <span 
-                  key={i} 
-                  className={cn(
-                    "text-base",
-                    i < item.rating 
-                      ? "text-amber-400 drop-shadow-[0_0_3px_rgba(251,191,36,0.4)]" 
-                      : "text-muted-foreground/20"
-                  )}
-                >
+                <span key={i} className={cn("text-sm", i < item.rating ? "text-amber-400" : "text-muted-foreground/30")}>
                   ★
                 </span>
               ))}
             </div>
             
             {/* Author info */}
-            <div className="flex items-center gap-3 mb-3">
-              {item.avatarUrl ? (
-                <img 
-                  src={item.avatarUrl} 
-                  alt="" 
-                  className="w-10 h-10 rounded-full object-cover ring-2 ring-primary/20 ring-offset-2 ring-offset-background" 
-                />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
-                  <span className="text-sm font-semibold text-primary">{item.name.charAt(0)}</span>
-                </div>
+            <div className="flex items-center gap-2 mb-2">
+              {item.avatarUrl && (
+                <img src={item.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover" />
               )}
               <div>
-                <div className="font-semibold text-sm text-foreground">{item.name}</div>
+                <div className="font-semibold text-sm">{item.name}</div>
                 <div className="text-xs text-muted-foreground">{item.handle}</div>
               </div>
             </div>
             
-            {/* Quote icon */}
-            <div className="text-primary/10 text-4xl font-serif leading-none mb-1">"</div>
-            
             {/* Text */}
             <div 
-              className="text-sm text-muted-foreground rich-text flex-1 leading-relaxed"
+              className="text-sm text-muted-foreground rich-text flex-1"
               dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.text) }}
             />
             
             {/* Photo */}
             {item.photoUrl && (
-              <img 
-                src={item.photoUrl} 
-                alt="" 
-                className={cn("w-full h-36 object-cover mt-4 ring-1 ring-border/50", borderRadiusClass)} 
-              />
+              <img src={item.photoUrl} alt="" className={cn("w-full h-32 object-cover mt-3", borderRadiusClass)} />
             )}
           </div>
         );
@@ -1217,29 +1191,17 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           return (
             <div className={cn("w-full flex", alignClass)}>
               <div className="w-full p-4 overflow-hidden" style={{ width: `${widthValue}%` }}>
-                <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide">
-                  {testimonialItems.map((item, index) => (
-                    <div 
-                      key={item.id} 
-                      className={cn(
-                        "flex-shrink-0 w-[280px] snap-center transition-all duration-300",
-                        index === 0 ? "scale-100 opacity-100" : "scale-95 opacity-70"
-                      )}
-                    >
+                <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                  {testimonialItems.map((item) => (
+                    <div key={item.id} className="flex-shrink-0 w-[280px] snap-center">
                       {renderTestimonialCard(item)}
                     </div>
                   ))}
                 </div>
                 {testimonialItems.length > 1 && (
-                  <div className="flex justify-center gap-2 mt-4">
+                  <div className="flex justify-center gap-1.5 mt-3">
                     {testimonialItems.map((_, i) => (
-                      <div 
-                        key={i} 
-                        className={cn(
-                          "rounded-full transition-all duration-300",
-                          i === 0 ? "w-6 h-2.5 bg-primary" : "w-2.5 h-2.5 bg-muted-foreground/20"
-                        )} 
-                      />
+                      <div key={i} className={cn("w-2 h-2 rounded-full", i === 0 ? "bg-primary" : "bg-muted-foreground/30")} />
                     ))}
                   </div>
                 )}
