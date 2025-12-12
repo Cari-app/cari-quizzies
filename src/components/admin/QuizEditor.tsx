@@ -485,33 +485,41 @@ export function QuizEditor() {
           </div>
         </div>
 
-        {/* Widgets Palette */}
+        {/* Widgets Palette - Floating toggle when closed */}
+        {!widgetsExpanded && (
+          <div className="relative">
+            <button
+              onClick={() => setWidgetsExpanded(true)}
+              className="absolute top-4 left-2 z-10 p-2.5 rounded-lg border border-border bg-background shadow-sm hover:bg-muted transition-colors"
+              title="Abrir paleta de componentes"
+            >
+              <PanelLeftOpen className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
+        )}
+        
+        {/* Widgets Palette - Expanded */}
         <div 
           className={cn(
-            "border-r border-border bg-muted/30 transition-all duration-300 flex flex-col overflow-hidden",
-            widgetsExpanded ? "w-64" : "w-12"
+            "border-r border-border bg-background transition-all duration-300 ease-out flex flex-col overflow-hidden",
+            widgetsExpanded ? "w-64 opacity-100" : "w-0 opacity-0"
           )}
         >
           {/* Toggle Button */}
-          <div className="p-2">
+          <div className="p-3 flex items-center justify-between border-b border-border shrink-0">
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Componentes</span>
             <button
-              onClick={() => setWidgetsExpanded(!widgetsExpanded)}
-              className="p-2 rounded-md hover:bg-muted transition-colors w-full flex items-center justify-center"
+              onClick={() => setWidgetsExpanded(false)}
+              className="p-1.5 rounded-md hover:bg-muted transition-colors"
             >
-              {widgetsExpanded ? (
-                <PanelLeftClose className="w-4 h-4 text-muted-foreground" />
-              ) : (
-                <PanelLeftOpen className="w-4 h-4 text-muted-foreground" />
-              )}
+              <PanelLeftClose className="w-4 h-4 text-muted-foreground" />
             </button>
           </div>
 
           {/* Component Palette */}
-          {widgetsExpanded && (
-            <div className="flex-1 overflow-y-auto p-3 pt-0">
-              <ComponentPalette />
-            </div>
-          )}
+          <div className="flex-1 overflow-y-auto p-3">
+            <ComponentPalette />
+          </div>
         </div>
       </div>
 
