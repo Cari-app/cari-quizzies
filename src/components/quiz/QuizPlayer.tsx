@@ -1009,6 +1009,9 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         const title = config.levelTitle || 'Nível';
         const subtitle = config.levelSubtitle || '';
         const percentage = config.levelPercentage ?? 75;
+        const indicatorText = config.levelIndicatorText || '';
+        const legendsStr = config.levelLegends || '';
+        const legends = legendsStr ? legendsStr.split(',').map((l: string) => l.trim()).filter(Boolean) : [];
         const showMeter = config.showLevelMeter !== false;
         const showProgress = config.showLevelProgress !== false;
         const levelType = config.levelType || 'line';
@@ -1046,6 +1049,18 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         
         const renderLineBar = () => (
           <div className="relative w-full">
+            {/* Indicator text tooltip */}
+            {indicatorText && showMeter && (
+              <div 
+                className="absolute -top-8 transform -translate-x-1/2 bg-foreground text-background text-xs px-2 py-1 rounded whitespace-nowrap"
+                style={{ left: `${percentage}%` }}
+              >
+                {indicatorText}
+                <div 
+                  className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-foreground"
+                />
+              </div>
+            )}
             <div className="h-2 bg-muted rounded-full overflow-hidden relative">
               <div 
                 className="h-full rounded-full absolute left-0 top-0"
@@ -1066,32 +1081,46 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         );
         
         const renderSegmentsBar = () => {
-          const segmentCount = 5;
+          const segmentCount = legends.length > 0 ? legends.length : 5;
           const filledSegments = Math.ceil((percentage / 100) * segmentCount);
           
           return (
-            <div className="flex gap-1 w-full relative">
-              {Array.from({ length: segmentCount }, (_, i) => {
-                const isFilled = i < filledSegments;
-                
-                return (
-                  <div 
-                    key={i}
-                    className={cn(
-                      "h-2 flex-1 rounded-full transition-colors",
-                      isFilled ? "" : "bg-muted"
-                    )}
-                    style={isFilled ? { background: levelColor === 'theme' || levelColor === 'opaque' ? 'hsl(var(--foreground))' : getBarBackground() } : undefined}
-                  />
-                );
-              })}
-              {/* Indicator circle - only shown when showMeter is true */}
-              {showMeter && (
+            <div className="relative w-full">
+              {/* Indicator text tooltip */}
+              {indicatorText && showMeter && (
                 <div 
-                  className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-background border-2 border-foreground rounded-full shadow-md pointer-events-none"
-                  style={{ left: `calc(${percentage}% - 8px)` }}
-                />
+                  className="absolute -top-8 transform -translate-x-1/2 bg-foreground text-background text-xs px-2 py-1 rounded whitespace-nowrap"
+                  style={{ left: `${percentage}%` }}
+                >
+                  {indicatorText}
+                  <div 
+                    className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-foreground"
+                  />
+                </div>
               )}
+              <div className="flex gap-1 w-full relative">
+                {Array.from({ length: segmentCount }, (_, i) => {
+                  const isFilled = i < filledSegments;
+                  
+                  return (
+                    <div 
+                      key={i}
+                      className={cn(
+                        "h-2 flex-1 rounded-full transition-colors",
+                        isFilled ? "" : "bg-muted"
+                      )}
+                      style={isFilled ? { background: levelColor === 'theme' || levelColor === 'opaque' ? 'hsl(var(--foreground))' : getBarBackground() } : undefined}
+                    />
+                  );
+                })}
+                {/* Indicator circle - only shown when showMeter is true */}
+                {showMeter && (
+                  <div 
+                    className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-background border-2 border-foreground rounded-full shadow-md pointer-events-none"
+                    style={{ left: `calc(${percentage}% - 8px)` }}
+                  />
+                )}
+              </div>
             </div>
           );
         };
@@ -1116,9 +1145,16 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
               )}
               
               {/* Level bar - always visible */}
-              <div className="mt-2">
+              <div className={cn("mt-2", indicatorText && showMeter ? "pt-6" : "")}>
                 {levelType === 'segments' ? renderSegmentsBar() : renderLineBar()}
               </div>
+              
+              {/* Legends */}
+              {legends.length > 0 && (
+                <div className="text-xs text-muted-foreground mt-2">
+                  {legends.join(' · ')}
+                </div>
+              )}
             </div>
           </div>
         );
