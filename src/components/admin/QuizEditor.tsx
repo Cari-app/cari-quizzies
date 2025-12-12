@@ -612,12 +612,12 @@ export function QuizEditor() {
             />
           </div>
         ) : editorView === 'design' ? (
-          /* Design View - Full width preview with settings on right */
+          /* Design View - Shows all stages stacked */
           <div className="flex-1 flex items-start justify-center p-8 overflow-y-auto">
             <div 
               className={cn(
-                "bg-background rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col",
-                "w-[375px] h-[667px]"
+                "rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col",
+                "w-[375px] min-h-[667px]"
               )}
               style={{
                 backgroundColor: designSettings.backgroundColor,
@@ -675,49 +675,118 @@ export function QuizEditor() {
                 )}
               </div>
               
-              {/* Content Preview */}
-              <div 
-                className={cn(
-                  "flex-1 flex flex-col p-6",
-                  designSettings.alignment === 'center' && "items-center text-center",
-                  designSettings.alignment === 'right' && "items-end text-right",
+              {/* Stages Preview - All cards stacked */}
+              <div className="flex-1 flex flex-col">
+                {stages.length === 0 ? (
+                  <div 
+                    className="flex-1 flex items-center justify-center p-6"
+                    style={{ color: designSettings.textColor }}
+                  >
+                    <p className="text-sm opacity-60">Nenhuma etapa criada</p>
+                  </div>
+                ) : (
+                  stages.map((stage, index) => (
+                    <div 
+                      key={stage.id}
+                      className={cn(
+                        "border-b last:border-b-0 p-4",
+                        designSettings.spacing === 'compact' && 'p-3',
+                        designSettings.spacing === 'spacious' && 'p-6',
+                      )}
+                      style={{ 
+                        borderColor: `${designSettings.textColor}15`,
+                      }}
+                    >
+                      {/* Stage Card */}
+                      <div 
+                        className={cn(
+                          "flex flex-col",
+                          designSettings.alignment === 'center' && "items-center text-center",
+                          designSettings.alignment === 'right' && "items-end text-right",
+                        )}
+                      >
+                        {/* Stage Number Badge */}
+                        <div 
+                          className={cn(
+                            "text-xs font-medium px-2 py-0.5 mb-2 inline-block",
+                            designSettings.borderRadius === 'none' && 'rounded-none',
+                            designSettings.borderRadius === 'small' && 'rounded',
+                            designSettings.borderRadius === 'medium' && 'rounded-md',
+                            designSettings.borderRadius === 'large' && 'rounded-lg',
+                            designSettings.borderRadius === 'full' && 'rounded-full',
+                          )}
+                          style={{ 
+                            backgroundColor: `${designSettings.primaryColor}20`,
+                            color: designSettings.primaryColor,
+                          }}
+                        >
+                          Etapa {index + 1}
+                        </div>
+                        
+                        {/* Stage Title */}
+                        <h3 
+                          className={cn(
+                            "font-semibold mb-2",
+                            designSettings.titleSize === 'small' && 'text-base',
+                            designSettings.titleSize === 'medium' && 'text-lg',
+                            designSettings.titleSize === 'large' && 'text-xl',
+                            designSettings.titleSize === 'xlarge' && 'text-2xl',
+                          )}
+                          style={{ 
+                            color: designSettings.titleColor,
+                            fontFamily: designSettings.primaryFont,
+                          }}
+                        >
+                          {stage.name || 'Sem título'}
+                        </h3>
+                        
+                        {/* Components count */}
+                        <p 
+                          className="text-xs opacity-50"
+                          style={{ 
+                            color: designSettings.textColor,
+                            fontFamily: designSettings.secondaryFont,
+                          }}
+                        >
+                          {stage.components.length} componente{stage.components.length !== 1 ? 's' : ''}
+                        </p>
+                        
+                        {/* Mini preview of components */}
+                        {stage.components.length > 0 && (
+                          <div className="mt-3 w-full space-y-2">
+                            {stage.components.slice(0, 3).map((comp) => (
+                              <div 
+                                key={comp.id}
+                                className={cn(
+                                  "px-3 py-2 text-xs",
+                                  designSettings.borderRadius === 'none' && 'rounded-none',
+                                  designSettings.borderRadius === 'small' && 'rounded',
+                                  designSettings.borderRadius === 'medium' && 'rounded-md',
+                                  designSettings.borderRadius === 'large' && 'rounded-lg',
+                                  designSettings.borderRadius === 'full' && 'rounded-xl',
+                                )}
+                                style={{ 
+                                  backgroundColor: `${designSettings.textColor}08`,
+                                  color: designSettings.textColor,
+                                }}
+                              >
+                                {comp.type}
+                              </div>
+                            ))}
+                            {stage.components.length > 3 && (
+                              <p 
+                                className="text-xs opacity-40 text-center"
+                                style={{ color: designSettings.textColor }}
+                              >
+                                +{stage.components.length - 3} mais
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
                 )}
-                style={{ color: designSettings.textColor }}
-              >
-                <h2 
-                  className={cn(
-                    "font-bold mb-4",
-                    designSettings.titleSize === 'small' && 'text-xl',
-                    designSettings.titleSize === 'medium' && 'text-2xl',
-                    designSettings.titleSize === 'large' && 'text-3xl',
-                    designSettings.titleSize === 'xlarge' && 'text-4xl',
-                  )}
-                  style={{ 
-                    color: designSettings.titleColor,
-                    fontFamily: designSettings.primaryFont,
-                  }}
-                >
-                  Título de exemplo
-                </h2>
-                <p 
-                  className="mb-6 opacity-80"
-                  style={{ fontFamily: designSettings.secondaryFont }}
-                >
-                  Este é um texto de exemplo para visualizar as configurações de design do seu quiz.
-                </p>
-                <button
-                  className={cn(
-                    "w-full py-3 px-6 font-medium text-white transition-colors",
-                    designSettings.borderRadius === 'none' && 'rounded-none',
-                    designSettings.borderRadius === 'small' && 'rounded',
-                    designSettings.borderRadius === 'medium' && 'rounded-lg',
-                    designSettings.borderRadius === 'large' && 'rounded-xl',
-                    designSettings.borderRadius === 'full' && 'rounded-full',
-                  )}
-                  style={{ backgroundColor: designSettings.primaryColor }}
-                >
-                  Botão de exemplo
-                </button>
               </div>
 
               {designSettings.progressBar === 'bottom' && (
