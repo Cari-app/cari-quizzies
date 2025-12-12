@@ -37,7 +37,7 @@ export function ComponentPalette({ expanded = false }: ComponentPaletteProps) {
                   type={comp.type}
                   name={comp.name}
                   icon={comp.icon}
-                  isNew={'isNew' in comp ? comp.isNew : undefined}
+                  isNew={'isNew' in comp ? (comp.isNew as boolean) : undefined}
                   expanded={expanded}
                 />
               ))}
