@@ -361,28 +361,6 @@ export function QuizEditor() {
             className="font-medium border-none bg-transparent px-1 h-auto text-sm focus-visible:ring-0 shadow-none w-auto max-w-[180px]"
             placeholder="Nome do quiz"
           />
-          <div className="flex items-center gap-1 text-muted-foreground">
-            <Globe className="w-3.5 h-3.5 shrink-0" />
-            <Input
-              value={currentQuiz.slug || ''}
-              onChange={(e) => updateQuiz(currentQuiz.id, { slug: generateSlug(e.target.value) })}
-              className="text-xs border-none bg-transparent px-0 h-auto focus-visible:ring-0 shadow-none text-muted-foreground w-[120px]"
-              placeholder="url-do-quiz"
-            />
-            {currentQuiz.slug && (
-              <button
-                onClick={handleCopyUrl}
-                className="p-1 hover:bg-muted rounded transition-colors shrink-0"
-                title="Copiar URL"
-              >
-                {slugCopied ? (
-                  <Check className="w-3 h-3 text-primary" />
-                ) : (
-                  <Copy className="w-3 h-3" />
-                )}
-              </button>
-            )}
-          </div>
         </div>
 
         {/* Center: Navigation Tabs */}
@@ -420,7 +398,7 @@ export function QuizEditor() {
         </nav>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Button 
             variant="ghost" 
             size="icon" 
@@ -430,6 +408,30 @@ export function QuizEditor() {
           >
             <Eye className="w-4 h-4" />
           </Button>
+          
+          {/* URL Slug */}
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-muted/50 text-muted-foreground">
+            <Globe className="w-3.5 h-3.5 shrink-0" />
+            <Input
+              value={currentQuiz.slug || ''}
+              onChange={(e) => updateQuiz(currentQuiz.id, { slug: generateSlug(e.target.value) })}
+              className="text-xs border-none bg-transparent px-0 h-auto focus-visible:ring-0 shadow-none text-muted-foreground w-[100px]"
+              placeholder="url-do-quiz"
+            />
+            {currentQuiz.slug && (
+              <button
+                onClick={handleCopyUrl}
+                className="p-0.5 hover:text-foreground transition-colors shrink-0"
+                title="Copiar URL"
+              >
+                {slugCopied ? (
+                  <Check className="w-3 h-3 text-primary" />
+                ) : (
+                  <Copy className="w-3 h-3" />
+                )}
+              </button>
+            )}
+          </div>
           <Button 
             variant="outline"
             size="sm"
