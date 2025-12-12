@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { sanitizeHtml, sanitizeEmbed } from '@/lib/sanitize';
+import { parseTemplate, templateFunctions, TemplateVariables } from '@/lib/templateParser';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
@@ -601,6 +602,33 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
     navigate('/');
   };
 
+  // Build template variables from formData with computed values
+  const templateVariables = useMemo((): TemplateVariables => {
+    const vars: TemplateVariables = { ...formData };
+    
+    // Add computed values if height and weight exist
+    const altura = parseFloat(String(vars.altura || vars.height || 0));
+    const peso = parseFloat(String(vars.peso || vars.weight || 0));
+    
+    if (altura > 0 && peso > 0) {
+      vars.imc = templateFunctions.imc(peso, altura);
+      vars.imc_classificacao = templateFunctions.imcClassificacao(vars.imc as number);
+    }
+    
+    return vars;
+  }, [formData]);
+
+  // Process text with template variables
+  const processTemplate = useCallback((text: string): string => {
+    return parseTemplate(text, templateVariables);
+  }, [templateVariables]);
+
+  // Process HTML content with templates (sanitize after processing)
+  const processTemplateHtml = useCallback((html: string): string => {
+    const processed = parseTemplate(html, templateVariables);
+    return sanitizeHtml(processed);
+  }, [templateVariables]);
+
   const renderComponent = (comp: DroppedComponent) => {
     const config = comp.config || {};
     const customId = comp.customId || config.customId;
@@ -618,7 +646,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           )}>
             <div 
               className="rich-text text-foreground"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.content || '') }}
+              dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.content || '') }}
             />
           </div>
         );
@@ -629,16 +657,16 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       case 'number':
         return (
           <div className="py-4">
-            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
+            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.label) }} />}
             <Input
               type={comp.type === 'email' ? 'email' : comp.type === 'number' ? 'number' : 'text'}
-              placeholder={config.placeholder || ''}
+              placeholder={processTemplate(config.placeholder || '')}
               value={value}
               onChange={(e) => handleInputChange(comp.id, customId, e.target.value)}
               className="w-full"
               required={config.required}
             />
-            {config.helpText && <p className="text-xs text-muted-foreground mt-1">{config.helpText}</p>}
+            {config.helpText && <p className="text-xs text-muted-foreground mt-1">{processTemplate(config.helpText)}</p>}
           </div>
         );
 
@@ -665,23 +693,23 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                 altUnit={altUnit}
                 barColor={config.barColor}
               />
-              {config.helpText && <p className="text-xs text-muted-foreground mt-1 text-center">{config.helpText}</p>}
+              {config.helpText && <p className="text-xs text-muted-foreground mt-1 text-center">{processTemplate(config.helpText)}</p>}
             </div>
           );
         }
         
         return (
           <div className="py-4">
-            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
+            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.label) }} />}
             <Input
               type="number"
-              placeholder={config.placeholder || ''}
+              placeholder={processTemplate(config.placeholder || '')}
               value={value}
               onChange={(e) => handleInputChange(comp.id, customId, e.target.value)}
               className="w-full"
               required={config.required}
             />
-            {config.helpText && <p className="text-xs text-muted-foreground mt-1">{config.helpText}</p>}
+            {config.helpText && <p className="text-xs text-muted-foreground mt-1">{processTemplate(config.helpText)}</p>}
           </div>
         );
       }
@@ -689,22 +717,22 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       case 'textarea':
         return (
           <div className="py-4">
-            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
+            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.label) }} />}
             <textarea
-              placeholder={config.placeholder || ''}
+              placeholder={processTemplate(config.placeholder || '')}
               value={value}
               onChange={(e) => handleInputChange(comp.id, customId, e.target.value)}
               className="w-full px-4 py-3 bg-background border border-border rounded-lg text-sm resize-none min-h-[100px]"
               required={config.required}
             />
-            {config.helpText && <p className="text-xs text-muted-foreground mt-1">{config.helpText}</p>}
+            {config.helpText && <p className="text-xs text-muted-foreground mt-1">{processTemplate(config.helpText)}</p>}
           </div>
         );
 
       case 'date':
         return (
           <div className="py-4">
-            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
+            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.label) }} />}
             <Popover>
               <PopoverTrigger asChild>
                 <button
@@ -727,7 +755,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                 />
               </PopoverContent>
             </Popover>
-            {config.helpText && <p className="text-xs text-muted-foreground mt-1">{config.helpText}</p>}
+            {config.helpText && <p className="text-xs text-muted-foreground mt-1">{processTemplate(config.helpText)}</p>}
           </div>
         );
 
@@ -749,7 +777,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                 config.buttonStyle === 'outline' && "border border-border bg-transparent"
               )}
             >
-              {config.buttonText || 'Continuar'}
+              {processTemplate(config.buttonText || 'Continuar')}
             </Button>
           </div>
         );
@@ -877,8 +905,8 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         
         return (
           <div className="py-4">
-            {config.label && <div className="rich-text text-sm font-medium mb-1" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
-            {config.description && <div className="rich-text text-xs text-muted-foreground mb-3" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.description) }} />}
+            {config.label && <div className="rich-text text-sm font-medium mb-1" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.label) }} />}
+            {config.description && <div className="rich-text text-xs text-muted-foreground mb-3" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.description) }} />}
             <div className={cn(getLayoutClass(), getSpacing())}>
               {(config.options || []).map((opt, i) => {
                 const isSelected = isOptionSelected(opt.value);
@@ -996,7 +1024,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       case 'yesno':
         return (
           <div className="py-4">
-            {config.label && <div className="rich-text text-sm font-medium mb-3" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
+            {config.label && <div className="rich-text text-sm font-medium mb-3" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.label) }} />}
             <div className="flex gap-3">
               {(config.options || [{ id: '1', text: 'Sim', value: 'yes' }, { id: '2', text: 'Não', value: 'no' }]).map((opt) => (
                 <button
@@ -1020,7 +1048,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         const sliderValue = typeof value === 'number' ? value : config.sliderMin || 0;
         return (
           <div className="py-4">
-            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
+            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.label) }} />}
             <div className="pt-4">
               <Slider
                 value={[sliderValue]}
@@ -1207,7 +1235,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
             >
               <div 
                 className="text-sm rich-text"
-                dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.description || 'Texto do alerta') }}
+                dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.description || 'Texto do alerta') }}
               />
             </div>
           </div>
@@ -1269,8 +1297,8 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
 
       case 'loading': {
         const widthValue = config.width || 100;
-        const title = config.loadingTitle || 'Carregando...';
-        const description = config.loadingDescription || '';
+        const title = processTemplate(config.loadingTitle || 'Carregando...');
+        const description = processTemplate(config.loadingDescription || '');
         const showTitle = config.showLoadingTitle !== false;
         const showProgress = config.showLoadingProgress !== false;
         const horizontalAlign = config.horizontalAlign || 'start';
@@ -1307,12 +1335,12 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       }
 
       case 'level': {
-        const title = config.levelTitle || 'Nível';
-        const subtitle = config.levelSubtitle || '';
+        const title = processTemplate(config.levelTitle || 'Nível');
+        const subtitle = processTemplate(config.levelSubtitle || '');
         const percentage = config.levelPercentage ?? 75;
-        const indicatorText = config.levelIndicatorText || '';
+        const indicatorText = processTemplate(config.levelIndicatorText || '');
         const legendsStr = config.levelLegends || '';
-        const legends = legendsStr ? legendsStr.split(',').map((l: string) => l.trim()).filter(Boolean) : [];
+        const legends = legendsStr ? legendsStr.split(',').map((l: string) => processTemplate(l.trim())).filter(Boolean) : [];
         const showMeter = config.showLevelMeter !== false;
         const showProgress = config.showLevelProgress !== false;
         const levelType = config.levelType || 'line';
