@@ -122,6 +122,16 @@ export interface ComponentConfig {
   loadingDestinationUrl?: string;
   showLoadingTitle?: boolean;
   showLoadingProgress?: boolean;
+  // Level specific
+  levelTitle?: string;
+  levelSubtitle?: string;
+  levelPercentage?: number;
+  levelIndicatorText?: string;
+  levelLegends?: string;
+  showLevelMeter?: boolean;
+  showLevelProgress?: boolean;
+  levelType?: 'line' | 'segments';
+  levelColor?: 'theme' | 'green-red' | 'red-green' | 'opaque' | 'red' | 'blue' | 'green' | 'yellow';
 }
 
 interface ComponentEditorProps {
@@ -222,6 +232,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         return renderTimerComponentTab();
       case 'loading':
         return renderLoadingComponentTab();
+      case 'level':
+        return renderLevelComponentTab();
       default:
         return (
           <div className="text-center py-8">
@@ -1654,6 +1666,110 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     </div>
   );
 
+  const renderLevelComponentTab = () => (
+    <div className="space-y-4">
+      {/* Título */}
+      <div>
+        <Label className="text-xs text-muted-foreground">Título</Label>
+        <Input
+          value={config.levelTitle || ''}
+          onChange={(e) => updateConfig({ levelTitle: e.target.value })}
+          placeholder="Nível"
+          className="mt-1"
+        />
+      </div>
+
+      {/* Subtítulo */}
+      <div>
+        <Label className="text-xs text-muted-foreground">Subtítulo</Label>
+        <Input
+          value={config.levelSubtitle || ''}
+          onChange={(e) => updateConfig({ levelSubtitle: e.target.value })}
+          placeholder="Fusce vitae tellus"
+          className="mt-1"
+        />
+      </div>
+
+      {/* Porcentagem */}
+      <div>
+        <Label className="text-xs text-muted-foreground">Porcentagem</Label>
+        <Input
+          type="number"
+          value={config.levelPercentage ?? 75}
+          onChange={(e) => updateConfig({ levelPercentage: Math.min(100, Math.max(0, parseInt(e.target.value) || 0)) })}
+          min={0}
+          max={100}
+          className="mt-1"
+        />
+      </div>
+
+      {/* Texto do indicador */}
+      <div>
+        <Label className="text-xs text-muted-foreground">Texto do indicador</Label>
+        <Input
+          value={config.levelIndicatorText || ''}
+          onChange={(e) => updateConfig({ levelIndicatorText: e.target.value })}
+          placeholder="Ex: Você esta aqui"
+          className="mt-1"
+        />
+      </div>
+
+      {/* Legendas */}
+      <div>
+        <Label className="text-xs text-muted-foreground">Legendas (separe por vírgula)</Label>
+        <Input
+          value={config.levelLegends || ''}
+          onChange={(e) => updateConfig({ levelLegends: e.target.value })}
+          placeholder="Ex: Normal, Médio, Muito"
+          className="mt-1"
+        />
+      </div>
+
+      {/* Opções */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-2">
+          <input 
+            type="checkbox" 
+            id="showMeter" 
+            checked={config.showLevelMeter !== false}
+            onChange={(e) => updateConfig({ showLevelMeter: e.target.checked })}
+            className="rounded border-border"
+          />
+          <Label htmlFor="showMeter" className="text-sm cursor-pointer">Mostrar Medidor?</Label>
+        </div>
+        <div className="flex items-center gap-2">
+          <input 
+            type="checkbox" 
+            id="showProgress" 
+            checked={config.showLevelProgress !== false}
+            onChange={(e) => updateConfig({ showLevelProgress: e.target.checked })}
+            className="rounded border-border"
+          />
+          <Label htmlFor="showProgress" className="text-sm cursor-pointer">Mostrar progresso?</Label>
+        </div>
+      </div>
+
+      {/* Avançado */}
+      <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+        <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <Plus className={`w-4 h-4 transition-transform ${advancedOpen ? 'rotate-45' : ''}`} />
+          AVANÇADO
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-4 space-y-4">
+          <div>
+            <Label className="text-xs text-muted-foreground">ID/Name</Label>
+            <Input
+              value={component.customId || ''}
+              onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
+              placeholder={`level_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
+              className="mt-1 font-mono text-xs"
+            />
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  );
+
   // =========== APARÊNCIA TAB ===========
   const renderAppearanceTab = () => {
     const isOptionsComponent = ['options', 'single', 'multiple', 'yesno'].includes(component.type);
@@ -1661,6 +1777,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     const isNotificationComponent = component.type === 'notification';
     const isTimerComponent = component.type === 'timer';
     const isLoadingComponent = component.type === 'loading';
+    const isLevelComponent = component.type === 'level';
 
     // Loading component appearance
     if (isLoadingComponent) {
@@ -1697,6 +1814,124 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
               max={100}
               step={5}
               className="[&>span:first-child]:bg-primary"
+            />
+          </div>
+
+          {/* Horizontal and Vertical alignment */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento horizontal</Label>
+              <Select 
+                value={config.horizontalAlign || 'start'} 
+                onValueChange={(v) => updateConfig({ horizontalAlign: v as ComponentConfig['horizontalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento vertical</Label>
+              <Select 
+                value={config.verticalAlign || 'auto'} 
+                onValueChange={(v) => updateConfig({ verticalAlign: v as ComponentConfig['verticalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Auto</SelectItem>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Level component appearance
+    if (isLevelComponent) {
+      return (
+        <div className="space-y-4">
+          {/* Tipo */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Tipo</Label>
+            <Select 
+              value={config.levelType || 'line'} 
+              onValueChange={(v) => updateConfig({ levelType: v as ComponentConfig['levelType'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="line">Linha</SelectItem>
+                <SelectItem value="segments">Traços</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Cor */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Cor</Label>
+            <Select 
+              value={config.levelColor || 'theme'} 
+              onValueChange={(v) => updateConfig({ levelColor: v as ComponentConfig['levelColor'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="theme">Tema</SelectItem>
+                <SelectItem value="green-red">Verde → Vermelho</SelectItem>
+                <SelectItem value="red-green">Vermelho → Verde</SelectItem>
+                <SelectItem value="opaque">Opaco</SelectItem>
+                <SelectItem value="red">Vermelho</SelectItem>
+                <SelectItem value="blue">Azul</SelectItem>
+                <SelectItem value="green">Verde</SelectItem>
+                <SelectItem value="yellow">Amarelo</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Width */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-xs text-muted-foreground">Largura</Label>
+              <div className="flex items-center gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.max(10, (config.width || 100) - 5) })}
+                >
+                  −
+                </Button>
+                <span className="text-sm font-medium w-12 text-center">{config.width || 100}%</span>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.min(100, (config.width || 100) + 5) })}
+                >
+                  +
+                </Button>
+              </div>
+            </div>
+            <Slider
+              value={[config.width || 100]}
+              onValueChange={([value]) => updateConfig({ width: value })}
+              min={10}
+              max={100}
+              step={5}
+              className="w-full"
             />
           </div>
 
