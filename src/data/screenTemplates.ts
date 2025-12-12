@@ -196,7 +196,7 @@ export const componentPalette = {
   argumentation: [
     { type: 'arguments', name: 'Argumentos', icon: 'message-square' },
     { type: 'testimonials', name: 'Depoimentos', icon: 'users' },
-    { type: 'faq', name: 'FAQ', icon: 'help-circle' },
+    { type: 'faq', name: 'FAQ', icon: 'circle-help' },
     { type: 'price', name: 'Preço', icon: 'tag' },
     { type: 'before-after', name: 'Antes/Depois', icon: 'arrow-left-right' },
     { type: 'carousel', name: 'Carrossel', icon: 'gallery-horizontal' },
