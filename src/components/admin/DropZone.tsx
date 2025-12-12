@@ -185,6 +185,20 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           horizontalAlign: 'start',
           verticalAlign: 'auto'
         };
+      case 'testimonials':
+        return {
+          testimonialLayout: 'list',
+          testimonialBorderRadius: 'small',
+          testimonialShadow: 'none',
+          testimonialSpacing: 'simple',
+          testimonialItems: [
+            { id: '1', name: 'Rafael Nascimento', handle: '@rafael.nascimento', rating: 5, text: 'A experiência foi excelente do início ao fim. Atendimento rápido, equipe super atenciosa e resultados acima do esperado. Com certeza recomendaria!' },
+            { id: '2', name: 'Camila Ferreira', handle: '@camila.ferreira', rating: 5, text: 'Fiquei impressionado com a qualidade e o cuidado em cada detalhe. Superou todas as minhas expectativas. Já virei cliente fiel!' },
+          ],
+          width: 100,
+          horizontalAlign: 'start',
+          verticalAlign: 'auto'
+        };
       default:
         return {};
     }
@@ -1086,6 +1100,98 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                       dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.description) }}
                     />
                   </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      }
+      case 'testimonials': {
+        const testimonialItems = (config.testimonialItems || []) as Array<{
+          id: string;
+          name: string;
+          handle: string;
+          rating: number;
+          text: string;
+          avatarUrl?: string;
+          photoUrl?: string;
+        }>;
+        const layout = config.testimonialLayout || 'list';
+        const widthValue = config.width || 100;
+        const horizontalAlign = config.horizontalAlign || 'start';
+        const alignClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
+        const borderRadius = config.testimonialBorderRadius || 'small';
+        const shadow = config.testimonialShadow || 'none';
+        const spacing = config.testimonialSpacing || 'simple';
+        
+        const gridClass = layout === 'grid-2' ? 'grid-cols-2' : 'grid-cols-1';
+        
+        const borderRadiusClass = {
+          'none': 'rounded-none',
+          'small': 'rounded-lg',
+          'medium': 'rounded-xl',
+          'large': 'rounded-2xl',
+        }[borderRadius] || 'rounded-lg';
+        
+        const shadowClass = {
+          'none': '',
+          'sm': 'shadow-sm',
+          'md': 'shadow-md',
+          'lg': 'shadow-lg',
+        }[shadow] || '';
+        
+        const spacingClass = {
+          'compact': 'p-3 gap-2',
+          'simple': 'p-4 gap-3',
+          'relaxed': 'p-5 gap-4',
+        }[spacing] || 'p-4 gap-3';
+        
+        return (
+          <div className={cn("w-full flex", alignClass)}>
+            <div 
+              className={cn("grid gap-3 p-4", gridClass)}
+              style={{ width: `${widthValue}%` }}
+            >
+              {testimonialItems.map((item) => (
+                <div 
+                  key={item.id} 
+                  className={cn(
+                    "border border-border bg-background flex flex-col",
+                    borderRadiusClass,
+                    shadowClass,
+                    spacingClass
+                  )}
+                >
+                  {/* Rating stars */}
+                  <div className="flex gap-0.5 mb-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <span key={i} className={cn("text-sm", i < item.rating ? "text-amber-400" : "text-muted-foreground/30")}>
+                        ★
+                      </span>
+                    ))}
+                  </div>
+                  
+                  {/* Author info */}
+                  <div className="flex items-center gap-2 mb-2">
+                    {item.avatarUrl && (
+                      <img src={item.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover" />
+                    )}
+                    <div>
+                      <div className="font-semibold text-sm">{item.name}</div>
+                      <div className="text-xs text-muted-foreground">{item.handle}</div>
+                    </div>
+                  </div>
+                  
+                  {/* Text */}
+                  <div 
+                    className="text-sm text-muted-foreground rich-text flex-1"
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.text) }}
+                  />
+                  
+                  {/* Photo */}
+                  {item.photoUrl && (
+                    <img src={item.photoUrl} alt="" className={cn("w-full h-32 object-cover mt-3", borderRadiusClass)} />
+                  )}
                 </div>
               ))}
             </div>
