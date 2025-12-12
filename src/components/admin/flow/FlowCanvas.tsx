@@ -164,6 +164,27 @@ export function FlowCanvas({
     [stages, onStagesChange]
   );
 
+  // Handle edge double-click to delete
+  const onEdgeDoubleClick = useCallback(
+    (_: React.MouseEvent, edge: Edge) => {
+      setEdges((eds) => eds.filter((e) => e.id !== edge.id));
+      
+      // Update stages to remove the connection
+      const updatedStages = stages.map(stage => {
+        if (stage.id === edge.source) {
+          const stageConnections = stage.connections || [];
+          const filteredConnections = stageConnections.filter(conn => 
+            !(conn.targetId === edge.target && (conn.sourceHandle || 'default') === (edge.sourceHandle || 'default'))
+          );
+          return { ...stage, connections: filteredConnections };
+        }
+        return stage;
+      });
+      onStagesChange(updatedStages);
+    },
+    [stages, onStagesChange, setEdges]
+  );
+
   // Auto-organize nodes
   const handleAutoOrganize = useCallback(() => {
     const updatedNodes = nodes.map((node, index) => ({
@@ -196,6 +217,7 @@ export function FlowCanvas({
         onNodeClick={onNodeClick}
         onNodeDragStop={onNodeDragStop}
         onEdgesDelete={onEdgesDelete}
+        onEdgeDoubleClick={onEdgeDoubleClick}
         nodeTypes={nodeTypes}
         fitView
         snapToGrid
