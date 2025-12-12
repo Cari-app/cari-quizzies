@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { sanitizeHtml, sanitizeEmbed } from '@/lib/sanitize';
 import { Plus, GripVertical, Trash2, CalendarIcon, Pencil, Copy } from 'lucide-react';
 import { Reorder } from 'framer-motion';
 import { DroppedComponent, ComponentConfig } from './ComponentEditor';
@@ -195,7 +196,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           <div className={cn("p-4", config.textAlign === 'center' && 'text-center', config.textAlign === 'right' && 'text-right')}>
             <div 
               className="rich-text text-foreground"
-              dangerouslySetInnerHTML={{ __html: config.content || 'Bloco de texto' }}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.content || 'Bloco de texto') }}
             />
           </div>
         );
@@ -206,7 +207,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'textarea':
         return (
           <div className="p-4">
-            {config.label && <div className="rich-text font-medium mb-2" dangerouslySetInnerHTML={{ __html: config.label }} />}
+            {config.label && <div className="rich-text font-medium mb-2" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
             {comp.type === 'textarea' ? (
               <textarea 
                 placeholder={config.placeholder || 'Digite aqui...'}
@@ -294,7 +295,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         
         return (
           <div className="p-4">
-            {config.label && <div className="rich-text font-medium mb-2" dangerouslySetInnerHTML={{ __html: config.label }} />}
+            {config.label && <div className="rich-text font-medium mb-2" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
             <input 
               type="number"
               placeholder={config.placeholder}
@@ -307,7 +308,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'date':
         return (
           <div className="p-4">
-            {config.label && <div className="rich-text font-medium mb-2" dangerouslySetInnerHTML={{ __html: config.label }} />}
+            {config.label && <div className="rich-text font-medium mb-2" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
             <Popover>
               <PopoverTrigger asChild>
                 <button
@@ -439,8 +440,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         
         return (
           <div className="p-4">
-            {config.label && <div className="rich-text font-medium mb-1" dangerouslySetInnerHTML={{ __html: config.label }} />}
-            {config.description && <div className="rich-text text-muted-foreground mb-3" dangerouslySetInnerHTML={{ __html: config.description }} />}
+            {config.label && <div className="rich-text font-medium mb-1" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
+            {config.description && <div className="rich-text text-muted-foreground mb-3" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.description) }} />}
             <div className={cn(getLayoutClass(), getSpacing())}>
               {(config.options || []).map((opt, i) => {
                 const isSelected = i === 0;
@@ -552,7 +553,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'yesno':
         return (
           <div className="p-4">
-            {config.label && <div className="rich-text font-medium mb-3" dangerouslySetInnerHTML={{ __html: config.label }} />}
+            {config.label && <div className="rich-text font-medium mb-3" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
             <div className="flex gap-3">
               <button className="flex-1 py-3 bg-primary text-primary-foreground rounded-lg text-sm font-medium">
                 {config.options?.[0]?.text || 'Sim'}
@@ -605,7 +606,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             <div className="p-4">
               <div 
                 className="w-full aspect-video rounded-lg overflow-hidden"
-                dangerouslySetInnerHTML={{ __html: config.embedCode }}
+                dangerouslySetInnerHTML={{ __html: sanitizeEmbed(config.embedCode) }}
               />
             </div>
           );
@@ -721,7 +722,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             >
               <div 
                 className="text-sm rich-text"
-                dangerouslySetInnerHTML={{ __html: config.description || 'Texto do alerta' }}
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.description || 'Texto do alerta') }}
               />
             </div>
           </div>
