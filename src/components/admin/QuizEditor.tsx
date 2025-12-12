@@ -336,23 +336,116 @@ export function QuizEditor() {
   const progressValue = stages.length > 0 ? ((currentStageIndex + 1) / stages.length) * 100 : 0;
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-background">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-background">
+      {/* Global Header */}
+      <header className="h-14 border-b border-border bg-background flex items-center justify-between px-4 shrink-0">
+        {/* Left: Logo & Quiz Name */}
+        <div className="flex items-center gap-3 min-w-0">
+          <Link 
+            to="/admin"
+            className="flex items-center gap-2 group shrink-0"
+          >
+            <Logo className="h-6" />
+          </Link>
+          <span className="text-muted-foreground">/</span>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <Input
+              value={currentQuiz.name}
+              onChange={(e) => {
+                const newName = e.target.value;
+                const updates: Partial<Quiz> = { name: newName };
+                if (!currentQuiz.slug) {
+                  updates.slug = generateSlug(newName);
+                }
+                updateQuiz(currentQuiz.id, updates);
+              }}
+              className="font-medium border-none bg-transparent px-0 h-auto text-sm focus-visible:ring-0 shadow-none max-w-[200px]"
+              placeholder="Nome do quiz"
+            />
+          </div>
+        </div>
+
+        {/* Center: Navigation Tabs */}
+        <nav className="flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+          <button
+            onClick={() => setEditorView('editor')}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors relative",
+              editorView === 'editor' 
+                ? "text-foreground" 
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Layers className="w-4 h-4" />
+            Construtor
+            {editorView === 'editor' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+            )}
+          </button>
+          <button
+            onClick={() => setEditorView('flow')}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors relative",
+              editorView === 'flow' 
+                ? "text-foreground" 
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <GitBranch className="w-4 h-4" />
+            Fluxo
+            {editorView === 'flow' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+            )}
+          </button>
+        </nav>
+
+        {/* Right: Actions */}
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-9 w-9"
+            onClick={() => currentQuiz.slug && navigate(`/${currentQuiz.slug}`)}
+            title="Preview"
+          >
+            <Eye className="w-4 h-4" />
+          </Button>
+          <Button 
+            variant="outline"
+            size="sm"
+            onClick={handleSave}
+            disabled={isSaving || !hasUnsavedChanges}
+            className="gap-2"
+          >
+            {isSaving ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            {hasUnsavedChanges ? 'Salvar*' : 'Salvar'}
+          </Button>
+          <Button 
+            size="sm"
+            onClick={handlePublish}
+            disabled={isPublishing || hasUnsavedChanges}
+            className="gap-2"
+          >
+            {isPublishing ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Upload className="w-4 h-4" />
+            )}
+            Publicar
+          </Button>
+        </div>
+      </header>
+
+      {/* Main Content Area */}
+      <div className="flex flex-1 overflow-hidden">
       {/* Left Sidebar - Stages (hidden in flow view) */}
       {editorView === 'editor' && (
       <div className="flex shrink-0">
         <div className="w-72 bg-background border-r border-border flex flex-col">
-          {/* Header with Logo */}
-          <div className="px-4 py-4 flex items-center justify-between">
-            <Link 
-              to="/admin"
-              className="inline-flex items-center gap-3 group"
-            >
-              <div className="p-1.5 rounded-md bg-muted/50 group-hover:bg-muted transition-colors">
-                <ChevronLeft className="w-4 h-4 text-muted-foreground group-hover:text-foreground transition-colors" />
-              </div>
-              <Logo className="h-5" />
-            </Link>
-          </div>
 
           {/* Quiz Name */}
           <div className="px-4 pb-4">
@@ -471,36 +564,6 @@ export function QuizEditor() {
             )}
           </div>
 
-          {/* Bottom Actions */}
-          <div className="p-4 border-t border-border space-y-2">
-            <Button 
-              className="w-full gap-2" 
-              size="sm"
-              onClick={handleSave}
-              disabled={isSaving || !hasUnsavedChanges}
-            >
-              {isSaving ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Save className="w-4 h-4" />
-              )}
-              {isSaving ? 'Salvando...' : hasUnsavedChanges ? 'Salvar*' : 'Salvo'}
-            </Button>
-            <Button 
-              className="w-full gap-2" 
-              size="sm" 
-              variant="outline"
-              onClick={handlePublish}
-              disabled={isPublishing || hasUnsavedChanges}
-            >
-              {isPublishing ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Upload className="w-4 h-4" />
-              )}
-              Publicar
-            </Button>
-          </div>
         </div>
 
         {/* Widgets Palette - Floating toggle when closed */}
@@ -543,41 +606,27 @@ export function QuizEditor() {
 
       {/* Preview Area */}
       <div className="flex-1 flex flex-col bg-muted/30 overflow-hidden">
-        {/* Preview Toolbar */}
-        <div className="flex items-center justify-between px-6 py-3 border-b border-border bg-background">
-          {/* View Toggle */}
-          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
-            <button
-              onClick={() => setEditorView('editor')}
-              className={cn(
-                "flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium transition-colors",
-                editorView === 'editor' ? "bg-background shadow-sm" : "hover:bg-background/50 text-muted-foreground"
-              )}
-            >
-              <Layers className="w-3.5 h-3.5" />
-              Construtor
-            </button>
-            <button
-              onClick={() => setEditorView('flow')}
-              className={cn(
-                "flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium transition-colors",
-                editorView === 'flow' ? "bg-background shadow-sm" : "hover:bg-background/50 text-muted-foreground"
-              )}
-            >
-              <GitBranch className="w-3.5 h-3.5" />
-              Fluxo
-            </button>
+        {/* Preview Content */}
+        {editorView === 'flow' ? (
+          <div className="flex-1 overflow-hidden">
+            <FlowCanvas
+              stages={stages}
+              selectedStageId={selectedStageId}
+              onSelectStage={(stageId) => {
+                setSelectedStageId(stageId);
+                setSelectedComponent(null);
+                setEditorView('editor');
+              }}
+              onStagesChange={(updatedStages) => {
+                setStages(updatedStages);
+                setHasUnsavedChanges(true);
+              }}
+            />
           </div>
-          
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
-              <Undo className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
-              <Redo className="w-4 h-4" />
-            </Button>
-            
-            {editorView === 'editor' && (
+        ) : (
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Preview Mode Toggle */}
+            <div className="flex items-center justify-center py-2 border-b border-border bg-background/50">
               <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
                 <button
                   onClick={() => setPreviewMode('mobile')}
@@ -598,50 +647,25 @@ export function QuizEditor() {
                   <Monitor className="w-4 h-4" />
                 </button>
               </div>
-            )}
-          </div>
-
-          <Button variant="ghost" size="sm" className="gap-2" onClick={() => currentQuiz.slug && navigate(`/${currentQuiz.slug}`)}>
-            <Eye className="w-4 h-4" />
-            Preview
-          </Button>
-        </div>
-
-        {/* Preview Content */}
-        {editorView === 'flow' ? (
-          <div className="flex-1 overflow-hidden">
-            <FlowCanvas
-              stages={stages}
-              selectedStageId={selectedStageId}
-              onSelectStage={(stageId) => {
-                setSelectedStageId(stageId);
-                setSelectedComponent(null);
-                setEditorView('editor');
-              }}
-              onStagesChange={(updatedStages) => {
-                setStages(updatedStages);
-                setHasUnsavedChanges(true);
-              }}
-            />
-          </div>
-        ) : (
-          <div className="flex-1 flex items-start justify-center p-8 overflow-y-auto">
-            <div 
-              className={cn(
-                "bg-background rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col",
-                previewMode === 'mobile' 
-                  ? "w-[375px] h-[667px]" 
-                  : "w-full max-w-4xl h-[640px]"
-              )}
-            >
-              {/* Quiz Header Preview */}
-              <div className="shrink-0 border-b border-border p-3">
-                <div className="flex items-center gap-3">
-                  {pageSettings.allowBack && (
-                    <button className="p-1 hover:bg-muted rounded transition-colors">
-                      <ArrowLeft className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                  )}
+            </div>
+            
+            <div className="flex-1 flex items-start justify-center p-8 overflow-y-auto">
+              <div 
+                className={cn(
+                  "bg-background rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col",
+                  previewMode === 'mobile' 
+                    ? "w-[375px] h-[667px]" 
+                    : "w-full max-w-4xl h-[640px]"
+                )}
+              >
+                {/* Quiz Header Preview */}
+                <div className="shrink-0 border-b border-border p-3">
+                  <div className="flex items-center gap-3">
+                    {pageSettings.allowBack && (
+                      <button className="p-1 hover:bg-muted rounded transition-colors">
+                        <ArrowLeft className="w-4 h-4 text-muted-foreground" />
+                      </button>
+                    )}
                   {pageSettings.showLogo && pageSettings.logoUrl && (
                     <img 
                       src={pageSettings.logoUrl} 
@@ -673,10 +697,9 @@ export function QuizEditor() {
               )}
             </div>
           </div>
+          </div>
         )}
       </div>
-
-      {/* Right Sidebar (hidden in flow view) */}
       {editorView === 'editor' && (
       <div className="w-96 bg-background border-l border-border flex flex-col shrink-0 overflow-hidden">
         {selectedComponent ? (
@@ -827,6 +850,7 @@ export function QuizEditor() {
         )}
       </div>
       )}
+      </div> {/* End Main Content Area */}
 
       {/* Template Modal */}
       {showTemplates && (
