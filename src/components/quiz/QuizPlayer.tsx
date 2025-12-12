@@ -59,6 +59,7 @@ interface ComponentConfig {
   // Options appearance
   optionStyle?: 'simple' | 'card' | 'image';
   optionLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
+  optionOrientation?: 'horizontal' | 'vertical';
   optionBorderRadius?: 'none' | 'small' | 'medium' | 'large' | 'full';
   optionShadow?: 'none' | 'sm' | 'md' | 'lg';
   optionSpacing?: 'compact' | 'simple' | 'relaxed';
@@ -426,6 +427,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         
         const optionStyle = config.optionStyle || 'simple';
         const optionLayout = config.optionLayout || 'list';
+        const optionOrientation = config.optionOrientation || 'horizontal';
         const optionBorderRadius = config.optionBorderRadius || 'small';
         const optionShadow = config.optionShadow || 'none';
         const optionSpacing = config.optionSpacing || 'simple';
@@ -434,6 +436,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         const imagePosition = config.imagePosition || 'top';
         const imageRatio = config.imageRatio || '1:1';
         const autoAdvance = config.autoAdvance !== false && !isMultiple;
+        const isVertical = optionOrientation === 'vertical';
         
         const getBorderRadius = () => {
           switch (optionBorderRadius) {
@@ -527,12 +530,12 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           );
         };
         
-        const renderOptionMedia = (opt: OptionItem) => {
+        const renderOptionMedia = (opt: OptionItem, vertical = false) => {
           if (opt.mediaType === 'icon' && opt.icon) {
-            return <span className="text-lg shrink-0">{opt.icon}</span>;
+            return <span className={cn("shrink-0", vertical ? "text-2xl" : "text-lg")}>{opt.icon}</span>;
           }
           if (opt.mediaType === 'image' && opt.imageUrl) {
-            return <img src={opt.imageUrl} alt="" className="w-6 h-6 object-cover rounded shrink-0" />;
+            return <img src={opt.imageUrl} alt="" className={cn("object-cover rounded shrink-0", vertical ? "w-10 h-10" : "w-6 h-6")} />;
           }
           return null;
         };
@@ -599,19 +602,24 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                       key={opt.id}
                       onClick={() => handleOptionClick(opt.value)}
                       className={cn(
-                        "p-4 border text-sm transition-colors text-left",
+                        "p-4 border text-sm transition-colors",
+                        isVertical ? "text-center" : "text-left",
                         getBorderRadius(),
                         getShadow(),
                         isSelected ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
                       )}
                     >
                       <div className={cn(
-                        "flex items-center gap-3",
-                        detailPosition === 'end' && "flex-row-reverse"
+                        isVertical 
+                          ? "flex flex-col items-center gap-2" 
+                          : "flex items-center gap-3",
+                        !isVertical && detailPosition === 'end' && "flex-row-reverse"
                       )}>
-                        {renderDetail(isSelected, i)}
-                        {renderOptionMedia(opt)}
-                        <span className="flex-1">{opt.text}</span>
+                        {isVertical && renderOptionMedia(opt, true)}
+                        {!isVertical && renderDetail(isSelected, i)}
+                        {!isVertical && renderOptionMedia(opt)}
+                        <span className={cn(!isVertical && "flex-1")}>{opt.text}</span>
+                        {isVertical && renderDetail(isSelected, i)}
                       </div>
                     </button>
                   );
@@ -623,19 +631,24 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                     key={opt.id}
                     onClick={() => handleOptionClick(opt.value)}
                     className={cn(
-                      "p-3 border text-sm transition-colors text-left",
+                      "p-3 border text-sm transition-colors",
+                      isVertical ? "text-center" : "text-left",
                       getBorderRadius(),
                       getShadow(),
                       isSelected ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
                     )}
                   >
                     <div className={cn(
-                      "flex items-center gap-3",
-                      detailPosition === 'end' && "flex-row-reverse"
+                      isVertical 
+                        ? "flex flex-col items-center gap-2" 
+                        : "flex items-center gap-3",
+                      !isVertical && detailPosition === 'end' && "flex-row-reverse"
                     )}>
-                      {renderDetail(isSelected, i)}
-                      {renderOptionMedia(opt)}
-                      <span className="flex-1">{opt.text}</span>
+                      {isVertical && renderOptionMedia(opt, true)}
+                      {!isVertical && renderDetail(isSelected, i)}
+                      {!isVertical && renderOptionMedia(opt)}
+                      <span className={cn(!isVertical && "flex-1")}>{opt.text}</span>
+                      {isVertical && renderDetail(isSelected, i)}
                     </div>
                   </button>
                 );

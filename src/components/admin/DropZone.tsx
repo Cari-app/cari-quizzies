@@ -300,6 +300,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'multiple': {
         const optionStyle = config.optionStyle || 'simple';
         const optionLayout = config.optionLayout || 'list';
+        const optionOrientation = config.optionOrientation || 'horizontal';
         const optionBorderRadius = config.optionBorderRadius || 'small';
         const optionShadow = config.optionShadow || 'none';
         const optionSpacing = config.optionSpacing || 'simple';
@@ -307,6 +308,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const detailPosition = config.detailPosition || 'start';
         const imagePosition = config.imagePosition || 'top';
         const imageRatio = config.imageRatio || '1:1';
+        const isVertical = optionOrientation === 'vertical';
         
         const getBorderRadius = () => {
           switch (optionBorderRadius) {
@@ -379,12 +381,12 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           );
         };
         
-        const renderOptionMedia = (opt: any) => {
+        const renderOptionMedia = (opt: any, vertical = false) => {
           if (opt.mediaType === 'icon' && opt.icon) {
-            return <span className="text-lg shrink-0">{opt.icon}</span>;
+            return <span className={cn("shrink-0", vertical ? "text-2xl" : "text-lg")}>{opt.icon}</span>;
           }
           if (opt.mediaType === 'image' && opt.imageUrl) {
-            return <img src={opt.imageUrl} alt="" className="w-6 h-6 object-cover rounded shrink-0" />;
+            return <img src={opt.imageUrl} alt="" className={cn("object-cover rounded shrink-0", vertical ? "w-10 h-10" : "w-6 h-6")} />;
           }
           return null;
         };
@@ -456,12 +458,16 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                       )}
                     >
                       <div className={cn(
-                        "flex items-center gap-3",
-                        detailPosition === 'end' && "flex-row-reverse"
+                        isVertical 
+                          ? "flex flex-col items-center text-center gap-2" 
+                          : "flex items-center gap-3",
+                        !isVertical && detailPosition === 'end' && "flex-row-reverse"
                       )}>
-                        {renderDetail(isSelected, i)}
-                        {renderOptionMedia(opt)}
-                        <span className="flex-1">{opt.text}</span>
+                        {isVertical && renderOptionMedia(opt, true)}
+                        {!isVertical && renderDetail(isSelected, i)}
+                        {!isVertical && renderOptionMedia(opt)}
+                        <span className={cn(!isVertical && "flex-1")}>{opt.text}</span>
+                        {isVertical && renderDetail(isSelected, i)}
                       </div>
                     </div>
                   );
@@ -479,12 +485,16 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                     )}
                   >
                     <div className={cn(
-                      "flex items-center gap-3",
-                      detailPosition === 'end' && "flex-row-reverse"
+                      isVertical 
+                        ? "flex flex-col items-center text-center gap-2" 
+                        : "flex items-center gap-3",
+                      !isVertical && detailPosition === 'end' && "flex-row-reverse"
                     )}>
-                      {renderDetail(isSelected, i)}
-                      {renderOptionMedia(opt)}
-                      <span className="flex-1">{opt.text}</span>
+                      {isVertical && renderOptionMedia(opt, true)}
+                      {!isVertical && renderDetail(isSelected, i)}
+                      {!isVertical && renderOptionMedia(opt)}
+                      <span className={cn(!isVertical && "flex-1")}>{opt.text}</span>
+                      {isVertical && renderDetail(isSelected, i)}
                     </div>
                   </div>
                 );
