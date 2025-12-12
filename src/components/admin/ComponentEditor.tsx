@@ -504,8 +504,15 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
   const [expandedOptionId, setExpandedOptionId] = useState<string | null>(null);
   const [showMediaSelector, setShowMediaSelector] = useState<string | null>(null);
+  const [emojiCategory, setEmojiCategory] = useState<'popular' | 'faces' | 'gestures' | 'objects' | 'symbols'>('popular');
   
-  const commonEmojis = ['😊', '👍', '❤️', '⭐', '✅', '🎯', '💡', '🔥', '💪', '🎉', '👋', '🙏', '💰', '🏠', '🚗', '✈️', '🍕', '☕', '📱', '💻', '📧', '📞', '🔔', '⚡'];
+  const emojiCategories = {
+    popular: ['😊', '👍', '❤️', '⭐', '✅', '🎯', '💡', '🔥', '💪', '🎉', '👋', '🙏', '💰', '🏠', '🚗', '✈️'],
+    faces: ['😀', '😃', '😄', '😁', '😆', '😅', '🤣', '😂', '🙂', '😉', '😊', '😇', '🥰', '😍', '🤩', '😘'],
+    gestures: ['👍', '👎', '👊', '✊', '🤛', '🤜', '👏', '🙌', '👐', '🤝', '🙏', '✌️', '🤞', '🤟', '🤘', '👌'],
+    objects: ['🏠', '🏢', '🏥', '🏦', '🚗', '🚕', '🚌', '✈️', '🚀', '📱', '💻', '⌚', '📷', '🎮', '🎧', '💼'],
+    symbols: ['✅', '❌', '⭐', '💯', '🔥', '💡', '⚡', '❤️', '💚', '💙', '💜', '🖤', '🤍', '💛', '🧡', '💗']
+  };
 
   const renderOptionsComponentTab = () => {
     const defaultOptions: OptionItem[] = [
@@ -598,26 +605,28 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                     {/* Media selector dropdown */}
                     {showMediaSelector === opt.id && (
                       <div 
-                        className="absolute top-12 left-0 z-50 bg-background border border-border rounded-lg shadow-lg p-3 w-64"
+                        className="absolute top-12 left-0 z-[100] bg-background border border-border rounded-xl shadow-xl p-4 w-72"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <div className="flex items-center justify-between mb-2">
-                          <Label className="text-xs text-muted-foreground">Mídia da opção</Label>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-sm font-medium">Mídia da opção</span>
                           <button 
                             onClick={() => setShowMediaSelector(null)}
-                            className="p-1 hover:bg-muted rounded"
+                            className="p-1.5 hover:bg-muted rounded-lg transition-colors"
                           >
-                            <X className="w-3 h-3" />
+                            <X className="w-4 h-4" />
                           </button>
                         </div>
                         
                         {/* Type selector */}
-                        <div className="flex gap-1 mb-3">
+                        <div className="flex gap-1 p-1 bg-muted rounded-lg mb-4">
                           <button
                             onClick={() => updateOption(opt.id, { mediaType: 'none', icon: undefined, imageUrl: undefined })}
                             className={cn(
-                              "flex-1 py-1.5 px-2 text-xs rounded transition-colors",
-                              (!opt.mediaType || opt.mediaType === 'none') ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
+                              "flex-1 py-2 px-3 text-xs font-medium rounded-md transition-all",
+                              (!opt.mediaType || opt.mediaType === 'none') 
+                                ? "bg-background text-foreground shadow-sm" 
+                                : "text-muted-foreground hover:text-foreground"
                             )}
                           >
                             Nenhum
@@ -625,56 +634,95 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                           <button
                             onClick={() => updateOption(opt.id, { mediaType: 'icon' })}
                             className={cn(
-                              "flex-1 py-1.5 px-2 text-xs rounded transition-colors flex items-center justify-center gap-1",
-                              opt.mediaType === 'icon' ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
+                              "flex-1 py-2 px-3 text-xs font-medium rounded-md transition-all flex items-center justify-center gap-1.5",
+                              opt.mediaType === 'icon' 
+                                ? "bg-background text-foreground shadow-sm" 
+                                : "text-muted-foreground hover:text-foreground"
                             )}
                           >
-                            <Smile className="w-3 h-3" />
+                            <Smile className="w-3.5 h-3.5" />
                             Ícone
                           </button>
                           <button
                             onClick={() => updateOption(opt.id, { mediaType: 'image' })}
                             className={cn(
-                              "flex-1 py-1.5 px-2 text-xs rounded transition-colors flex items-center justify-center gap-1",
-                              opt.mediaType === 'image' ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
+                              "flex-1 py-2 px-3 text-xs font-medium rounded-md transition-all flex items-center justify-center gap-1.5",
+                              opt.mediaType === 'image' 
+                                ? "bg-background text-foreground shadow-sm" 
+                                : "text-muted-foreground hover:text-foreground"
                             )}
                           >
-                            <Image className="w-3 h-3" />
+                            <Image className="w-3.5 h-3.5" />
                             Foto
                           </button>
                         </div>
                         
                         {/* Icon picker */}
                         {opt.mediaType === 'icon' && (
-                          <div className="grid grid-cols-8 gap-1">
-                            {commonEmojis.map((emoji) => (
-                              <button
-                                key={emoji}
-                                onClick={() => { 
-                                  updateOption(opt.id, { icon: emoji }); 
-                                  setShowMediaSelector(null);
-                                }}
-                                className={cn(
-                                  "w-7 h-7 rounded flex items-center justify-center text-base hover:bg-muted transition-colors",
-                                  opt.icon === emoji && "bg-primary/20 ring-1 ring-primary"
-                                )}
-                              >
-                                {emoji}
-                              </button>
-                            ))}
+                          <div className="space-y-2">
+                            {/* Category tabs */}
+                            <div className="flex gap-1 overflow-x-auto pb-1">
+                              {(['popular', 'faces', 'gestures', 'objects', 'symbols'] as const).map((cat) => (
+                                <button
+                                  key={cat}
+                                  onClick={() => setEmojiCategory(cat)}
+                                  className={cn(
+                                    "px-2 py-1 text-xs rounded-md whitespace-nowrap transition-colors",
+                                    emojiCategory === cat 
+                                      ? "bg-primary/20 text-primary font-medium" 
+                                      : "text-muted-foreground hover:bg-muted"
+                                  )}
+                                >
+                                  {cat === 'popular' && '⭐ Popular'}
+                                  {cat === 'faces' && '😊 Rostos'}
+                                  {cat === 'gestures' && '👍 Gestos'}
+                                  {cat === 'objects' && '🏠 Objetos'}
+                                  {cat === 'symbols' && '✅ Símbolos'}
+                                </button>
+                              ))}
+                            </div>
+                            
+                            {/* Emoji grid */}
+                            <div className="grid grid-cols-8 gap-1">
+                              {emojiCategories[emojiCategory].map((emoji) => (
+                                <button
+                                  key={emoji}
+                                  onClick={() => { 
+                                    updateOption(opt.id, { icon: emoji }); 
+                                    setShowMediaSelector(null);
+                                  }}
+                                  className={cn(
+                                    "w-7 h-7 rounded flex items-center justify-center text-lg hover:bg-muted hover:scale-110 transition-all",
+                                    opt.icon === emoji && "bg-primary/20 ring-2 ring-primary"
+                                  )}
+                                >
+                                  {emoji}
+                                </button>
+                              ))}
+                            </div>
                           </div>
                         )}
                         
                         {/* Image URL input */}
                         {opt.mediaType === 'image' && (
-                          <div>
+                          <div className="space-y-2">
                             <Input
                               value={opt.imageUrl || ''}
                               onChange={(e) => updateOption(opt.id, { imageUrl: e.target.value })}
-                              placeholder="https://... ou cole uma imagem"
-                              className="text-xs"
+                              placeholder="https://exemplo.com/imagem.jpg"
+                              className="text-sm"
                             />
-                            <p className="text-xs text-muted-foreground mt-1">Cole uma URL de imagem</p>
+                            <p className="text-xs text-muted-foreground">Cole a URL de uma imagem da web</p>
+                            {opt.imageUrl && (
+                              <div className="relative w-full h-20 bg-muted rounded-lg overflow-hidden">
+                                <img 
+                                  src={opt.imageUrl} 
+                                  alt="Preview" 
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => (e.currentTarget.style.display = 'none')}
+                                />
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
