@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -8,10 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
-import { Trash2, Plus, ChevronDown, GripVertical, Image, Smile, X } from 'lucide-react';
+import { Trash2, Plus, ChevronDown, GripVertical, Image, Smile, X, Upload, Loader2 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export interface DroppedComponent {
   id: string;
@@ -877,11 +879,77 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
   const [mediaTab, setMediaTab] = useState<'image' | 'url' | 'emoji'>('url');
   const [mediaAdvancedOpen, setMediaAdvancedOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const commonEmojis = ['🖼️', '📷', '🌄', '🌅', '🏞️', '🎨', '✨', '💫', '🔥', '❤️', '⭐', '🎯', '💡', '🚀', '💪', '🎉'];
 
+  const handleImageUpload = async (file: File) => {
+    if (!file) return;
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Tipo de arquivo não suportado. Use JPG, PNG, GIF ou WebP.');
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Arquivo muito grande. Máximo 5MB.');
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Você precisa estar logado para fazer upload.');
+        return;
+      }
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('quiz-images')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        toast.error('Erro ao fazer upload da imagem.');
+        return;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('quiz-images')
+        .getPublicUrl(fileName);
+
+      updateConfig({ mediaUrl: publicUrl });
+      toast.success('Imagem enviada com sucesso!');
+    } catch (error) {
+      console.error('Upload error:', error);
+      toast.error('Erro ao fazer upload da imagem.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const renderMediaComponentTab = () => (
     <div className="space-y-4">
+      {/* Hidden file input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        accept="image/jpeg,image/png,image/gif,image/webp"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) handleImageUpload(file);
+        }}
+      />
+
       {/* Media Type Tabs */}
       <div className="flex p-1 bg-muted rounded-lg">
         <button
@@ -919,12 +987,43 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
       {/* Image Upload Tab */}
       {mediaTab === 'image' && (
         <div className="space-y-3">
-          <Button variant="outline" className="w-full" disabled>
-            Selecionar imagem
+          <Button 
+            variant="outline" 
+            className="w-full" 
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+          >
+            {isUploading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Enviando...
+              </>
+            ) : (
+              <>
+                <Upload className="w-4 h-4 mr-2" />
+                Selecionar imagem
+              </>
+            )}
           </Button>
           <p className="text-xs text-muted-foreground text-center">
-            Upload de imagens em breve
+            JPG, PNG, GIF ou WebP. Máximo 5MB.
           </p>
+          {config.mediaUrl && !config.mediaUrl.match(/^[\u{1F300}-\u{1F9FF}]/u) && (
+            <div className="relative w-full h-32 bg-muted rounded-lg overflow-hidden">
+              <img 
+                src={config.mediaUrl} 
+                alt="Preview" 
+                className="w-full h-full object-cover"
+              />
+              <button
+                type="button"
+                onClick={() => updateConfig({ mediaUrl: '' })}
+                className="absolute top-2 right-2 p-1 bg-background/80 rounded-full hover:bg-background"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
       )}
 
