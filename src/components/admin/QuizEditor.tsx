@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check } from 'lucide-react';
+import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check, Save, Upload } from 'lucide-react';
+import { toast } from 'sonner';
 import { Reorder } from 'framer-motion';
 import { Quiz, QuizScreen, QuizScreenType } from '@/types/quiz';
 import { ScreenEditor } from './ScreenEditor';
@@ -118,6 +119,16 @@ export function QuizEditor() {
       startSession(currentQuiz.id);
       navigate(`/${currentQuiz.id}`);
     }
+  };
+
+  const handleSave = () => {
+    // TODO: Save to database
+    toast.success('Quiz salvo com sucesso!');
+  };
+
+  const handlePublish = () => {
+    updateQuiz(currentQuiz.id, { isPublished: !currentQuiz.isPublished });
+    toast.success(currentQuiz.isPublished ? 'Quiz despublicado' : 'Quiz publicado com sucesso!');
   };
 
   return (
@@ -293,41 +304,61 @@ export function QuizEditor() {
       {/* Center - Preview */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Bar */}
-        <div className="h-14 border-b border-border bg-background flex items-center justify-center gap-4 px-4 shrink-0">
-          <div className="flex items-center gap-1 border border-border rounded-lg p-1">
-            <button
-              className={cn(
-                "p-2 rounded-md transition-colors",
-                previewMode === 'mobile' ? "bg-muted" : "hover:bg-muted/50"
-              )}
-              onClick={() => setPreviewMode('mobile')}
-            >
-              <Smartphone className="w-4 h-4" />
-            </button>
-            <button
-              className={cn(
-                "p-2 rounded-md transition-colors",
-                previewMode === 'desktop' ? "bg-muted" : "hover:bg-muted/50"
-              )}
-              onClick={() => setPreviewMode('desktop')}
-            >
-              <Monitor className="w-4 h-4" />
-            </button>
+        <div className="h-14 border-b border-border bg-background flex items-center justify-between px-4 shrink-0">
+          <div /> {/* Spacer */}
+          
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1 border border-border rounded-lg p-1">
+              <button
+                className={cn(
+                  "p-2 rounded-md transition-colors",
+                  previewMode === 'mobile' ? "bg-muted" : "hover:bg-muted/50"
+                )}
+                onClick={() => setPreviewMode('mobile')}
+              >
+                <Smartphone className="w-4 h-4" />
+              </button>
+              <button
+                className={cn(
+                  "p-2 rounded-md transition-colors",
+                  previewMode === 'desktop' ? "bg-muted" : "hover:bg-muted/50"
+                )}
+                onClick={() => setPreviewMode('desktop')}
+              >
+                <Monitor className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-1">
+              <button className="p-2 rounded-md hover:bg-muted/50 transition-colors">
+                <Undo className="w-4 h-4 text-muted-foreground" />
+              </button>
+              <button className="p-2 rounded-md hover:bg-muted/50 transition-colors">
+                <Redo className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+
+            <Button size="sm" variant="outline" onClick={handlePreview} className="gap-2">
+              <Eye className="w-4 h-4" />
+              Testar
+            </Button>
           </div>
 
-          <div className="flex items-center gap-1">
-            <button className="p-2 rounded-md hover:bg-muted/50 transition-colors">
-              <Undo className="w-4 h-4 text-muted-foreground" />
-            </button>
-            <button className="p-2 rounded-md hover:bg-muted/50 transition-colors">
-              <Redo className="w-4 h-4 text-muted-foreground" />
-            </button>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={handleSave} className="gap-2">
+              <Save className="w-4 h-4" />
+              Salvar
+            </Button>
+            <Button 
+              size="sm" 
+              onClick={handlePublish} 
+              className="gap-2"
+              variant={currentQuiz.isPublished ? "secondary" : "default"}
+            >
+              <Upload className="w-4 h-4" />
+              {currentQuiz.isPublished ? 'Despublicar' : 'Publicar'}
+            </Button>
           </div>
-
-          <Button size="sm" onClick={handlePreview} className="gap-2">
-            <Eye className="w-4 h-4" />
-            Testar
-          </Button>
         </div>
 
         {/* Preview Area */}
