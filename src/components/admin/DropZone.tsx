@@ -42,8 +42,9 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
     const icon = e.dataTransfer.getData('component-icon');
 
     if (type && name) {
+      const uniqueId = crypto.randomUUID();
       const newComponent: DroppedComponent = {
-        id: `${type}-${Date.now()}`,
+        id: uniqueId,
         type,
         name,
         icon,
@@ -55,6 +56,9 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
   };
 
   const getDefaultConfig = (type: string): ComponentConfig => {
+    // Helper to generate unique IDs
+    const uuid = () => crypto.randomUUID();
+    
     switch (type) {
       case 'input':
         return { label: 'Campo de texto', placeholder: 'Digite aqui...', required: false };
@@ -79,9 +83,9 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         return { 
           label: 'Qual sua preferência?', 
           options: [
-            { id: '1', text: 'Opção 1', value: 'opt1' },
-            { id: '2', text: 'Opção 2', value: 'opt2' },
-            { id: '3', text: 'Opção 3', value: 'opt3' },
+            { id: uuid(), text: 'Opção 1', value: 'opt1' },
+            { id: uuid(), text: 'Opção 2', value: 'opt2' },
+            { id: uuid(), text: 'Opção 3', value: 'opt3' },
           ],
           allowMultiple: false,
           required: true
@@ -90,9 +94,9 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         return { 
           label: 'Selecione todas que se aplicam', 
           options: [
-            { id: '1', text: 'Opção 1', value: 'opt1' },
-            { id: '2', text: 'Opção 2', value: 'opt2' },
-            { id: '3', text: 'Opção 3', value: 'opt3' },
+            { id: uuid(), text: 'Opção 1', value: 'opt1' },
+            { id: uuid(), text: 'Opção 2', value: 'opt2' },
+            { id: uuid(), text: 'Opção 3', value: 'opt3' },
           ],
           allowMultiple: true,
           required: true
@@ -101,8 +105,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         return { 
           label: 'Você concorda?', 
           options: [
-            { id: '1', text: 'Sim', value: 'yes' },
-            { id: '2', text: 'Não', value: 'no' },
+            { id: uuid(), text: 'Sim', value: 'yes' },
+            { id: uuid(), text: 'Não', value: 'no' },
           ],
           required: true
         };
@@ -135,9 +139,9 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           notificationInterval: 2,
           notificationStyle: 'default',
           notificationVariations: [
-            { id: '1', name: 'Rafael', platform: 'Instagram', number: '7' },
-            { id: '2', name: 'Beatriz', platform: 'Whatsapp', number: '6' },
-            { id: '3', name: 'Carlos', platform: 'Facebook', number: '5' },
+            { id: uuid(), name: 'Rafael', platform: 'Instagram', number: '7' },
+            { id: uuid(), name: 'Beatriz', platform: 'Whatsapp', number: '6' },
+            { id: uuid(), name: 'Carlos', platform: 'Facebook', number: '5' },
           ]
         };
       case 'timer':
@@ -183,8 +187,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           argumentLayout: 'grid-2',
           argumentDisposition: 'image-text',
           argumentItems: [
-            { id: '1', title: 'Titulo aqui', description: 'Descrição aqui oi tudo bem isso aqui e uma descrição', mediaType: 'none' },
-            { id: '2', title: 'Fusce vitae', description: 'Tellus in risus sagittis condimentum', mediaType: 'none' },
+            { id: uuid(), title: 'Titulo aqui', description: 'Descrição aqui oi tudo bem isso aqui e uma descrição', mediaType: 'none' },
+            { id: uuid(), title: 'Fusce vitae', description: 'Tellus in risus sagittis condimentum', mediaType: 'none' },
           ],
           width: 100,
           horizontalAlign: 'start',
@@ -197,8 +201,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           testimonialShadow: 'none',
           testimonialSpacing: 'simple',
           testimonialItems: [
-            { id: '1', name: 'Rafael Nascimento', handle: '@rafael.nascimento', rating: 5, text: 'A experiência foi excelente do início ao fim. Atendimento rápido, equipe super atenciosa e resultados acima do esperado. Com certeza recomendaria!' },
-            { id: '2', name: 'Camila Ferreira', handle: '@camila.ferreira', rating: 5, text: 'Fiquei impressionado com a qualidade e o cuidado em cada detalhe. Superou todas as minhas expectativas. Já virei cliente fiel!' },
+            { id: uuid(), name: 'Rafael Nascimento', handle: '@rafael.nascimento', rating: 5, text: 'A experiência foi excelente do início ao fim. Atendimento rápido, equipe super atenciosa e resultados acima do esperado. Com certeza recomendaria!' },
+            { id: uuid(), name: 'Camila Ferreira', handle: '@camila.ferreira', rating: 5, text: 'Fiquei impressionado com a qualidade e o cuidado em cada detalhe. Superou todas as minhas expectativas. Já virei cliente fiel!' },
           ],
           width: 100,
           horizontalAlign: 'start',
@@ -207,8 +211,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'faq':
         return {
           faqItems: [
-            { id: '1', question: 'Qual a primeira dúvida a ser resolvida?', answer: 'Este é apenas um texto de exemplo utilizado para ilustrar como a resposta de uma dúvida frequente será exibida nesta seção.' },
-            { id: '2', question: 'Descreva outra dúvida a ser resolvida.', answer: 'Texto genérico de demonstração. Serve apenas como modelo visual para representar uma resposta real a ser inserida posteriormente.' },
+            { id: uuid(), question: 'Qual a primeira dúvida a ser resolvida?', answer: 'Este é apenas um texto de exemplo utilizado para ilustrar como a resposta de uma dúvida frequente será exibida nesta seção.' },
+            { id: uuid(), question: 'Descreva outra dúvida a ser resolvida.', answer: 'Texto genérico de demonstração. Serve apenas como modelo visual para representar uma resposta real a ser inserida posteriormente.' },
           ],
           faqDetailType: 'arrow',
           faqFirstOpen: true,
@@ -244,8 +248,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'carousel':
         return {
           carouselItems: [
-            { id: '1', image: '', description: 'Exemplo de descrição' },
-            { id: '2', image: '', description: 'Exemplo de descrição' }
+            { id: uuid(), image: '', description: 'Exemplo de descrição' },
+            { id: uuid(), image: '', description: 'Exemplo de descrição' }
           ],
           carouselLayout: 'image-text',
           carouselPagination: true,
@@ -259,10 +263,10 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'metrics':
         return {
           metricItems: [
-            { id: '1', type: 'bar', color: 'theme', value: 30, label: 'Fusce vitae tellus in risus sagittis condimentum' },
-            { id: '2', type: 'circular', color: 'theme', value: 30, label: 'Fusce vitae tellus in risus sagittis condimentum' },
-            { id: '3', type: 'circular', color: 'yellow', value: 30, label: 'Fusce vitae tellus in risus sagittis condimentum' },
-            { id: '4', type: 'bar', color: 'theme', value: 30, label: 'Fusce vitae tellus in risus sagittis condimentum' }
+            { id: uuid(), type: 'bar', color: 'theme', value: 30, label: 'Fusce vitae tellus in risus sagittis condimentum' },
+            { id: uuid(), type: 'circular', color: 'theme', value: 30, label: 'Fusce vitae tellus in risus sagittis condimentum' },
+            { id: uuid(), type: 'circular', color: 'yellow', value: 30, label: 'Fusce vitae tellus in risus sagittis condimentum' },
+            { id: uuid(), type: 'bar', color: 'theme', value: 30, label: 'Fusce vitae tellus in risus sagittis condimentum' }
           ],
           metricsLayout: 'grid-2',
           metricsDisposition: 'legend-chart',
@@ -290,9 +294,11 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
   };
 
   const handleDuplicate = (comp: DroppedComponent) => {
+    const uniqueId = crypto.randomUUID();
     const newComponent: DroppedComponent = {
       ...comp,
-      id: `${comp.type}-${Date.now()}`,
+      id: uniqueId,
+      customId: undefined, // Clear customId for duplicated component
       config: comp.config ? { ...comp.config } : undefined,
     };
     const index = components.findIndex(c => c.id === comp.id);
