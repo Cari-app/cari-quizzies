@@ -368,6 +368,12 @@ export function QuizEditor() {
                   );
                   setSelectedComponent(prev => prev ? { ...prev, config } : null);
                 }}
+                onUpdateCustomId={(customId) => {
+                  setDroppedComponents(prev => 
+                    prev.map(c => c.id === selectedComponent.id ? { ...c, customId } : c)
+                  );
+                  setSelectedComponent(prev => prev ? { ...prev, customId } : null);
+                }}
                 onDelete={() => {
                   setDroppedComponents(prev => prev.filter(c => c.id !== selectedComponent.id));
                   setSelectedComponent(null);

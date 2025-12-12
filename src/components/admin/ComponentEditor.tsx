@@ -12,6 +12,7 @@ export interface DroppedComponent {
   name: string;
   icon: string;
   config?: ComponentConfig;
+  customId?: string;
 }
 
 export interface ComponentConfig {
@@ -46,11 +47,21 @@ export interface ComponentConfig {
 interface ComponentEditorProps {
   component: DroppedComponent;
   onUpdate: (config: ComponentConfig) => void;
+  onUpdateCustomId: (customId: string) => void;
   onDelete: () => void;
 }
 
-export function ComponentEditor({ component, onUpdate, onDelete }: ComponentEditorProps) {
+export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelete }: ComponentEditorProps) {
   const config = component.config || {};
+
+  const generateSlug = (text: string) => {
+    return text
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/(^_|_$)/g, '');
+  };
 
   const updateConfig = (updates: Partial<ComponentConfig>) => {
     onUpdate({ ...config, ...updates });
@@ -409,6 +420,20 @@ export function ComponentEditor({ component, onUpdate, onDelete }: ComponentEdit
         <Button variant="ghost" size="icon" onClick={onDelete} className="text-destructive hover:text-destructive">
           <Trash2 className="w-4 h-4" />
         </Button>
+      </div>
+
+      {/* Custom ID Field */}
+      <div>
+        <Label className="text-xs">ID do componente</Label>
+        <Input
+          value={component.customId || ''}
+          onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
+          placeholder={`${component.type}_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
+          className="mt-1 font-mono text-xs"
+        />
+        <p className="text-[10px] text-muted-foreground mt-1">
+          ID único para identificar este campo nos dados coletados
+        </p>
       </div>
 
       {/* Config Fields */}
