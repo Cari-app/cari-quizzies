@@ -1124,8 +1124,6 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const shadow = config.testimonialShadow || 'none';
         const spacing = config.testimonialSpacing || 'simple';
         
-        const gridClass = layout === 'grid-2' ? 'grid-cols-2' : 'grid-cols-1';
-        
         const borderRadiusClass = {
           'none': 'rounded-none',
           'small': 'rounded-lg',
@@ -1145,6 +1143,74 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           'simple': 'p-4 gap-3',
           'relaxed': 'p-5 gap-4',
         }[spacing] || 'p-4 gap-3';
+
+        const renderTestimonialCard = (item: typeof testimonialItems[0]) => (
+          <div 
+            key={item.id} 
+            className={cn(
+              "border border-border bg-background flex flex-col",
+              borderRadiusClass,
+              shadowClass,
+              spacingClass
+            )}
+          >
+            {/* Rating stars */}
+            <div className="flex gap-0.5 mb-2">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <span key={i} className={cn("text-sm", i < item.rating ? "text-amber-400" : "text-muted-foreground/30")}>
+                  ★
+                </span>
+              ))}
+            </div>
+            
+            {/* Author info */}
+            <div className="flex items-center gap-2 mb-2">
+              {item.avatarUrl && (
+                <img src={item.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover" />
+              )}
+              <div>
+                <div className="font-semibold text-sm">{item.name}</div>
+                <div className="text-xs text-muted-foreground">{item.handle}</div>
+              </div>
+            </div>
+            
+            {/* Text */}
+            <div 
+              className="text-sm text-muted-foreground rich-text flex-1"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.text) }}
+            />
+            
+            {/* Photo */}
+            {item.photoUrl && (
+              <img src={item.photoUrl} alt="" className={cn("w-full h-32 object-cover mt-3", borderRadiusClass)} />
+            )}
+          </div>
+        );
+
+        if (layout === 'carousel') {
+          return (
+            <div className={cn("w-full flex", alignClass)}>
+              <div className="w-full p-4 overflow-hidden" style={{ width: `${widthValue}%` }}>
+                <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory scrollbar-hide">
+                  {testimonialItems.map((item) => (
+                    <div key={item.id} className="flex-shrink-0 w-[280px] snap-start">
+                      {renderTestimonialCard(item)}
+                    </div>
+                  ))}
+                </div>
+                {testimonialItems.length > 1 && (
+                  <div className="flex justify-center gap-1.5 mt-3">
+                    {testimonialItems.map((_, i) => (
+                      <div key={i} className={cn("w-2 h-2 rounded-full", i === 0 ? "bg-primary" : "bg-muted-foreground/30")} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        }
+        
+        const gridClass = layout === 'grid-2' ? 'grid-cols-2' : 'grid-cols-1';
         
         return (
           <div className={cn("w-full flex", alignClass)}>
@@ -1152,48 +1218,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               className={cn("grid gap-3 p-4", gridClass)}
               style={{ width: `${widthValue}%` }}
             >
-              {testimonialItems.map((item) => (
-                <div 
-                  key={item.id} 
-                  className={cn(
-                    "border border-border bg-background flex flex-col",
-                    borderRadiusClass,
-                    shadowClass,
-                    spacingClass
-                  )}
-                >
-                  {/* Rating stars */}
-                  <div className="flex gap-0.5 mb-2">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <span key={i} className={cn("text-sm", i < item.rating ? "text-amber-400" : "text-muted-foreground/30")}>
-                        ★
-                      </span>
-                    ))}
-                  </div>
-                  
-                  {/* Author info */}
-                  <div className="flex items-center gap-2 mb-2">
-                    {item.avatarUrl && (
-                      <img src={item.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover" />
-                    )}
-                    <div>
-                      <div className="font-semibold text-sm">{item.name}</div>
-                      <div className="text-xs text-muted-foreground">{item.handle}</div>
-                    </div>
-                  </div>
-                  
-                  {/* Text */}
-                  <div 
-                    className="text-sm text-muted-foreground rich-text flex-1"
-                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.text) }}
-                  />
-                  
-                  {/* Photo */}
-                  {item.photoUrl && (
-                    <img src={item.photoUrl} alt="" className={cn("w-full h-32 object-cover mt-3", borderRadiusClass)} />
-                  )}
-                </div>
-              ))}
+              {testimonialItems.map((item) => renderTestimonialCard(item))}
             </div>
           </div>
         );
