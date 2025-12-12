@@ -730,22 +730,48 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           .replace(/@2/g, firstVariation.platform)
           .replace(/@3/g, firstVariation.number);
         
+        const position = config.notificationPosition || 'bottom-left';
+        const positionClasses = {
+          'top-left': 'top-4 left-4',
+          'top-right': 'top-4 right-4',
+          'bottom-left': 'bottom-4 left-4',
+          'bottom-right': 'bottom-4 right-4',
+        };
+        
         return (
-          <div className="w-full">
+          <div className="w-full h-48 relative bg-muted/20 rounded-lg border-2 border-dashed border-muted-foreground/20">
+            {/* Preview label */}
+            <div className="absolute top-2 left-2 text-xs text-muted-foreground flex items-center gap-1">
+              <span>🔔</span>
+              <span>Prévia da notificação • {config.notificationDuration || 5}s duração • {config.notificationInterval || 10}s intervalo</span>
+            </div>
+            
+            {/* Notification preview positioned */}
             <div 
               className={cn(
-                "rounded-lg border p-4 relative overflow-hidden",
-                notificationStyles[style as keyof typeof notificationStyles]
+                "absolute max-w-[280px] animate-fade-in",
+                positionClasses[position as keyof typeof positionClasses]
               )}
             >
-              <div className="space-y-1">
-                <p className="font-semibold text-sm">
-                  <span className="font-bold">{firstVariation.name}</span>
-                  {title.replace(firstVariation.name, '')}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {description}
-                </p>
+              <div 
+                className={cn(
+                  "rounded-lg border p-3 relative overflow-hidden shadow-lg",
+                  notificationStyles[style as keyof typeof notificationStyles]
+                )}
+              >
+                <div className="space-y-0.5">
+                  <p className="font-semibold text-xs">
+                    <span className="font-bold">{firstVariation.name}</span>
+                    {title.replace(firstVariation.name, '')}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {description}
+                  </p>
+                </div>
+                {/* Progress bar */}
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-muted">
+                  <div className="h-full bg-primary/50 w-full" />
+                </div>
               </div>
             </div>
           </div>
