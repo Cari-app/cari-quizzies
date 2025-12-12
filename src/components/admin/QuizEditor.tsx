@@ -632,7 +632,7 @@ export function QuizEditor() {
                     setSelectedStageId(stage.id);
                     setEditorView('editor');
                   }}
-                  className="relative w-[375px] min-h-[667px] rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col cursor-pointer transition-all hover:shadow-xl bg-background"
+                  className="relative w-[375px] h-[667px] rounded-2xl shadow-lg border border-border flex flex-col cursor-pointer transition-all hover:shadow-xl bg-background"
                 >
                   {/* Quiz Header - same as constructor */}
                   <div className="shrink-0 border-b border-border p-3">
@@ -658,8 +658,8 @@ export function QuizEditor() {
                     </div>
                   </div>
                   
-                  {/* Stage Components - clean preview mode */}
-                  <div className="flex-1 overflow-y-auto pointer-events-none [&_.group]:border-transparent [&_.group]:hover:border-transparent [&_.group_.absolute]:hidden [&_[class*='border-dashed']]:hidden">
+                  {/* Stage Components - clean preview mode with scroll */}
+                  <div className="flex-1 min-h-0 overflow-y-auto pointer-events-none [&_.group]:border-transparent [&_.group]:hover:border-transparent [&_.group_.absolute]:hidden [&_[class*='border-dashed']]:hidden">
                     <DropZone 
                       components={stage.components}
                       onComponentsChange={() => {}}
