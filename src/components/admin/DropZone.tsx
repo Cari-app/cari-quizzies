@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { sanitizeHtml, sanitizeEmbed } from '@/lib/sanitize';
-import { Plus, GripVertical, Trash2, CalendarIcon, Pencil, Copy, ChevronUp, ChevronDown, Minus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, GripVertical, Trash2, CalendarIcon, Pencil, Copy, ChevronUp, ChevronDown, Minus, ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import { Reorder } from 'framer-motion';
 import { DroppedComponent, ComponentConfig, FaqItem } from './ComponentEditor';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -232,6 +232,21 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           beforeAfterImage2: '',
           beforeAfterRatio: '1:1',
           beforeAfterInitialPosition: 50,
+          width: 100,
+          horizontalAlign: 'start',
+          verticalAlign: 'auto'
+        };
+      case 'carousel':
+        return {
+          carouselItems: [
+            { id: '1', image: '', description: 'Exemplo de descrição' },
+            { id: '2', image: '', description: 'Exemplo de descrição' }
+          ],
+          carouselLayout: 'image-text',
+          carouselPagination: true,
+          carouselAutoplay: false,
+          carouselAutoplayInterval: 3,
+          carouselBorder: false,
           width: 100,
           horizontalAlign: 'start',
           verticalAlign: 'auto'
@@ -1417,6 +1432,68 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                 <ChevronLeft className="w-3.5 h-3.5 text-neutral-400" />
                 <ChevronRight className="w-3.5 h-3.5 text-neutral-400 -ml-1" />
               </div>
+            </div>
+          </div>
+        );
+      }
+      case 'carousel': {
+        const items = config.carouselItems || [
+          { id: '1', image: '', description: 'Exemplo de descrição' }
+        ];
+        const layout = config.carouselLayout || 'image-text';
+        const pagination = config.carouselPagination !== false;
+        const hasBorder = config.carouselBorder === true;
+        const widthValue = config.width || 100;
+        const hAlign = config.horizontalAlign || 'start';
+        
+        const justifyClass = hAlign === 'center' ? 'justify-center' : hAlign === 'end' ? 'justify-end' : 'justify-start';
+        const showImage = layout !== 'text-only';
+        const showText = layout !== 'image-only';
+        
+        // Show first item as preview
+        const currentItem = items[0];
+        
+        return (
+          <div className={cn("w-full px-4 py-4 flex", justifyClass)}>
+            <div 
+              className={cn(
+                "rounded-2xl overflow-hidden",
+                hasBorder && "border border-border shadow-sm"
+              )}
+              style={{ width: `${widthValue}%` }}
+            >
+              {/* Image */}
+              {showImage && (
+                <div className="aspect-[4/3] bg-muted flex items-center justify-center">
+                  {currentItem?.image ? (
+                    <img src={currentItem.image} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <ImageIcon className="w-8 h-8 text-muted-foreground/30" />
+                  )}
+                </div>
+              )}
+              
+              {/* Text */}
+              {showText && (
+                <p className="text-sm text-center py-3 text-foreground/80">
+                  {currentItem?.description || 'Exemplo de descrição'}
+                </p>
+              )}
+              
+              {/* Pagination dots */}
+              {pagination && items.length > 1 && (
+                <div className="flex justify-center gap-1.5 pb-3">
+                  {items.map((_, idx) => (
+                    <div 
+                      key={idx}
+                      className={cn(
+                        "w-2 h-2 rounded-full transition-colors",
+                        idx === 0 ? "bg-foreground" : "bg-muted-foreground/30"
+                      )}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         );

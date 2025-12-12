@@ -14,6 +14,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import useEmblaCarousel from 'embla-carousel-react';
 import { BeforeAfterSlider } from './BeforeAfterSlider';
+import { CarouselPlayer } from './CarouselPlayer';
 
 interface QuizPlayerProps {
   slug?: string;
@@ -151,6 +152,13 @@ interface ComponentConfig {
   beforeAfterImage2?: string;
   beforeAfterRatio?: '1:1' | '16:9' | '4:3' | '9:16';
   beforeAfterInitialPosition?: number;
+  // Carousel specific
+  carouselItems?: Array<{ id: string; image: string; description: string }>;
+  carouselLayout?: 'image-text' | 'text-only' | 'image-only';
+  carouselPagination?: boolean;
+  carouselAutoplay?: boolean;
+  carouselAutoplayInterval?: number;
+  carouselBorder?: boolean;
 }
 
 interface DroppedComponent {
@@ -1650,6 +1658,31 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
             image2={img2}
             ratio={ratio}
             initialPosition={initialPosition}
+            width={widthValue}
+            horizontalAlign={horizontalAlign}
+          />
+        );
+      }
+
+      case 'carousel': {
+        const items = config.carouselItems || [];
+        const layout = config.carouselLayout || 'image-text';
+        const pagination = config.carouselPagination !== false;
+        const autoplay = config.carouselAutoplay === true;
+        const autoplayInterval = config.carouselAutoplayInterval || 3;
+        const hasBorder = config.carouselBorder === true;
+        const widthValue = config.width || 100;
+        const horizontalAlign = config.horizontalAlign || 'start';
+
+        return (
+          <CarouselPlayer
+            key={comp.id}
+            items={items}
+            layout={layout}
+            pagination={pagination}
+            autoplay={autoplay}
+            autoplayInterval={autoplayInterval}
+            hasBorder={hasBorder}
             width={widthValue}
             horizontalAlign={horizontalAlign}
           />

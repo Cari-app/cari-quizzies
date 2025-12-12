@@ -14,6 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { CarouselItemEditor } from './CarouselItemEditor';
 
 export interface DroppedComponent {
   id: string;
@@ -186,6 +187,17 @@ export interface ComponentConfig {
   beforeAfterImage2?: string;
   beforeAfterRatio?: '1:1' | '16:9' | '4:3' | '9:16';
   beforeAfterInitialPosition?: number;
+  // Carousel specific
+  carouselItems?: Array<{
+    id: string;
+    image: string;
+    description: string;
+  }>;
+  carouselLayout?: 'image-text' | 'text-only' | 'image-only';
+  carouselPagination?: boolean;
+  carouselAutoplay?: boolean;
+  carouselAutoplayInterval?: number;
+  carouselBorder?: boolean;
 }
 
 interface ComponentEditorProps {
@@ -298,6 +310,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         return renderPriceComponentTab();
       case 'before-after':
         return renderBeforeAfterComponentTab();
+      case 'carousel':
+        return renderCarouselComponentTab();
       default:
         return (
           <div className="text-center py-8">
@@ -2880,6 +2894,145 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     );
   };
 
+  // =========== CAROUSEL COMPONENT TAB ===========
+  const renderCarouselComponentTab = () => {
+    const items = config.carouselItems || [
+      { id: '1', image: '', description: 'Exemplo de descrição' },
+      { id: '2', image: '', description: 'Exemplo de descrição' }
+    ];
+
+    const addItem = () => {
+      const newItem = {
+        id: Date.now().toString(),
+        image: '',
+        description: 'Exemplo de descrição'
+      };
+      updateConfig({ carouselItems: [...items, newItem] });
+    };
+
+    const updateItem = (id: string, updates: Partial<typeof items[0]>) => {
+      updateConfig({
+        carouselItems: items.map(item =>
+          item.id === id ? { ...item, ...updates } : item
+        )
+      });
+    };
+
+    const removeItem = (id: string) => {
+      if (items.length <= 1) return;
+      updateConfig({ carouselItems: items.filter(item => item.id !== id) });
+    };
+
+    const moveItem = (fromIndex: number, toIndex: number) => {
+      const newItems = [...items];
+      const [removed] = newItems.splice(fromIndex, 1);
+      newItems.splice(toIndex, 0, removed);
+      updateConfig({ carouselItems: newItems });
+    };
+
+    return (
+      <div className="space-y-4">
+        {/* Layout */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Layout</Label>
+          <Select
+            value={config.carouselLayout || 'image-text'}
+            onValueChange={(v) => updateConfig({ carouselLayout: v as ComponentConfig['carouselLayout'] })}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="image-text">Imagem e Texto</SelectItem>
+              <SelectItem value="text-only">Apenas Texto</SelectItem>
+              <SelectItem value="image-only">Apenas Imagem</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Pagination & Autoplay */}
+        <div className="space-y-3 py-2">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm">Paginação</Label>
+            <Switch
+              checked={config.carouselPagination !== false}
+              onCheckedChange={(checked) => updateConfig({ carouselPagination: checked })}
+            />
+          </div>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <Label className="text-sm">Autoplay</Label>
+              <Switch
+                checked={config.carouselAutoplay === true}
+                onCheckedChange={(checked) => updateConfig({ carouselAutoplay: checked })}
+              />
+            </div>
+            {config.carouselAutoplay && (
+              <div className="flex items-center gap-1">
+                <Input
+                  type="number"
+                  value={config.carouselAutoplayInterval || 3}
+                  onChange={(e) => updateConfig({ carouselAutoplayInterval: parseInt(e.target.value) || 3 })}
+                  className="w-16 h-8 text-center"
+                  min={1}
+                  max={30}
+                />
+                <span className="text-xs text-muted-foreground">(seg.)</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Items */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Itens</Label>
+          <div className="space-y-3 mt-2">
+            {items.map((item, index) => (
+              <CarouselItemEditor
+                key={item.id}
+                item={item}
+                index={index}
+                totalItems={items.length}
+                layout={config.carouselLayout || 'image-text'}
+                onUpdate={(updates) => updateItem(item.id, updates)}
+                onRemove={() => removeItem(item.id)}
+                onMoveUp={() => index > 0 && moveItem(index, index - 1)}
+                onMoveDown={() => index < items.length - 1 && moveItem(index, index + 1)}
+              />
+            ))}
+            <Button
+              variant="ghost"
+              className="w-full"
+              onClick={addItem}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              adicionar
+            </Button>
+          </div>
+        </div>
+
+        {/* Avançado */}
+        <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+          <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Plus className={`w-4 h-4 transition-transform ${advancedOpen ? 'rotate-45' : ''}`} />
+            AVANÇADO
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-4 space-y-4">
+            <div>
+              <Label className="text-xs text-muted-foreground">ID/Name</Label>
+              <Input
+                value={component.customId || ''}
+                onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
+                placeholder={`carousel_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
+                className="mt-1 font-mono text-xs"
+              />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+    );
+  };
+
   // =========== APARÊNCIA TAB ===========
   const renderAppearanceTab = () => {
     const isOptionsComponent = ['options', 'single', 'multiple', 'yesno'].includes(component.type);
@@ -2892,6 +3045,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     const isFaqComponent = component.type === 'faq';
     const isPriceComponent = component.type === 'price';
     const isBeforeAfterComponent = component.type === 'before-after';
+    const isCarouselComponent = component.type === 'carousel';
 
     // Price component appearance
     if (isPriceComponent) {
@@ -3027,6 +3181,101 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                 <SelectItem value="16:9">16:9 (Padrão)</SelectItem>
                 <SelectItem value="4:3">4:3 (Retangular)</SelectItem>
                 <SelectItem value="9:16">9:16 (Mobile)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Width */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-xs text-muted-foreground">Largura</Label>
+              <div className="flex items-center gap-1">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.max(10, (config.width || 100) - 5) })}
+                >
+                  −
+                </Button>
+                <span className="text-sm font-medium w-12 text-center">{config.width || 100}%</span>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6"
+                  onClick={() => updateConfig({ width: Math.min(100, (config.width || 100) + 5) })}
+                >
+                  +
+                </Button>
+              </div>
+            </div>
+            <Slider
+              value={[config.width || 100]}
+              onValueChange={([value]) => updateConfig({ width: value })}
+              min={10}
+              max={100}
+              step={5}
+              className="w-full"
+            />
+          </div>
+
+          {/* Horizontal and Vertical alignment */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento horizontal</Label>
+              <Select 
+                value={config.horizontalAlign || 'start'} 
+                onValueChange={(v) => updateConfig({ horizontalAlign: v as ComponentConfig['horizontalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="start">Começo</SelectItem>
+                  <SelectItem value="center">Centro</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">Alinhamento vertical</Label>
+              <Select 
+                value={config.verticalAlign || 'auto'} 
+                onValueChange={(v) => updateConfig({ verticalAlign: v as ComponentConfig['verticalAlign'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Auto</SelectItem>
+                  <SelectItem value="start">Topo</SelectItem>
+                  <SelectItem value="center">Meio</SelectItem>
+                  <SelectItem value="end">Fim</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Carousel component appearance
+    if (isCarouselComponent) {
+      return (
+        <div className="space-y-4">
+          {/* Tipo (borda) */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Tipo</Label>
+            <Select
+              value={config.carouselBorder ? 'border' : 'no-border'}
+              onValueChange={(v) => updateConfig({ carouselBorder: v === 'border' })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="no-border">Sem borda</SelectItem>
+                <SelectItem value="border">Borda</SelectItem>
               </SelectContent>
             </Select>
           </div>
