@@ -1050,9 +1050,9 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         const renderLineBar = () => (
           <div className="relative w-full">
             {/* Indicator text tooltip */}
-            {indicatorText && showMeter && (
+            {indicatorText && (
               <div 
-                className="absolute -top-8 transform -translate-x-1/2 bg-foreground text-background text-xs px-2 py-1 rounded whitespace-nowrap"
+                className="absolute -top-8 transform -translate-x-1/2 bg-foreground text-background text-xs px-2 py-1 rounded whitespace-nowrap z-10"
                 style={{ left: `${percentage}%` }}
               >
                 {indicatorText}
@@ -1086,10 +1086,10 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           
           return (
             <div className="relative w-full">
-              {/* Indicator text tooltip */}
-              {indicatorText && showMeter && (
+            {/* Indicator text tooltip */}
+              {indicatorText && (
                 <div 
-                  className="absolute -top-8 transform -translate-x-1/2 bg-foreground text-background text-xs px-2 py-1 rounded whitespace-nowrap"
+                  className="absolute -top-8 transform -translate-x-1/2 bg-foreground text-background text-xs px-2 py-1 rounded whitespace-nowrap z-10"
                   style={{ left: `${percentage}%` }}
                 >
                   {indicatorText}
