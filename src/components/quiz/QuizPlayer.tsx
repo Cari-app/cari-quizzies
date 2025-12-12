@@ -684,7 +684,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
               placeholder={processTemplate(config.placeholder || '')}
               value={value}
               onChange={(e) => handleInputChange(comp.id, customId, e.target.value)}
-              className="w-full"
+              className="w-full bg-transparent"
               required={config.required}
             />
             {config.helpText && <p className="text-xs text-muted-foreground mt-1">{processTemplate(config.helpText)}</p>}
@@ -727,7 +727,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
               placeholder={processTemplate(config.placeholder || '')}
               value={value}
               onChange={(e) => handleInputChange(comp.id, customId, e.target.value)}
-              className="w-full"
+              className="w-full bg-transparent"
               required={config.required}
             />
             {config.helpText && <p className="text-xs text-muted-foreground mt-1">{processTemplate(config.helpText)}</p>}
@@ -743,7 +743,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
               placeholder={processTemplate(config.placeholder || '')}
               value={value}
               onChange={(e) => handleInputChange(comp.id, customId, e.target.value)}
-              className="w-full px-4 py-3 bg-background border border-border rounded-lg text-sm resize-none min-h-[100px]"
+              className="w-full px-4 py-3 bg-transparent border border-border rounded-lg text-sm resize-none min-h-[100px]"
               required={config.required}
             />
             {config.helpText && <p className="text-xs text-muted-foreground mt-1">{processTemplate(config.helpText)}</p>}
@@ -758,7 +758,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
               <PopoverTrigger asChild>
                 <button
                   className={cn(
-                    "w-full px-4 py-3 bg-background border border-border rounded-lg text-sm flex items-center justify-between transition-colors hover:border-primary/50",
+                    "w-full px-4 py-3 bg-transparent border border-border rounded-lg text-sm flex items-center justify-between transition-colors hover:border-primary/50",
                     !dateValue && "text-muted-foreground"
                   )}
                 >
@@ -942,7 +942,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                         "border text-sm transition-colors overflow-hidden text-left",
                         getBorderRadius(),
                         getShadow(),
-                        isSelected ? "border-primary bg-primary/10" : "border-border hover:border-primary/50",
+                        isSelected ? "border-primary bg-primary/20" : "border-border bg-transparent hover:border-primary/50",
                         isHorizontal ? "flex" : "flex flex-col"
                       )}
                     >
@@ -990,7 +990,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                         isVertical ? "text-center" : "text-left",
                         getBorderRadius(),
                         getShadow(),
-                        isSelected ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
+                        isSelected ? "border-primary bg-primary/20" : "border-border bg-transparent hover:border-primary/50"
                       )}
                     >
                       <div className={cn(
@@ -1019,7 +1019,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                       isVertical ? "text-center" : "text-left",
                       getBorderRadius(),
                       getShadow(),
-                      isSelected ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
+                        isSelected ? "border-primary bg-primary/20" : "border-border bg-transparent hover:border-primary/50"
                     )}
                   >
                     <div className={cn(
@@ -1335,7 +1335,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         return (
           <div className={cn("w-full px-4 flex", justifyClass)}>
             <div 
-              className="border border-border rounded-lg p-4 bg-background"
+              className="border border-border rounded-lg p-4 bg-transparent backdrop-blur-sm"
               style={{ width: `${widthValue}%` }}
             >
               {showTitle && (

@@ -142,7 +142,7 @@ export function SlidingRuler({
       {/* Unit Toggle */}
       {altUnit && (
         <div className="flex justify-center mb-4">
-          <div className="inline-flex bg-muted rounded-full p-1">
+          <div className="inline-flex bg-foreground/10 backdrop-blur-sm rounded-full p-1">
             <button 
               type="button"
               className={cn(
@@ -202,14 +202,14 @@ export function SlidingRuler({
       </div>
       
       {/* Progress Track */}
-      <div className="relative h-1.5 bg-muted rounded-full overflow-hidden">
+      <div className="relative h-1.5 bg-foreground/20 rounded-full overflow-hidden">
         <div 
           className="absolute top-0 left-0 h-full rounded-full"
           style={{ width: `${progressPercent}%`, backgroundColor: barColor }}
         />
         {/* Thumb */}
         <div 
-          className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-background rounded-full shadow-md"
+          className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-white/90 backdrop-blur-sm rounded-full shadow-md"
           style={{ 
             left: `calc(${progressPercent}% - 10px)`,
             borderWidth: '2px',
