@@ -18,6 +18,7 @@ import { CarouselPlayer } from './CarouselPlayer';
 import { MetricsPlayer } from './MetricsPlayer';
 import { ChartPlayer } from './ChartPlayer';
 import { SlidingRuler } from './SlidingRuler';
+import { ScriptExecutor } from './ScriptExecutor';
 
 interface QuizPlayerProps {
   slug?: string;
@@ -53,6 +54,9 @@ interface ComponentConfig {
   videoType?: 'url' | 'embed';
   embedCode?: string;
   height?: number;
+  // Script specific
+  scriptCode?: string;
+  scriptDescription?: string;
   options?: OptionItem[];
   allowMultiple?: boolean;
   autoAdvance?: boolean;
@@ -1065,6 +1069,10 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
 
       case 'spacer':
         return <div style={{ height: config.height || 24 }} />;
+
+      case 'script':
+        // Script component - executes on mount, shows nothing visually
+        return <ScriptExecutor scriptCode={config.scriptCode || ''} />;
 
       case 'alert': {
         const alertStyles = {
