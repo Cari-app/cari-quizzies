@@ -123,7 +123,7 @@ export function QuizEditor() {
         {/* Steps Column */}
         <div className="w-72 bg-background border-r border-border flex flex-col">
           {/* Header with Logo */}
-          <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+          <div className="px-4 py-4 flex items-center justify-between">
             <Link 
               to="/admin"
               className="inline-flex items-center gap-3 group"
@@ -136,7 +136,7 @@ export function QuizEditor() {
           </div>
 
           {/* Quiz Name */}
-          <div className="p-4 border-b border-border">
+          <div className="px-4 pb-4">
             <Input
               value={currentQuiz.name}
               onChange={(e) => {
@@ -152,7 +152,7 @@ export function QuizEditor() {
             />
             
             {/* URL Slug */}
-            <div className="mt-2 flex items-center gap-2">
+            <div className="mt-1 flex items-center gap-2">
               <Globe className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
               <Input
                 value={currentQuiz.slug || ''}
@@ -175,8 +175,9 @@ export function QuizEditor() {
               )}
             </div>
           </div>
+
           {/* Add Buttons */}
-          <div className="p-3 border-b border-border">
+          <div className="px-4 pb-4">
             <div className="flex gap-2">
               <Button 
                 size="sm" 
@@ -210,7 +211,7 @@ export function QuizEditor() {
           </div>
 
           {/* Steps List */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto px-2">
             {currentQuiz.screens.length === 0 ? (
               <div className="text-center py-8 px-4">
                 <div className="border border-dashed border-border rounded-lg p-6">
