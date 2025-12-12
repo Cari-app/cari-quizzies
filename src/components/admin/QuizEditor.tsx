@@ -117,149 +117,157 @@ export function QuizEditor() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-background">
-      {/* Left Sidebar */}
-      <div className="w-72 bg-background border-r border-border flex flex-col shrink-0">
-        {/* Header */}
-        <div className="p-4 border-b border-border">
-          <Link 
-            to="/admin"
-            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-3"
-          >
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Voltar
-          </Link>
-          
-          <Input
-            value={currentQuiz.name}
-            onChange={(e) => {
-              const newName = e.target.value;
-              const updates: Partial<Quiz> = { name: newName };
-              if (!currentQuiz.slug) {
-                updates.slug = generateSlug(newName);
-              }
-              updateQuiz(currentQuiz.id, updates);
-            }}
-            className="font-semibold border-none bg-transparent px-0 h-auto text-base focus-visible:ring-0 shadow-none"
-            placeholder="Nome do quiz"
-          />
-          
-          {/* URL Slug */}
-          <div className="mt-2 flex items-center gap-2">
-            <Globe className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+      {/* Left Sidebar - Two columns */}
+      <div className="flex shrink-0">
+        {/* Steps Column */}
+        <div className="w-72 bg-background border-r border-border flex flex-col">
+          {/* Header */}
+          <div className="p-4 border-b border-border">
+            <Link 
+              to="/admin"
+              className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-3"
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Voltar
+            </Link>
+            
             <Input
-              value={currentQuiz.slug || ''}
-              onChange={(e) => updateQuiz(currentQuiz.id, { slug: generateSlug(e.target.value) })}
-              className="text-xs border-none bg-transparent px-0 h-auto focus-visible:ring-0 shadow-none text-muted-foreground"
-              placeholder="url-do-quiz"
-            />
-            {currentQuiz.slug && (
-              <button
-                onClick={handleCopyUrl}
-                className="p-1 hover:bg-muted rounded transition-colors shrink-0"
-                title="Copiar URL"
-              >
-                {slugCopied ? (
-                  <Check className="w-3.5 h-3.5 text-primary" />
-                ) : (
-                  <Copy className="w-3.5 h-3.5 text-muted-foreground" />
-                )}
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Add Buttons */}
-        <div className="p-3 border-b border-border">
-          <div className="flex gap-2">
-            <Button 
-              size="sm" 
-              variant="outline"
-              className="flex-1 h-9 text-xs"
-              onClick={() => {
-                const newScreen: QuizScreen = {
-                  id: Date.now().toString(),
-                  type: 'info',
-                  title: 'Nova etapa',
-                  showLogo: true,
-                  showProgress: true,
-                  allowBack: true,
-                };
-                addScreen(currentQuiz.id, newScreen);
-                setEditingScreen(newScreen);
+              value={currentQuiz.name}
+              onChange={(e) => {
+                const newName = e.target.value;
+                const updates: Partial<Quiz> = { name: newName };
+                if (!currentQuiz.slug) {
+                  updates.slug = generateSlug(newName);
+                }
+                updateQuiz(currentQuiz.id, updates);
               }}
-            >
-              <Plus className="w-4 h-4 mr-1.5" />
-              Em branco
-            </Button>
-            <Button 
-              size="sm" 
-              variant="outline"
-              className="flex-1 h-9 text-xs"
-              onClick={() => setShowTemplates(true)}
-            >
-              Modelos
-            </Button>
+              className="font-semibold border-none bg-transparent px-0 h-auto text-base focus-visible:ring-0 shadow-none"
+              placeholder="Nome do quiz"
+            />
+            
+            {/* URL Slug */}
+            <div className="mt-2 flex items-center gap-2">
+              <Globe className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+              <Input
+                value={currentQuiz.slug || ''}
+                onChange={(e) => updateQuiz(currentQuiz.id, { slug: generateSlug(e.target.value) })}
+                className="text-xs border-none bg-transparent px-0 h-auto focus-visible:ring-0 shadow-none text-muted-foreground"
+                placeholder="url-do-quiz"
+              />
+              {currentQuiz.slug && (
+                <button
+                  onClick={handleCopyUrl}
+                  className="p-1 hover:bg-muted rounded transition-colors shrink-0"
+                  title="Copiar URL"
+                >
+                  {slugCopied ? (
+                    <Check className="w-3.5 h-3.5 text-primary" />
+                  ) : (
+                    <Copy className="w-3.5 h-3.5 text-muted-foreground" />
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Add Buttons */}
+          <div className="p-3 border-b border-border">
+            <div className="flex gap-2">
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="flex-1 h-9 text-xs"
+                onClick={() => {
+                  const newScreen: QuizScreen = {
+                    id: Date.now().toString(),
+                    type: 'info',
+                    title: 'Nova etapa',
+                    showLogo: true,
+                    showProgress: true,
+                    allowBack: true,
+                  };
+                  addScreen(currentQuiz.id, newScreen);
+                  setEditingScreen(newScreen);
+                }}
+              >
+                <Plus className="w-4 h-4 mr-1.5" />
+                Em branco
+              </Button>
+              <Button 
+                size="sm" 
+                variant="outline"
+                className="flex-1 h-9 text-xs"
+                onClick={() => setShowTemplates(true)}
+              >
+                Modelos
+              </Button>
+            </div>
+          </div>
+
+          {/* Steps List */}
+          <div className="flex-1 overflow-y-auto">
+            {currentQuiz.screens.length === 0 ? (
+              <div className="text-center py-8 px-4">
+                <div className="border border-dashed border-border rounded-lg p-6">
+                  <p className="text-sm text-muted-foreground">Nenhuma etapa criada</p>
+                  <p className="text-xs text-muted-foreground mt-1">Clique em "Em branco" ou "Modelos"</p>
+                </div>
+              </div>
+            ) : (
+              <Reorder.Group axis="y" values={currentQuiz.screens} onReorder={handleReorder} className="p-2">
+                {currentQuiz.screens.map((screen, index) => (
+                  <Reorder.Item key={screen.id} value={screen}>
+                    <div
+                      className={cn(
+                        "flex items-center gap-2 px-3 py-3 rounded-lg text-sm cursor-pointer transition-colors group mb-1",
+                        editingScreen?.id === screen.id
+                          ? "bg-muted border border-border"
+                          : "hover:bg-muted/50"
+                      )}
+                      onClick={() => setEditingScreen(screen)}
+                    >
+                      <span className="text-xs text-muted-foreground w-5 shrink-0">{index + 1}</span>
+                      <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab shrink-0" />
+                      <span className="flex-1 text-sm truncate" title={screen.title || 'Sem título'}>
+                        {screen.title || 'Sem título'}
+                      </span>
+                      <button
+                        className="opacity-0 group-hover:opacity-100 p-1.5 hover:text-destructive transition-opacity shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteScreen(screen.id);
+                        }}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </Reorder.Item>
+                ))}
+              </Reorder.Group>
+            )}
           </div>
         </div>
 
-        {/* Steps List */}
-        <div className="flex-1 overflow-y-auto">
-          {currentQuiz.screens.length === 0 ? (
-            <div className="text-center py-8 px-4">
-              <div className="border border-dashed border-border rounded-lg p-6">
-                <p className="text-sm text-muted-foreground">Nenhuma etapa criada</p>
-                <p className="text-xs text-muted-foreground mt-1">Clique em "Em branco" ou "Modelos"</p>
-              </div>
-            </div>
-          ) : (
-            <Reorder.Group axis="y" values={currentQuiz.screens} onReorder={handleReorder} className="p-2">
-              {currentQuiz.screens.map((screen, index) => (
-                <Reorder.Item key={screen.id} value={screen}>
-                  <div
-                    className={cn(
-                      "flex items-center gap-2 px-3 py-3 rounded-lg text-sm cursor-pointer transition-colors group mb-1",
-                      editingScreen?.id === screen.id
-                        ? "bg-muted border border-border"
-                        : "hover:bg-muted/50"
-                    )}
-                    onClick={() => setEditingScreen(screen)}
-                  >
-                    <span className="text-xs text-muted-foreground w-5 shrink-0">{index + 1}</span>
-                    <GripVertical className="w-4 h-4 text-muted-foreground/50 cursor-grab shrink-0" />
-                    <span className="flex-1 text-sm truncate" title={screen.title || 'Sem título'}>
-                      {screen.title || 'Sem título'}
-                    </span>
-                    <button
-                      className="opacity-0 group-hover:opacity-100 p-1.5 hover:text-destructive transition-opacity shrink-0"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteScreen(screen.id);
-                      }}
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </Reorder.Item>
-              ))}
-            </Reorder.Group>
-          )}
-        </div>
-
-        {/* Widgets Section */}
-        <div className="border-t border-border">
-          <button
-            onClick={() => setWidgetsExpanded(!widgetsExpanded)}
-            className="w-full px-4 py-3 flex items-center justify-between text-sm font-medium hover:bg-muted/50 transition-colors"
-          >
-            <span>Componentes</span>
-            {widgetsExpanded ? (
-              <PanelLeftClose className="w-4 h-4 text-muted-foreground" />
-            ) : (
-              <PanelLeftOpen className="w-4 h-4 text-muted-foreground" />
-            )}
-          </button>
+        {/* Widgets Column */}
+        <div className={cn(
+          "bg-background border-r border-border flex flex-col transition-all duration-200 overflow-hidden",
+          widgetsExpanded ? "w-48" : "w-10"
+        )}>
+          <div className="p-2 border-b border-border flex justify-center">
+            <button
+              onClick={() => setWidgetsExpanded(!widgetsExpanded)}
+              className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+              title={widgetsExpanded ? "Recolher" : "Expandir componentes"}
+            >
+              {widgetsExpanded ? (
+                <PanelLeftClose className="w-4 h-4" />
+              ) : (
+                <PanelLeftOpen className="w-4 h-4" />
+              )}
+            </button>
+          </div>
           {widgetsExpanded && (
-            <div className="p-3 pt-0 max-h-64 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto p-2">
               <ComponentPalette expanded={true} />
             </div>
           )}
