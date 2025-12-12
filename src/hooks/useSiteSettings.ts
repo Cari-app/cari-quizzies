@@ -1,20 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
-export interface SiteSettings {
-  id: string;
-  user_id: string;
-  site_name: string;
-  logo_url: string | null;
-  primary_color: string;
-  secondary_color: string;
-  accent_color: string;
-  background_color: string;
-  text_color: string;
-  created_at: string;
-  updated_at: string;
-}
+export type SiteSettings = Tables<'site_settings'>;
+export type SiteSettingsInsert = TablesInsert<'site_settings'>;
+export type SiteSettingsUpdate = TablesUpdate<'site_settings'>;
 
 export function useSiteSettings() {
   const { toast } = useToast();
@@ -33,12 +24,12 @@ export function useSiteSettings() {
         .maybeSingle();
 
       if (error) throw error;
-      return data as SiteSettings | null;
+      return data;
     },
   });
 
   const updateSettings = useMutation({
-    mutationFn: async (newSettings: Partial<SiteSettings>) => {
+    mutationFn: async (newSettings: SiteSettingsUpdate) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Usuário não autenticado');
 

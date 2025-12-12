@@ -24,7 +24,7 @@ export function AdminLayout() {
             </Link>
             
             <nav className="flex items-center gap-1">
-              {navItems.slice(0, 2).map((item) => {
+              {navItems.map((item) => {
                 const isActive = location.pathname === item.path;
                 return (
                   <Link
