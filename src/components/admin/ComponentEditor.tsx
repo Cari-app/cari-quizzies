@@ -1247,12 +1247,11 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
       {/* Descrição */}
       <div>
         <Label className="text-xs text-muted-foreground">Descrição</Label>
-        <Textarea
+        <RichTextInput
           value={config.description || ''}
-          onChange={(e) => updateConfig({ description: e.target.value })}
+          onChange={(description) => updateConfig({ description })}
           placeholder="Texto do alerta..."
           className="mt-1"
-          rows={3}
         />
       </div>
 
