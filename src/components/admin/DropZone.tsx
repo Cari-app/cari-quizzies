@@ -275,45 +275,47 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           </p>
         </div>
       ) : (
-        <div className="p-4">
-          <Reorder.Group axis="y" values={components} onReorder={onComponentsChange} className="space-y-2">
-            {components.map((comp) => (
-              <Reorder.Item key={comp.id} value={comp}>
-                <div 
-                  className={cn(
-                    "group relative bg-background border rounded-lg overflow-hidden cursor-pointer transition-all",
-                    selectedComponentId === comp.id 
-                      ? "border-primary ring-2 ring-primary/20" 
-                      : "border-border hover:border-primary/50"
-                  )}
-                  onClick={() => onSelectComponent(comp)}
-                >
-                  <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                    <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
+        <div className="flex-1 flex flex-col justify-center p-4 min-h-0">
+          <div className="max-w-full">
+            <Reorder.Group axis="y" values={components} onReorder={onComponentsChange} className="space-y-2">
+              {components.map((comp) => (
+                <Reorder.Item key={comp.id} value={comp}>
+                  <div 
+                    className={cn(
+                      "group relative bg-background border rounded-lg overflow-hidden cursor-pointer transition-all",
+                      selectedComponentId === comp.id 
+                        ? "border-primary ring-2 ring-primary/20" 
+                        : "border-border hover:border-primary/50"
+                    )}
+                    onClick={() => onSelectComponent(comp)}
+                  >
+                    <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                      <GripVertical className="w-4 h-4 text-muted-foreground cursor-grab" />
+                    </div>
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                      <button 
+                        onClick={(e) => { e.stopPropagation(); handleRemove(comp.id); }}
+                        className="p-1 hover:bg-destructive/10 rounded text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                    {renderComponentPreview(comp)}
                   </div>
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); handleRemove(comp.id); }}
-                      className="p-1 hover:bg-destructive/10 rounded text-destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                  {renderComponentPreview(comp)}
-                </div>
-              </Reorder.Item>
-            ))}
-          </Reorder.Group>
-          
-          {/* Drop indicator at the end */}
-          <div className={cn(
-            "mt-4 p-4 border-2 border-dashed rounded-lg flex items-center justify-center transition-colors",
-            isDragOver ? "border-primary bg-primary/5" : "border-border/50"
-          )}>
-            <Plus className={cn("w-4 h-4 mr-2", isDragOver ? "text-primary" : "text-muted-foreground")} />
-            <span className={cn("text-xs", isDragOver ? "text-primary" : "text-muted-foreground")}>
-              {isDragOver ? "Soltar aqui" : "Arraste mais componentes"}
-            </span>
+                </Reorder.Item>
+              ))}
+            </Reorder.Group>
+            
+            {/* Drop indicator at the end */}
+            <div className={cn(
+              "mt-4 p-4 border-2 border-dashed rounded-lg flex items-center justify-center transition-colors",
+              isDragOver ? "border-primary bg-primary/5" : "border-border/50"
+            )}>
+              <Plus className={cn("w-4 h-4 mr-2", isDragOver ? "text-primary" : "text-muted-foreground")} />
+              <span className={cn("text-xs", isDragOver ? "text-primary" : "text-muted-foreground")}>
+                {isDragOver ? "Soltar aqui" : "Arraste mais componentes"}
+              </span>
+            </div>
           </div>
         </div>
       )}
