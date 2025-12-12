@@ -36,6 +36,7 @@ export function QuizEditor() {
   const [isSaving, setIsSaving] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   const generateSlug = (name: string) => {
     return name
@@ -300,7 +301,6 @@ export function QuizEditor() {
   };
 
   // Track unsaved changes (skip initial render)
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
   
   useEffect(() => {
     if (isInitialLoad) {
