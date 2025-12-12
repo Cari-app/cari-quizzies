@@ -132,6 +132,39 @@
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold tracking-tight;
   }
+
+  /* Rich text content typography */
+  .rich-text h1,
+  [contenteditable] h1,
+  [dangerouslySetInnerHTML] h1 {
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold;
+  }
+
+  .rich-text h2,
+  [contenteditable] h2 {
+    @apply text-2xl md:text-3xl lg:text-4xl font-semibold;
+  }
+
+  .rich-text h3,
+  [contenteditable] h3 {
+    @apply text-xl md:text-2xl lg:text-3xl font-semibold;
+  }
+
+  .rich-text h4,
+  [contenteditable] h4 {
+    @apply text-lg md:text-xl font-medium;
+  }
+
+  .rich-text p,
+  [contenteditable] p {
+    @apply text-base;
+  }
+
+  .rich-text small,
+  [contenteditable] small,
+  [contenteditable] font[size="2"] {
+    @apply text-sm;
+  }
 }
 
 @layer utilities {
