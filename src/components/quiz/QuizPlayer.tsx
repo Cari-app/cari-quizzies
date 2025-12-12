@@ -447,6 +447,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [selectedDate, setSelectedDate] = useState<Record<string, Date | undefined>>({});
   const [designSettings, setDesignSettings] = useState<DesignSettings>(defaultDesignSettings);
+  const [navigationHistory, setNavigationHistory] = useState<number[]>([0]); // Track visited stage indices
   const [activeNotification, setActiveNotification] = useState<{
     compId: string;
     variationIndex: number;
@@ -553,7 +554,9 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
 
   const handleNext = () => {
     if (currentStageIndex < stages.length - 1) {
-      setCurrentStageIndex(prev => prev + 1);
+      const nextIndex = currentStageIndex + 1;
+      setCurrentStageIndex(nextIndex);
+      setNavigationHistory(prev => [...prev, nextIndex]);
     }
   };
 
@@ -572,6 +575,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       const targetIndex = stages.findIndex(s => s.id === connection.targetId);
       if (targetIndex !== -1) {
         setCurrentStageIndex(targetIndex);
+        setNavigationHistory(prev => [...prev, targetIndex]);
         return;
       }
     }
@@ -580,9 +584,14 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
     handleNext();
   };
 
+  // Navigate back following the history (respects flow order)
   const handleBack = () => {
-    if (currentStageIndex > 0) {
-      setCurrentStageIndex(prev => prev - 1);
+    if (navigationHistory.length > 1) {
+      const newHistory = [...navigationHistory];
+      newHistory.pop(); // Remove current
+      const previousIndex = newHistory[newHistory.length - 1];
+      setNavigationHistory(newHistory);
+      setCurrentStageIndex(previousIndex);
     }
   };
 
