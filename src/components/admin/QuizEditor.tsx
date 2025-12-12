@@ -299,8 +299,14 @@ export function QuizEditor() {
     }
   };
 
-  // Track unsaved changes
+  // Track unsaved changes (skip initial render)
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+  
   useEffect(() => {
+    if (isInitialLoad) {
+      setIsInitialLoad(false);
+      return;
+    }
     setHasUnsavedChanges(true);
   }, [droppedComponents, currentQuiz?.name, currentQuiz?.slug, currentQuiz?.description]);
 
