@@ -56,24 +56,82 @@ export function QuizEditor() {
   };
 
   useEffect(() => {
-    if (id === 'new') {
-      const newQuiz: Quiz = {
-        id: Date.now().toString(),
-        name: 'Novo Quiz',
-        description: '',
-        screens: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        isPublished: false,
-      };
-      addQuiz(newQuiz);
-      setCurrentQuiz(newQuiz);
-    } else {
-      const quiz = quizzes.find(q => q.id === id);
-      if (quiz) {
-        setCurrentQuiz(quiz);
+    const loadQuiz = async () => {
+      if (id === 'new') {
+        // Generate a proper UUID for new quizzes
+        const newId = crypto.randomUUID();
+        const newQuiz: Quiz = {
+          id: newId,
+          name: 'Novo Quiz',
+          description: '',
+          screens: [],
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          isPublished: false,
+        };
+        addQuiz(newQuiz);
+        setCurrentQuiz(newQuiz);
+        setHasUnsavedChanges(false);
+      } else {
+        // Try to load from Supabase first
+        const { data: quizData, error } = await supabase
+          .from('quizzes')
+          .select('*')
+          .eq('id', id)
+          .maybeSingle();
+
+        if (quizData) {
+          const quiz: Quiz = {
+            id: quizData.id,
+            name: quizData.titulo,
+            description: quizData.descricao || '',
+            slug: quizData.slug || undefined,
+            screens: [],
+            createdAt: new Date(quizData.criado_em || ''),
+            updatedAt: new Date(quizData.atualizado_em || ''),
+            isPublished: quizData.is_active || false,
+          };
+          setCurrentQuiz(quiz);
+
+          // Load etapas (components)
+          const { data: etapasData } = await supabase
+            .from('etapas')
+            .select('*')
+            .eq('quiz_id', id)
+            .order('ordem', { ascending: true });
+
+          if (etapasData && etapasData.length > 0) {
+            const components: DroppedComponent[] = etapasData.map((etapa) => {
+              const config = etapa.configuracoes as Record<string, any> || {};
+              return {
+                id: etapa.id,
+                type: etapa.tipo,
+                name: config.componentName || etapa.titulo || etapa.tipo,
+                icon: config.icon || '📦',
+                customId: config.customId,
+                config: {
+                  label: etapa.titulo,
+                  helpText: etapa.subtitulo,
+                  buttonText: etapa.texto_botao,
+                  options: etapa.opcoes as any,
+                  ...config,
+                },
+              };
+            });
+            setDroppedComponents(components);
+          }
+          setHasUnsavedChanges(false);
+        } else {
+          // Fallback to local store
+          const quiz = quizzes.find(q => q.id === id);
+          if (quiz) {
+            setCurrentQuiz(quiz);
+          }
+        }
       }
-    }
+    };
+
+    loadQuiz();
   }, [id]);
 
   if (!currentQuiz) {
