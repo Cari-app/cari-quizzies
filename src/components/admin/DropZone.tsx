@@ -160,7 +160,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'textarea':
         return (
           <div className="p-4">
-            {config.label && <label className="text-sm font-medium mb-2 block" dangerouslySetInnerHTML={{ __html: config.label }} />}
+            {config.label && <div className="rich-text font-medium mb-2" dangerouslySetInnerHTML={{ __html: config.label }} />}
             {comp.type === 'textarea' ? (
               <textarea 
                 placeholder={config.placeholder || 'Digite aqui...'}
@@ -248,7 +248,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         
         return (
           <div className="p-4">
-            {config.label && <label className="text-sm font-medium mb-2 block" dangerouslySetInnerHTML={{ __html: config.label }} />}
+            {config.label && <div className="rich-text font-medium mb-2" dangerouslySetInnerHTML={{ __html: config.label }} />}
             <input 
               type="number"
               placeholder={config.placeholder}
@@ -261,7 +261,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'date':
         return (
           <div className="p-4">
-            {config.label && <label className="text-sm font-medium mb-2 block" dangerouslySetInnerHTML={{ __html: config.label }} />}
+            {config.label && <div className="rich-text font-medium mb-2" dangerouslySetInnerHTML={{ __html: config.label }} />}
             <Popover>
               <PopoverTrigger asChild>
                 <button
@@ -393,8 +393,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         
         return (
           <div className="p-4">
-            {config.label && <p className="text-sm font-medium mb-1" dangerouslySetInnerHTML={{ __html: config.label }} />}
-            {config.description && <p className="text-xs text-muted-foreground mb-3" dangerouslySetInnerHTML={{ __html: config.description }} />}
+            {config.label && <div className="rich-text font-medium mb-1" dangerouslySetInnerHTML={{ __html: config.label }} />}
+            {config.description && <div className="rich-text text-muted-foreground mb-3" dangerouslySetInnerHTML={{ __html: config.description }} />}
             <div className={cn(getLayoutClass(), getSpacing())}>
               {(config.options || []).map((opt, i) => {
                 const isSelected = i === 0;
@@ -506,7 +506,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'yesno':
         return (
           <div className="p-4">
-            {config.label && <p className="text-sm font-medium mb-3" dangerouslySetInnerHTML={{ __html: config.label }} />}
+            {config.label && <div className="rich-text font-medium mb-3" dangerouslySetInnerHTML={{ __html: config.label }} />}
             <div className="flex gap-3">
               <button className="flex-1 py-3 bg-primary text-primary-foreground rounded-lg text-sm font-medium">
                 {config.options?.[0]?.text || 'Sim'}
