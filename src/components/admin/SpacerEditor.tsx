@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
@@ -30,64 +30,40 @@ export function SpacerComponentEditor({
 }: SpacerComponentEditorProps) {
   // Local state for smooth slider interaction
   const [localHeight, setLocalHeight] = useState(config.height ?? 24);
-  const isDragging = useRef(false);
-  const commitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   
-  // Sync local state when config changes externally
+  // Sync local state when config changes externally (and not dragging)
   useEffect(() => {
-    if (!isDragging.current) {
+    if (!isDragging) {
       setLocalHeight(config.height ?? 24);
     }
-  }, [config.height]);
+  }, [config.height, isDragging]);
 
-  // Commit the value to parent with debounce
-  const commitValue = useCallback((value: number) => {
-    if (commitTimeoutRef.current) {
-      clearTimeout(commitTimeoutRef.current);
-    }
-    commitTimeoutRef.current = setTimeout(() => {
-      updateConfig({ height: value });
-    }, 50);
-  }, [updateConfig]);
-
-  // Handle slider change - update local state immediately for fluid UI
+  // Handle slider change - only update local state for fluid UI
   const handleSliderChange = useCallback((value: number[]) => {
-    isDragging.current = true;
-    const newValue = value[0];
-    setLocalHeight(newValue);
-    commitValue(newValue);
-  }, [commitValue]);
+    setIsDragging(true);
+    setLocalHeight(value[0]);
+  }, []);
 
-  // Handle slider commit (mouse up / touch end)
+  // Handle slider commit (mouse up / touch end) - update parent
   const handleSliderCommit = useCallback((value: number[]) => {
-    isDragging.current = false;
-    if (commitTimeoutRef.current) {
-      clearTimeout(commitTimeoutRef.current);
-    }
+    setIsDragging(false);
     updateConfig({ height: value[0] });
   }, [updateConfig]);
 
-  // Handle increment/decrement buttons
+  // Handle increment button
   const handleIncrement = useCallback(() => {
     const newValue = Math.min(300, localHeight + 10);
     setLocalHeight(newValue);
     updateConfig({ height: newValue });
   }, [localHeight, updateConfig]);
 
+  // Handle decrement button
   const handleDecrement = useCallback(() => {
     const newValue = Math.max(0, localHeight - 10);
     setLocalHeight(newValue);
     updateConfig({ height: newValue });
   }, [localHeight, updateConfig]);
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (commitTimeoutRef.current) {
-        clearTimeout(commitTimeoutRef.current);
-      }
-    };
-  }, []);
 
   return (
     <div className="space-y-4">
