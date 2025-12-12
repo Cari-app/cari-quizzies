@@ -363,6 +363,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                 step={1}
                 unit={unit}
                 altUnit={altUnit}
+                barColor={config.barColor}
               />
             </div>
           );

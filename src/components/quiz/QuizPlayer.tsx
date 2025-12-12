@@ -66,6 +66,7 @@ interface ComponentConfig {
   minValue?: number;
   maxValue?: number;
   defaultValue?: number;
+  barColor?: string;
   // Options appearance
   optionStyle?: 'simple' | 'card' | 'image';
   optionLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
@@ -559,6 +560,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                 step={1}
                 unit={unit}
                 altUnit={altUnit}
+                barColor={config.barColor}
               />
               {config.helpText && <p className="text-xs text-muted-foreground mt-1 text-center">{config.helpText}</p>}
             </div>

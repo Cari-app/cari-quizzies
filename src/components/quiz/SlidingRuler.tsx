@@ -9,6 +9,7 @@ interface SlidingRulerProps {
   step?: number;
   unit: string;
   altUnit?: string;
+  barColor?: string;
   className?: string;
 }
 
@@ -20,6 +21,7 @@ export function SlidingRuler({
   step = 1,
   unit,
   altUnit,
+  barColor = '#22c55e',
   className 
 }: SlidingRulerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -202,13 +204,17 @@ export function SlidingRuler({
       {/* Progress Track */}
       <div className="relative h-1.5 bg-muted rounded-full overflow-hidden">
         <div 
-          className="absolute top-0 left-0 h-full bg-primary rounded-full"
-          style={{ width: `${progressPercent}%` }}
+          className="absolute top-0 left-0 h-full rounded-full"
+          style={{ width: `${progressPercent}%`, backgroundColor: barColor }}
         />
         {/* Thumb */}
         <div 
-          className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-background border-2 border-primary rounded-full shadow-md"
-          style={{ left: `calc(${progressPercent}% - 10px)` }}
+          className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-background rounded-full shadow-md"
+          style={{ 
+            left: `calc(${progressPercent}% - 10px)`,
+            borderWidth: '2px',
+            borderColor: barColor
+          }}
         />
       </div>
       
