@@ -23,35 +23,32 @@ export function SlidingRuler({
   className 
 }: SlidingRulerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const rulerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [startValue, setStartValue] = useState(value);
   const [activeUnit, setActiveUnit] = useState(unit);
   
-  // Calculate the ruler width and positioning
+  // Calculate ruler dimensions
   const range = max - min;
-  const tickCount = range / step;
-  const tickSpacing = 8; // pixels between each tick
-  const rulerWidth = tickCount * tickSpacing;
+  const pixelsPerUnit = 4; // How many pixels per unit of value
   
-  // Calculate the offset to center the current value
-  const valueRatio = (value - min) / range;
-  const offset = valueRatio * rulerWidth;
+  const handleDragStart = useCallback((clientX: number) => {
+    setIsDragging(true);
+    setStartX(clientX);
+    setStartValue(value);
+  }, [value]);
   
-  const handleDrag = useCallback((clientX: number) => {
-    if (!containerRef.current || !rulerRef.current) return;
+  const handleDragMove = useCallback((clientX: number) => {
+    if (!isDragging) return;
     
-    const containerRect = containerRef.current.getBoundingClientRect();
-    const containerCenter = containerRect.width / 2;
-    const rulerRect = rulerRef.current.getBoundingClientRect();
+    // Calculate delta in pixels (negative because dragging left should increase value)
+    const deltaX = startX - clientX;
     
-    // Calculate the delta from center
-    const currentOffset = containerCenter - (rulerRect.left - containerRect.left);
-    const deltaX = clientX - containerRect.left - containerCenter;
+    // Convert pixels to value change
+    const deltaValue = deltaX / pixelsPerUnit;
     
-    // New offset based on drag
-    const newOffset = currentOffset + deltaX;
-    const newRatio = newOffset / rulerWidth;
-    let newValue = min + (newRatio * range);
+    // Calculate new value
+    let newValue = startValue + deltaValue;
     
     // Clamp and round to step
     newValue = Math.round(newValue / step) * step;
@@ -60,74 +57,83 @@ export function SlidingRuler({
     if (newValue !== value) {
       onChange(newValue);
     }
-  }, [min, max, range, rulerWidth, step, value, onChange]);
+  }, [isDragging, startX, startValue, pixelsPerUnit, step, min, max, value, onChange]);
   
+  const handleDragEnd = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+  
+  // Mouse events
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
-    setIsDragging(true);
-    handleDrag(e.clientX);
-  }, [handleDrag]);
+    handleDragStart(e.clientX);
+  }, [handleDragStart]);
   
+  // Touch events
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    setIsDragging(true);
-    handleDrag(e.touches[0].clientX);
-  }, [handleDrag]);
+    handleDragStart(e.touches[0].clientX);
+  }, [handleDragStart]);
   
+  // Global event listeners for drag
   useEffect(() => {
     if (!isDragging) return;
     
-    const handleMouseMove = (e: MouseEvent) => {
-      handleDrag(e.clientX);
-    };
-    
-    const handleTouchMove = (e: TouchEvent) => {
-      handleDrag(e.touches[0].clientX);
-    };
-    
-    const handleEnd = () => {
-      setIsDragging(false);
-    };
+    const handleMouseMove = (e: MouseEvent) => handleDragMove(e.clientX);
+    const handleTouchMove = (e: TouchEvent) => handleDragMove(e.touches[0].clientX);
     
     window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleEnd);
-    window.addEventListener('touchmove', handleTouchMove);
-    window.addEventListener('touchend', handleEnd);
+    window.addEventListener('mouseup', handleDragEnd);
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    window.addEventListener('touchend', handleDragEnd);
     
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleEnd);
+      window.removeEventListener('mouseup', handleDragEnd);
       window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleEnd);
+      window.removeEventListener('touchend', handleDragEnd);
     };
-  }, [isDragging, handleDrag]);
+  }, [isDragging, handleDragMove, handleDragEnd]);
   
-  // Generate tick marks
+  // Calculate ruler offset for visual display
+  const rulerOffset = (value - min) * pixelsPerUnit;
+  
+  // Generate tick marks for visible area (centered around current value)
+  const visibleRange = 60; // Show ±60 units
+  const tickStart = Math.max(min, value - visibleRange);
+  const tickEnd = Math.min(max, value + visibleRange);
+  
   const ticks = [];
-  for (let i = 0; i <= tickCount; i++) {
-    const tickValue = min + (i * step);
+  for (let tickValue = tickStart; tickValue <= tickEnd; tickValue += step) {
     const isMajor = tickValue % 10 === 0;
-    const isLabel = tickValue % 30 === 0 || tickValue === min || tickValue === max;
+    const isLabel = tickValue % 20 === 0;
+    const offsetFromCenter = (tickValue - value) * pixelsPerUnit;
     
     ticks.push(
       <div 
-        key={i} 
-        className="flex flex-col items-center"
-        style={{ width: tickSpacing }}
+        key={tickValue} 
+        className="absolute flex flex-col items-center"
+        style={{ 
+          left: `calc(50% + ${offsetFromCenter}px)`,
+          transform: 'translateX(-50%)'
+        }}
       >
         <div 
           className={cn(
-            "w-px transition-colors",
-            isMajor ? "h-5 bg-muted-foreground/60" : "h-3 bg-border"
+            "w-px",
+            isMajor ? "h-6 bg-muted-foreground/50" : "h-3 bg-border"
           )} 
         />
         {isLabel && (
-          <span className="text-[10px] text-muted-foreground mt-1 select-none">
+          <span className="text-[10px] text-muted-foreground mt-1 select-none whitespace-nowrap">
             {tickValue}
           </span>
         )}
       </div>
     );
   }
+  
+  // Calculate progress percentage
+  const progressPercent = ((value - min) / range) * 100;
   
   return (
     <div className={cn("select-none", className)}>
@@ -136,6 +142,7 @@ export function SlidingRuler({
         <div className="flex justify-center mb-4">
           <div className="inline-flex bg-muted rounded-full p-1">
             <button 
+              type="button"
               className={cn(
                 "px-4 py-1.5 text-sm font-medium rounded-full transition-colors",
                 activeUnit === unit 
@@ -147,6 +154,7 @@ export function SlidingRuler({
               {unit}
             </button>
             <button 
+              type="button"
               className={cn(
                 "px-4 py-1.5 text-sm font-medium rounded-full transition-colors",
                 activeUnit === altUnit 
@@ -167,58 +175,50 @@ export function SlidingRuler({
         <span className="text-xl text-muted-foreground ml-1">{activeUnit}</span>
       </div>
       
-      {/* Fixed Indicator */}
-      <div className="relative flex justify-center mb-1">
+      {/* Fixed Indicator Arrow */}
+      <div className="flex justify-center mb-0">
         <div className="w-0 h-0 border-l-[8px] border-r-[8px] border-t-[10px] border-l-transparent border-r-transparent border-t-foreground" />
       </div>
-      <div className="relative flex justify-center">
-        <div className="w-0.5 h-4 bg-foreground rounded-full" />
+      <div className="flex justify-center">
+        <div className="w-0.5 h-3 bg-foreground" />
       </div>
       
       {/* Ruler Container */}
       <div 
         ref={containerRef}
         className={cn(
-          "relative overflow-hidden cursor-grab active:cursor-grabbing py-2",
+          "relative h-16 overflow-hidden cursor-grab",
           isDragging && "cursor-grabbing"
         )}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
       >
-        {/* Sliding Ruler */}
-        <div 
-          ref={rulerRef}
-          className="flex items-start transition-transform duration-75 ease-out"
-          style={{ 
-            transform: `translateX(calc(50% - ${offset}px))`,
-            width: rulerWidth,
-          }}
-        >
+        {/* Tick marks */}
+        <div className="relative h-full">
           {ticks}
         </div>
-        
-        {/* Progress overlay */}
+      </div>
+      
+      {/* Progress Track */}
+      <div className="relative h-1.5 bg-muted rounded-full overflow-hidden">
         <div 
-          className="absolute top-2 left-0 h-5 bg-primary/20 pointer-events-none rounded-r-full"
-          style={{ 
-            width: '50%',
-          }}
+          className="absolute top-0 left-0 h-full bg-primary rounded-full"
+          style={{ width: `${progressPercent}%` }}
+        />
+        {/* Thumb */}
+        <div 
+          className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-background border-2 border-primary rounded-full shadow-md"
+          style={{ left: `calc(${progressPercent}% - 10px)` }}
         />
       </div>
       
-      {/* Slider track visualization */}
-      <div className="relative h-1.5 bg-muted rounded-full mt-2 overflow-hidden">
-        <div 
-          className="absolute top-0 left-0 h-full bg-primary rounded-full transition-all duration-75"
-          style={{ width: `${valueRatio * 100}%` }}
-        />
-        <div 
-          className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-background border-2 border-primary rounded-full shadow-sm transition-all duration-75"
-          style={{ left: `calc(${valueRatio * 100}% - 8px)` }}
-        />
+      {/* Min/Max labels */}
+      <div className="flex justify-between text-xs text-muted-foreground mt-2">
+        <span>{min}</span>
+        <span>{max}</span>
       </div>
       
-      <p className="text-center text-xs text-muted-foreground mt-4">Arraste para ajustar</p>
+      <p className="text-center text-xs text-muted-foreground mt-3">Arraste para ajustar</p>
     </div>
   );
 }
