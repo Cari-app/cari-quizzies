@@ -44,6 +44,7 @@ export function QuizEditor() {
     showLogo: true,
     showProgress: true,
     allowBack: true,
+    logoUrl: '',
   });
 
   const generateSlug = (name: string) => {
@@ -567,16 +568,21 @@ export function QuizEditor() {
           >
             {/* Quiz Header Preview */}
             <div className="shrink-0 border-b border-border p-3">
-              {pageSettings.allowBack && (
-                <button className="p-1 hover:bg-muted rounded transition-colors mb-2">
-                  <ArrowLeft className="w-4 h-4 text-muted-foreground" />
-                </button>
-              )}
-              {pageSettings.showProgress && (
-                <div className="flex items-center gap-2">
-                  <Progress value={40} className="h-1.5 flex-1" />
-                </div>
-              )}
+              <div className="flex items-center gap-3">
+                {pageSettings.allowBack && (
+                  <button className="p-1 hover:bg-muted rounded transition-colors">
+                    <ArrowLeft className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                )}
+                {pageSettings.showLogo && pageSettings.logoUrl && (
+                  <img src={pageSettings.logoUrl} alt="Logo" className="h-6 object-contain" />
+                )}
+                {pageSettings.showProgress && (
+                  <div className="flex-1">
+                    <Progress value={40} className="h-1.5" />
+                  </div>
+                )}
+              </div>
             </div>
             
             {/* Drop Zone */}
@@ -632,7 +638,15 @@ export function QuizEditor() {
               {/* Header Settings */}
               <div className="border border-border rounded-lg p-4">
                 <Label className="text-xs text-muted-foreground uppercase tracking-wide mb-3 block">Header</Label>
-                <div className="space-y-3">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm">URL do Logo</Label>
+                    <Input 
+                      placeholder="https://exemplo.com/logo.png"
+                      value={pageSettings.logoUrl}
+                      onChange={(e) => setPageSettings(prev => ({ ...prev, logoUrl: e.target.value }))}
+                    />
+                  </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Mostrar logo</span>
                     <Switch 
