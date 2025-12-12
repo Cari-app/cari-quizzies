@@ -253,8 +253,8 @@ export function QuizEditor() {
             )}
           </div>
 
-          {/* Toggle Widgets Button */}
-          <div className="border-t border-border p-3">
+          {/* Toggle Widgets Button - Floating */}
+          <div className="p-4">
             <Button
               variant="outline"
               size="sm"
