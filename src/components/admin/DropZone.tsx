@@ -5,6 +5,7 @@ import { Plus, GripVertical, Trash2, CalendarIcon, Pencil, Copy, ChevronUp, Chev
 import { Reorder } from 'framer-motion';
 import { DroppedComponent, ComponentConfig, FaqItem } from './ComponentEditor';
 import { getDefaultChartConfig } from './ChartEditor';
+import { ChartPlayer } from '../quiz/ChartPlayer';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
@@ -1667,11 +1668,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const chartConfig = config.chartConfig || getDefaultChartConfig();
         return (
           <div className="p-4">
-            <div className="bg-card rounded-xl border border-border p-4">
-              <div className="h-32 flex items-center justify-center text-muted-foreground text-sm">
-                Gráfico {chartConfig.chartType === 'cartesian' ? 'Cartesiano' : chartConfig.chartType === 'bar' ? 'de Barras' : 'Circular'}
-              </div>
-            </div>
+            <ChartPlayer config={chartConfig} />
           </div>
         );
       }
