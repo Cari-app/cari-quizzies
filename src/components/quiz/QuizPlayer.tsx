@@ -17,6 +17,7 @@ import { BeforeAfterSlider } from './BeforeAfterSlider';
 import { CarouselPlayer } from './CarouselPlayer';
 import { MetricsPlayer } from './MetricsPlayer';
 import { ChartPlayer } from './ChartPlayer';
+import { SlidingRuler } from './SlidingRuler';
 
 interface QuizPlayerProps {
   slug?: string;
@@ -550,69 +551,15 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         if (isRulerLayout) {
           return (
             <div className="py-4">
-              {/* Unit Toggle */}
-              <div className="flex justify-center mb-4">
-                <div className="inline-flex bg-muted rounded-full p-1">
-                  <button 
-                    className={cn(
-                      "px-4 py-1.5 text-sm font-medium rounded-full transition-colors",
-                      "bg-foreground text-background"
-                    )}
-                  >
-                    {unit}
-                  </button>
-                  <button 
-                    className="px-4 py-1.5 text-sm font-medium rounded-full transition-colors text-muted-foreground"
-                  >
-                    {altUnit}
-                  </button>
-                </div>
-              </div>
-              
-              {/* Value Display */}
-              <div className="text-center mb-4">
-                <span className="text-5xl font-semibold">{currentValue}</span>
-                <span className="text-xl text-muted-foreground ml-1">{unit}</span>
-              </div>
-              
-              {/* Ruler with Slider */}
-              <div className="relative py-4">
-                {/* Indicator - pointing down from top */}
-                <div className="absolute left-1/2 -translate-x-1/2 -top-1 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-foreground z-10" />
-                <div className="absolute left-1/2 -translate-x-1/2 top-2 w-px h-4 bg-foreground z-10" />
-                
-                <div className="flex justify-between items-end h-8 mt-4">
-                  {Array.from({ length: 21 }, (_, i) => {
-                    const isMajor = i % 5 === 0;
-                    return (
-                      <div 
-                        key={i} 
-                        className={cn(
-                          "w-px bg-border",
-                          isMajor ? "h-6" : "h-3"
-                        )} 
-                      />
-                    );
-                  })}
-                </div>
-                
-                <Slider
-                  value={[currentValue]}
-                  onValueChange={(vals) => handleInputChange(comp.id, customId, vals[0])}
-                  min={minVal}
-                  max={maxVal}
-                  step={1}
-                  className="mt-2"
-                />
-                
-                <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                  <span>{minVal + Math.round((maxVal - minVal) * 0.25)}</span>
-                  <span>{Math.round((minVal + maxVal) / 2)}</span>
-                  <span>{minVal + Math.round((maxVal - minVal) * 0.75)}</span>
-                </div>
-              </div>
-              
-              <p className="text-center text-xs text-muted-foreground mt-2">Arraste para ajustar</p>
+              <SlidingRuler
+                value={currentValue}
+                onChange={(val) => handleInputChange(comp.id, customId, val)}
+                min={minVal}
+                max={maxVal}
+                step={1}
+                unit={unit}
+                altUnit={altUnit}
+              />
               {config.helpText && <p className="text-xs text-muted-foreground mt-1 text-center">{config.helpText}</p>}
             </div>
           );
