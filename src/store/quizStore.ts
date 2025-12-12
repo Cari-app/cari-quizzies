@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { Quiz, QuizScreen, QuizSession, QuizAnswer } from '@/types/quiz';
-import { mockQuizzes } from '@/data/mockQuizzes';
 
 interface QuizStore {
   quizzes: Quiz[];
@@ -31,7 +30,7 @@ interface QuizStore {
 }
 
 export const useQuizStore = create<QuizStore>((set, get) => ({
-  quizzes: mockQuizzes,
+  quizzes: [],
   currentQuiz: null,
   currentSession: null,
   editingScreen: null,

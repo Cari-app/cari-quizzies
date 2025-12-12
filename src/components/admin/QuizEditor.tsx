@@ -17,6 +17,7 @@ import { TemplateSelector } from './TemplateSelector';
 import { ComponentPalette } from './ComponentPalette';
 import { DropZone, DroppedComponent, ComponentConfig } from './DropZone';
 import { ComponentEditor } from './ComponentEditor';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { cn } from '@/lib/utils';
 import { screenTemplates } from '@/data/screenTemplates';
 import { supabase } from '@/integrations/supabase/client';
@@ -58,6 +59,10 @@ export function QuizEditor() {
     logoSize: '32' as string,
   });
   const [logoInputMode, setLogoInputMode] = useState<'image' | 'url'>('url');
+  
+  // Delete stage dialog
+  const [deleteStageDialogOpen, setDeleteStageDialogOpen] = useState(false);
+  const [stageToDelete, setStageToDelete] = useState<string | null>(null);
 
   // Get current stage
   const currentStage = stages.find(s => s.id === selectedStageId);
@@ -164,15 +169,23 @@ export function QuizEditor() {
     setHasUnsavedChanges(true);
   };
 
-  // Delete stage
-  const handleDeleteStage = (stageId: string) => {
-    if (confirm('Excluir esta etapa?')) {
-      setStages(prev => prev.filter(s => s.id !== stageId));
-      if (selectedStageId === stageId) {
-        setSelectedStageId(stages.length > 1 ? stages[0].id : null);
-      }
-      setHasUnsavedChanges(true);
+  // Delete stage - open dialog
+  const handleDeleteStageClick = (stageId: string) => {
+    setStageToDelete(stageId);
+    setDeleteStageDialogOpen(true);
+  };
+
+  // Confirm delete stage
+  const handleDeleteStageConfirm = () => {
+    if (!stageToDelete) return;
+    
+    setStages(prev => prev.filter(s => s.id !== stageToDelete));
+    if (selectedStageId === stageToDelete) {
+      setSelectedStageId(stages.length > 1 ? stages[0].id : null);
     }
+    setHasUnsavedChanges(true);
+    setDeleteStageDialogOpen(false);
+    setStageToDelete(null);
   };
 
   // Reorder stages
@@ -441,7 +454,7 @@ export function QuizEditor() {
                         className="opacity-0 group-hover:opacity-100 p-1.5 hover:text-destructive transition-opacity shrink-0"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleDeleteStage(stage.id);
+                          handleDeleteStageClick(stage.id);
                         }}
                       >
                         <Trash2 className="w-4 h-4" />
@@ -782,6 +795,16 @@ export function QuizEditor() {
           onClose={() => setShowTemplates(false)}
         />
       )}
+
+      <ConfirmDialog
+        open={deleteStageDialogOpen}
+        onOpenChange={setDeleteStageDialogOpen}
+        title="Excluir etapa"
+        description="Tem certeza que deseja excluir esta etapa? Todos os componentes serão removidos."
+        confirmText="Excluir"
+        onConfirm={handleDeleteStageConfirm}
+        variant="destructive"
+      />
     </div>
   );
 }
