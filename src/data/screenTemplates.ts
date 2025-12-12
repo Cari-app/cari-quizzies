@@ -185,7 +185,6 @@ export const componentPalette = {
     { type: 'text', name: 'Texto', icon: '🔤' },
     { type: 'image', name: 'Imagem', icon: '🖼️' },
     { type: 'video', name: 'Vídeo', icon: '🎬' },
-    { type: 'audio', name: 'Áudio', icon: '🔊' },
   ],
   attention: [
     { type: 'alert', name: 'Alerta', icon: '⚠️' },
