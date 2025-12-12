@@ -54,6 +54,12 @@ export interface ComponentConfig {
   // Display/Visibility
   showAfterSeconds?: number;
   displayRules?: Array<{ id: string; condition: string }>;
+  // Height/Weight specific
+  layoutType?: 'input' | 'ruler';
+  unit?: 'cm' | 'pol' | 'kg' | 'lb';
+  minValue?: number;
+  maxValue?: number;
+  defaultValue?: number;
 }
 
 interface ComponentEditorProps {
@@ -125,9 +131,10 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
       case 'number':
       case 'date':
       case 'textarea':
+        return renderInputComponentTab();
       case 'height':
       case 'weight':
-        return renderInputComponentTab();
+        return renderHeightWeightComponentTab();
       case 'button':
         return renderButtonComponentTab();
       case 'options':
@@ -278,6 +285,133 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
       </Collapsible>
     </div>
   );
+
+  const renderHeightWeightComponentTab = () => {
+    const isHeight = component.type === 'height';
+    const defaultMin = isHeight ? 100 : 30;
+    const defaultMax = isHeight ? 220 : 200;
+    const defaultValue = isHeight ? 170 : 70;
+    
+    return (
+      <div className="space-y-4">
+        {/* ID/Name */}
+        <div>
+          <Label className="text-xs text-muted-foreground">ID/Name</Label>
+          <Input
+            value={component.customId || ''}
+            onChange={(e) => onUpdateCustomId(generateSlug(e.target.value))}
+            placeholder={`${component.type}_${component.id.split('-')[1]?.slice(0, 6) || 'id'}`}
+            className="mt-1 font-mono text-xs"
+          />
+        </div>
+
+        {/* Layout Type */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Tipo</Label>
+          <Select 
+            value={config.layoutType || 'input'} 
+            onValueChange={(v) => updateConfig({ layoutType: v as 'input' | 'ruler' })}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="input">Input</SelectItem>
+              <SelectItem value="ruler">Régua</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Campo obrigatório */}
+        <div className="flex items-center gap-2">
+          <input 
+            type="checkbox" 
+            id="required" 
+            checked={config.required || false}
+            onChange={(e) => updateConfig({ required: e.target.checked })}
+            className="rounded border-border"
+          />
+          <Label htmlFor="required" className="text-sm cursor-pointer">Campo obrigatório</Label>
+        </div>
+
+        {/* Avançado */}
+        <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+          <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Plus className={`w-4 h-4 transition-transform ${advancedOpen ? 'rotate-45' : ''}`} />
+            AVANÇADO
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-4 space-y-4">
+            {/* Unit */}
+            <div>
+              <Label className="text-xs text-muted-foreground">Unidade</Label>
+              <Select 
+                value={config.unit || (isHeight ? 'cm' : 'kg')} 
+                onValueChange={(v) => updateConfig({ unit: v as ComponentConfig['unit'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {isHeight ? (
+                    <>
+                      <SelectItem value="cm">Centímetros (cm)</SelectItem>
+                      <SelectItem value="pol">Polegadas (pol)</SelectItem>
+                    </>
+                  ) : (
+                    <>
+                      <SelectItem value="kg">Quilogramas (kg)</SelectItem>
+                      <SelectItem value="lb">Libras (lb)</SelectItem>
+                    </>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {/* Min/Max/Default Values */}
+            <div className="grid grid-cols-3 gap-2">
+              <div>
+                <Label className="text-xs text-muted-foreground">Mínimo</Label>
+                <Input
+                  type="number"
+                  value={config.minValue ?? defaultMin}
+                  onChange={(e) => updateConfig({ minValue: parseInt(e.target.value) || defaultMin })}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Máximo</Label>
+                <Input
+                  type="number"
+                  value={config.maxValue ?? defaultMax}
+                  onChange={(e) => updateConfig({ maxValue: parseInt(e.target.value) || defaultMax })}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Padrão</Label>
+                <Input
+                  type="number"
+                  value={config.defaultValue ?? defaultValue}
+                  onChange={(e) => updateConfig({ defaultValue: parseInt(e.target.value) || defaultValue })}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+            
+            <div>
+              <Label className="text-xs text-muted-foreground">Texto de ajuda</Label>
+              <Input
+                value={config.helpText || ''}
+                onChange={(e) => updateConfig({ helpText: e.target.value })}
+                placeholder="Ex: Sua altura em centímetros"
+                className="mt-1"
+              />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+    );
+  };
 
   const renderButtonComponentTab = () => (
     <div className="space-y-4">

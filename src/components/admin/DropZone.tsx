@@ -65,9 +65,9 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'textarea':
         return { label: 'Mensagem', placeholder: 'Digite sua mensagem...', required: false };
       case 'height':
-        return { label: 'Altura', placeholder: '170', required: false };
+        return { label: 'Altura', placeholder: '170', required: false, layoutType: 'input', unit: 'cm', minValue: 100, maxValue: 220, defaultValue: 170 };
       case 'weight':
-        return { label: 'Peso', placeholder: '70', required: false };
+        return { label: 'Peso', placeholder: '70', required: false, layoutType: 'input', unit: 'kg', minValue: 30, maxValue: 200, defaultValue: 70 };
       case 'button':
         return { buttonText: 'Continuar', buttonStyle: 'primary', buttonAction: 'next' };
       case 'options':
@@ -158,8 +158,6 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'phone':
       case 'number':
       case 'textarea':
-      case 'height':
-      case 'weight':
         return (
           <div className="p-4">
             {config.label && <label className="text-sm font-medium mb-2 block">{config.label}</label>}
@@ -172,12 +170,89 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               />
             ) : (
               <input 
-                type={comp.type === 'email' ? 'email' : comp.type === 'number' || comp.type === 'height' || comp.type === 'weight' ? 'number' : 'text'}
+                type={comp.type === 'email' ? 'email' : comp.type === 'number' ? 'number' : 'text'}
                 placeholder={config.placeholder}
                 className="w-full px-4 py-3 bg-muted/30 border border-border rounded-lg text-sm"
                 disabled
               />
             )}
+            {config.helpText && <p className="text-xs text-muted-foreground mt-1">{config.helpText}</p>}
+          </div>
+        );
+      case 'height':
+      case 'weight':
+        const isRulerLayout = config.layoutType === 'ruler';
+        const unit = config.unit || (comp.type === 'height' ? 'cm' : 'kg');
+        const defaultVal = config.defaultValue || (comp.type === 'height' ? 170 : 70);
+        const minVal = config.minValue || (comp.type === 'height' ? 100 : 30);
+        const maxVal = config.maxValue || (comp.type === 'height' ? 220 : 200);
+        
+        if (isRulerLayout) {
+          return (
+            <div className="p-4">
+              {/* Unit Toggle */}
+              <div className="flex justify-center mb-4">
+                <div className="inline-flex bg-muted rounded-full p-1">
+                  <button className={cn(
+                    "px-4 py-1.5 text-sm font-medium rounded-full transition-colors",
+                    unit === 'cm' || unit === 'kg' ? "bg-foreground text-background" : "text-muted-foreground"
+                  )}>
+                    {comp.type === 'height' ? 'cm' : 'kg'}
+                  </button>
+                  <button className={cn(
+                    "px-4 py-1.5 text-sm font-medium rounded-full transition-colors",
+                    unit === 'pol' || unit === 'lb' ? "bg-foreground text-background" : "text-muted-foreground"
+                  )}>
+                    {comp.type === 'height' ? 'pol' : 'lb'}
+                  </button>
+                </div>
+              </div>
+              
+              {/* Value Display */}
+              <div className="text-center mb-4">
+                <span className="text-5xl font-semibold">{defaultVal}</span>
+                <span className="text-xl text-muted-foreground ml-1">{unit}</span>
+              </div>
+              
+              {/* Ruler */}
+              <div className="relative py-4">
+                <div className="flex justify-between items-end h-8 mb-2">
+                  {Array.from({ length: 21 }, (_, i) => {
+                    const isMajor = i % 5 === 0;
+                    return (
+                      <div 
+                        key={i} 
+                        className={cn(
+                          "w-px bg-border",
+                          isMajor ? "h-6" : "h-3"
+                        )} 
+                      />
+                    );
+                  })}
+                </div>
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>{minVal + Math.round((maxVal - minVal) * 0.25)}</span>
+                  <span>{defaultVal}</span>
+                  <span>{minVal + Math.round((maxVal - minVal) * 0.75)}</span>
+                </div>
+                {/* Indicator */}
+                <div className="absolute left-1/2 -translate-x-1/2 bottom-6 w-0 h-0 border-l-[6px] border-r-[6px] border-b-[8px] border-l-transparent border-r-transparent border-b-foreground" />
+              </div>
+              
+              <p className="text-center text-xs text-muted-foreground mt-2">Arraste para ajustar</p>
+            </div>
+          );
+        }
+        
+        return (
+          <div className="p-4">
+            {config.label && <label className="text-sm font-medium mb-2 block">{config.label}</label>}
+            <input 
+              type="number"
+              placeholder={config.placeholder}
+              className="w-full px-4 py-3 bg-muted/30 border border-border rounded-lg text-sm"
+              disabled
+            />
             {config.helpText && <p className="text-xs text-muted-foreground mt-1">{config.helpText}</p>}
           </div>
         );
