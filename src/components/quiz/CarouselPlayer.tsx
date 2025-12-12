@@ -19,7 +19,18 @@ interface CarouselPlayerProps {
   hasBorder?: boolean;
   width?: number;
   horizontalAlign?: 'start' | 'center' | 'end';
+  imageRatio?: '1:1' | '4:3' | '16:9' | '3:2' | '2:3' | '9:16' | '21:9';
 }
+
+const aspectRatioClasses: Record<string, string> = {
+  '1:1': 'aspect-square',
+  '4:3': 'aspect-[4/3]',
+  '3:2': 'aspect-[3/2]',
+  '16:9': 'aspect-video',
+  '21:9': 'aspect-[21/9]',
+  '2:3': 'aspect-[2/3]',
+  '9:16': 'aspect-[9/16]',
+};
 
 export function CarouselPlayer({
   items,
@@ -30,6 +41,7 @@ export function CarouselPlayer({
   hasBorder = false,
   width = 100,
   horizontalAlign = 'start',
+  imageRatio = '4:3',
 }: CarouselPlayerProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -91,7 +103,7 @@ export function CarouselPlayer({
               >
                 {/* Image */}
                 {showImage && (
-                  <div className="aspect-[4/3] bg-muted flex items-center justify-center">
+                  <div className={cn(aspectRatioClasses[imageRatio] || 'aspect-[4/3]', "bg-muted flex items-center justify-center")}>
                     {item.image ? (
                       <img
                         src={item.image}

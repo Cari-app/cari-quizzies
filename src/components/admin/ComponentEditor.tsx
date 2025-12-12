@@ -198,6 +198,7 @@ export interface ComponentConfig {
   carouselAutoplay?: boolean;
   carouselAutoplayInterval?: number;
   carouselBorder?: boolean;
+  carouselImageRatio?: '1:1' | '4:3' | '16:9' | '3:2' | '2:3' | '9:16' | '21:9';
 }
 
 interface ComponentEditorProps {
@@ -3263,6 +3264,28 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     if (isCarouselComponent) {
       return (
         <div className="space-y-4">
+          {/* Proporção da imagem */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Proporção da imagem</Label>
+            <Select
+              value={config.carouselImageRatio || '4:3'}
+              onValueChange={(v) => updateConfig({ carouselImageRatio: v as ComponentConfig['carouselImageRatio'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1:1">1:1 (Quadrado)</SelectItem>
+                <SelectItem value="4:3">4:3 (Padrão)</SelectItem>
+                <SelectItem value="3:2">3:2 (Foto)</SelectItem>
+                <SelectItem value="16:9">16:9 (Widescreen)</SelectItem>
+                <SelectItem value="21:9">21:9 (Ultrawide)</SelectItem>
+                <SelectItem value="2:3">2:3 (Retrato)</SelectItem>
+                <SelectItem value="9:16">9:16 (Vertical)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           {/* Tipo (borda) */}
           <div>
             <Label className="text-xs text-muted-foreground">Tipo</Label>
