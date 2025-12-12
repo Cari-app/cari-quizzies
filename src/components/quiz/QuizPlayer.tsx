@@ -16,11 +16,22 @@ interface QuizPlayerProps {
   slug?: string;
 }
 
+interface OptionItem {
+  id: string;
+  text: string;
+  value: string;
+  imageUrl?: string;
+  points?: number;
+  destination?: 'next' | 'submit' | 'specific';
+  destinationStageId?: string;
+}
+
 interface ComponentConfig {
   label?: string;
   placeholder?: string;
   required?: boolean;
   helpText?: string;
+  description?: string;
   buttonText?: string;
   buttonStyle?: string;
   buttonAction?: string;
@@ -30,8 +41,9 @@ interface ComponentConfig {
   mediaUrl?: string;
   altText?: string;
   height?: number;
-  options?: Array<{ id: string; text: string; value: string }>;
+  options?: OptionItem[];
   allowMultiple?: boolean;
+  autoAdvance?: boolean;
   sliderMin?: number;
   sliderMax?: number;
   sliderStep?: number;
@@ -42,6 +54,17 @@ interface ComponentConfig {
   minValue?: number;
   maxValue?: number;
   defaultValue?: number;
+  // Options appearance
+  optionStyle?: 'simple' | 'card' | 'image';
+  optionLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
+  optionBorderRadius?: 'none' | 'small' | 'medium' | 'large' | 'full';
+  optionShadow?: 'none' | 'sm' | 'md' | 'lg';
+  optionSpacing?: 'compact' | 'simple' | 'relaxed';
+  detailType?: 'none' | 'checkbox' | 'radio' | 'number';
+  detailPosition?: 'start' | 'end';
+  imagePosition?: 'top' | 'left' | 'right' | 'bottom';
+  imageRatio?: '1:1' | '16:9' | '4:3' | '3:2';
+  transparentImageBg?: boolean;
 }
 
 interface DroppedComponent {
@@ -395,71 +418,217 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
 
       case 'options':
       case 'single':
-        return (
-          <div className="py-4">
-            {config.label && <p className="text-sm font-medium mb-3">{config.label}</p>}
-            <div className="space-y-2">
-              {(config.options || []).map((opt) => (
-                <button
-                  key={opt.id}
-                  onClick={() => handleInputChange(comp.id, customId, opt.value)}
-                  className={cn(
-                    "w-full p-4 rounded-lg border text-sm text-left flex items-center gap-3 transition-colors",
-                    value === opt.value
-                      ? "border-primary bg-primary/10"
-                      : "border-border hover:border-primary/50"
-                  )}
-                >
-                  <div className={cn(
-                    "w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0",
-                    value === opt.value ? "border-primary bg-primary" : "border-border"
-                  )}>
-                    {value === opt.value && <span className="text-primary-foreground text-xs">✓</span>}
-                  </div>
-                  {opt.text}
-                </button>
-              ))}
+      case 'multiple': {
+        const isMultiple = comp.type === 'multiple' || config.allowMultiple;
+        const selectedValues = isMultiple ? (Array.isArray(value) ? value : []) : null;
+        
+        const optionStyle = config.optionStyle || 'simple';
+        const optionLayout = config.optionLayout || 'list';
+        const optionBorderRadius = config.optionBorderRadius || 'small';
+        const optionShadow = config.optionShadow || 'none';
+        const optionSpacing = config.optionSpacing || 'simple';
+        const detailType = config.detailType || 'checkbox';
+        const detailPosition = config.detailPosition || 'start';
+        const imagePosition = config.imagePosition || 'top';
+        const imageRatio = config.imageRatio || '1:1';
+        const autoAdvance = config.autoAdvance !== false && !isMultiple;
+        
+        const getBorderRadius = () => {
+          switch (optionBorderRadius) {
+            case 'none': return 'rounded-none';
+            case 'small': return 'rounded-md';
+            case 'medium': return 'rounded-lg';
+            case 'large': return 'rounded-xl';
+            case 'full': return 'rounded-full';
+            default: return 'rounded-md';
+          }
+        };
+        
+        const getShadow = () => {
+          switch (optionShadow) {
+            case 'sm': return 'shadow-sm';
+            case 'md': return 'shadow-md';
+            case 'lg': return 'shadow-lg';
+            default: return '';
+          }
+        };
+        
+        const getSpacing = () => {
+          switch (optionSpacing) {
+            case 'compact': return 'gap-1';
+            case 'relaxed': return 'gap-4';
+            default: return 'gap-2';
+          }
+        };
+        
+        const getLayoutClass = () => {
+          switch (optionLayout) {
+            case 'grid-2': return 'grid grid-cols-2';
+            case 'grid-3': return 'grid grid-cols-3';
+            case 'grid-4': return 'grid grid-cols-4';
+            default: return 'flex flex-col';
+          }
+        };
+        
+        const getImageRatioClass = () => {
+          switch (imageRatio) {
+            case '16:9': return 'aspect-video';
+            case '4:3': return 'aspect-[4/3]';
+            case '3:2': return 'aspect-[3/2]';
+            default: return 'aspect-square';
+          }
+        };
+        
+        const handleOptionClick = (optValue: string) => {
+          if (isMultiple) {
+            const newValues = selectedValues!.includes(optValue)
+              ? selectedValues!.filter((v: string) => v !== optValue)
+              : [...selectedValues!, optValue];
+            handleInputChange(comp.id, customId, newValues);
+          } else {
+            handleInputChange(comp.id, customId, optValue);
+            if (autoAdvance) {
+              setTimeout(handleNext, 300);
+            }
+          }
+        };
+        
+        const isOptionSelected = (optValue: string) => {
+          if (isMultiple) {
+            return selectedValues!.includes(optValue);
+          }
+          return value === optValue;
+        };
+        
+        const renderDetail = (isSelected: boolean, index: number) => {
+          if (detailType === 'none') return null;
+          
+          if (detailType === 'number') {
+            return (
+              <div className={cn(
+                "w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-medium shrink-0",
+                isSelected ? "border-primary bg-primary text-primary-foreground" : "border-border"
+              )}>
+                {index + 1}
+              </div>
+            );
+          }
+          
+          return (
+            <div className={cn(
+              "w-5 h-5 border-2 flex items-center justify-center shrink-0",
+              detailType === 'radio' || !isMultiple ? "rounded-full" : "rounded",
+              isSelected ? "border-primary bg-primary" : "border-border"
+            )}>
+              {isSelected && <span className="text-primary-foreground text-xs">✓</span>}
             </div>
-          </div>
-        );
-
-      case 'multiple':
-        const selectedValues = Array.isArray(value) ? value : [];
+          );
+        };
+        
         return (
           <div className="py-4">
-            {config.label && <p className="text-sm font-medium mb-3">{config.label}</p>}
-            <div className="space-y-2">
-              {(config.options || []).map((opt) => {
-                const isSelected = selectedValues.includes(opt.value);
+            {config.label && <p className="text-sm font-medium mb-1">{config.label}</p>}
+            {config.description && <p className="text-xs text-muted-foreground mb-3">{config.description}</p>}
+            <div className={cn(getLayoutClass(), getSpacing())}>
+              {(config.options || []).map((opt, i) => {
+                const isSelected = isOptionSelected(opt.value);
+                
+                if (optionStyle === 'image') {
+                  const isHorizontal = imagePosition === 'left' || imagePosition === 'right';
+                  return (
+                    <button
+                      key={opt.id}
+                      onClick={() => handleOptionClick(opt.value)}
+                      className={cn(
+                        "border text-sm transition-colors overflow-hidden text-left",
+                        getBorderRadius(),
+                        getShadow(),
+                        isSelected ? "border-primary bg-primary/10" : "border-border hover:border-primary/50",
+                        isHorizontal ? "flex" : "flex flex-col"
+                      )}
+                    >
+                      {(imagePosition === 'top' || imagePosition === 'left') && (
+                        <div className={cn(
+                          "bg-muted flex items-center justify-center text-muted-foreground text-2xl",
+                          getImageRatioClass(),
+                          isHorizontal ? "w-20 shrink-0" : "w-full"
+                        )}>
+                          {opt.imageUrl ? (
+                            <img src={opt.imageUrl} alt="" className="w-full h-full object-cover" />
+                          ) : '📷'}
+                        </div>
+                      )}
+                      <div className={cn(
+                        "p-3 flex items-center gap-2 flex-1",
+                        detailPosition === 'end' && "flex-row-reverse"
+                      )}>
+                        {renderDetail(isSelected, i)}
+                        <span className="flex-1">{opt.text}</span>
+                      </div>
+                      {(imagePosition === 'bottom' || imagePosition === 'right') && (
+                        <div className={cn(
+                          "bg-muted flex items-center justify-center text-muted-foreground text-2xl",
+                          getImageRatioClass(),
+                          isHorizontal ? "w-20 shrink-0" : "w-full"
+                        )}>
+                          {opt.imageUrl ? (
+                            <img src={opt.imageUrl} alt="" className="w-full h-full object-cover" />
+                          ) : '📷'}
+                        </div>
+                      )}
+                    </button>
+                  );
+                }
+                
+                if (optionStyle === 'card') {
+                  return (
+                    <button
+                      key={opt.id}
+                      onClick={() => handleOptionClick(opt.value)}
+                      className={cn(
+                        "p-4 border text-sm transition-colors text-left",
+                        getBorderRadius(),
+                        getShadow(),
+                        isSelected ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
+                      )}
+                    >
+                      <div className={cn(
+                        "flex items-center gap-3",
+                        detailPosition === 'end' && "flex-row-reverse"
+                      )}>
+                        {renderDetail(isSelected, i)}
+                        <span className="flex-1">{opt.text}</span>
+                      </div>
+                    </button>
+                  );
+                }
+                
+                // Simple style
                 return (
                   <button
                     key={opt.id}
-                    onClick={() => {
-                      const newValues = isSelected
-                        ? selectedValues.filter((v: string) => v !== opt.value)
-                        : [...selectedValues, opt.value];
-                      handleInputChange(comp.id, customId, newValues);
-                    }}
+                    onClick={() => handleOptionClick(opt.value)}
                     className={cn(
-                      "w-full p-4 rounded-lg border text-sm text-left flex items-center gap-3 transition-colors",
-                      isSelected
-                        ? "border-primary bg-primary/10"
-                        : "border-border hover:border-primary/50"
+                      "p-3 border text-sm transition-colors text-left",
+                      getBorderRadius(),
+                      getShadow(),
+                      isSelected ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"
                     )}
                   >
                     <div className={cn(
-                      "w-5 h-5 rounded border-2 flex items-center justify-center shrink-0",
-                      isSelected ? "border-primary bg-primary" : "border-border"
+                      "flex items-center gap-3",
+                      detailPosition === 'end' && "flex-row-reverse"
                     )}>
-                      {isSelected && <span className="text-primary-foreground text-xs">✓</span>}
+                      {renderDetail(isSelected, i)}
+                      <span className="flex-1">{opt.text}</span>
                     </div>
-                    {opt.text}
                   </button>
                 );
               })}
             </div>
           </div>
         );
+      }
 
       case 'yesno':
         return (
