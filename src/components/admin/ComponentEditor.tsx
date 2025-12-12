@@ -314,7 +314,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
   const addOption = () => {
     const currentOptions = config.options || [];
     const newOption: OptionItem = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       text: `Opção ${currentOptions.length + 1}`,
       value: `opt_${currentOptions.length + 1}`,
       points: 1,
@@ -339,7 +339,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
   const addDisplayRule = () => {
     const currentRules = config.displayRules || [];
     updateConfig({
-      displayRules: [...currentRules, { id: Date.now().toString(), condition: '' }]
+      displayRules: [...currentRules, { id: crypto.randomUUID(), condition: '' }]
     });
   };
 
@@ -1561,7 +1561,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     
     const addVariation = () => {
       const newVariation = {
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         name: '',
         platform: '',
         number: ''
@@ -2016,7 +2016,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
     const addArgument = () => {
       const newArg: ArgumentItem = {
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         title: 'Titulo aqui',
         description: 'Descrição aqui oi tudo bem isso aqui e uma descrição',
         mediaType: 'none',
@@ -2038,7 +2038,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     const duplicateArgument = (item: ArgumentItem) => {
       const newArg: ArgumentItem = {
         ...item,
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
       };
       const index = argumentItems.findIndex(a => a.id === item.id);
       const newItems = [...argumentItems];
@@ -2313,7 +2313,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
     const addTestimonial = () => {
       const newItem: TestimonialItem = {
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         name: 'Nome do Cliente',
         handle: '@usuario',
         rating: 5,
@@ -2336,7 +2336,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     const duplicateTestimonial = (item: TestimonialItem) => {
       const newItem: TestimonialItem = {
         ...item,
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
       };
       const index = testimonialItems.findIndex(t => t.id === item.id);
       const newItems = [...testimonialItems];
@@ -2625,7 +2625,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
     const addFaq = () => {
       const newItem: FaqItem = {
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         question: 'Qual a primeira dúvida a ser resolvida?',
         answer: 'Este é apenas um texto de exemplo utilizado para ilustrar como a resposta de uma dúvida frequente será exibida nesta seção.',
       };
@@ -2646,7 +2646,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     const duplicateFaq = (item: FaqItem) => {
       const newItem: FaqItem = {
         ...item,
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
       };
       const index = faqItems.findIndex(f => f.id === item.id);
       const newItems = [...faqItems];
@@ -3064,7 +3064,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
     const addItem = () => {
       const newItem = {
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         image: '',
         description: 'Exemplo de descrição'
       };
@@ -3203,7 +3203,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
     const addItem = () => {
       const newItem: MetricItem = {
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         type: 'bar',
         color: 'theme',
         value: 30,

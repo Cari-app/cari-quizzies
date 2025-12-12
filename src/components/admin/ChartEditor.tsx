@@ -56,12 +56,12 @@ export function ChartEditorComponentTab({ config, onUpdate }: ChartEditorProps) 
 
   const addDataSet = () => {
     const newDataSet: ChartDataSet = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       name: `Conjunto ${String.fromCharCode(65 + config.dataSets.length)}`,
       data: [
-        { id: '1', label: 'Ontem', value: 20 },
-        { id: '2', label: 'Hoje', value: 60 },
-        { id: '3', label: 'Amanhã', value: 80 },
+        { id: crypto.randomUUID(), label: 'Ontem', value: 20 },
+        { id: crypto.randomUUID(), label: 'Hoje', value: 60 },
+        { id: crypto.randomUUID(), label: 'Amanhã', value: 80 },
       ],
       fillType: 'solid',
       color: '#71717A',
@@ -86,7 +86,7 @@ export function ChartEditorComponentTab({ config, onUpdate }: ChartEditorProps) 
     if (!dataSet) return;
 
     const newPoint: ChartDataPoint = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       label: '',
       value: 0,
     };
@@ -601,35 +601,38 @@ export function ChartEditorAppearanceTab({ config, onUpdate }: ChartEditorProps)
 
 // ====== DEFAULT CONFIG ======
 export function getDefaultChartConfig(): ChartConfig {
+  const dataSetAId = crypto.randomUUID();
+  const dataSetBId = crypto.randomUUID();
+  
   return {
     chartType: 'cartesian',
     dataSets: [
       {
-        id: 'a',
+        id: dataSetAId,
         name: 'Conjunto A',
         data: [
-          { id: '1', label: 'Ontem', value: 10 },
-          { id: '2', label: 'Hoje', value: 30 },
-          { id: '3', label: 'Amanhã', value: 90 },
+          { id: crypto.randomUUID(), label: 'Ontem', value: 10 },
+          { id: crypto.randomUUID(), label: 'Hoje', value: 30 },
+          { id: crypto.randomUUID(), label: 'Amanhã', value: 90 },
         ],
         fillType: 'gradient',
         color: '#dc2626',
         gradientColors: ['#dc2626', '#fbbf24', '#22c55e'],
       },
       {
-        id: 'b',
+        id: dataSetBId,
         name: 'Conjunto B',
         data: [
-          { id: '1', label: 'Ontem', value: 20 },
-          { id: '2', label: 'Hoje', value: 60 },
-          { id: '3', label: 'Amanhã', value: 80 },
+          { id: crypto.randomUUID(), label: 'Ontem', value: 20 },
+          { id: crypto.randomUUID(), label: 'Hoje', value: 60 },
+          { id: crypto.randomUUID(), label: 'Amanhã', value: 80 },
         ],
         fillType: 'solid',
         color: '#71717A',
         gradientColors: ['#71717A'],
       },
     ],
-    selectedDataSetId: 'a',
+    selectedDataSetId: dataSetAId,
     showArea: true,
     showXAxis: true,
     showYAxis: true,

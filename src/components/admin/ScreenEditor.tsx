@@ -29,9 +29,9 @@ export function ScreenEditor({ quizId, screen }: ScreenEditorProps) {
 
   const handleAddOption = () => {
     const newOption: QuizOption = {
-      id: Date.now().toString(),
+      id: crypto.randomUUID(),
       text: 'Nova opção',
-      value: `option-${Date.now()}`,
+      value: `option-${crypto.randomUUID().slice(0, 8)}`,
     };
     handleUpdate({ options: [...(screen.options || []), newOption] });
   };
