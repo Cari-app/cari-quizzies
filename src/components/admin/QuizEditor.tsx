@@ -613,11 +613,11 @@ export function QuizEditor() {
             />
           </div>
         ) : editorView === 'design' ? (
-          /* Design View - Shows all stages stacked with their actual components */
-          <div className="flex-1 flex flex-col items-center p-8 overflow-y-auto gap-6">
+          /* Design View - Mobile-sized preview of entire funnel */
+          <div className="flex-1 flex flex-col items-center p-6 overflow-y-auto gap-4">
             {stages.length === 0 ? (
               <div 
-                className="w-[375px] min-h-[400px] rounded-2xl shadow-lg border border-border flex items-center justify-center"
+                className="w-[375px] h-[667px] rounded-[2.5rem] shadow-xl border-[8px] border-foreground/10 flex items-center justify-center"
                 style={{ backgroundColor: designSettings.backgroundColor }}
               >
                 <p className="text-sm opacity-60" style={{ color: designSettings.textColor }}>
@@ -628,24 +628,44 @@ export function QuizEditor() {
               stages.map((stage, index) => (
                 <div 
                   key={stage.id}
-                  className="w-[375px] rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col"
+                  onClick={() => {
+                    setSelectedStageId(stage.id);
+                    setEditorView('editor');
+                  }}
+                  className={cn(
+                    "relative w-[375px] h-[667px] rounded-[2.5rem] shadow-xl border-[8px] overflow-hidden flex flex-col cursor-pointer transition-all hover:scale-[1.02] hover:shadow-2xl",
+                    selectedStageId === stage.id ? "border-primary" : "border-foreground/10"
+                  )}
                   style={{
                     backgroundColor: designSettings.backgroundColor,
                     fontFamily: designSettings.primaryFont,
                     fontSize: `${designSettings.fontSize}px`,
                   }}
                 >
-                  {/* Stage Header with logo (first stage only) or progress indicator */}
+                  {/* Stage Number Indicator */}
                   <div 
-                    className="shrink-0 p-3 border-b"
-                    style={{ borderColor: `${designSettings.textColor}10` }}
+                    className="absolute top-4 left-4 z-10 text-xs font-bold px-3 py-1.5 rounded-full shadow-lg"
+                    style={{ 
+                      backgroundColor: designSettings.primaryColor,
+                      color: '#fff',
+                    }}
+                  >
+                    {index + 1}
+                  </div>
+
+                  {/* Quiz Header */}
+                  <div 
+                    className="shrink-0 p-4"
+                    style={{
+                      display: designSettings.progressBar === 'hidden' && !designSettings.logo.value ? 'none' : 'block',
+                    }}
                   >
                     <div className={cn(
                       "flex items-center gap-3",
                       designSettings.logoPosition === 'center' && "justify-center",
                       designSettings.logoPosition === 'right' && "justify-end"
                     )}>
-                      {index === 0 && designSettings.logo.value ? (
+                      {designSettings.logo.value && (
                         designSettings.logo.type === 'emoji' ? (
                           <span 
                             className={cn(
@@ -668,39 +688,31 @@ export function QuizEditor() {
                             )}
                           />
                         )
-                      ) : (
-                        <span 
-                          className="text-xs font-medium px-2 py-0.5 rounded-full"
-                          style={{ 
-                            backgroundColor: `${designSettings.primaryColor}20`,
-                            color: designSettings.primaryColor,
-                          }}
-                        >
-                          {index + 1}/{stages.length}
-                        </span>
                       )}
                     </div>
                     {designSettings.progressBar === 'top' && (
-                      <div className="mt-2">
+                      <div className="mt-3">
                         <Progress 
                           value={((index + 1) / stages.length) * 100} 
-                          className="h-1"
+                          className="h-1.5"
                         />
                       </div>
                     )}
                   </div>
                   
-                  {/* Stage Components */}
-                  <StagePreview 
-                    components={stage.components}
-                    designSettings={designSettings}
-                  />
+                  {/* Stage Components - scrollable */}
+                  <div className="flex-1 overflow-y-auto">
+                    <StagePreview 
+                      components={stage.components}
+                      designSettings={designSettings}
+                    />
+                  </div>
 
                   {designSettings.progressBar === 'bottom' && (
-                    <div className="px-3 pb-3 border-t" style={{ borderColor: `${designSettings.textColor}10` }}>
+                    <div className="shrink-0 px-4 pb-4">
                       <Progress 
                         value={((index + 1) / stages.length) * 100} 
-                        className="h-1 mt-3"
+                        className="h-1.5"
                       />
                     </div>
                   )}
