@@ -1668,7 +1668,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
   return (
     <div 
       className={cn(
-        "flex-1 flex flex-col items-center justify-center transition-colors duration-200 overflow-y-auto",
+        "flex-1 transition-colors duration-200 overflow-y-auto",
         isDragOver && "bg-primary/5"
       )}
       onDragOver={handleDragOver}
@@ -1676,21 +1676,23 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       onDrop={handleDrop}
     >
       {components.length === 0 ? (
-        <div className={cn(
-          "h-full flex flex-col items-center justify-center p-8 text-center border-2 border-dashed rounded-xl m-4 transition-colors",
-          isDragOver ? "border-primary bg-primary/5" : "border-border"
-        )}>
-          <Plus className={cn("w-8 h-8 mb-3 transition-colors", isDragOver ? "text-primary" : "text-muted-foreground")} />
-          <p className={cn("text-sm font-medium transition-colors", isDragOver ? "text-primary" : "text-muted-foreground")}>
-            {isDragOver ? "Solte o componente aqui" : "Arraste componentes aqui"}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            para criar sua página personalizada
-          </p>
+        <div className="min-h-full flex flex-col items-center justify-center">
+          <div className={cn(
+            "flex flex-col items-center justify-center p-8 text-center border-2 border-dashed rounded-xl m-4 transition-colors",
+            isDragOver ? "border-primary bg-primary/5" : "border-border"
+          )}>
+            <Plus className={cn("w-8 h-8 mb-3 transition-colors", isDragOver ? "text-primary" : "text-muted-foreground")} />
+            <p className={cn("text-sm font-medium transition-colors", isDragOver ? "text-primary" : "text-muted-foreground")}>
+              {isDragOver ? "Solte o componente aqui" : "Arraste componentes aqui"}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              para criar sua página personalizada
+            </p>
+          </div>
         </div>
       ) : (
-        <div className="w-full max-w-md p-4 mt-[90px]">
-          <div className="space-y-4">
+        <div className="min-h-full flex flex-col items-center justify-center py-[90px] px-4">
+          <div className="w-full max-w-md">
             <Reorder.Group axis="y" values={components} onReorder={onComponentsChange} className="space-y-4">
               {components.map((comp) => (
                 <Reorder.Item key={comp.id} value={comp}>
