@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check, Save, Upload, Loader2, ArrowLeft, Image } from 'lucide-react';
+import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check, Save, Upload, Loader2, ArrowLeft, Image, GitBranch, Layers } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
@@ -21,12 +21,15 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { cn } from '@/lib/utils';
 import { screenTemplates } from '@/data/screenTemplates';
 import { supabase } from '@/integrations/supabase/client';
+import { FlowCanvas } from './flow';
 
 // Stage type - cada etapa contém seus próprios componentes
 interface Stage {
   id: string;
   name: string;
   components: DroppedComponent[];
+  position?: { x: number; y: number };
+  connections?: { targetId: string; sourceHandle?: string }[];
 }
 
 export function QuizEditor() {
@@ -39,6 +42,7 @@ export function QuizEditor() {
   const [rightTab, setRightTab] = useState<'stage' | 'appearance'>('stage');
   const [widgetsExpanded, setWidgetsExpanded] = useState(false);
   const [slugCopied, setSlugCopied] = useState(false);
+  const [editorView, setEditorView] = useState<'editor' | 'flow'>('editor');
   
   // Stages management
   const [stages, setStages] = useState<Stage[]>([]);
@@ -539,7 +543,29 @@ export function QuizEditor() {
       <div className="flex-1 flex flex-col bg-muted/30 overflow-hidden">
         {/* Preview Toolbar */}
         <div className="flex items-center justify-between px-6 py-3 border-b border-border bg-background">
-          <div className="w-20" /> {/* Spacer for balance */}
+          {/* View Toggle */}
+          <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+            <button
+              onClick={() => setEditorView('editor')}
+              className={cn(
+                "flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium transition-colors",
+                editorView === 'editor' ? "bg-background shadow-sm" : "hover:bg-background/50 text-muted-foreground"
+              )}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              Etapas
+            </button>
+            <button
+              onClick={() => setEditorView('flow')}
+              className={cn(
+                "flex items-center gap-1.5 px-2.5 py-1.5 rounded text-xs font-medium transition-colors",
+                editorView === 'flow' ? "bg-background shadow-sm" : "hover:bg-background/50 text-muted-foreground"
+              )}
+            >
+              <GitBranch className="w-3.5 h-3.5" />
+              Fluxo
+            </button>
+          </div>
           
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="icon" className="h-8 w-8" disabled>
@@ -549,26 +575,28 @@ export function QuizEditor() {
               <Redo className="w-4 h-4" />
             </Button>
             
-            <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
-              <button
-                onClick={() => setPreviewMode('mobile')}
-                className={cn(
-                  "p-1.5 rounded transition-colors",
-                  previewMode === 'mobile' ? "bg-background shadow-sm" : "hover:bg-background/50"
-                )}
-              >
-                <Smartphone className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setPreviewMode('desktop')}
-                className={cn(
-                  "p-1.5 rounded transition-colors",
-                  previewMode === 'desktop' ? "bg-background shadow-sm" : "hover:bg-background/50"
-                )}
-              >
-                <Monitor className="w-4 h-4" />
-              </button>
-            </div>
+            {editorView === 'editor' && (
+              <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+                <button
+                  onClick={() => setPreviewMode('mobile')}
+                  className={cn(
+                    "p-1.5 rounded transition-colors",
+                    previewMode === 'mobile' ? "bg-background shadow-sm" : "hover:bg-background/50"
+                  )}
+                >
+                  <Smartphone className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setPreviewMode('desktop')}
+                  className={cn(
+                    "p-1.5 rounded transition-colors",
+                    previewMode === 'desktop' ? "bg-background shadow-sm" : "hover:bg-background/50"
+                  )}
+                >
+                  <Monitor className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
 
           <Button variant="ghost" size="sm" className="gap-2" onClick={() => currentQuiz.slug && navigate(`/${currentQuiz.slug}`)}>
@@ -578,54 +606,72 @@ export function QuizEditor() {
         </div>
 
         {/* Preview Content */}
-        <div className="flex-1 flex items-start justify-center p-8 overflow-y-auto">
-          <div 
-            className={cn(
-              "bg-background rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col",
-              previewMode === 'mobile' 
-                ? "w-[375px] h-[667px]" 
-                : "w-full max-w-4xl h-[640px]"
-            )}
-          >
-            {/* Quiz Header Preview */}
-            <div className="shrink-0 border-b border-border p-3">
-              <div className="flex items-center gap-3">
-                {pageSettings.allowBack && (
-                  <button className="p-1 hover:bg-muted rounded transition-colors">
-                    <ArrowLeft className="w-4 h-4 text-muted-foreground" />
-                  </button>
-                )}
-                {pageSettings.showLogo && pageSettings.logoUrl && (
-                  <img 
-                    src={pageSettings.logoUrl} 
-                    alt="Logo" 
-                    className="object-contain" 
-                    style={{ height: `${pageSettings.logoSize}px` }}
-                  />
-                )}
-                {pageSettings.showProgress && (
-                  <div className="flex-1">
-                    <Progress value={progressValue} className="h-1.5" />
-                  </div>
-                )}
-              </div>
-            </div>
-            
-            {/* Drop Zone - shows components for current stage */}
-            {selectedStageId ? (
-              <DropZone 
-                components={currentComponents}
-                onComponentsChange={updateCurrentStageComponents}
-                selectedComponentId={selectedComponent?.id}
-                onSelectComponent={setSelectedComponent}
-              />
-            ) : (
-              <div className="flex-1 flex items-center justify-center">
-                <p className="text-muted-foreground text-sm">Selecione uma etapa para editar</p>
-              </div>
-            )}
+        {editorView === 'flow' ? (
+          <div className="flex-1 overflow-hidden">
+            <FlowCanvas
+              stages={stages}
+              selectedStageId={selectedStageId}
+              onSelectStage={(stageId) => {
+                setSelectedStageId(stageId);
+                setSelectedComponent(null);
+                setEditorView('editor');
+              }}
+              onStagesChange={(updatedStages) => {
+                setStages(updatedStages);
+                setHasUnsavedChanges(true);
+              }}
+            />
           </div>
-        </div>
+        ) : (
+          <div className="flex-1 flex items-start justify-center p-8 overflow-y-auto">
+            <div 
+              className={cn(
+                "bg-background rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col",
+                previewMode === 'mobile' 
+                  ? "w-[375px] h-[667px]" 
+                  : "w-full max-w-4xl h-[640px]"
+              )}
+            >
+              {/* Quiz Header Preview */}
+              <div className="shrink-0 border-b border-border p-3">
+                <div className="flex items-center gap-3">
+                  {pageSettings.allowBack && (
+                    <button className="p-1 hover:bg-muted rounded transition-colors">
+                      <ArrowLeft className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  )}
+                  {pageSettings.showLogo && pageSettings.logoUrl && (
+                    <img 
+                      src={pageSettings.logoUrl} 
+                      alt="Logo" 
+                      className="object-contain" 
+                      style={{ height: `${pageSettings.logoSize}px` }}
+                    />
+                  )}
+                  {pageSettings.showProgress && (
+                    <div className="flex-1">
+                      <Progress value={progressValue} className="h-1.5" />
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Drop Zone - shows components for current stage */}
+              {selectedStageId ? (
+                <DropZone 
+                  components={currentComponents}
+                  onComponentsChange={updateCurrentStageComponents}
+                  selectedComponentId={selectedComponent?.id}
+                  onSelectComponent={setSelectedComponent}
+                />
+              ) : (
+                <div className="flex-1 flex items-center justify-center">
+                  <p className="text-muted-foreground text-sm">Selecione uma etapa para editar</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Right Sidebar */}
