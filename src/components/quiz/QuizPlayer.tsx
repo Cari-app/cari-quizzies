@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useQuizStore } from '@/store/quizStore';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -6,21 +7,59 @@ import { SingleChoiceScreen } from './screens/SingleChoiceScreen';
 import { MultipleChoiceScreen } from './screens/MultipleChoiceScreen';
 import { SliderScreen } from './screens/SliderScreen';
 import { ResultScreen } from './screens/ResultScreen';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-export function QuizPlayer() {
+interface QuizPlayerProps {
+  slug?: string;
+}
+
+export function QuizPlayer({ slug }: QuizPlayerProps) {
   const navigate = useNavigate();
   const { 
     currentQuiz, 
     currentSession, 
+    quizzes,
+    setCurrentQuiz,
     nextScreen, 
     previousScreen, 
     answerQuestion,
-    endSession 
+    endSession,
+    startSession
   } = useQuizStore();
 
+  // Load quiz by slug or id
+  useEffect(() => {
+    if (slug) {
+      // Try to find by slug first, then by id
+      const quiz = quizzes.find(q => q.slug === slug) || quizzes.find(q => q.id === slug);
+      if (quiz) {
+        setCurrentQuiz(quiz);
+        startSession(quiz.id);
+      }
+    }
+  }, [slug, quizzes]);
+
   if (!currentQuiz || !currentSession) {
+    if (slug) {
+      // Check if quiz exists but not loaded yet
+      const quiz = quizzes.find(q => q.slug === slug) || quizzes.find(q => q.id === slug);
+      if (!quiz) {
+        return (
+          <div className="flex flex-col items-center justify-center min-h-screen gap-4">
+            <p className="text-muted-foreground text-sm">Quiz não encontrado</p>
+            <Button variant="outline" onClick={() => navigate('/')}>
+              Voltar ao início
+            </Button>
+          </div>
+        );
+      }
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+        </div>
+      );
+    }
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p className="text-muted-foreground text-sm">Nenhum quiz ativo</p>

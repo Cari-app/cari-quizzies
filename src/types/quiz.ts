@@ -80,11 +80,13 @@ export interface ScreenTemplate {
 export interface Quiz {
   id: string;
   name: string;
+  slug?: string;
   description?: string;
   screens: QuizScreen[];
   createdAt: Date;
   updatedAt: Date;
   isPublished: boolean;
+  isActive?: boolean;
 }
 
 export interface QuizAnswer {

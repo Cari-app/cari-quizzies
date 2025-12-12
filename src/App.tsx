@@ -21,13 +21,14 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/quiz" element={<QuizPage />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboard />} />
             <Route path="settings" element={<AdminSettings />} />
           </Route>
           {/* Editor em tela cheia, sem layout */}
           <Route path="/admin/quiz/:id" element={<AdminQuizEditor />} />
+          {/* Quiz público por slug */}
+          <Route path="/:slug" element={<QuizPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
