@@ -1314,9 +1314,9 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           </p>
         </div>
       ) : (
-        <div className="w-full max-w-md p-4 pt-14">
-          <div className="space-y-6">
-            <Reorder.Group axis="y" values={components} onReorder={onComponentsChange} className="space-y-6">
+        <div className="w-full max-w-md p-4">
+          <div className="space-y-4">
+            <Reorder.Group axis="y" values={components} onReorder={onComponentsChange} className="space-y-4">
               {components.map((comp) => (
                 <Reorder.Item key={comp.id} value={comp}>
                   <div 
@@ -1328,8 +1328,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                     )}
                     onClick={() => onSelectComponent(comp)}
                   >
-                    {/* Floating toolbar */}
-                    <div className="absolute -top-10 left-0 opacity-0 group-hover:opacity-100 transition-all z-20 flex items-center gap-0.5 bg-primary rounded-md p-1 shadow-lg">
+                    {/* Inline toolbar at top - visible on hover */}
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all z-20 flex items-center gap-0.5 bg-primary rounded-md p-1 shadow-lg">
                       <button 
                         className="p-1.5 hover:bg-primary-foreground/20 rounded cursor-grab"
                         onMouseDown={(e) => e.stopPropagation()}
@@ -1355,8 +1355,6 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                         <Trash2 className="w-3.5 h-3.5 text-primary-foreground" />
                       </button>
                     </div>
-                    {/* Tooltip arrow */}
-                    <div className="absolute -top-2 left-4 w-2 h-2 bg-primary rotate-45 opacity-0 group-hover:opacity-100 transition-all z-10" />
                     <div className="overflow-hidden rounded-lg">
                       {renderComponentPreview(comp)}
                     </div>
