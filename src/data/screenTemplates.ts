@@ -203,7 +203,7 @@ export const componentPalette = {
   ],
   charts: [
     { type: 'metrics', name: 'Métricas', icon: 'trending-up' },
-    { type: 'charts', name: 'Gráficos', icon: 'pie-chart' },
+    { type: 'charts', name: 'Gráficos', icon: 'chart-pie' },
   ],
   customization: [
     { type: 'spacer', name: 'Espaço', icon: 'move-vertical' },
