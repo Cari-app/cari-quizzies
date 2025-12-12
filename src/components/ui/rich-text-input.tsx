@@ -1,4 +1,5 @@
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import {
   Bold,
@@ -70,27 +71,26 @@ export function RichTextInput({
 
   const updateToolbarPosition = () => {
     const selection = window.getSelection();
-    if (!selection || selection.isCollapsed || !containerRef.current) {
+    if (!selection || selection.isCollapsed) {
       setShowToolbar(false);
       return;
     }
 
     const range = selection.getRangeAt(0);
     const rect = range.getBoundingClientRect();
-    const containerRect = containerRef.current.getBoundingClientRect();
 
     if (rect.width === 0) {
       setShowToolbar(false);
       return;
     }
 
-    // Position toolbar above the selection
-    const top = rect.top - containerRect.top - 44;
-    const left = rect.left - containerRect.left + rect.width / 2 - 120;
-
+    // Position toolbar above the selection using fixed positioning
+    const toolbarWidth = 380;
+    const left = rect.left + rect.width / 2 - toolbarWidth / 2;
+    
     setToolbarPosition({
-      top: Math.max(-44, top),
-      left: Math.max(0, Math.min(left, containerRect.width - 240)),
+      top: rect.top - 44,
+      left: Math.max(8, Math.min(left, window.innerWidth - toolbarWidth - 8)),
     });
     setShowToolbar(true);
   };
@@ -145,11 +145,11 @@ export function RichTextInput({
 
   return (
     <div ref={containerRef} className={cn("relative", className)}>
-      {/* Floating Toolbar */}
-      {showToolbar && (
+      {/* Floating Toolbar - rendered via Portal */}
+      {showToolbar && createPortal(
         <div
           ref={toolbarRef}
-          className="absolute z-[100] flex items-center gap-0.5 px-1.5 py-1 bg-popover border border-border rounded-lg shadow-lg"
+          className="fixed z-[9999] flex items-center gap-0.5 px-1.5 py-1 bg-popover border border-border rounded-lg shadow-lg"
           style={{
             top: toolbarPosition.top,
             left: toolbarPosition.left,
@@ -261,7 +261,8 @@ export function RichTextInput({
           >
             <RemoveFormatting className="w-3.5 h-3.5" />
           </button>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Editor */}
