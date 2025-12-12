@@ -211,6 +211,21 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           horizontalAlign: 'start',
           verticalAlign: 'auto'
         };
+      case 'price':
+        return {
+          priceTitle: 'Plano PRO',
+          pricePrefix: '10% off',
+          priceValue: 'R$ 89,90',
+          priceSuffix: 'à vista',
+          priceHighlight: '',
+          priceType: 'illustrative',
+          priceRedirectUrl: '',
+          priceLayout: 'horizontal',
+          priceStyle: 'theme',
+          width: 100,
+          horizontalAlign: 'start',
+          verticalAlign: 'auto'
+        };
       default:
         return {};
     }
@@ -1276,6 +1291,73 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   )}
                 </div>
               ))}
+            </div>
+          </div>
+        );
+      }
+      case 'price': {
+        const widthValue = config.width || 100;
+        const horizontalAlign = config.horizontalAlign || 'start';
+        const alignClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
+        const layout = config.priceLayout || 'horizontal';
+        const style = config.priceStyle || 'theme';
+        const title = config.priceTitle || 'Plano PRO';
+        const prefix = config.pricePrefix || '';
+        const value = config.priceValue || 'R$ 89,90';
+        const suffix = config.priceSuffix || '';
+        const highlight = config.priceHighlight || '';
+        
+        const styleClasses = {
+          theme: 'bg-background border-border',
+          red: 'bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-800',
+          info: 'bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800',
+          success: 'bg-green-50 border-green-200 dark:bg-green-950/30 dark:border-green-800',
+          warning: 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950/30 dark:border-yellow-800',
+        }[style] || 'bg-background border-border';
+        
+        return (
+          <div className={cn("w-full flex", alignClass)}>
+            <div 
+              className="p-4"
+              style={{ width: `${widthValue}%` }}
+            >
+              <div 
+                className={cn(
+                  "relative border rounded-xl p-4 transition-all cursor-pointer hover:shadow-md",
+                  styleClasses,
+                  layout === 'horizontal' ? 'flex items-center justify-between gap-4' : 'flex flex-col gap-2'
+                )}
+              >
+                {/* Highlight badge */}
+                {highlight && (
+                  <div className="absolute -top-3 left-4">
+                    <span className="px-3 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full shadow-sm">
+                      {highlight}
+                    </span>
+                  </div>
+                )}
+                
+                {/* Title */}
+                <div className={cn(layout === 'vertical' && 'text-center')}>
+                  <h3 className="font-semibold text-lg text-foreground">{title}</h3>
+                </div>
+                
+                {/* Price section */}
+                <div className={cn(
+                  "flex flex-col",
+                  layout === 'vertical' ? 'items-center' : 'items-end'
+                )}>
+                  {prefix && (
+                    <span className="text-xs text-muted-foreground font-medium">{prefix}</span>
+                  )}
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-bold text-foreground">{value}</span>
+                  </div>
+                  {suffix && (
+                    <span className="text-xs text-muted-foreground">{suffix}</span>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         );

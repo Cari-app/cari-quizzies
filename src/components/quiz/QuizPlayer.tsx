@@ -135,6 +135,16 @@ interface ComponentConfig {
   }>;
   faqDetailType?: 'arrow' | 'plus-minus';
   faqFirstOpen?: boolean;
+  // Price specific
+  priceTitle?: string;
+  pricePrefix?: string;
+  priceValue?: string;
+  priceSuffix?: string;
+  priceHighlight?: string;
+  priceType?: 'illustrative' | 'redirect';
+  priceRedirectUrl?: string;
+  priceLayout?: 'horizontal' | 'vertical';
+  priceStyle?: 'theme' | 'red' | 'info' | 'success' | 'warning';
 }
 
 interface DroppedComponent {
@@ -1541,6 +1551,81 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
             detailType={detailType}
             firstOpen={firstOpen}
           />
+        );
+      }
+
+      case 'price': {
+        const widthValue = config.width || 100;
+        const horizontalAlign = config.horizontalAlign || 'start';
+        const justifyClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
+        const layout = config.priceLayout || 'horizontal';
+        const style = config.priceStyle || 'theme';
+        const title = config.priceTitle || 'Plano PRO';
+        const prefix = config.pricePrefix || '';
+        const priceVal = config.priceValue || 'R$ 89,90';
+        const suffix = config.priceSuffix || '';
+        const highlight = config.priceHighlight || '';
+        const priceType = config.priceType || 'illustrative';
+        const redirectUrl = config.priceRedirectUrl || '';
+        
+        const styleClasses = {
+          theme: 'bg-background border-border',
+          red: 'bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-800',
+          info: 'bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800',
+          success: 'bg-green-50 border-green-200 dark:bg-green-950/30 dark:border-green-800',
+          warning: 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950/30 dark:border-yellow-800',
+        }[style] || 'bg-background border-border';
+
+        const handlePriceClick = () => {
+          if (priceType === 'redirect' && redirectUrl) {
+            window.open(redirectUrl, '_blank');
+          }
+        };
+        
+        return (
+          <div className={cn("w-full px-4 flex", justifyClass)}>
+            <div style={{ width: `${widthValue}%` }}>
+              <div 
+                onClick={handlePriceClick}
+                className={cn(
+                  "relative border rounded-xl p-4 transition-all",
+                  styleClasses,
+                  layout === 'horizontal' ? 'flex items-center justify-between gap-4' : 'flex flex-col gap-2',
+                  priceType === 'redirect' && redirectUrl && 'cursor-pointer hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
+                )}
+              >
+                {/* Highlight badge */}
+                {highlight && (
+                  <div className="absolute -top-3 left-4">
+                    <span className="px-3 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full shadow-sm">
+                      {highlight}
+                    </span>
+                  </div>
+                )}
+                
+                {/* Title */}
+                <div className={cn(layout === 'vertical' && 'text-center', highlight && 'pt-2')}>
+                  <h3 className="font-semibold text-lg text-foreground">{title}</h3>
+                </div>
+                
+                {/* Price section */}
+                <div className={cn(
+                  "flex flex-col",
+                  layout === 'vertical' ? 'items-center' : 'items-end'
+                )}>
+                  {prefix && (
+                    <span className="text-xs text-muted-foreground font-medium">{prefix}</span>
+                  )}
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-2xl font-bold text-foreground">{priceVal}</span>
+                  </div>
+                  {suffix && (
+                    <span className="text-xs text-muted-foreground">{suffix}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         );
       }
 
