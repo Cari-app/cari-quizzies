@@ -1987,8 +1987,8 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       )}
 
       {/* Content */}
-      <div className="flex-1 flex flex-col items-center justify-center overflow-y-auto py-8 px-4">
-        <div className="w-full max-w-md">
+      <div className="flex-1 flex flex-col items-center justify-center overflow-y-auto pt-16 pb-8 px-4">
+        <div className="w-full max-w-md my-auto">
           {/* Stage components */}
           <div className="space-y-2">
             {currentStage?.components.map((comp) => (
