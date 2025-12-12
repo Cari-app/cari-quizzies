@@ -379,6 +379,16 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           );
         };
         
+        const renderOptionMedia = (opt: any) => {
+          if (opt.mediaType === 'icon' && opt.icon) {
+            return <span className="text-lg shrink-0">{opt.icon}</span>;
+          }
+          if (opt.mediaType === 'image' && opt.imageUrl) {
+            return <img src={opt.imageUrl} alt="" className="w-6 h-6 object-cover rounded shrink-0" />;
+          }
+          return null;
+        };
+        
         return (
           <div className="p-4">
             {config.label && <p className="text-sm font-medium mb-1">{config.label}</p>}
@@ -416,6 +426,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                         detailPosition === 'end' && "flex-row-reverse"
                       )}>
                         {renderDetail(isSelected, i)}
+                        {renderOptionMedia(opt)}
                         <span className="flex-1">{opt.text}</span>
                       </div>
                       {(imagePosition === 'bottom' || imagePosition === 'right') && (
@@ -449,6 +460,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                         detailPosition === 'end' && "flex-row-reverse"
                       )}>
                         {renderDetail(isSelected, i)}
+                        {renderOptionMedia(opt)}
                         <span className="flex-1">{opt.text}</span>
                       </div>
                     </div>
@@ -471,6 +483,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                       detailPosition === 'end' && "flex-row-reverse"
                     )}>
                       {renderDetail(isSelected, i)}
+                      {renderOptionMedia(opt)}
                       <span className="flex-1">{opt.text}</span>
                     </div>
                   </div>
