@@ -211,45 +211,27 @@ export function RichTextInput({
           <div className="w-px h-4 bg-border mx-0.5" />
 
           {/* Color Picker */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <button
-                type="button"
-                tabIndex={-1}
-                className="p-1.5 rounded-md hover:bg-foreground/10 transition-colors flex flex-col items-center"
-                title="Cor do texto"
-                onMouseDown={(e) => e.preventDefault()}
-              >
-                <Type className="w-3.5 h-3.5" />
-                <div
-                  className="w-3.5 h-0.5 rounded-full mt-0.5"
-                  style={{ backgroundColor: selectedColor === "inherit" ? "currentColor" : selectedColor }}
-                />
-              </button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-2 bg-popover border border-border" align="center" sideOffset={8}>
-              <div className="grid grid-cols-4 gap-1.5">
-                {colorOptions.map((opt) => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    tabIndex={-1}
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => {
-                      execCommand("foreColor", opt.value);
-                      setSelectedColor(opt.value);
-                    }}
-                    className={cn(
-                      "w-6 h-6 rounded-md border border-border/50 hover:scale-110 transition-transform",
-                      selectedColor === opt.value && "ring-2 ring-primary ring-offset-1"
-                    )}
-                    style={{ backgroundColor: opt.color }}
-                    title={opt.label}
-                  />
-                ))}
-              </div>
-            </PopoverContent>
-          </Popover>
+          <div className="relative flex items-center">
+            <input
+              type="color"
+              value={selectedColor === "inherit" ? "#000000" : selectedColor}
+              onChange={(e) => {
+                const color = e.target.value;
+                setSelectedColor(color);
+                execCommand("foreColor", color);
+              }}
+              onMouseDown={(e) => e.stopPropagation()}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              title="Cor do texto"
+            />
+            <div className="p-1.5 rounded-md hover:bg-foreground/10 transition-colors flex flex-col items-center pointer-events-none">
+              <Type className="w-3.5 h-3.5" />
+              <div
+                className="w-3.5 h-1 rounded-full mt-0.5"
+                style={{ backgroundColor: selectedColor === "inherit" ? "#000000" : selectedColor }}
+              />
+            </div>
+          </div>
 
           <button
             type="button"
