@@ -165,6 +165,41 @@
   [contenteditable] font[size="2"] {
     @apply text-sm;
   }
+
+  /* Rich text inline styles - ensure they render correctly */
+  .rich-text mark {
+    background-color: inherit;
+    padding: 0.125em 0.25em;
+    border-radius: 0.25em;
+  }
+
+  .rich-text span[style],
+  .rich-text mark[style] {
+    /* Allow inline styles to take precedence */
+  }
+
+  .rich-text u {
+    text-decoration: underline;
+  }
+
+  .rich-text s,
+  .rich-text strike {
+    text-decoration: line-through;
+  }
+
+  .rich-text sub {
+    vertical-align: sub;
+    font-size: 0.75em;
+  }
+
+  .rich-text sup {
+    vertical-align: super;
+    font-size: 0.75em;
+  }
+
+  .rich-text a {
+    @apply text-primary underline cursor-pointer;
+  }
 }
 
 @layer utilities {
