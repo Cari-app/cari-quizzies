@@ -464,10 +464,15 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
 
         const getAnimationClass = () => {
           switch (config.buttonAnimation) {
-            case 'pulse': return 'animate-pulse';
-            case 'bounce': return 'animate-bounce';
             case 'shine': return 'btn-shine';
-            case 'shake': return 'btn-shake';
+            case 'pulse-glow': return 'btn-pulse-glow';
+            case 'float': return 'btn-float';
+            case 'heartbeat': return 'btn-heartbeat';
+            case 'wiggle': return 'btn-wiggle';
+            case 'ripple': return 'btn-ripple';
+            case 'glow-border': return 'btn-glow-border';
+            case 'bounce-subtle': return 'btn-bounce-subtle';
+            case 'attention': return 'btn-attention';
             default: return '';
           }
         };

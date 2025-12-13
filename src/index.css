@@ -235,25 +235,15 @@
   }
 }
 
-/* Button animations */
+/* Button animations - Professional effects */
+
+/* Shine effect - elegant light sweep */
 @keyframes btn-shine {
   0% {
-    background-position: -200% center;
+    left: -100%;
   }
   100% {
-    background-position: 200% center;
-  }
-}
-
-@keyframes btn-shake {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  10%, 30%, 50%, 70%, 90% {
-    transform: translateX(-2px);
-  }
-  20%, 40%, 60%, 80% {
-    transform: translateX(2px);
+    left: 100%;
   }
 }
 
@@ -266,19 +256,160 @@
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
-  width: 100%;
+  left: -100%;
+  width: 50%;
   height: 100%;
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.3),
+    rgba(255, 255, 255, 0.4),
     transparent
   );
-  background-size: 200% 100%;
-  animation: btn-shine 2s infinite;
+  transform: skewX(-25deg);
+  animation: btn-shine 3s ease-in-out infinite;
 }
 
-.btn-shake {
-  animation: btn-shake 0.82s cubic-bezier(.36,.07,.19,.97) infinite;
+/* Pulse glow - soft pulsing glow effect */
+@keyframes btn-pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 currentColor;
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 0 20px 4px currentColor;
+    opacity: 0.9;
+  }
+}
+
+.btn-pulse-glow {
+  animation: btn-pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Float - gentle floating motion */
+@keyframes btn-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.btn-float {
+  animation: btn-float 3s ease-in-out infinite;
+}
+
+/* Heartbeat - attention grabbing pulse */
+@keyframes btn-heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.05);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(1);
+  }
+}
+
+.btn-heartbeat {
+  animation: btn-heartbeat 1.5s ease-in-out infinite;
+}
+
+/* Wiggle - playful side motion */
+@keyframes btn-wiggle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-2deg);
+  }
+  75% {
+    transform: rotate(2deg);
+  }
+}
+
+.btn-wiggle {
+  animation: btn-wiggle 0.5s ease-in-out infinite;
+}
+
+/* Ripple - expanding ring effect */
+@keyframes btn-ripple {
+  0% {
+    box-shadow: 0 0 0 0 currentColor;
+  }
+  70% {
+    box-shadow: 0 0 0 10px transparent;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+.btn-ripple {
+  animation: btn-ripple 1.5s ease-out infinite;
+}
+
+/* Glow border - animated glowing border */
+@keyframes btn-glow-border {
+  0%, 100% {
+    box-shadow: 
+      0 0 5px currentColor,
+      0 0 10px currentColor,
+      inset 0 0 5px rgba(255,255,255,0.1);
+  }
+  50% {
+    box-shadow: 
+      0 0 10px currentColor,
+      0 0 20px currentColor,
+      0 0 30px currentColor,
+      inset 0 0 10px rgba(255,255,255,0.2);
+  }
+}
+
+.btn-glow-border {
+  animation: btn-glow-border 2s ease-in-out infinite;
+}
+
+/* Bounce subtle - professional bounce */
+@keyframes btn-bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(-4px);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+.btn-bounce-subtle {
+  animation: btn-bounce-subtle 1s infinite;
+}
+
+/* Attention shake - subtle attention grabber */
+@keyframes btn-attention {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30% {
+    transform: translateX(-3px);
+  }
+  20%, 40% {
+    transform: translateX(3px);
+  }
+  50%, 100% {
+    transform: translateX(0);
+  }
+}
+
+.btn-attention {
+  animation: btn-attention 2s ease-in-out infinite;
+  animation-delay: 1s;
 }
