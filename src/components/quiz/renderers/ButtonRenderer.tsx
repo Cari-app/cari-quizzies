@@ -65,16 +65,26 @@ export function ButtonRenderer({
     buttonCustomStyle.paddingBottom = `${config.buttonPaddingY}px`;
   }
 
-  // Determine text color for button content - force white for primary/default styles
+  // Determine if we should force white text (only for primary/default WITHOUT custom text color)
   const isPrimaryOrDefault = !isCustomStyle && (!config.buttonStyle || config.buttonStyle === 'primary');
-  const textColor = isCustomStyle && config.buttonTextColor 
+  const hasCustomTextColor = config.buttonTextColor && config.buttonTextColor !== '';
+  
+  // Use custom color if set, otherwise white for primary/default, otherwise inherit
+  const textColor = hasCustomTextColor 
     ? config.buttonTextColor 
     : (isPrimaryOrDefault ? '#FFFFFF' : undefined);
 
-  // Strip ALL inline color/style from buttonText HTML to allow our color to work
-  const cleanButtonText = (config.buttonText || 'Continuar')
-    .replace(/style="[^"]*"/gi, '') // Remove all inline styles
-    .replace(/style='[^']*'/gi, ''); // Also single quotes
+  // Only strip color styles if we're forcing a color, preserve all other styles (font-size, etc.)
+  const processButtonText = (text: string) => {
+    if (!hasCustomTextColor && isPrimaryOrDefault) {
+      // Force white: strip only color styles, keep font-size, font-weight, etc.
+      return text.replace(/color:\s*[^;]+;?/gi, '');
+    }
+    // Custom color or other styles: keep everything
+    return text;
+  };
+
+  const buttonText = processButtonText(config.buttonText || 'Continuar');
 
   const buttonContent = (
     <>
@@ -83,7 +93,7 @@ export function ButtonRenderer({
       )}
       <span 
         style={{ color: textColor }}
-        dangerouslySetInnerHTML={{ __html: processTemplate(cleanButtonText) }} 
+        dangerouslySetInnerHTML={{ __html: processTemplate(buttonText) }} 
       />
       {config.buttonIcon && config.buttonIconPosition !== 'left' && (
         <span className="ml-2">{config.buttonIcon}</span>
