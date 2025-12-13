@@ -238,7 +238,14 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           priceType: 'illustrative',
           priceRedirectUrl: '',
           priceLayout: 'horizontal',
-          priceStyle: 'theme',
+          priceBgType: 'solid',
+          priceBgColor: '#ffffff',
+          priceTitleColor: '#1f2937',
+          priceValueColor: '#1f2937',
+          pricePrefixColor: '#6b7280',
+          priceBorderColor: '#e5e7eb',
+          priceBorderWidth: 1,
+          priceBorderRadius: 12,
           width: 100,
           horizontalAlign: 'start',
           verticalAlign: 'auto'
@@ -1629,20 +1636,30 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const horizontalAlign = config.horizontalAlign || 'start';
         const alignClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
         const layout = config.priceLayout || 'horizontal';
-        const style = config.priceStyle || 'theme';
         const title = config.priceTitle || 'Plano PRO';
         const prefix = config.pricePrefix || '';
         const value = config.priceValue || 'R$ 89,90';
         const suffix = config.priceSuffix || '';
         const highlight = config.priceHighlight || '';
         
-        const styleClasses = {
-          theme: 'bg-background border-border',
-          red: 'bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-800',
-          info: 'bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800',
-          success: 'bg-green-50 border-green-200 dark:bg-green-950/30 dark:border-green-800',
-          warning: 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950/30 dark:border-yellow-800',
-        }[style] || 'bg-background border-border';
+        // Custom styles
+        const bgType = config.priceBgType || 'solid';
+        const bgColor = config.priceBgColor;
+        const gradientStart = config.priceGradientStart || '#667eea';
+        const gradientEnd = config.priceGradientEnd || '#764ba2';
+        const gradientAngle = config.priceGradientAngle ?? 135;
+        const titleColor = config.priceTitleColor;
+        const valueColor = config.priceValueColor;
+        const prefixColor = config.pricePrefixColor;
+        const borderColor = config.priceBorderColor;
+        const borderWidth = config.priceBorderWidth ?? 1;
+        const borderRadius = config.priceBorderRadius ?? 12;
+        
+        const bgStyle = bgType === 'transparent' 
+          ? 'transparent'
+          : bgType === 'gradient' 
+            ? `linear-gradient(${gradientAngle}deg, ${gradientStart}, ${gradientEnd})`
+            : bgColor || undefined;
         
         return (
           <div className={cn("w-full flex", alignClass)}>
@@ -1652,10 +1669,16 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             >
               <div 
                 className={cn(
-                  "relative border rounded-xl p-4 transition-all cursor-pointer hover:shadow-md",
-                  styleClasses,
+                  "relative p-4 transition-all cursor-pointer hover:shadow-md",
                   layout === 'horizontal' ? 'flex items-center justify-between gap-4' : 'flex flex-col gap-2'
                 )}
+                style={{
+                  background: bgStyle,
+                  borderWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
+                  borderStyle: borderWidth > 0 ? 'solid' : 'none',
+                  borderColor: borderColor || undefined,
+                  borderRadius: `${borderRadius}px`,
+                }}
               >
                 {/* Highlight badge */}
                 {highlight && (
@@ -1668,7 +1691,12 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                 
                 {/* Title */}
                 <div className={cn(layout === 'vertical' && 'text-center')}>
-                  <h3 className="font-semibold text-lg text-foreground">{title}</h3>
+                  <h3 
+                    className="font-semibold text-lg"
+                    style={{ color: titleColor || undefined }}
+                  >
+                    {title}
+                  </h3>
                 </div>
                 
                 {/* Price section */}
@@ -1677,13 +1705,28 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   layout === 'vertical' ? 'items-center' : 'items-end'
                 )}>
                   {prefix && (
-                    <span className="text-xs text-muted-foreground font-medium">{prefix}</span>
+                    <span 
+                      className="text-xs font-medium"
+                      style={{ color: prefixColor || undefined }}
+                    >
+                      {prefix}
+                    </span>
                   )}
                   <div className="flex items-baseline gap-1">
-                    <span className="text-2xl font-bold text-foreground">{value}</span>
+                    <span 
+                      className="text-2xl font-bold"
+                      style={{ color: valueColor || undefined }}
+                    >
+                      {value}
+                    </span>
                   </div>
                   {suffix && (
-                    <span className="text-xs text-muted-foreground">{suffix}</span>
+                    <span 
+                      className="text-xs"
+                      style={{ color: prefixColor || undefined }}
+                    >
+                      {suffix}
+                    </span>
                   )}
                 </div>
               </div>

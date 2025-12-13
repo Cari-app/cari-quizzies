@@ -381,7 +381,17 @@ export interface ComponentConfig {
   priceType?: 'illustrative' | 'redirect';
   priceRedirectUrl?: string;
   priceLayout?: 'horizontal' | 'vertical';
-  priceStyle?: 'theme' | 'red' | 'info' | 'success' | 'warning';
+  priceBgType?: 'solid' | 'gradient' | 'transparent';
+  priceBgColor?: string;
+  priceGradientStart?: string;
+  priceGradientEnd?: string;
+  priceGradientAngle?: number;
+  priceTitleColor?: string;
+  priceValueColor?: string;
+  pricePrefixColor?: string;
+  priceBorderColor?: string;
+  priceBorderWidth?: number;
+  priceBorderRadius?: number;
   // Before-After specific
   beforeAfterImage1?: string;
   beforeAfterImage2?: string;
@@ -4270,24 +4280,155 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             </Select>
           </div>
 
-          {/* Estilo */}
-          <div>
-            <Label className="text-xs text-muted-foreground">Estilo</Label>
-            <Select 
-              value={config.priceStyle || 'theme'} 
-              onValueChange={(v) => updateConfig({ priceStyle: v as ComponentConfig['priceStyle'] })}
-            >
-              <SelectTrigger className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="theme">Tema</SelectItem>
-                <SelectItem value="red">Vermelho</SelectItem>
-                <SelectItem value="info">Informativo</SelectItem>
-                <SelectItem value="success">Sucesso</SelectItem>
-                <SelectItem value="warning">Atenção</SelectItem>
-              </SelectContent>
-            </Select>
+          {/* Fundo */}
+          <div className="border border-border rounded-lg p-3 space-y-3">
+            <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Fundo</Label>
+            
+            <div>
+              <Label className="text-xs text-muted-foreground">Tipo de fundo</Label>
+              <Select 
+                value={config.priceBgType || 'solid'} 
+                onValueChange={(v) => updateConfig({ priceBgType: v as 'solid' | 'gradient' | 'transparent' })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="solid">Cor sólida</SelectItem>
+                  <SelectItem value="gradient">Gradiente</SelectItem>
+                  <SelectItem value="transparent">Transparente</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {config.priceBgType === 'gradient' && (
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Cor inicial</Label>
+                    <Input
+                      type="color"
+                      value={config.priceGradientStart || '#667eea'}
+                      onChange={(e) => updateConfig({ priceGradientStart: e.target.value })}
+                      className="mt-1 h-9 w-full cursor-pointer"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Cor final</Label>
+                    <Input
+                      type="color"
+                      value={config.priceGradientEnd || '#764ba2'}
+                      onChange={(e) => updateConfig({ priceGradientEnd: e.target.value })}
+                      className="mt-1 h-9 w-full cursor-pointer"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Ângulo ({config.priceGradientAngle ?? 135}°)</Label>
+                  <Slider
+                    value={[config.priceGradientAngle ?? 135]}
+                    onValueChange={([v]) => updateConfig({ priceGradientAngle: v })}
+                    min={0}
+                    max={360}
+                    step={15}
+                    className="mt-2"
+                  />
+                </div>
+                <div 
+                  className="h-8 rounded-md border border-border"
+                  style={{
+                    background: `linear-gradient(${config.priceGradientAngle ?? 135}deg, ${config.priceGradientStart || '#667eea'}, ${config.priceGradientEnd || '#764ba2'})`
+                  }}
+                />
+              </div>
+            )}
+
+            {(!config.priceBgType || config.priceBgType === 'solid') && (
+              <div>
+                <Label className="text-xs text-muted-foreground">Cor de fundo</Label>
+                <Input
+                  type="color"
+                  value={config.priceBgColor || '#ffffff'}
+                  onChange={(e) => updateConfig({ priceBgColor: e.target.value })}
+                  className="mt-1 h-9 w-full cursor-pointer"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Cores de texto */}
+          <div className="border border-border rounded-lg p-3 space-y-3">
+            <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Cores de texto</Label>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs text-muted-foreground">Título</Label>
+                <Input
+                  type="color"
+                  value={config.priceTitleColor || '#1f2937'}
+                  onChange={(e) => updateConfig({ priceTitleColor: e.target.value })}
+                  className="mt-1 h-9 w-full cursor-pointer"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Valor</Label>
+                <Input
+                  type="color"
+                  value={config.priceValueColor || '#1f2937'}
+                  onChange={(e) => updateConfig({ priceValueColor: e.target.value })}
+                  className="mt-1 h-9 w-full cursor-pointer"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Prefixo/Sufixo</Label>
+                <Input
+                  type="color"
+                  value={config.pricePrefixColor || '#6b7280'}
+                  onChange={(e) => updateConfig({ pricePrefixColor: e.target.value })}
+                  className="mt-1 h-9 w-full cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Bordas */}
+          <div className="border border-border rounded-lg p-3 space-y-3">
+            <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Bordas</Label>
+            
+            <div>
+              <Label className="text-xs text-muted-foreground">Cor da borda</Label>
+              <Input
+                type="color"
+                value={config.priceBorderColor || '#e5e7eb'}
+                onChange={(e) => updateConfig({ priceBorderColor: e.target.value })}
+                className="mt-1 h-9 w-full cursor-pointer"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs text-muted-foreground">Espessura</Label>
+                <Input
+                  type="number"
+                  value={config.priceBorderWidth ?? 1}
+                  onChange={(e) => updateConfig({ priceBorderWidth: parseInt(e.target.value) || 0 })}
+                  min={0}
+                  max={10}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Arredondamento</Label>
+                <Input
+                  type="number"
+                  value={config.priceBorderRadius ?? 12}
+                  onChange={(e) => updateConfig({ priceBorderRadius: parseInt(e.target.value) || 0 })}
+                  min={0}
+                  max={50}
+                  className="mt-1"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Width */}
