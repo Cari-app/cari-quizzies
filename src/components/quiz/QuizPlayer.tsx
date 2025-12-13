@@ -624,6 +624,7 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [isInactive, setIsInactive] = useState(false);
   const [quiz, setQuiz] = useState<QuizData | null>(null);
   const [stages, setStages] = useState<QuizStage[]>([]);
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
@@ -660,14 +661,14 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
 
       setIsLoading(true);
       setNotFound(false);
+      setIsInactive(false);
 
       try {
-        // Try to find by slug first
+        // Try to find by slug first (without is_active filter to check if it exists but inactive)
         let { data: quizData } = await supabase
           .from('quizzes')
           .select('*')
           .eq('slug', slug)
-          .eq('is_active', true)
           .maybeSingle();
 
         // If not found by slug, try by id
@@ -676,13 +677,19 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
             .from('quizzes')
             .select('*')
             .eq('id', slug)
-            .eq('is_active', true)
             .maybeSingle();
           quizData = data;
         }
 
         if (!quizData) {
           setNotFound(true);
+          setIsLoading(false);
+          return;
+        }
+
+        // Check if quiz is inactive
+        if (!quizData.is_active) {
+          setIsInactive(true);
           setIsLoading(false);
           return;
         }
@@ -1422,6 +1429,20 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (isInactive) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen gap-6 bg-background px-4">
+        <div className="text-6xl">🚧</div>
+        <div className="text-center space-y-2">
+          <h1 className="text-2xl font-semibold text-foreground">Voltamos em breve!</h1>
+          <p className="text-muted-foreground text-sm max-w-md">
+            Este quiz está temporariamente indisponível. Por favor, volte mais tarde.
+          </p>
+        </div>
       </div>
     );
   }

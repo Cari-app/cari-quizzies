@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useQuizStore } from '@/store/quizStore';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
 import { Plus, MoreHorizontal, Eye, Trash2, Pencil, FileQuestion, Loader2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -105,6 +105,27 @@ export function QuizList() {
     }
   };
 
+  const handleToggleActive = async (quiz: Quiz) => {
+    try {
+      const newStatus = !quiz.isPublished;
+      const { error } = await supabase
+        .from('quizzes')
+        .update({ is_active: newStatus })
+        .eq('id', quiz.id);
+      
+      if (error) throw error;
+      
+      setQuizzes(prev => prev.map(q => 
+        q.id === quiz.id ? { ...q, isPublished: newStatus } : q
+      ));
+      
+      toast.success(newStatus ? 'Quiz ativado' : 'Quiz desativado');
+    } catch (error: any) {
+      console.error('Error toggling quiz status:', error);
+      toast.error('Erro ao alterar status do quiz');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -163,7 +184,7 @@ export function QuizList() {
                     variant={quiz.isPublished ? "default" : "secondary"} 
                     className="text-xs"
                   >
-                    {quiz.isPublished ? 'Publicado' : 'Rascunho'}
+                    {quiz.isPublished ? 'Ativo' : 'Inativo'}
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -173,7 +194,12 @@ export function QuizList() {
                 </p>
               </div>
               
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
+                <Switch
+                  checked={quiz.isPublished}
+                  onCheckedChange={() => handleToggleActive(quiz)}
+                  aria-label="Ativar/Desativar quiz"
+                />
                 <Button
                   variant="ghost"
                   size="sm"
