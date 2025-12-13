@@ -1304,6 +1304,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           mediaType: 'none' | 'emoji' | 'image';
           emoji?: string;
           imageUrl?: string;
+          backgroundColor?: string;
         }>;
         const layout = config.argumentLayout || 'grid-2';
         const disposition = config.argumentDisposition || 'image-text';
@@ -1324,11 +1325,13 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                 <div 
                   key={item.id} 
                   className={cn(
-                    "border border-primary/30 rounded-lg p-4 bg-background flex",
+                    "border border-primary/30 rounded-lg p-4 flex",
                     isVertical ? "flex-col" : "flex-row gap-3",
                     !imageFirst && isVertical && "flex-col-reverse",
-                    !imageFirst && !isVertical && "flex-row-reverse"
+                    !imageFirst && !isVertical && "flex-row-reverse",
+                    !item.backgroundColor && "bg-background"
                   )}
+                  style={item.backgroundColor ? { backgroundColor: item.backgroundColor } : undefined}
                 >
                   {/* Media area */}
                   {item.mediaType !== 'none' && (
