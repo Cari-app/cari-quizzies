@@ -757,11 +757,12 @@ export function RichTextInput({
           "ring-offset-background transition-colors",
           "focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
           showBorder && "border border-input",
-          "[&_.is-editor-empty:first-child::before]:text-muted-foreground",
+          "[&_.is-editor-empty:first-child::before]:text-muted-foreground/50",
           "[&_.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]",
           "[&_.is-editor-empty:first-child::before]:float-left",
           "[&_.is-editor-empty:first-child::before]:h-0",
-          "[&_.is-editor-empty:first-child::before]:pointer-events-none"
+          "[&_.is-editor-empty:first-child::before]:pointer-events-none",
+          "[&_.is-editor-empty:first-child::before]:italic"
         )}
         style={{ minHeight }}
       />
