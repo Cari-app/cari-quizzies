@@ -62,15 +62,21 @@ function BarChart({ value, color, valueColor }: { value: number; color: MetricIt
   return (
     <div className="flex flex-col items-center gap-2 w-full">
       <span 
-        className="text-sm font-medium"
+        className="text-sm font-semibold"
         style={{ color: valueColor || undefined }}
       >
         {value}%
       </span>
-      <div className="w-full h-20 bg-muted/30 rounded-md flex items-end overflow-hidden">
+      <div className="w-full h-24 bg-muted/20 rounded-lg flex items-end overflow-hidden shadow-inner">
         <div 
-          className={cn("w-full rounded-t-md transition-all duration-500", colorBgClasses[color])}
-          style={{ height: `${Math.max(5, value)}%` }}
+          className={cn(
+            "w-full rounded-lg transition-all duration-700 ease-out",
+            colorBgClasses[color]
+          )}
+          style={{ 
+            height: `${Math.max(8, value)}%`,
+            boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.2)'
+          }}
         />
       </div>
     </div>
