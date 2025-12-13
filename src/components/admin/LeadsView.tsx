@@ -229,8 +229,24 @@ export function LeadsView({ quizId, stages }: LeadsViewProps) {
     if (typeof value === 'string') return value;
     if (Array.isArray(value)) return value.join(', ');
     if (typeof value === 'object') {
+      // Check for specific known fields
       if (value.text) return value.text;
       if (value.selected) return Array.isArray(value.selected) ? value.selected.join(', ') : value.selected;
+      if (value.action === 'clicked') return 'clicked';
+      
+      // For input values, show the actual values
+      const entries = Object.entries(value).filter(([key]) => 
+        key !== 'action' && key !== 'clicked' && key !== 'optionId'
+      );
+      
+      if (entries.length === 1) {
+        // Single value - just show the value
+        return String(entries[0][1]);
+      } else if (entries.length > 1) {
+        // Multiple values - show key: value pairs
+        return entries.map(([k, v]) => `${k}: ${v}`).join(', ');
+      }
+      
       return JSON.stringify(value);
     }
     return String(value);

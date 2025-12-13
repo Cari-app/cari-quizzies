@@ -829,14 +829,36 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
     }
   }, [currentStage, currentStageIndex, stages.length, formData, sessionId, saveStageResponse]);
 
+  // Get all input values from current stage components
+  const getStageInputValues = useCallback(() => {
+    if (!currentStage) return {};
+    
+    const stageValues: Record<string, any> = {};
+    currentStage.components.forEach(comp => {
+      const key = comp.customId || comp.config?.customId || comp.id;
+      if (formData[key] !== undefined) {
+        stageValues[key] = formData[key];
+      }
+    });
+    return stageValues;
+  }, [currentStage, formData]);
+
   // Navigate based on flow connections
   const handleNavigateByComponent = useCallback((componentId: string, responseValue?: any) => {
     const currentStage = stages[currentStageIndex];
     const connections = currentStage?.connections || [];
     
-    // Save response for current stage
+    // Save response for current stage - include all input values from this stage
     if (currentStage && sessionId) {
-      saveStageResponse(currentStage.id, currentStageIndex, responseValue || { clicked: componentId }, 'component_click');
+      const stageInputValues = getStageInputValues();
+      const hasInputValues = Object.keys(stageInputValues).length > 0;
+      
+      // Save all stage input values if any, otherwise save the click event
+      const valueToSave = hasInputValues 
+        ? stageInputValues 
+        : (responseValue || { action: 'clicked' });
+      
+      saveStageResponse(currentStage.id, currentStageIndex, valueToSave, hasInputValues ? 'input' : 'component_click');
     }
     
     // Find connection for this specific component
@@ -862,7 +884,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       setNavigationHistory(prev => [...prev, nextIndex]);
       setStageStartTime(Date.now());
     }
-  }, [stages, currentStageIndex, sessionId, saveStageResponse]);
+  }, [stages, currentStageIndex, sessionId, saveStageResponse, getStageInputValues]);
 
   // Navigate based on flow connections for a specific option
   const handleNavigateByOption = useCallback((componentId: string, optionId: string, optionText?: string) => {
