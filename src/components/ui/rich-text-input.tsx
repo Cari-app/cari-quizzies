@@ -29,12 +29,8 @@ import {
   Undo,
   Redo,
   X,
+  Check,
 } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 
 interface RichTextInputProps {
   value: string;
@@ -78,24 +74,29 @@ const highlightColors = [
   "#FED7AA", "#FDBA74", "#FB923C",
 ];
 
-interface ToolbarButtonProps {
-  onClick: () => void;
-  isActive?: boolean;
-  disabled?: boolean;
-  title: string;
-  children: React.ReactNode;
-}
-
-const ToolbarButton: React.FC<ToolbarButtonProps> = ({
-  onClick,
-  isActive,
-  disabled,
-  title,
-  children,
-}) => (
+// Toolbar Button Component
+const ToolbarButton = React.forwardRef<
+  HTMLButtonElement,
+  {
+    onClick: () => void;
+    isActive?: boolean;
+    disabled?: boolean;
+    title: string;
+    children: React.ReactNode;
+  }
+>(({ onClick, isActive, disabled, title, children }, ref) => (
   <button
+    ref={ref}
     type="button"
-    onClick={onClick}
+    onMouseDown={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    }}
+    onClick={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onClick();
+    }}
     disabled={disabled}
     className={cn(
       "p-1.5 rounded-md transition-all duration-150 ease-out",
@@ -108,145 +109,213 @@ const ToolbarButton: React.FC<ToolbarButtonProps> = ({
   >
     {children}
   </button>
-);
+));
+ToolbarButton.displayName = "ToolbarButton";
 
-interface ColorPickerProps {
+// Color Picker Dropdown
+const ColorPickerDropdown: React.FC<{
   colors: string[];
   value: string;
   onChange: (color: string) => void;
   icon: React.ReactNode;
   title: string;
-}
-
-const ColorPicker: React.FC<ColorPickerProps> = ({
-  colors,
-  value,
-  onChange,
-  icon,
-  title,
-}) => {
+  editor: Editor;
+}> = ({ colors, value, onChange, icon, title, editor }) => {
   const [open, setOpen] = React.useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  React.useEffect(() => {
+    if (!open) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  const handleColorSelect = (color: string) => {
+    editor.chain().focus();
+    onChange(color);
+    setOpen(false);
+  };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <button
-          type="button"
-          className={cn(
-            "p-1.5 rounded-md transition-all duration-150 ease-out",
-            "hover:bg-accent hover:text-accent-foreground",
-            "flex flex-col items-center gap-0.5"
-          )}
-          title={title}
+    <div ref={dropdownRef} className="relative">
+      <button
+        type="button"
+        onMouseDown={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setOpen(!open);
+        }}
+        className={cn(
+          "p-1.5 rounded-md transition-all duration-150 ease-out",
+          "hover:bg-accent hover:text-accent-foreground",
+          "flex flex-col items-center gap-0.5"
+        )}
+        title={title}
+      >
+        {icon}
+        <div
+          className="w-4 h-1 rounded-full"
+          style={{ backgroundColor: value || "#000000" }}
+        />
+      </button>
+
+      {open && (
+        <div
+          className="absolute top-full left-0 mt-2 p-3 bg-popover border border-border rounded-lg shadow-xl z-[10000] min-w-[200px]"
+          onMouseDown={(e) => e.preventDefault()}
         >
-          {icon}
-          <div
-            className="w-4 h-1 rounded-full"
-            style={{ backgroundColor: value || "#000000" }}
-          />
-        </button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-3 bg-popover" align="start" sideOffset={8}>
-        <div className="grid grid-cols-7 gap-1.5">
-          {colors.map((color) => (
-            <button
-              key={color}
-              type="button"
-              onClick={() => {
-                onChange(color);
-                setOpen(false);
-              }}
-              className={cn(
-                "w-6 h-6 rounded-md border border-border transition-all",
-                "hover:scale-110 hover:shadow-md",
-                value === color && "ring-2 ring-primary ring-offset-1"
-              )}
-              style={{ backgroundColor: color }}
-            />
-          ))}
+          <div className="grid grid-cols-7 gap-1.5">
+            {colors.map((color) => (
+              <button
+                key={color}
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleColorSelect(color);
+                }}
+                className={cn(
+                  "w-6 h-6 rounded-md border border-border transition-all",
+                  "hover:scale-110 hover:shadow-md",
+                  value === color && "ring-2 ring-primary ring-offset-1"
+                )}
+                style={{ backgroundColor: color }}
+              />
+            ))}
+          </div>
+          <div className="mt-3 pt-3 border-t border-border">
+            <label className="flex items-center gap-2 text-sm">
+              <span className="text-muted-foreground text-xs">Custom:</span>
+              <input
+                type="color"
+                value={value || "#000000"}
+                onMouseDown={(e) => e.stopPropagation()}
+                onChange={(e) => {
+                  handleColorSelect(e.target.value);
+                }}
+                className="w-8 h-8 rounded cursor-pointer border-none bg-transparent"
+              />
+            </label>
+          </div>
         </div>
-        <div className="mt-3 pt-3 border-t border-border">
-          <label className="flex items-center gap-2 text-sm">
-            <span className="text-muted-foreground">Custom:</span>
-            <input
-              type="color"
-              value={value || "#000000"}
-              onChange={(e) => onChange(e.target.value)}
-              className="w-8 h-8 rounded cursor-pointer border-none"
-            />
-          </label>
-        </div>
-      </PopoverContent>
-    </Popover>
+      )}
+    </div>
   );
 };
 
-interface FontSizeSelectorProps {
-  editor: Editor;
-}
-
-const FontSizeSelector: React.FC<FontSizeSelectorProps> = ({ editor }) => {
+// Font Size Dropdown
+const FontSizeDropdown: React.FC<{ editor: Editor }> = ({ editor }) => {
   const [open, setOpen] = React.useState(false);
-  
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
   const getCurrentFontSize = () => {
     const attrs = editor.getAttributes("textStyle");
     return attrs.fontSize || "16px";
   };
 
-  const setFontSize = (size: string) => {
+  // Close on outside click
+  React.useEffect(() => {
+    if (!open) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
+
+  const handleSizeSelect = (size: string) => {
     editor.chain().focus().setFontSize(size).run();
     setOpen(false);
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <button
-          type="button"
-          className={cn(
-            "h-7 px-2 rounded-md transition-all duration-150 ease-out",
-            "hover:bg-accent hover:text-accent-foreground",
-            "flex items-center gap-1 text-xs font-medium min-w-[60px]"
-          )}
+    <div ref={dropdownRef} className="relative">
+      <button
+        type="button"
+        onMouseDown={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setOpen(!open);
+        }}
+        className={cn(
+          "h-7 px-2 rounded-md transition-all duration-150 ease-out",
+          "hover:bg-accent hover:text-accent-foreground",
+          "flex items-center gap-1 text-xs font-medium min-w-[55px]"
+        )}
+      >
+        {getCurrentFontSize().replace("px", "")}
+        <ChevronDown className="w-3 h-3 opacity-50" />
+      </button>
+
+      {open && (
+        <div
+          className="absolute top-full left-0 mt-2 p-1 bg-popover border border-border rounded-lg shadow-xl z-[10000] max-h-64 overflow-y-auto min-w-[70px]"
+          onMouseDown={(e) => e.preventDefault()}
         >
-          {getCurrentFontSize().replace("px", "")}px
-          <ChevronDown className="w-3 h-3 opacity-50" />
-        </button>
-      </PopoverTrigger>
-      <PopoverContent className="w-24 p-1 bg-popover" align="start" sideOffset={8}>
-        <div className="flex flex-col max-h-64 overflow-y-auto">
           {fontSizes.map((size) => (
             <button
               key={size.value}
               type="button"
-              onClick={() => setFontSize(size.value)}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSizeSelect(size.value);
+              }}
               className={cn(
-                "px-3 py-1.5 text-sm text-left rounded-sm transition-colors",
+                "w-full px-3 py-1.5 text-sm text-left rounded-sm transition-colors flex items-center justify-between",
                 "hover:bg-accent hover:text-accent-foreground",
                 getCurrentFontSize() === size.value && "bg-accent"
               )}
             >
-              {size.label}px
+              <span>{size.label}px</span>
+              {getCurrentFontSize() === size.value && (
+                <Check className="w-3 h-3" />
+              )}
             </button>
           ))}
         </div>
-      </PopoverContent>
-    </Popover>
+      )}
+    </div>
   );
 };
 
-interface LinkEditorProps {
+// Link Editor
+const LinkEditor: React.FC<{
   editor: Editor;
   onClose: () => void;
-}
-
-const LinkEditor: React.FC<LinkEditorProps> = ({ editor, onClose }) => {
+}> = ({ editor, onClose }) => {
   const [url, setUrl] = React.useState("");
   const isActive = editor.isActive("link");
   const currentUrl = editor.getAttributes("link").href || "";
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
     setUrl(currentUrl);
+    setTimeout(() => inputRef.current?.focus(), 50);
   }, [currentUrl]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -260,20 +329,24 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ editor, onClose }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-center gap-2 p-2 bg-popover border border-border rounded-lg shadow-lg">
+    <form
+      onSubmit={handleSubmit}
+      className="flex items-center gap-2 p-2 bg-popover border border-border rounded-lg shadow-xl"
+      onMouseDown={(e) => e.stopPropagation()}
+    >
       <input
+        ref={inputRef}
         type="url"
         value={url}
         onChange={(e) => setUrl(e.target.value)}
         placeholder="https://..."
         className="flex-1 px-3 py-1.5 text-sm rounded-md border border-input bg-background min-w-[200px]"
-        autoFocus
       />
       <button
         type="submit"
         className="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
       >
-        Aplicar
+        OK
       </button>
       {isActive && (
         <button
@@ -282,7 +355,7 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ editor, onClose }) => {
             editor.chain().focus().unsetLink().run();
             onClose();
           }}
-          className="px-2 py-1.5 text-sm border border-input rounded-md hover:bg-accent"
+          className="p-1.5 text-sm border border-input rounded-md hover:bg-accent"
         >
           <X className="w-4 h-4" />
         </button>
@@ -291,14 +364,13 @@ const LinkEditor: React.FC<LinkEditorProps> = ({ editor, onClose }) => {
   );
 };
 
-interface FloatingToolbarProps {
+// Floating Toolbar
+const FloatingToolbar: React.FC<{
   editor: Editor;
   position: { top: number; left: number };
-}
-
-const FloatingToolbar: React.FC<FloatingToolbarProps> = ({ editor, position }) => {
+}> = ({ editor, position }) => {
   const [showLinkEditor, setShowLinkEditor] = React.useState(false);
-  
+
   const currentColor = editor.getAttributes("textStyle").color || "#000000";
   const currentHighlight = editor.getAttributes("highlight").color || "#FEF08A";
 
@@ -317,7 +389,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({ editor, position }) =
 
   return createPortal(
     <div
-      className="fixed z-[9999] flex items-center gap-0.5 px-2 py-1.5 bg-popover border border-border rounded-lg shadow-lg animate-in fade-in-0 zoom-in-95"
+      className="fixed z-[9999] flex items-center gap-0.5 px-2 py-1.5 bg-popover border border-border rounded-lg shadow-xl animate-in fade-in-0 zoom-in-95"
       style={{ top: position.top, left: position.left }}
       onMouseDown={(e) => e.preventDefault()}
     >
@@ -340,7 +412,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({ editor, position }) =
       <div className="w-px h-5 bg-border mx-1" />
 
       {/* Font Size */}
-      <FontSizeSelector editor={editor} />
+      <FontSizeDropdown editor={editor} />
 
       <div className="w-px h-5 bg-border mx-1" />
 
@@ -419,20 +491,28 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({ editor, position }) =
 
       <div className="w-px h-5 bg-border mx-1" />
 
-      {/* Colors */}
-      <ColorPicker
+      {/* Text Color */}
+      <ColorPickerDropdown
         colors={colorPresets}
         value={currentColor}
-        onChange={(color) => editor.chain().focus().setColor(color).run()}
+        onChange={(color) => {
+          editor.chain().focus().setColor(color).run();
+        }}
         icon={<Type className="w-3.5 h-3.5" />}
         title="Cor do texto"
+        editor={editor}
       />
-      <ColorPicker
+
+      {/* Highlight Color */}
+      <ColorPickerDropdown
         colors={highlightColors}
         value={currentHighlight}
-        onChange={(color) => editor.chain().focus().toggleHighlight({ color }).run()}
+        onChange={(color) => {
+          editor.chain().focus().toggleHighlight({ color }).run();
+        }}
         icon={<Highlighter className="w-3.5 h-3.5" />}
-        title="Cor de destaque"
+        title="Destaque"
+        editor={editor}
       />
 
       <div className="w-px h-5 bg-border mx-1" />
@@ -458,6 +538,7 @@ const FloatingToolbar: React.FC<FloatingToolbarProps> = ({ editor, position }) =
   );
 };
 
+// Main RichTextInput Component
 export function RichTextInput({
   value,
   onChange,
@@ -469,6 +550,7 @@ export function RichTextInput({
   const [showToolbar, setShowToolbar] = React.useState(false);
   const [toolbarPosition, setToolbarPosition] = React.useState({ top: 0, left: 0 });
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const hideTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const editor = useEditor({
     extensions: [
@@ -511,33 +593,51 @@ export function RichTextInput({
       onChange(cleanedHtml);
     },
     onSelectionUpdate: ({ editor }) => {
+      // Clear any pending hide timeout
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+        hideTimeoutRef.current = null;
+      }
+
       const { from, to } = editor.state.selection;
       if (from === to) {
-        setShowToolbar(false);
+        // No selection, hide after a delay
+        hideTimeoutRef.current = setTimeout(() => {
+          setShowToolbar(false);
+        }, 100);
         return;
       }
 
-      // Get selection coordinates
+      // Calculate position
       const { view } = editor;
-      const start = view.coordsAtPos(from);
-      const end = view.coordsAtPos(to);
-      
-      const toolbarWidth = 520;
-      const left = (start.left + end.left) / 2 - toolbarWidth / 2;
-      
-      setToolbarPosition({
-        top: start.top - 50,
-        left: Math.max(8, Math.min(left, window.innerWidth - toolbarWidth - 8)),
-      });
-      setShowToolbar(true);
+      try {
+        const start = view.coordsAtPos(from);
+        const end = view.coordsAtPos(to);
+
+        const toolbarWidth = 520;
+        const left = (start.left + end.left) / 2 - toolbarWidth / 2;
+
+        setToolbarPosition({
+          top: Math.max(8, start.top - 50),
+          left: Math.max(8, Math.min(left, window.innerWidth - toolbarWidth - 8)),
+        });
+        setShowToolbar(true);
+      } catch {
+        // Position calculation failed, hide toolbar
+        setShowToolbar(false);
+      }
     },
-    onBlur: () => {
-      // Delay hiding to allow clicking toolbar buttons
-      setTimeout(() => {
-        const selection = window.getSelection();
-        if (!selection || selection.isCollapsed) {
-          setShowToolbar(false);
-        }
+    onBlur: ({ event }) => {
+      // Check if we're clicking inside a toolbar dropdown
+      const relatedTarget = event?.relatedTarget as HTMLElement | null;
+      if (relatedTarget?.closest('[class*="z-[10000]"]') || 
+          relatedTarget?.closest('[class*="z-[9999]"]')) {
+        return;
+      }
+
+      // Delay hiding to allow toolbar interactions
+      hideTimeoutRef.current = setTimeout(() => {
+        setShowToolbar(false);
       }, 200);
     },
     editorProps: {
@@ -551,10 +651,29 @@ export function RichTextInput({
     },
   });
 
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
+    };
+  }, []);
+
   // Sync external value changes
   React.useEffect(() => {
     if (editor && value !== editor.getHTML()) {
+      const { from, to } = editor.state.selection;
       editor.commands.setContent(value || "");
+      // Try to restore selection
+      try {
+        const docLength = editor.state.doc.content.size;
+        const safeFrom = Math.min(from, docLength);
+        const safeTo = Math.min(to, docLength);
+        editor.commands.setTextSelection({ from: safeFrom, to: safeTo });
+      } catch {
+        // Ignore selection errors
+      }
     }
   }, [value, editor]);
 
@@ -575,7 +694,7 @@ export function RichTextInput({
       {/* Floating Toolbar */}
       {showToolbar && <FloatingToolbar editor={editor} position={toolbarPosition} />}
 
-      {/* Editor */}
+      {/* Editor Content */}
       <EditorContent
         editor={editor}
         className={cn(
