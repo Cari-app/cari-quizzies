@@ -711,24 +711,31 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const renderDetail = (isSelected: boolean, index: number) => {
           if (detailType === 'none') return null;
           
+          // Use matching colors based on selected state
+          const detailStyle: React.CSSProperties = isSelected 
+            ? { borderColor: selectedTextColor, backgroundColor: selectedTextColor, color: selectedBgColor }
+            : { borderColor: optionBorderColor || '#000000', backgroundColor: 'transparent', color: optionTextColor || '#000000' };
+          
           if (detailType === 'number') {
             return (
-              <div className={cn(
-                "w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-medium shrink-0",
-                isSelected ? "border-foreground bg-foreground text-background" : "border-border"
-              )}>
+              <div 
+                className="w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-medium shrink-0"
+                style={detailStyle}
+              >
                 {index + 1}
               </div>
             );
           }
           
           return (
-            <div className={cn(
-              "w-5 h-5 border-2 flex items-center justify-center shrink-0",
-              detailType === 'radio' || !config.allowMultiple ? "rounded-full" : "rounded",
-              isSelected ? "border-foreground bg-foreground" : "border-border"
-            )}>
-              {isSelected && <span className="text-background text-xs">✓</span>}
+            <div 
+              className={cn(
+                "w-5 h-5 border-2 flex items-center justify-center shrink-0",
+                detailType === 'radio' || !config.allowMultiple ? "rounded-full" : "rounded"
+              )}
+              style={detailStyle}
+            >
+              {isSelected && <span className="text-xs">✓</span>}
             </div>
           );
         };
