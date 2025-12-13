@@ -308,8 +308,9 @@ interface DesignSettings {
     type: 'image' | 'url' | 'emoji';
     value: string;
   };
-  logoSize: 'small' | 'medium' | 'large';
+  logoSizePixels?: number;
   logoPosition: 'left' | 'center' | 'right';
+  logoAboveBar?: boolean;
   progressBar: 'hidden' | 'top' | 'bottom';
   
   // HEADER STYLING
@@ -345,8 +346,9 @@ const defaultDesignSettings: DesignSettings = {
   borderRadius: 'medium',
   headerStyle: 'default',
   logo: { type: 'url', value: '' },
-  logoSize: 'medium',
+  logoSizePixels: 40,
   logoPosition: 'center',
+  logoAboveBar: true,
   progressBar: 'top',
   primaryColor: '#A855F7',
   backgroundColor: '#FFFFFF',
@@ -2810,107 +2812,112 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
             </div>
           )}
 
-          {/* Default Style - Continuous progress bar */}
-          {(designSettings.headerStyle === 'default' || !designSettings.headerStyle) && (
+          {/* Other header styles */}
+          {designSettings.headerStyle !== 'line' && (
             <div 
-              className="p-4 flex items-center gap-4 shrink-0"
+              className="shrink-0"
               style={{ 
                 borderBottom: designSettings.headerDivider?.show !== false 
                   ? `${designSettings.headerDivider?.thickness || 1}px solid ${designSettings.headerDivider?.color || designSettings.primaryColor}20`
                   : 'none'
               }}
             >
-              {pageSettings?.allowBack && currentStageIndex > 0 && (
-                <button 
-                  onClick={handleBack} 
-                  className="p-1 rounded transition-colors"
-                  style={{ color: designSettings.backIcon?.color || designSettings.textColor }}
-                >
-                  {renderBackIcon(designSettings)}
-                </button>
-              )}
-              {pageSettings?.showProgress && (
-                <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: `${designSettings.primaryColor}20` }}>
-                  <div 
-                    className="h-full transition-all duration-300"
-                    style={{ 
-                      width: `${progressValue}%`,
-                      backgroundColor: designSettings.primaryColor,
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Minimal Style - Step counter */}
-          {designSettings.headerStyle === 'minimal' && (
-            <div 
-              className="p-4 flex items-center justify-between shrink-0"
-              style={{ 
-                borderBottom: designSettings.headerDivider?.show !== false 
-                  ? `${designSettings.headerDivider?.thickness || 1}px solid ${designSettings.headerDivider?.color || designSettings.primaryColor}10`
-                  : 'none'
-              }}
-            >
-              {pageSettings?.allowBack && currentStageIndex > 0 ? (
-                <button 
-                  onClick={handleBack} 
-                  className="p-1 rounded transition-colors"
-                  style={{ color: designSettings.backIcon?.color || designSettings.textColor }}
-                >
-                  {renderBackIcon(designSettings)}
-                </button>
-              ) : (
-                <div className="w-7" />
-              )}
-              {pageSettings?.showProgress && (
-                <span 
-                  className="text-sm font-medium"
-                  style={{ color: designSettings.textColor }}
-                >
-                  {currentStageIndex + 1} / {stages.length}
-                </span>
-              )}
-              <div className="w-7" />
-            </div>
-          )}
-
-          {/* Steps Style - Segmented dots */}
-          {designSettings.headerStyle === 'steps' && (
-            <div 
-              className="p-4 flex items-center gap-3 shrink-0"
-              style={{ 
-                borderBottom: designSettings.headerDivider?.show !== false 
-                  ? `${designSettings.headerDivider?.thickness || 1}px solid ${designSettings.headerDivider?.color || designSettings.primaryColor}10`
-                  : 'none'
-              }}
-            >
-              {pageSettings?.allowBack && currentStageIndex > 0 && (
-                <button 
-                  onClick={handleBack} 
-                  className="p-1 rounded transition-colors"
-                  style={{ color: designSettings.backIcon?.color || designSettings.textColor }}
-                >
-                  {renderBackIcon(designSettings)}
-                </button>
-              )}
-              {pageSettings?.showProgress && (
-                <div className="flex-1 flex items-center justify-center gap-2">
-                  {stages.map((_, index) => (
-                    <div
-                      key={index}
-                      className="h-2 rounded-full transition-all duration-300"
-                      style={{
-                        width: index === currentStageIndex ? '24px' : '8px',
-                        backgroundColor: index <= currentStageIndex 
-                          ? designSettings.primaryColor 
-                          : `${designSettings.primaryColor}30`,
-                      }}
+              {/* Logo above bar layout */}
+              {designSettings.logoAboveBar !== false && designSettings.logo?.value && (
+                <div className={cn(
+                  "px-4 pt-3 pb-2 flex items-center",
+                  designSettings.logoPosition === 'center' && "justify-center",
+                  designSettings.logoPosition === 'right' && "justify-end",
+                  designSettings.logoPosition === 'left' && "justify-start"
+                )}>
+                  {designSettings.logo.type === 'emoji' ? (
+                    <span style={{ fontSize: `${designSettings.logoSizePixels || 40}px`, lineHeight: 1 }}>
+                      {designSettings.logo.value}
+                    </span>
+                  ) : (
+                    <img 
+                      src={designSettings.logo.value} 
+                      alt="Logo" 
+                      className="object-contain"
+                      style={{ height: `${designSettings.logoSizePixels || 40}px` }}
                     />
-                  ))}
+                  )}
                 </div>
               )}
+
+              {/* Progress bar row */}
+              <div className="px-4 pb-3 flex items-center gap-3">
+                {pageSettings?.allowBack && currentStageIndex > 0 && (
+                  <button 
+                    onClick={handleBack} 
+                    className="p-1 rounded transition-colors"
+                    style={{ color: designSettings.backIcon?.color || designSettings.textColor }}
+                  >
+                    {renderBackIcon(designSettings)}
+                  </button>
+                )}
+
+                {/* Logo inline (when not above bar) */}
+                {designSettings.logoAboveBar === false && designSettings.logo?.value && (
+                  designSettings.logo.type === 'emoji' ? (
+                    <span style={{ fontSize: `${designSettings.logoSizePixels || 40}px`, lineHeight: 1 }}>
+                      {designSettings.logo.value}
+                    </span>
+                  ) : (
+                    <img 
+                      src={designSettings.logo.value} 
+                      alt="Logo" 
+                      className="object-contain"
+                      style={{ height: `${designSettings.logoSizePixels || 40}px` }}
+                    />
+                  )
+                )}
+
+                {/* Progress indicators */}
+                {pageSettings?.showProgress && (
+                  <>
+                    {(designSettings.headerStyle === 'default' || !designSettings.headerStyle) && (
+                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: `${designSettings.primaryColor}20` }}>
+                        <div 
+                          className="h-full transition-all duration-300"
+                          style={{ 
+                            width: `${progressValue}%`,
+                            backgroundColor: designSettings.primaryColor,
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    {designSettings.headerStyle === 'minimal' && (
+                      <div className="flex-1 flex justify-center">
+                        <span 
+                          className="text-sm font-medium"
+                          style={{ color: designSettings.textColor }}
+                        >
+                          {currentStageIndex + 1} / {stages.length}
+                        </span>
+                      </div>
+                    )}
+
+                    {designSettings.headerStyle === 'steps' && (
+                      <div className="flex-1 flex items-center justify-center gap-2">
+                        {stages.map((_, index) => (
+                          <div
+                            key={index}
+                            className="h-2 rounded-full transition-all duration-300"
+                            style={{
+                              width: index === currentStageIndex ? '24px' : '8px',
+                              backgroundColor: index <= currentStageIndex 
+                                ? designSettings.primaryColor 
+                                : `${designSettings.primaryColor}30`,
+                            }}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
             </div>
           )}
         </>
