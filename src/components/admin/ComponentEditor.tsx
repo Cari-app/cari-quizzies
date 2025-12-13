@@ -771,30 +771,41 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           <Label className="text-xs text-muted-foreground">Cores</Label>
           
           {/* Bar Color */}
-          <ThemeColorPicker
-            label="Cor da barra"
-            value={config.barColor || themeColor}
-            useTheme={config.useThemeColor !== false}
-            themeColor={themeColor}
-            onChange={(color) => updateConfig({ barColor: color })}
-            onUseThemeChange={(useTheme) => updateConfig({ useThemeColor: useTheme, barColor: useTheme ? themeColor : config.barColor })}
-          />
+          <div>
+            <Label className="text-xs text-muted-foreground mb-1 block">Cor da barra</Label>
+            <div className="flex items-center gap-2">
+              <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.barColor || themeColor }}>
+                <input
+                  type="color"
+                  value={config.barColor || themeColor}
+                  onChange={(e) => updateConfig({ barColor: e.target.value })}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </div>
+              <Input
+                value={config.barColor || themeColor}
+                onChange={(e) => updateConfig({ barColor: e.target.value })}
+                className="flex-1 font-mono text-sm"
+              />
+            </div>
+          </div>
           
           {/* Value Color */}
           <div>
             <Label className="text-xs text-muted-foreground mb-1 block">Cor do valor</Label>
             <div className="flex items-center gap-2">
-              <input
-                type="color"
+              <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.valueColor || '#000000' }}>
+                <input
+                  type="color"
+                  value={config.valueColor || '#000000'}
+                  onChange={(e) => updateConfig({ valueColor: e.target.value })}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </div>
+              <Input
                 value={config.valueColor || '#000000'}
                 onChange={(e) => updateConfig({ valueColor: e.target.value })}
-                className="w-8 h-8 rounded cursor-pointer border border-border"
-              />
-              <Input
-                value={config.valueColor || ''}
-                onChange={(e) => updateConfig({ valueColor: e.target.value })}
-                placeholder="Herdar do tema"
-                className="flex-1 text-sm"
+                className="flex-1 font-mono text-sm"
               />
             </div>
           </div>
@@ -803,17 +814,18 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           <div>
             <Label className="text-xs text-muted-foreground mb-1 block">Cor do botão toggle</Label>
             <div className="flex items-center gap-2">
-              <input
-                type="color"
+              <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.toggleColor || '#1f2937' }}>
+                <input
+                  type="color"
+                  value={config.toggleColor || '#1f2937'}
+                  onChange={(e) => updateConfig({ toggleColor: e.target.value })}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </div>
+              <Input
                 value={config.toggleColor || '#1f2937'}
                 onChange={(e) => updateConfig({ toggleColor: e.target.value })}
-                className="w-8 h-8 rounded cursor-pointer border border-border"
-              />
-              <Input
-                value={config.toggleColor || ''}
-                onChange={(e) => updateConfig({ toggleColor: e.target.value })}
-                placeholder="Padrão"
-                className="flex-1 text-sm"
+                className="flex-1 font-mono text-sm"
               />
             </div>
           </div>
@@ -822,17 +834,18 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           <div>
             <Label className="text-xs text-muted-foreground mb-1 block">Cor das marcações</Label>
             <div className="flex items-center gap-2">
-              <input
-                type="color"
+              <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.tickColor || '#808080' }}>
+                <input
+                  type="color"
+                  value={config.tickColor || '#808080'}
+                  onChange={(e) => updateConfig({ tickColor: e.target.value })}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </div>
+              <Input
                 value={config.tickColor || '#808080'}
                 onChange={(e) => updateConfig({ tickColor: e.target.value })}
-                className="w-8 h-8 rounded cursor-pointer border border-border"
-              />
-              <Input
-                value={config.tickColor || ''}
-                onChange={(e) => updateConfig({ tickColor: e.target.value })}
-                placeholder="Padrão"
-                className="flex-1 text-sm"
+                className="flex-1 font-mono text-sm"
               />
             </div>
           </div>
@@ -841,17 +854,18 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           <div>
             <Label className="text-xs text-muted-foreground mb-1 block">Cor dos textos</Label>
             <div className="flex items-center gap-2">
-              <input
-                type="color"
+              <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.labelColor || '#808080' }}>
+                <input
+                  type="color"
+                  value={config.labelColor || '#808080'}
+                  onChange={(e) => updateConfig({ labelColor: e.target.value })}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </div>
+              <Input
                 value={config.labelColor || '#808080'}
                 onChange={(e) => updateConfig({ labelColor: e.target.value })}
-                className="w-8 h-8 rounded cursor-pointer border border-border"
-              />
-              <Input
-                value={config.labelColor || ''}
-                onChange={(e) => updateConfig({ labelColor: e.target.value })}
-                placeholder="Herdar"
-                className="flex-1 text-sm"
+                className="flex-1 font-mono text-sm"
               />
             </div>
           </div>
