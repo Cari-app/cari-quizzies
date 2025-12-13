@@ -1328,8 +1328,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                     "border border-primary/30 rounded-lg p-4 flex",
                     isVertical ? "flex-col" : "flex-row gap-3",
                     !imageFirst && isVertical && "flex-col-reverse",
-                    !imageFirst && !isVertical && "flex-row-reverse",
-                    !item.backgroundColor && "bg-background"
+                    !imageFirst && !isVertical && "flex-row-reverse"
                   )}
                   style={item.backgroundColor ? { backgroundColor: item.backgroundColor } : undefined}
                 >
