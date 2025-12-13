@@ -18,12 +18,12 @@ export function ButtonRenderer({
   const buttonAction = config.buttonAction || 'next';
   const buttonWidth = config.buttonFullWidth !== false ? 'w-full' : 'w-auto';
 
-  // Build button style object - always apply custom colors when set
+  // Build inline styles from config - these override everything
   const buttonStyle: React.CSSProperties = {};
   
-  // Background: gradient > custom color > default black
+  // Background: gradient > custom bgColor > default black
   if (config.buttonGradient) {
-    buttonStyle.background = `linear-gradient(${
+    const direction = 
       config.buttonGradientDirection === 'to-r' ? 'to right' :
       config.buttonGradientDirection === 'to-l' ? 'to left' :
       config.buttonGradientDirection === 'to-t' ? 'to top' :
@@ -31,26 +31,25 @@ export function ButtonRenderer({
       config.buttonGradientDirection === 'to-tr' ? 'to top right' :
       config.buttonGradientDirection === 'to-br' ? 'to bottom right' :
       config.buttonGradientDirection === 'to-tl' ? 'to top left' :
-      config.buttonGradientDirection === 'to-bl' ? 'to bottom left' : 'to right'
-    }, ${config.buttonGradientFrom || '#000000'}, ${config.buttonGradientTo || '#333333'})`;
+      config.buttonGradientDirection === 'to-bl' ? 'to bottom left' : 'to right';
+    buttonStyle.background = `linear-gradient(${direction}, ${config.buttonGradientFrom || '#000000'}, ${config.buttonGradientTo || '#333333'})`;
   } else {
     buttonStyle.backgroundColor = config.buttonBgColor || '#000000';
   }
   
-  // Text color: custom > default white
+  // Text color
   buttonStyle.color = config.buttonTextColor || '#FFFFFF';
   
   // Border
-  if (config.buttonBorderColor && (config.buttonBorderWidth ?? 0) > 0) {
-    buttonStyle.borderColor = config.buttonBorderColor;
-    buttonStyle.borderWidth = `${config.buttonBorderWidth}px`;
+  const borderWidth = config.buttonBorderWidth ?? 0;
+  if (borderWidth > 0) {
+    buttonStyle.borderWidth = `${borderWidth}px`;
     buttonStyle.borderStyle = 'solid';
+    buttonStyle.borderColor = config.buttonBorderColor || '#000000';
   }
   
   // Border radius
-  if (config.buttonBorderRadius !== undefined) {
-    buttonStyle.borderRadius = `${config.buttonBorderRadius}px`;
-  }
+  buttonStyle.borderRadius = `${config.buttonBorderRadius ?? 8}px`;
   
   // Font size
   if (config.buttonFontSize) {
@@ -63,34 +62,18 @@ export function ButtonRenderer({
   }
   
   // Padding
-  if (config.buttonPaddingX) {
+  if (config.buttonPaddingX !== undefined) {
     buttonStyle.paddingLeft = `${config.buttonPaddingX}px`;
     buttonStyle.paddingRight = `${config.buttonPaddingX}px`;
   }
-  if (config.buttonPaddingY) {
+  if (config.buttonPaddingY !== undefined) {
     buttonStyle.paddingTop = `${config.buttonPaddingY}px`;
     buttonStyle.paddingBottom = `${config.buttonPaddingY}px`;
   }
 
-  // Process button text - strip inline color styles so our color applies
-  const processButtonText = (text: string) => {
-    // Strip only color styles, keep font-size, font-weight, etc.
-    return text.replace(/color:\s*[^;]+;?/gi, '');
-  };
-
-  const buttonText = processButtonText(config.buttonText || 'Continuar');
-
-  const buttonContent = (
-    <>
-      {config.buttonIcon && config.buttonIconPosition === 'left' && (
-        <span className="mr-2">{config.buttonIcon}</span>
-      )}
-      <span dangerouslySetInnerHTML={{ __html: processTemplate(buttonText) }} />
-      {config.buttonIcon && config.buttonIconPosition !== 'left' && (
-        <span className="ml-2">{config.buttonIcon}</span>
-      )}
-    </>
-  );
+  // Get button text - strip inline color styles to let our color work
+  const rawText = config.buttonText || 'Continuar';
+  const cleanText = rawText.replace(/color:\s*[^;]+;?/gi, '');
 
   const handleClick = () => {
     if (buttonAction === 'link' && config.buttonLink) {
@@ -113,12 +96,17 @@ export function ButtonRenderer({
           getShadowClass(config.buttonShadow),
           getFontWeight(config.buttonFontWeight),
           getHoverEffect(config.buttonHoverEffect),
-          getAnimationClass(config.buttonAnimation),
-          config.buttonBorderRadius === undefined && "rounded-lg"
+          getAnimationClass(config.buttonAnimation)
         )}
         style={buttonStyle}
       >
-        {buttonContent}
+        {config.buttonIcon && config.buttonIconPosition === 'left' && (
+          <span className="mr-2">{config.buttonIcon}</span>
+        )}
+        <span dangerouslySetInnerHTML={{ __html: processTemplate(cleanText) }} />
+        {config.buttonIcon && config.buttonIconPosition !== 'left' && (
+          <span className="ml-2">{config.buttonIcon}</span>
+        )}
       </button>
     </div>
   );

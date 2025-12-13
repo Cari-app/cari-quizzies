@@ -131,19 +131,52 @@ export function ReadonlyDropZone({ components, designSettings }: ReadonlyDropZon
           </div>
         );
 
-      case 'button':
+      case 'button': {
+        // Build style object - always apply custom colors
+        const buttonStyle: React.CSSProperties = {};
+        
+        if (config.buttonGradient) {
+          const direction = 
+            config.buttonGradientDirection === 'to-r' ? 'to right' :
+            config.buttonGradientDirection === 'to-l' ? 'to left' :
+            config.buttonGradientDirection === 'to-t' ? 'to top' :
+            config.buttonGradientDirection === 'to-b' ? 'to bottom' :
+            config.buttonGradientDirection === 'to-tr' ? 'to top right' :
+            config.buttonGradientDirection === 'to-br' ? 'to bottom right' :
+            config.buttonGradientDirection === 'to-tl' ? 'to top left' :
+            config.buttonGradientDirection === 'to-bl' ? 'to bottom left' : 'to right';
+          buttonStyle.background = `linear-gradient(${direction}, ${config.buttonGradientFrom || '#000000'}, ${config.buttonGradientTo || '#333333'})`;
+        } else {
+          buttonStyle.backgroundColor = config.buttonBgColor || '#000000';
+        }
+        
+        buttonStyle.color = config.buttonTextColor || '#FFFFFF';
+        buttonStyle.borderRadius = `${config.buttonBorderRadius ?? 8}px`;
+        
+        if ((config.buttonBorderWidth ?? 0) > 0) {
+          buttonStyle.borderWidth = `${config.buttonBorderWidth}px`;
+          buttonStyle.borderStyle = 'solid';
+          buttonStyle.borderColor = config.buttonBorderColor || '#000000';
+        }
+        
+        if (config.buttonFontSize) {
+          buttonStyle.fontSize = `${config.buttonFontSize}px`;
+        }
+
         return (
           <div className="p-4">
-            <button className={cn(
-              "w-full py-3 rounded-lg text-sm font-medium transition-colors",
-              config.buttonStyle === 'primary' && "bg-primary text-primary-foreground",
-              config.buttonStyle === 'secondary' && "bg-secondary text-secondary-foreground",
-              config.buttonStyle === 'outline' && "border border-border bg-transparent"
-            )}>
-              {config.buttonText || 'Botão'}
+            <button 
+              className={cn(
+                "w-full py-3 text-sm font-medium transition-colors inline-flex items-center justify-center",
+                config.buttonFullWidth !== false ? 'w-full' : 'w-auto'
+              )}
+              style={buttonStyle}
+            >
+              <span dangerouslySetInnerHTML={{ __html: config.buttonText || 'Botão' }} />
             </button>
           </div>
         );
+      }
 
       case 'options':
       case 'single':

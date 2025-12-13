@@ -501,48 +501,14 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           }
         };
 
-        const isCustomStyle = config.buttonStyle === 'custom';
         const buttonWidth = config.buttonFullWidth !== false ? 'w-full' : 'w-auto';
 
-        // Build custom style object
-        const customStyle: React.CSSProperties = {};
+        // Build style object - ALWAYS apply custom colors when set
+        const buttonStyle: React.CSSProperties = {};
         
-        if (isCustomStyle) {
-          if (config.buttonGradient) {
-            // Gradient will be applied via className
-          } else {
-            // Default to black background with white text for custom style
-            customStyle.backgroundColor = config.buttonBgColor || '#000000';
-          }
-          customStyle.color = config.buttonTextColor || '#ffffff';
-          if (config.buttonBorderColor && (config.buttonBorderWidth ?? 0) > 0) {
-            customStyle.borderColor = config.buttonBorderColor;
-            customStyle.borderWidth = `${config.buttonBorderWidth}px`;
-            customStyle.borderStyle = 'solid';
-          }
-        }
-        
-        if (config.buttonBorderRadius !== undefined) {
-          customStyle.borderRadius = `${config.buttonBorderRadius}px`;
-        }
-        if (config.buttonFontSize) {
-          customStyle.fontSize = `${config.buttonFontSize}px`;
-        }
-        if (config.buttonLetterSpacing) {
-          customStyle.letterSpacing = `${config.buttonLetterSpacing}px`;
-        }
-        if (config.buttonPaddingX) {
-          customStyle.paddingLeft = `${config.buttonPaddingX}px`;
-          customStyle.paddingRight = `${config.buttonPaddingX}px`;
-        }
-        if (config.buttonPaddingY) {
-          customStyle.paddingTop = `${config.buttonPaddingY}px`;
-          customStyle.paddingBottom = `${config.buttonPaddingY}px`;
-        }
-
-        // Gradient colors for custom style
-        const gradientStyle = isCustomStyle && config.buttonGradient ? {
-          background: `linear-gradient(${
+        // Background: gradient > custom color > default black
+        if (config.buttonGradient) {
+          const direction = 
             config.buttonGradientDirection === 'to-r' ? 'to right' :
             config.buttonGradientDirection === 'to-l' ? 'to left' :
             config.buttonGradientDirection === 'to-t' ? 'to top' :
@@ -550,37 +516,48 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             config.buttonGradientDirection === 'to-tr' ? 'to top right' :
             config.buttonGradientDirection === 'to-br' ? 'to bottom right' :
             config.buttonGradientDirection === 'to-tl' ? 'to top left' :
-            config.buttonGradientDirection === 'to-bl' ? 'to bottom left' : 'to right'
-          }, ${config.buttonGradientFrom || '#000000'}, ${config.buttonGradientTo || '#333333'})`
-        } : {};
+            config.buttonGradientDirection === 'to-bl' ? 'to bottom left' : 'to right';
+          buttonStyle.background = `linear-gradient(${direction}, ${config.buttonGradientFrom || '#000000'}, ${config.buttonGradientTo || '#333333'})`;
+        } else {
+          buttonStyle.backgroundColor = config.buttonBgColor || '#000000';
+        }
+        
+        // Text color
+        buttonStyle.color = config.buttonTextColor || '#FFFFFF';
+        
+        // Border
+        const borderWidth = config.buttonBorderWidth ?? 0;
+        if (borderWidth > 0) {
+          buttonStyle.borderWidth = `${borderWidth}px`;
+          buttonStyle.borderStyle = 'solid';
+          buttonStyle.borderColor = config.buttonBorderColor || '#000000';
+        }
+        
+        // Border radius
+        buttonStyle.borderRadius = `${config.buttonBorderRadius ?? 8}px`;
+        
+        // Font size
+        if (config.buttonFontSize) {
+          buttonStyle.fontSize = `${config.buttonFontSize}px`;
+        }
+        
+        // Letter spacing
+        if (config.buttonLetterSpacing) {
+          buttonStyle.letterSpacing = `${config.buttonLetterSpacing}px`;
+        }
+        
+        // Padding
+        if (config.buttonPaddingX !== undefined) {
+          buttonStyle.paddingLeft = `${config.buttonPaddingX}px`;
+          buttonStyle.paddingRight = `${config.buttonPaddingX}px`;
+        }
+        if (config.buttonPaddingY !== undefined) {
+          buttonStyle.paddingTop = `${config.buttonPaddingY}px`;
+          buttonStyle.paddingBottom = `${config.buttonPaddingY}px`;
+        }
 
-        // Determine text color for button content - ALWAYS force color to ensure visibility
-        const getButtonTextColor = () => {
-          if (isCustomStyle) {
-            return config.buttonTextColor || '#ffffff';
-          }
-          // For predefined styles, use white for primary (dark bg), dark for secondary/outline
-          if (config.buttonStyle === 'secondary') return '#171717';
-          if (config.buttonStyle === 'outline') return '#171717';
-          // Primary or no style = white text on dark background
-          return '#ffffff';
-        };
-        const buttonTextColorValue = getButtonTextColor();
-
-        const buttonContent = (
-          <>
-            {config.buttonIcon && config.buttonIconPosition === 'left' && (
-              <span className="mr-2" style={{ color: buttonTextColorValue }}>{config.buttonIcon}</span>
-            )}
-            <span 
-              style={{ color: buttonTextColorValue }}
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.buttonText || 'Botão') }} 
-            />
-            {config.buttonIcon && config.buttonIconPosition !== 'left' && (
-              <span className="ml-2" style={{ color: buttonTextColorValue }}>{config.buttonIcon}</span>
-            )}
-          </>
-        );
+        // Strip inline color styles from text
+        const cleanText = (config.buttonText || 'Botão').replace(/color:\s*[^;]+;?/gi, '');
 
         return (
           <div className="p-4">
@@ -588,21 +565,21 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               className={cn(
                 "inline-flex items-center justify-center transition-all duration-200",
                 buttonWidth,
-                !config.buttonSize && getSizeClasses(),
                 getSizeClasses(),
                 getShadowClass(),
                 getFontWeight(),
                 getHoverEffect(),
-                getAnimationClass(),
-                !isCustomStyle && config.buttonStyle === 'primary' && "bg-primary text-primary-foreground",
-                !isCustomStyle && config.buttonStyle === 'secondary' && "bg-secondary text-secondary-foreground",
-                !isCustomStyle && config.buttonStyle === 'outline' && "border border-border bg-transparent",
-                !isCustomStyle && !config.buttonStyle && "bg-primary text-primary-foreground",
-                config.buttonBorderRadius === undefined && "rounded-lg"
+                getAnimationClass()
               )}
-              style={{ ...customStyle, ...gradientStyle }}
+              style={buttonStyle}
             >
-              {buttonContent}
+              {config.buttonIcon && config.buttonIconPosition === 'left' && (
+                <span className="mr-2">{config.buttonIcon}</span>
+              )}
+              <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(cleanText) }} />
+              {config.buttonIcon && config.buttonIconPosition !== 'left' && (
+                <span className="ml-2">{config.buttonIcon}</span>
+              )}
             </button>
           </div>
         );
