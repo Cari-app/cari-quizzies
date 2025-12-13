@@ -6,10 +6,9 @@ import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Image, Palette, Trash2, Upload, Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { Image, Palette, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ImageInput } from '@/components/ui/image-input';
 
 export interface StageBackground {
   type: 'color' | 'gradient' | 'image';
@@ -173,39 +172,8 @@ function GradientStopsEditor({
 }
 
 export function StageBackgroundEditor({ background, onChange }: StageBackgroundEditorProps) {
-  const [isUploading, setIsUploading] = useState(false);
-
   const updateBackground = (updates: Partial<StageBackground>) => {
     onChange({ ...background, ...updates });
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setIsUploading(true);
-    try {
-      const fileExt = file.name.split('.').pop();
-      const fileName = `stage-bg-${crypto.randomUUID()}.${fileExt}`;
-      const filePath = `backgrounds/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('quiz-assets')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('quiz-assets')
-        .getPublicUrl(filePath);
-
-      updateBackground({ imageUrl: publicUrl, type: 'image' });
-      toast.success('Imagem enviada');
-    } catch (error: any) {
-      toast.error('Erro ao enviar: ' + error.message);
-    } finally {
-      setIsUploading(false);
-    }
   };
 
   // Generate CSS for preview
@@ -349,54 +317,14 @@ export function StageBackgroundEditor({ background, onChange }: StageBackgroundE
 
         {/* Image Tab */}
         <TabsContent value="image" className="mt-4 space-y-4">
-          {/* Image Upload */}
+          {/* Image Upload with Media Library */}
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground">Imagem de fundo</Label>
-            {background.imageUrl ? (
-              <div className="relative">
-                <img 
-                  src={background.imageUrl} 
-                  alt="Background" 
-                  className="w-full h-24 object-cover rounded-lg border border-border"
-                />
-                <Button
-                  variant="destructive"
-                  size="icon"
-                  className="absolute top-2 right-2 h-6 w-6"
-                  onClick={() => updateBackground({ imageUrl: undefined })}
-                >
-                  <Trash2 className="w-3 h-3" />
-                </Button>
-              </div>
-            ) : (
-              <label className="flex flex-col items-center justify-center h-24 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-primary/50 transition-colors">
-                {isUploading ? (
-                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-                ) : (
-                  <>
-                    <Upload className="w-5 h-5 text-muted-foreground mb-1" />
-                    <span className="text-xs text-muted-foreground">Clique para enviar</span>
-                  </>
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                  disabled={isUploading}
-                />
-              </label>
-            )}
-          </div>
-
-          {/* Image URL */}
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Ou cole uma URL</Label>
-            <Input
+            <ImageInput
               value={background.imageUrl || ''}
-              onChange={(e) => updateBackground({ imageUrl: e.target.value })}
-              placeholder="https://..."
-              className="h-8 text-xs"
+              onChange={(url) => updateBackground({ imageUrl: url || undefined })}
+              placeholder="Clique para selecionar imagem"
+              showUrlInput={true}
             />
           </div>
 

@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
+import { ImageInput } from '@/components/ui/image-input';
 
 // Design settings type
 export interface QuizDesignSettings {
@@ -297,40 +298,13 @@ export function DesignEditor({ settings, onSettingsChange }: DesignEditorProps) 
               </div>
             </div>
 
-            {settings.logo.type === 'url' && (
-              <Input
-                placeholder="https://exemplo.com/logo.png"
+            {(settings.logo.type === 'url' || settings.logo.type === 'image') && (
+              <ImageInput
                 value={settings.logo.value}
-                onChange={(e) => updateSettings({ logo: { ...settings.logo, value: e.target.value } })}
+                onChange={(value) => updateSettings({ logo: { ...settings.logo, value } })}
+                placeholder="Clique para selecionar logo"
+                showUrlInput={settings.logo.type === 'url'}
               />
-            )}
-
-            {settings.logo.type === 'image' && (
-              <div className="border-2 border-dashed border-border rounded-lg p-4 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  className="hidden" 
-                  id="design-logo-upload"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (ev) => {
-                        updateSettings({ logo: { ...settings.logo, value: ev.target?.result as string } });
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-                <label htmlFor="design-logo-upload" className="cursor-pointer">
-                  {settings.logo.value ? (
-                    <img src={settings.logo.value} alt="Logo preview" className="max-h-12 mx-auto" />
-                  ) : (
-                    <span className="text-sm text-muted-foreground">Selecionar imagem</span>
-                  )}
-                </label>
-              </div>
             )}
 
             {settings.logo.type === 'emoji' && (
