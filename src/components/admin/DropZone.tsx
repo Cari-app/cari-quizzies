@@ -825,7 +825,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                         {isVertical && renderOptionMedia(opt, true)}
                         {!isVertical && renderDetail(isSelected, i)}
                         {!isVertical && renderOptionMedia(opt)}
-                        <span className={cn(!isVertical && "flex-1", "rich-text")} dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
+                        <span className={cn(!isVertical && "flex-1", "rich-text")} style={{ color: isSelected ? selectedTextColor : (optionTextColor || '#000000') }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
                         {isVertical && renderDetail(isSelected, i)}
                       </div>
                     </div>
@@ -845,7 +845,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                     >
                       <div className="flex items-center justify-center gap-2">
                         {renderOptionMedia(opt)}
-                        <span className="rich-text" dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
+                        <span className="rich-text" style={{ color: isSelected ? selectedTextColor : (optionTextColor || '#000000') }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
                       </div>
                     </div>
                   );
@@ -868,7 +868,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                     >
                       <div className="flex items-center gap-3">
                         {renderOptionMedia(opt)}
-                        <span className="flex-1 rich-text" dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
+                        <span className="flex-1 rich-text" style={{ color: isSelected ? selectedTextColor : (optionTextColor || '#000000') }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
                         {isSelected && (
                           <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ backgroundColor: selectedBgColor }}>
                             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: selectedTextColor }}>
@@ -924,7 +924,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                       {isVertical && renderOptionMedia(opt, true)}
                       {!isVertical && renderDetail(isSelected, i)}
                       {!isVertical && renderOptionMedia(opt)}
-                      <span className={cn(!isVertical && "flex-1", "rich-text")} dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
+                      <span className={cn(!isVertical && "flex-1", "rich-text")} style={{ color: isSelected ? selectedTextColor : (optionTextColor || '#000000') }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
                       {isVertical && renderDetail(isSelected, i)}
                     </div>
                   </div>
