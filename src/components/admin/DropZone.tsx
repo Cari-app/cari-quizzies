@@ -1687,10 +1687,24 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                         "group relative border rounded-lg cursor-pointer transition-all w-full",
                         selectedComponentId === comp.id 
                           ? "border-primary ring-2 ring-primary/20" 
-                          : "border-border hover:border-primary/50"
+                          : "border-border hover:border-primary/50",
+                        // Shadow classes based on config
+                        config.shadow === 'sm' && 'shadow-sm',
+                        config.shadow === 'md' && 'shadow-md',
+                        config.shadow === 'lg' && 'shadow-lg',
+                        config.shadow === 'xl' && 'shadow-xl',
                       )}
                       onClick={() => onSelectComponent(comp)}
-                      style={{ color: designSettings?.textColor }}
+                      style={{ 
+                        color: config.textColor || designSettings?.textColor,
+                        backgroundColor: config.backgroundColor || 'transparent',
+                        borderRadius: config.borderRadius !== undefined ? `${config.borderRadius}px` : undefined,
+                        borderWidth: config.borderWidth !== undefined ? `${config.borderWidth}px` : undefined,
+                        borderColor: config.borderColor || undefined,
+                        opacity: config.opacity !== undefined ? config.opacity / 100 : undefined,
+                        marginTop: config.marginTop !== undefined ? `${config.marginTop}px` : undefined,
+                        marginBottom: config.marginBottom !== undefined ? `${config.marginBottom}px` : undefined,
+                      }}
                     >
                       {/* Inline toolbar at top - visible on hover */}
                       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all z-20 flex items-center gap-0.5 bg-primary rounded-md p-1 shadow-lg">
@@ -1719,7 +1733,15 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                           <Trash2 className="w-3.5 h-3.5 text-primary-foreground" />
                         </button>
                       </div>
-                      <div className="overflow-hidden rounded-lg">
+                      <div 
+                        className="overflow-hidden rounded-lg"
+                        style={{
+                          paddingTop: config.paddingTop !== undefined ? `${config.paddingTop}px` : undefined,
+                          paddingBottom: config.paddingBottom !== undefined ? `${config.paddingBottom}px` : undefined,
+                          paddingLeft: config.paddingLeft !== undefined ? `${config.paddingLeft}px` : undefined,
+                          paddingRight: config.paddingRight !== undefined ? `${config.paddingRight}px` : undefined,
+                        }}
+                      >
                         {renderComponentPreview(comp)}
                       </div>
                     </div>

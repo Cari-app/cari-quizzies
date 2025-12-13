@@ -18,6 +18,7 @@ import { CarouselItemEditor } from './CarouselItemEditor';
 import { MetricItemEditor, MetricItem } from './MetricItemEditor';
 import { ChartEditorComponentTab, ChartEditorAppearanceTab, getDefaultChartConfig, ChartConfig } from './ChartEditor';
 import { SpacerComponentEditor } from './SpacerEditor';
+import { AppearanceEditor } from './AppearanceEditor';
 
 // Component ID Display - Shows the unique ID and allows copying
 interface ComponentIdDisplayProps {
@@ -240,6 +241,20 @@ export interface ComponentConfig {
   // Display/Visibility
   showAfterSeconds?: number;
   displayRules?: Array<{ id: string; condition: string }>;
+  // Extended Appearance
+  paddingTop?: number;
+  paddingBottom?: number;
+  paddingLeft?: number;
+  paddingRight?: number;
+  marginTop?: number;
+  marginBottom?: number;
+  borderRadius?: number;
+  borderWidth?: number;
+  borderColor?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  opacity?: number;
+  shadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   // Height/Weight specific
   layoutType?: 'input' | 'ruler';
   unit?: 'cm' | 'pol' | 'kg' | 'lb';
@@ -4761,135 +4776,34 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
       );
     }
 
-    // Default appearance tab for other components
+    // Default appearance tab for other components - use AppearanceEditor
     return (
-      <div className="space-y-4">
-        {/* Label style */}
-        <div>
-          <Label className="text-xs text-muted-foreground">Label</Label>
-          <Select 
-            value={config.labelStyle || 'default'} 
-            onValueChange={(v) => updateConfig({ labelStyle: v as ComponentConfig['labelStyle'] })}
-          >
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="default">Padrão</SelectItem>
-              <SelectItem value="floating">Flutuante</SelectItem>
-              <SelectItem value="hidden">Oculto</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Text align */}
-        <div>
-          <Label className="text-xs text-muted-foreground">Alinhamento do texto</Label>
-          <Select 
-            value={config.textAlign || 'left'} 
-            onValueChange={(v) => updateConfig({ textAlign: v as ComponentConfig['textAlign'] })}
-          >
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="left">Esquerda</SelectItem>
-              <SelectItem value="center">Centro</SelectItem>
-              <SelectItem value="right">Direita</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Width */}
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <Label className="text-xs text-muted-foreground">Largura</Label>
-            <div className="flex items-center gap-1">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-6 w-6"
-                onClick={() => updateConfig({ width: Math.max(10, (config.width || 100) - 5) })}
-              >
-                −
-              </Button>
-              <span className="text-sm font-medium w-12 text-center">{config.width || 100}%</span>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-6 w-6"
-                onClick={() => updateConfig({ width: Math.min(100, (config.width || 100) + 5) })}
-              >
-                +
-              </Button>
-            </div>
-          </div>
-          <Slider
-            value={[config.width || 100]}
-            onValueChange={([value]) => updateConfig({ width: value })}
-            min={10}
-            max={100}
-            step={5}
-            className="w-full"
-          />
-        </div>
-
-        {/* Horizontal and Vertical alignment */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label className="text-xs text-muted-foreground">Alinhamento horizontal</Label>
-            <Select 
-              value={config.horizontalAlign || 'start'} 
-              onValueChange={(v) => updateConfig({ horizontalAlign: v as ComponentConfig['horizontalAlign'] })}
-            >
-              <SelectTrigger className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="start">Começo</SelectItem>
-                <SelectItem value="center">Centro</SelectItem>
-                <SelectItem value="end">Fim</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="text-xs text-muted-foreground">Alinhamento vertical</Label>
-            <Select 
-              value={config.verticalAlign || 'auto'} 
-              onValueChange={(v) => updateConfig({ verticalAlign: v as ComponentConfig['verticalAlign'] })}
-            >
-              <SelectTrigger className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="auto">Auto</SelectItem>
-                <SelectItem value="start">Começo</SelectItem>
-                <SelectItem value="center">Centro</SelectItem>
-                <SelectItem value="end">Fim</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-      {/* Font size for text components */}
-      {['text', 'button'].includes(component.type) && (
-        <div>
-          <Label className="text-xs text-muted-foreground">Tamanho da fonte</Label>
-          <Select value={config.fontSize || 'base'} onValueChange={(v) => updateConfig({ fontSize: v as ComponentConfig['fontSize'] })}>
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="sm">Pequeno</SelectItem>
-              <SelectItem value="base">Normal</SelectItem>
-              <SelectItem value="lg">Grande</SelectItem>
-              <SelectItem value="xl">Extra grande</SelectItem>
-              <SelectItem value="2xl">Título</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      )}
-    </div>
+      <AppearanceEditor
+        config={{
+          width: config.width,
+          horizontalAlign: config.horizontalAlign,
+          verticalAlign: config.verticalAlign,
+          labelStyle: config.labelStyle,
+          textAlign: config.textAlign,
+          fontSize: config.fontSize,
+          paddingTop: config.paddingTop,
+          paddingBottom: config.paddingBottom,
+          paddingLeft: config.paddingLeft,
+          paddingRight: config.paddingRight,
+          marginTop: config.marginTop,
+          marginBottom: config.marginBottom,
+          borderRadius: config.borderRadius,
+          borderWidth: config.borderWidth,
+          borderColor: config.borderColor,
+          backgroundColor: config.backgroundColor,
+          textColor: config.textColor,
+          opacity: config.opacity,
+          shadow: config.shadow,
+        }}
+        onUpdate={(updates) => updateConfig(updates)}
+        componentType={component.type}
+        themeColor={themeColor}
+      />
     );
   };
 
