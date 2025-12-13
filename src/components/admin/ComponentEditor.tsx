@@ -320,6 +320,10 @@ export interface ComponentConfig {
   loadingDestinationUrl?: string;
   showLoadingTitle?: boolean;
   showLoadingProgress?: boolean;
+  loadingBgColor?: string;
+  loadingTextColor?: string;
+  loadingBarColor?: string;
+  loadingBorderColor?: string;
   // Level specific
   levelTitle?: string;
   levelSubtitle?: string;
@@ -330,6 +334,10 @@ export interface ComponentConfig {
   showLevelProgress?: boolean;
   levelType?: 'line' | 'segments';
   levelColor?: 'theme' | 'green-red' | 'red-green' | 'opaque' | 'red' | 'blue' | 'green' | 'yellow';
+  levelBgColor?: string;
+  levelTextColor?: string;
+  levelBarColor?: string;
+  levelBorderColor?: string;
   // Arguments specific
   argumentItems?: ArgumentItem[];
   argumentLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
@@ -2311,6 +2319,127 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         </div>
       </div>
 
+      {/* Cores */}
+      <div className="border border-border rounded-lg p-3 space-y-3">
+        <Label className="text-xs text-muted-foreground block">Cores</Label>
+        
+        {/* Cor de fundo do card */}
+        <div>
+          <Label className="text-xs text-muted-foreground mb-1 block">Fundo do card</Label>
+          <div className="flex gap-2">
+            <div 
+              className="relative w-10 h-8 rounded border overflow-hidden cursor-pointer"
+              style={{ backgroundColor: config.loadingBgColor || 'hsl(var(--background))' }}
+            >
+              <input
+                type="color"
+                value={config.loadingBgColor || '#ffffff'}
+                onChange={(e) => updateConfig({ loadingBgColor: e.target.value })}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
+            <Input
+              value={config.loadingBgColor || ''}
+              onChange={(e) => updateConfig({ loadingBgColor: e.target.value })}
+              placeholder="Padrão"
+              className="flex-1 text-xs h-8 font-mono"
+            />
+            {config.loadingBgColor && (
+              <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => updateConfig({ loadingBgColor: undefined })}>
+                <X className="w-3 h-3" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Cor do texto */}
+        <div>
+          <Label className="text-xs text-muted-foreground mb-1 block">Cor do texto</Label>
+          <div className="flex gap-2">
+            <div 
+              className="relative w-10 h-8 rounded border overflow-hidden cursor-pointer"
+              style={{ backgroundColor: config.loadingTextColor || 'hsl(var(--foreground))' }}
+            >
+              <input
+                type="color"
+                value={config.loadingTextColor || '#000000'}
+                onChange={(e) => updateConfig({ loadingTextColor: e.target.value })}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
+            <Input
+              value={config.loadingTextColor || ''}
+              onChange={(e) => updateConfig({ loadingTextColor: e.target.value })}
+              placeholder="Padrão"
+              className="flex-1 text-xs h-8 font-mono"
+            />
+            {config.loadingTextColor && (
+              <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => updateConfig({ loadingTextColor: undefined })}>
+                <X className="w-3 h-3" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Cor da barra de progresso */}
+        <div>
+          <Label className="text-xs text-muted-foreground mb-1 block">Cor da barra</Label>
+          <div className="flex gap-2">
+            <div 
+              className="relative w-10 h-8 rounded border overflow-hidden cursor-pointer"
+              style={{ backgroundColor: config.loadingBarColor || 'hsl(var(--primary))' }}
+            >
+              <input
+                type="color"
+                value={config.loadingBarColor || '#22c55e'}
+                onChange={(e) => updateConfig({ loadingBarColor: e.target.value })}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
+            <Input
+              value={config.loadingBarColor || ''}
+              onChange={(e) => updateConfig({ loadingBarColor: e.target.value })}
+              placeholder="Padrão"
+              className="flex-1 text-xs h-8 font-mono"
+            />
+            {config.loadingBarColor && (
+              <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => updateConfig({ loadingBarColor: undefined })}>
+                <X className="w-3 h-3" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Cor da borda */}
+        <div>
+          <Label className="text-xs text-muted-foreground mb-1 block">Cor da borda</Label>
+          <div className="flex gap-2">
+            <div 
+              className="relative w-10 h-8 rounded border overflow-hidden cursor-pointer"
+              style={{ backgroundColor: config.loadingBorderColor || 'hsl(var(--border))' }}
+            >
+              <input
+                type="color"
+                value={config.loadingBorderColor || '#e5e7eb'}
+                onChange={(e) => updateConfig({ loadingBorderColor: e.target.value })}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
+            <Input
+              value={config.loadingBorderColor || ''}
+              onChange={(e) => updateConfig({ loadingBorderColor: e.target.value })}
+              placeholder="Padrão"
+              className="flex-1 text-xs h-8 font-mono"
+            />
+            {config.loadingBorderColor && (
+              <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => updateConfig({ loadingBorderColor: undefined })}>
+                <X className="w-3 h-3" />
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Avançado */}
       <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
         <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -2406,6 +2535,127 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             className="rounded border-border"
           />
           <Label htmlFor="showProgress" className="text-sm cursor-pointer">Mostrar progresso?</Label>
+        </div>
+      </div>
+
+      {/* Cores */}
+      <div className="border border-border rounded-lg p-3 space-y-3">
+        <Label className="text-xs text-muted-foreground block">Cores</Label>
+        
+        {/* Cor de fundo do card */}
+        <div>
+          <Label className="text-xs text-muted-foreground mb-1 block">Fundo do card</Label>
+          <div className="flex gap-2">
+            <div 
+              className="relative w-10 h-8 rounded border overflow-hidden cursor-pointer"
+              style={{ backgroundColor: config.levelBgColor || 'hsl(var(--background))' }}
+            >
+              <input
+                type="color"
+                value={config.levelBgColor || '#ffffff'}
+                onChange={(e) => updateConfig({ levelBgColor: e.target.value })}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
+            <Input
+              value={config.levelBgColor || ''}
+              onChange={(e) => updateConfig({ levelBgColor: e.target.value })}
+              placeholder="Padrão"
+              className="flex-1 text-xs h-8 font-mono"
+            />
+            {config.levelBgColor && (
+              <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => updateConfig({ levelBgColor: undefined })}>
+                <X className="w-3 h-3" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Cor do texto */}
+        <div>
+          <Label className="text-xs text-muted-foreground mb-1 block">Cor do texto</Label>
+          <div className="flex gap-2">
+            <div 
+              className="relative w-10 h-8 rounded border overflow-hidden cursor-pointer"
+              style={{ backgroundColor: config.levelTextColor || 'hsl(var(--foreground))' }}
+            >
+              <input
+                type="color"
+                value={config.levelTextColor || '#000000'}
+                onChange={(e) => updateConfig({ levelTextColor: e.target.value })}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
+            <Input
+              value={config.levelTextColor || ''}
+              onChange={(e) => updateConfig({ levelTextColor: e.target.value })}
+              placeholder="Padrão"
+              className="flex-1 text-xs h-8 font-mono"
+            />
+            {config.levelTextColor && (
+              <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => updateConfig({ levelTextColor: undefined })}>
+                <X className="w-3 h-3" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Cor da barra */}
+        <div>
+          <Label className="text-xs text-muted-foreground mb-1 block">Cor da barra</Label>
+          <div className="flex gap-2">
+            <div 
+              className="relative w-10 h-8 rounded border overflow-hidden cursor-pointer"
+              style={{ backgroundColor: config.levelBarColor || 'hsl(var(--foreground))' }}
+            >
+              <input
+                type="color"
+                value={config.levelBarColor || '#000000'}
+                onChange={(e) => updateConfig({ levelBarColor: e.target.value })}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
+            <Input
+              value={config.levelBarColor || ''}
+              onChange={(e) => updateConfig({ levelBarColor: e.target.value })}
+              placeholder="Padrão"
+              className="flex-1 text-xs h-8 font-mono"
+            />
+            {config.levelBarColor && (
+              <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => updateConfig({ levelBarColor: undefined })}>
+                <X className="w-3 h-3" />
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {/* Cor da borda */}
+        <div>
+          <Label className="text-xs text-muted-foreground mb-1 block">Cor da borda</Label>
+          <div className="flex gap-2">
+            <div 
+              className="relative w-10 h-8 rounded border overflow-hidden cursor-pointer"
+              style={{ backgroundColor: config.levelBorderColor || 'hsl(var(--border))' }}
+            >
+              <input
+                type="color"
+                value={config.levelBorderColor || '#e5e7eb'}
+                onChange={(e) => updateConfig({ levelBorderColor: e.target.value })}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
+            <Input
+              value={config.levelBorderColor || ''}
+              onChange={(e) => updateConfig({ levelBorderColor: e.target.value })}
+              placeholder="Padrão"
+              className="flex-1 text-xs h-8 font-mono"
+            />
+            {config.levelBorderColor && (
+              <Button variant="ghost" size="sm" className="h-8 px-2" onClick={() => updateConfig({ levelBorderColor: undefined })}>
+                <X className="w-3 h-3" />
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
