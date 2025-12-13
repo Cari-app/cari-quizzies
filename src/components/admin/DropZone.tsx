@@ -1671,19 +1671,19 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         
         return (
           <div 
-            className="w-full flex"
+            className="w-full flex p-4"
             style={{ 
               justifyContent: horizontalAlign === 'center' ? 'center' : horizontalAlign === 'end' ? 'flex-end' : 'flex-start' 
             }}
           >
             <div 
-              className="flex flex-col gap-2 w-full"
-              style={{ maxWidth: `${widthValue}%` }}
+              className="flex flex-col gap-2"
+              style={{ width: `${widthValue}%` }}
             >
               {faqItems.map((item, index) => (
                 <div 
                   key={item.id}
-                  className="overflow-hidden w-full"
+                  className="overflow-hidden"
                   style={{
                     background: bgStyle,
                     borderWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
