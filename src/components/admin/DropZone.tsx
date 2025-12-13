@@ -554,22 +554,30 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           }, ${config.buttonGradientFrom || '#3b82f6'}, ${config.buttonGradientTo || '#8b5cf6'})`
         } : {};
 
-        // Determine text color for button content
-        const buttonTextColorValue = isCustomStyle 
-          ? (config.buttonTextColor || '#ffffff')
-          : undefined; // Let CSS handle it for non-custom styles
+        // Determine text color for button content - ALWAYS force color to ensure visibility
+        const getButtonTextColor = () => {
+          if (isCustomStyle) {
+            return config.buttonTextColor || '#ffffff';
+          }
+          // For predefined styles, use white for primary (dark bg), dark for secondary/outline
+          if (config.buttonStyle === 'secondary') return '#171717';
+          if (config.buttonStyle === 'outline') return '#171717';
+          // Primary or no style = white text on dark background
+          return '#ffffff';
+        };
+        const buttonTextColorValue = getButtonTextColor();
 
         const buttonContent = (
           <>
             {config.buttonIcon && config.buttonIconPosition === 'left' && (
-              <span className="mr-2">{config.buttonIcon}</span>
+              <span className="mr-2" style={{ color: buttonTextColorValue }}>{config.buttonIcon}</span>
             )}
             <span 
-              style={buttonTextColorValue ? { color: buttonTextColorValue } : undefined}
+              style={{ color: buttonTextColorValue }}
               dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.buttonText || 'Botão') }} 
             />
             {config.buttonIcon && config.buttonIconPosition !== 'left' && (
-              <span className="ml-2">{config.buttonIcon}</span>
+              <span className="ml-2" style={{ color: buttonTextColorValue }}>{config.buttonIcon}</span>
             )}
           </>
         );
