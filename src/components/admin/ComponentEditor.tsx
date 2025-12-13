@@ -361,6 +361,13 @@ export interface ComponentConfig {
   faqItems?: FaqItem[];
   faqDetailType?: 'arrow' | 'plus-minus';
   faqFirstOpen?: boolean;
+  faqBgColor?: string;
+  faqTextColor?: string;
+  faqAnswerColor?: string;
+  faqBorderColor?: string;
+  faqBorderWidth?: number;
+  faqBorderRadius?: number;
+  faqIconColor?: string;
   // Price specific
   priceTitle?: string;
   pricePrefix?: string;
@@ -3567,21 +3574,28 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                 <div className="flex items-start gap-2">
                   <GripVertical className="w-4 h-4 text-muted-foreground mt-1 shrink-0 cursor-grab" />
                   <div className="flex-1 space-y-2">
-                    {/* Question */}
-                    <Input
-                      value={item.question}
-                      onChange={(e) => updateFaq(item.id, { question: e.target.value })}
-                      placeholder="Pergunta"
-                      className="font-medium"
-                    />
-                    {/* Answer */}
-                    <Textarea
-                      value={item.answer}
-                      onChange={(e) => updateFaq(item.id, { answer: e.target.value })}
-                      placeholder="Resposta..."
-                      className="resize-none"
-                      rows={3}
-                    />
+                    {/* Question - RichText */}
+                    <div>
+                      <Label className="text-xs text-muted-foreground mb-1 block">Pergunta</Label>
+                      <RichTextInput
+                        value={item.question}
+                        onChange={(v) => updateFaq(item.id, { question: v })}
+                        placeholder="Pergunta"
+                        minHeight="50px"
+                        showBorder
+                      />
+                    </div>
+                    {/* Answer - RichText */}
+                    <div>
+                      <Label className="text-xs text-muted-foreground mb-1 block">Resposta</Label>
+                      <RichTextInput
+                        value={item.answer}
+                        onChange={(v) => updateFaq(item.id, { answer: v })}
+                        placeholder="Resposta..."
+                        minHeight="80px"
+                        showBorder
+                      />
+                    </div>
                   </div>
                   <div className="flex flex-col gap-1">
                     <Button
@@ -4657,6 +4671,90 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                 <SelectItem value="plus-minus">Mais e menos</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* Colors */}
+          <div className="border border-border rounded-lg p-3 space-y-3">
+            <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Cores</Label>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs text-muted-foreground">Fundo</Label>
+                <Input
+                  type="color"
+                  value={config.faqBgColor || '#ffffff'}
+                  onChange={(e) => updateConfig({ faqBgColor: e.target.value })}
+                  className="mt-1 h-9 w-full cursor-pointer"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Título</Label>
+                <Input
+                  type="color"
+                  value={config.faqTextColor || '#1f2937'}
+                  onChange={(e) => updateConfig({ faqTextColor: e.target.value })}
+                  className="mt-1 h-9 w-full cursor-pointer"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Resposta</Label>
+                <Input
+                  type="color"
+                  value={config.faqAnswerColor || '#6b7280'}
+                  onChange={(e) => updateConfig({ faqAnswerColor: e.target.value })}
+                  className="mt-1 h-9 w-full cursor-pointer"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Ícone</Label>
+                <Input
+                  type="color"
+                  value={config.faqIconColor || '#6b7280'}
+                  onChange={(e) => updateConfig({ faqIconColor: e.target.value })}
+                  className="mt-1 h-9 w-full cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Borders */}
+          <div className="border border-border rounded-lg p-3 space-y-3">
+            <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Bordas</Label>
+            
+            <div>
+              <Label className="text-xs text-muted-foreground">Cor da borda</Label>
+              <Input
+                type="color"
+                value={config.faqBorderColor || '#e5e7eb'}
+                onChange={(e) => updateConfig({ faqBorderColor: e.target.value })}
+                className="mt-1 h-9 w-full cursor-pointer"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs text-muted-foreground">Espessura</Label>
+                <Input
+                  type="number"
+                  value={config.faqBorderWidth ?? 1}
+                  onChange={(e) => updateConfig({ faqBorderWidth: parseInt(e.target.value) || 0 })}
+                  min={0}
+                  max={10}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Arredondamento</Label>
+                <Input
+                  type="number"
+                  value={config.faqBorderRadius ?? 8}
+                  onChange={(e) => updateConfig({ faqBorderRadius: parseInt(e.target.value) || 0 })}
+                  min={0}
+                  max={50}
+                  className="mt-1"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Width */}

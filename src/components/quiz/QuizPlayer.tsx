@@ -190,6 +190,13 @@ interface ComponentConfig {
   }>;
   faqDetailType?: 'arrow' | 'plus-minus';
   faqFirstOpen?: boolean;
+  faqBgColor?: string;
+  faqTextColor?: string;
+  faqAnswerColor?: string;
+  faqBorderColor?: string;
+  faqBorderWidth?: number;
+  faqBorderRadius?: number;
+  faqIconColor?: string;
   // Price specific
   priceTitle?: string;
   pricePrefix?: string;
@@ -462,9 +469,19 @@ interface FaqAccordionProps {
   justifyClass: string;
   detailType: string;
   firstOpen: boolean;
+  bgColor?: string;
+  textColor?: string;
+  answerColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  borderRadius?: number;
+  iconColor?: string;
 }
 
-function FaqAccordion({ faqItems, widthValue, justifyClass, detailType, firstOpen }: FaqAccordionProps) {
+function FaqAccordion({ 
+  faqItems, widthValue, justifyClass, detailType, firstOpen,
+  bgColor, textColor, answerColor, borderColor, borderWidth = 1, borderRadius = 8, iconColor
+}: FaqAccordionProps) {
   const [openItems, setOpenItems] = useState<string[]>(firstOpen && faqItems[0] ? [faqItems[0].id] : []);
   
   const toggleItem = (id: string) => {
@@ -477,22 +494,50 @@ function FaqAccordion({ faqItems, widthValue, justifyClass, detailType, firstOpe
         {faqItems.map((item) => {
           const isOpen = openItems.includes(item.id);
           return (
-            <div key={item.id} className="border border-border rounded-lg overflow-hidden bg-background">
+            <div 
+              key={item.id} 
+              className="overflow-hidden"
+              style={{
+                backgroundColor: bgColor || undefined,
+                borderWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
+                borderStyle: borderWidth > 0 ? 'solid' : 'none',
+                borderColor: borderColor || undefined,
+                borderRadius: `${borderRadius}px`,
+              }}
+            >
               <button
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-muted/50 transition-colors"
+                className="w-full flex items-center justify-between p-4 text-left hover:bg-black/5 transition-colors"
                 onClick={() => toggleItem(item.id)}
               >
-                <span className="font-medium text-sm">{item.question}</span>
+                <span 
+                  className="font-medium text-sm"
+                  style={{ color: textColor || undefined }}
+                  dangerouslySetInnerHTML={{ __html: item.question }}
+                />
                 {detailType === 'arrow' ? (
-                  <ChevronUp className={cn("w-4 h-4 text-muted-foreground transition-transform", !isOpen && "rotate-180")} />
+                  <ChevronUp 
+                    className={cn("w-4 h-4 transition-transform", !isOpen && "rotate-180")}
+                    style={{ color: iconColor || undefined }}
+                  />
                 ) : (
-                  isOpen ? <Minus className="w-4 h-4 text-muted-foreground" /> : <Plus className="w-4 h-4 text-muted-foreground" />
+                  isOpen ? (
+                    <Minus className="w-4 h-4" style={{ color: iconColor || undefined }} />
+                  ) : (
+                    <Plus className="w-4 h-4" style={{ color: iconColor || undefined }} />
+                  )
                 )}
               </button>
               {isOpen && (
-                <div className="px-4 pb-4 text-sm text-muted-foreground border-t border-border pt-3">
-                  {item.answer}
-                </div>
+                <div 
+                  className="px-4 pb-4 text-sm pt-3"
+                  style={{ 
+                    color: answerColor || undefined,
+                    borderTopWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
+                    borderTopStyle: borderWidth > 0 ? 'solid' : 'none',
+                    borderTopColor: borderColor || undefined,
+                  }}
+                  dangerouslySetInnerHTML={{ __html: item.answer }}
+                />
               )}
             </div>
           );
@@ -2079,6 +2124,13 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
             justifyClass={justifyClass}
             detailType={detailType}
             firstOpen={firstOpen}
+            bgColor={config.faqBgColor}
+            textColor={config.faqTextColor}
+            answerColor={config.faqAnswerColor}
+            borderColor={config.faqBorderColor}
+            borderWidth={config.faqBorderWidth}
+            borderRadius={config.faqBorderRadius}
+            iconColor={config.faqIconColor}
           />
         );
       }
