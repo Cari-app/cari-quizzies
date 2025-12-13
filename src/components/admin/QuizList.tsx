@@ -135,15 +135,9 @@ export function QuizList() {
   }
 
   return (
-    <div>
-      {/* Page Header */}
-      <div className="flex items-start justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Quizzes</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Gerencie e crie novos quizzes
-          </p>
-        </div>
+    <div className="space-y-6 animate-fade-in">
+      {/* Action Bar */}
+      <div className="flex items-center justify-end">
         <Link to="/admin/quiz/new">
           <Button size="default" className="gap-2">
             <Plus className="w-4 h-4" />
