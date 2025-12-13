@@ -21,6 +21,9 @@ import {
   OptionsRenderer,
   SliderRenderer,
   AlertRenderer,
+  TimerRenderer,
+  LoadingRenderer,
+  LevelRenderer,
   ArgumentsRenderer,
   TestimonialsRenderer,
   FaqRenderer,
@@ -1091,75 +1094,17 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
 
       case 'timer': {
         const timerValue = timerValues[comp.id] ?? (config.timerSeconds || 20);
-        const minutes = Math.floor(timerValue / 60);
-        const remainingSeconds = timerValue % 60;
-        const formattedTime = `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
-        const displayText = (config.timerText || 'Resgate agora seu desconto: [time]').replace('[time]', formattedTime);
-        
-        const timerStyles = {
-          default: 'bg-primary text-primary-foreground',
-          red: 'bg-red-100 text-red-700 border border-red-200',
-          blue: 'bg-blue-100 text-blue-700 border border-blue-200',
-          green: 'bg-green-100 text-green-700 border border-green-200',
-          yellow: 'bg-yellow-100 text-yellow-700 border border-yellow-200',
-          gray: 'bg-gray-100 text-gray-700 border border-gray-200',
-        };
-        const widthValue = config.width || 100;
-        const horizontalAlign = config.horizontalAlign || 'start';
-        const justifyClass = { start: 'justify-start', center: 'justify-center', end: 'justify-end' }[horizontalAlign];
-        
-        return (
-          <div className={cn("w-full px-4 flex", justifyClass)}>
-            <div 
-              className={cn("rounded-lg px-4 py-3 text-center font-medium", timerStyles[(config.timerStyle || 'red') as keyof typeof timerStyles])}
-              style={{ width: `${widthValue}%` }}
-            >
-              {displayText}
-            </div>
-          </div>
-        );
+        return <TimerRenderer {...rendererProps} timerValue={timerValue} />;
       }
 
       case 'loading': {
         const progress = loadingProgress[comp.id] ?? 0;
-        const widthValue = config.width || 100;
-        const horizontalAlign = config.horizontalAlign || 'start';
-        const justifyClass = { start: 'justify-start', center: 'justify-center', end: 'justify-end' }[horizontalAlign];
-        
-        return (
-          <div className={cn("w-full px-4 flex", justifyClass)}>
-            <div 
-              className="p-4 backdrop-blur-sm"
-              style={{ 
-                width: `${widthValue}%`,
-                backgroundColor: config.loadingBgColor || undefined,
-                borderWidth: (config.loadingBorderWidth ?? 1) > 0 ? `${config.loadingBorderWidth ?? 1}px` : 0,
-                borderStyle: (config.loadingBorderWidth ?? 1) > 0 ? 'solid' : 'none',
-                borderColor: config.loadingBorderColor || 'hsl(var(--border))',
-                borderRadius: `${config.loadingBorderRadius ?? 8}px`
-              }}
-            >
-              {config.showLoadingTitle !== false && (
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium" style={{ color: config.loadingTextColor || undefined }}>{processTemplate(config.loadingTitle || 'Carregando...')}</span>
-                  <span className="text-xs" style={{ color: config.loadingTextColor ? `${config.loadingTextColor}80` : undefined }}>{Math.round(progress)}%</span>
-                </div>
-              )}
-              {config.showLoadingProgress !== false && (
-                <div className="h-2 rounded-full mb-3 overflow-hidden bg-muted">
-                  <div 
-                    className="h-full rounded-full transition-all duration-300"
-                    style={{ width: `${progress}%`, backgroundColor: config.loadingBarColor || 'hsl(var(--foreground))' }}
-                  />
-                </div>
-              )}
-              {config.loadingDescription && (
-                <p className="text-sm text-center" style={{ color: config.loadingTextColor ? `${config.loadingTextColor}99` : undefined }}>{processTemplate(config.loadingDescription)}</p>
-              )}
-            </div>
-          </div>
-        );
+        const isActive = loadingActive[comp.id] ?? false;
+        return <LoadingRenderer {...rendererProps} loadingProgress={progress} loadingActive={isActive} />;
       }
+
+      case 'level':
+        return <LevelRenderer {...rendererProps} />;
 
       case 'arguments':
         return <ArgumentsRenderer {...rendererProps} />;
