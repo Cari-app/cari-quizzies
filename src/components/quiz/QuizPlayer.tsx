@@ -625,6 +625,10 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
   const [timerValues, setTimerValues] = useState<Record<string, number>>({});
   const [loadingProgress, setLoadingProgress] = useState<Record<string, number>>({});
   const [loadingActive, setLoadingActive] = useState<Record<string, boolean>>({});
+  
+  // Session tracking for leads
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [stageStartTime, setStageStartTime] = useState<number>(Date.now());
 
   const currentStage = stages[currentStageIndex];
   const pageSettings = currentStage?.pageSettings;
@@ -710,6 +714,94 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
     loadQuiz();
   }, [slug]);
 
+  // Create session when quiz loads
+  useEffect(() => {
+    const createSession = async () => {
+      if (!quiz?.id || sessionId) return;
+
+      try {
+        // Detect device type
+        const userAgent = navigator.userAgent;
+        let deviceType = 'desktop';
+        if (/mobile/i.test(userAgent)) deviceType = 'mobile';
+        else if (/tablet|ipad/i.test(userAgent)) deviceType = 'tablet';
+
+        const { data, error } = await supabase
+          .from('quiz_sessions')
+          .insert({
+            quiz_id: quiz.id,
+            user_agent: userAgent,
+            device_type: deviceType,
+            referrer: document.referrer || null,
+          })
+          .select('id')
+          .single();
+
+        if (error) {
+          console.error('Error creating session:', error);
+          return;
+        }
+
+        setSessionId(data.id);
+        setStageStartTime(Date.now());
+      } catch (error) {
+        console.error('Error creating session:', error);
+      }
+    };
+
+    createSession();
+  }, [quiz?.id, sessionId]);
+
+  // Save response when navigating to a new stage
+  const saveStageResponse = useCallback(async (stageId: string, stageOrder: number, responseValue: any, responseType: string) => {
+    if (!sessionId) return;
+
+    try {
+      const timeSpent = Date.now() - stageStartTime;
+      
+      await supabase
+        .from('quiz_responses')
+        .insert({
+          session_id: sessionId,
+          stage_id: stageId,
+          stage_order: stageOrder,
+          response_value: responseValue,
+          response_type: responseType,
+          time_spent_ms: timeSpent,
+        });
+
+      // Reset stage start time for next stage
+      setStageStartTime(Date.now());
+    } catch (error) {
+      console.error('Error saving response:', error);
+    }
+  }, [sessionId, stageStartTime]);
+
+  // Mark session as completed
+  const markSessionComplete = useCallback(async () => {
+    if (!sessionId) return;
+
+    try {
+      // Extract identification data from formData
+      const email = formData.email || formData.e_mail || null;
+      const phone = formData.phone || formData.telefone || formData.celular || null;
+      const name = formData.name || formData.nome || null;
+
+      await supabase
+        .from('quiz_sessions')
+        .update({
+          is_completed: true,
+          completed_at: new Date().toISOString(),
+          email,
+          phone,
+          name,
+        })
+        .eq('id', sessionId);
+    } catch (error) {
+      console.error('Error marking session complete:', error);
+    }
+  }, [sessionId, formData]);
+
   const handleInputChange = (componentId: string, customId: string | undefined, value: any) => {
     const key = customId || componentId;
     setFormData(prev => ({ ...prev, [key]: value }));
@@ -723,18 +815,29 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
     }
   };
 
-  const handleNext = () => {
+  const handleNext = useCallback((responseValue?: any, responseType?: string) => {
+    // Save response for current stage before navigating
+    if (currentStage && sessionId) {
+      const stageData = responseValue || formData;
+      saveStageResponse(currentStage.id, currentStageIndex, stageData, responseType || 'navigation');
+    }
+    
     if (currentStageIndex < stages.length - 1) {
       const nextIndex = currentStageIndex + 1;
       setCurrentStageIndex(nextIndex);
       setNavigationHistory(prev => [...prev, nextIndex]);
     }
-  };
+  }, [currentStage, currentStageIndex, stages.length, formData, sessionId, saveStageResponse]);
 
   // Navigate based on flow connections
-  const handleNavigateByComponent = (componentId: string) => {
+  const handleNavigateByComponent = useCallback((componentId: string, responseValue?: any) => {
     const currentStage = stages[currentStageIndex];
     const connections = currentStage?.connections || [];
+    
+    // Save response for current stage
+    if (currentStage && sessionId) {
+      saveStageResponse(currentStage.id, currentStageIndex, responseValue || { clicked: componentId }, 'component_click');
+    }
     
     // Find connection for this specific component
     const connection = connections.find(conn => 
@@ -747,18 +850,32 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       if (targetIndex !== -1) {
         setCurrentStageIndex(targetIndex);
         setNavigationHistory(prev => [...prev, targetIndex]);
+        setStageStartTime(Date.now());
         return;
       }
     }
     
     // Default: go to next stage
-    handleNext();
-  };
+    if (currentStageIndex < stages.length - 1) {
+      const nextIndex = currentStageIndex + 1;
+      setCurrentStageIndex(nextIndex);
+      setNavigationHistory(prev => [...prev, nextIndex]);
+      setStageStartTime(Date.now());
+    }
+  }, [stages, currentStageIndex, sessionId, saveStageResponse]);
 
   // Navigate based on flow connections for a specific option
-  const handleNavigateByOption = (componentId: string, optionId: string) => {
+  const handleNavigateByOption = useCallback((componentId: string, optionId: string, optionText?: string) => {
     const currentStage = stages[currentStageIndex];
     const connections = currentStage?.connections || [];
+    
+    // Save response for this option selection
+    if (currentStage && sessionId) {
+      saveStageResponse(currentStage.id, currentStageIndex, { 
+        selected: optionText || optionId, 
+        optionId 
+      }, 'option_selected');
+    }
     
     // Find connection for this specific option (format: opt-{componentId}-{optionId})
     const optionConnection = connections.find(conn => 
@@ -771,6 +888,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       if (targetIndex !== -1) {
         setCurrentStageIndex(targetIndex);
         setNavigationHistory(prev => [...prev, targetIndex]);
+        setStageStartTime(Date.now());
         return;
       }
     }
@@ -785,13 +903,19 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       if (targetIndex !== -1) {
         setCurrentStageIndex(targetIndex);
         setNavigationHistory(prev => [...prev, targetIndex]);
+        setStageStartTime(Date.now());
         return;
       }
     }
     
     // Default: go to next stage
-    handleNext();
-  };
+    if (currentStageIndex < stages.length - 1) {
+      const nextIndex = currentStageIndex + 1;
+      setCurrentStageIndex(nextIndex);
+      setNavigationHistory(prev => [...prev, nextIndex]);
+      setStageStartTime(Date.now());
+    }
+  }, [stages, currentStageIndex, sessionId, saveStageResponse]);
 
   // Navigate back following the history (respects flow order)
   const handleBack = () => {
@@ -804,11 +928,17 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = useCallback(async () => {
     console.log('Form data submitted:', formData);
-    // TODO: Save responses to database
+    
+    // Save final stage response and mark session complete
+    if (currentStage && sessionId) {
+      await saveStageResponse(currentStage.id, currentStageIndex, formData, 'submit');
+      await markSessionComplete();
+    }
+    
     navigate('/');
-  };
+  }, [formData, currentStage, currentStageIndex, sessionId, saveStageResponse, markSessionComplete, navigate]);
 
   // Build template variables from formData with computed values
   const templateVariables = useMemo((): TemplateVariables => {

@@ -85,6 +85,110 @@ export type Database = {
         }
         Relationships: []
       }
+      quiz_responses: {
+        Row: {
+          created_at: string
+          id: string
+          response_type: string | null
+          response_value: Json | null
+          session_id: string
+          stage_id: string
+          stage_order: number
+          time_spent_ms: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          response_type?: string | null
+          response_value?: Json | null
+          session_id: string
+          stage_id: string
+          stage_order: number
+          time_spent_ms?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          response_type?: string | null
+          response_value?: Json | null
+          session_id?: string
+          stage_id?: string
+          stage_order?: number
+          time_spent_ms?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_responses_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quiz_responses_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "etapas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_sessions: {
+        Row: {
+          completed_at: string | null
+          device_type: string | null
+          email: string | null
+          id: string
+          ip_address: string | null
+          is_completed: boolean | null
+          last_stage_index: number | null
+          name: string | null
+          phone: string | null
+          quiz_id: string
+          referrer: string | null
+          started_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          device_type?: string | null
+          email?: string | null
+          id?: string
+          ip_address?: string | null
+          is_completed?: boolean | null
+          last_stage_index?: number | null
+          name?: string | null
+          phone?: string | null
+          quiz_id: string
+          referrer?: string | null
+          started_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          device_type?: string | null
+          email?: string | null
+          id?: string
+          ip_address?: string | null
+          is_completed?: boolean | null
+          last_stage_index?: number | null
+          name?: string | null
+          phone?: string | null
+          quiz_id?: string
+          referrer?: string | null
+          started_at?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_sessions_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quizzes: {
         Row: {
           atualizado_em: string | null

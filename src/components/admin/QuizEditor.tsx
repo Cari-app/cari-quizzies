@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check, Save, Upload, Loader2, ArrowLeft, Image, GitBranch, Layers, Palette } from 'lucide-react';
+import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check, Save, Upload, Loader2, ArrowLeft, Image, GitBranch, Layers, Palette, Users } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
@@ -26,6 +26,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { FlowCanvas } from './flow';
 import { StageBackgroundEditor, StageBackground, defaultStageBackground, getStageBackgroundCSS } from './StageBackgroundEditor';
 import { QuizHeaderPreview } from './QuizHeaderPreview';
+import { LeadsView } from './LeadsView';
 
 // Stage type - cada etapa contém seus próprios componentes
 interface Stage {
@@ -47,7 +48,7 @@ export function QuizEditor() {
   const [rightTab, setRightTab] = useState<'stage' | 'appearance'>('stage');
   const [widgetsExpanded, setWidgetsExpanded] = useState(false);
   const [slugCopied, setSlugCopied] = useState(false);
-  const [editorView, setEditorView] = useState<'editor' | 'flow' | 'design'>('editor');
+  const [editorView, setEditorView] = useState<'editor' | 'flow' | 'design' | 'leads'>('editor');
   
   // Design settings
   const [designSettings, setDesignSettings] = useState<QuizDesignSettings>(defaultDesignSettings);
@@ -450,6 +451,21 @@ export function QuizEditor() {
               <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
             )}
           </button>
+          <button
+            onClick={() => setEditorView('leads')}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors relative",
+              editorView === 'leads' 
+                ? "text-foreground" 
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Users className="w-4 h-4" />
+            Leads
+            {editorView === 'leads' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+            )}
+          </button>
         </nav>
 
         {/* Right: Actions */}
@@ -758,6 +774,12 @@ export function QuizEditor() {
               })
             )}
           </div>
+        ) : editorView === 'leads' ? (
+          /* Leads View */
+          <LeadsView 
+            quizId={currentQuiz.id} 
+            stages={stages.map(s => ({ id: s.id, name: s.name }))}
+          />
         ) : (
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Preview Mode Toggle */}
