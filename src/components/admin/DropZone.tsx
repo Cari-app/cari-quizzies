@@ -656,7 +656,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               style.backgroundColor = '#ffffff';
             }
             style.color = optionTextColor || '#000000';
-            style.borderColor = optionBorderColor || '#e5e5e5';
+            style.borderColor = optionBorderColor || '#000000';
           }
           
           return style;
