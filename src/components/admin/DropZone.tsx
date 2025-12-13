@@ -1970,26 +1970,6 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const borderColor = config.metricsBorderColor;
         const borderWidth = config.metricsBorderWidth ?? 1;
         const borderRadius = config.metricsBorderRadius ?? 8;
-        
-        const justifyClass = hAlign === 'center' ? 'justify-center' : hAlign === 'end' ? 'justify-end' : 'justify-start';
-        
-        // Calculate grid columns - use inline style for responsive behavior
-        const getGridStyle = (layoutType: string, containerWidth: number) => {
-          const cols = layoutType === 'list' ? 1 : 
-                       layoutType === 'grid-2' ? 2 : 
-                       layoutType === 'grid-3' ? 3 : 
-                       layoutType === 'grid-4' ? 4 : 2;
-          
-          // Minimum item width of 80px to ensure readability
-          const minItemWidth = 80;
-          return {
-            display: 'grid',
-            gridTemplateColumns: `repeat(auto-fit, minmax(${minItemWidth}px, 1fr))`,
-            maxColumns: cols,
-          };
-        };
-        
-        const gridStyle = getGridStyle(layout, widthValue);
 
         const colorGradients: Record<string, string> = {
           theme: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.7) 100%)',
@@ -2027,31 +2007,29 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             ? `linear-gradient(${gradientAngle}deg, ${gradientStart}, ${gradientEnd})`
             : bgColor || undefined;
         
-        const renderBarChart = (value: number, color: string) => {
-          return (
-            <div className="flex flex-col items-center gap-2">
-              <span 
-                className="text-xs font-semibold"
-                style={{ color: valueColor || undefined }}
-              >
-                {value}%
-              </span>
-              <div className="w-[30px] h-16 rounded-md overflow-hidden relative" style={{ 
-                background: 'linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.03) 100%)',
-                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
-              }}>
-                <div 
-                  className="absolute bottom-0 left-0 w-full rounded-t-md transition-all duration-700 ease-out"
-                  style={{ 
-                    height: `${Math.max(8, value)}%`,
-                    background: colorGradients[color] || colorGradients.theme,
-                    boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.25)'
-                  }}
-                />
-              </div>
+        const renderBarChart = (value: number, color: string) => (
+          <div className="flex flex-col items-center gap-2">
+            <span 
+              className="text-xs font-semibold"
+              style={{ color: valueColor || undefined }}
+            >
+              {value}%
+            </span>
+            <div className="w-[30px] h-16 rounded-md overflow-hidden relative" style={{ 
+              background: 'linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.03) 100%)',
+              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
+            }}>
+              <div 
+                className="absolute bottom-0 left-0 w-full rounded-t-md transition-all duration-700 ease-out"
+                style={{ 
+                  height: `${Math.max(8, value)}%`,
+                  background: colorGradients[color] || colorGradients.theme,
+                  boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.25)'
+                }}
+              />
             </div>
-          );
-        };
+          </div>
+        );
 
         const renderCircularChart = (value: number, color: string) => {
           const radius = 20;
@@ -2092,35 +2070,34 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           );
         };
         
-        // Determine number of columns based on layout setting
-        const getGridColumns = () => {
-          switch (layout) {
-            case 'list': return 1;
-            case 'grid-2': return 2;
-            case 'grid-3': return 3;
-            case 'grid-4': return 4;
-            default: return 2;
-          }
-        };
+        // Get number of columns based on layout
+        const columns = layout === 'list' ? 1 : layout === 'grid-3' ? 3 : layout === 'grid-4' ? 4 : 2;
         
-        const columns = getGridColumns();
+        // Calculate alignment margins
+        const marginLeft = hAlign === 'center' || hAlign === 'end' ? 'auto' : '0';
+        const marginRight = hAlign === 'center' || hAlign === 'start' ? 'auto' : '0';
         
         return (
-          <div className="w-full px-4 py-4">
+          <div 
+            className="py-4 px-4"
+            style={{
+              width: `${widthValue}%`,
+              marginLeft,
+              marginRight,
+            }}
+          >
             <div 
-              className="gap-2"
               style={{ 
                 display: 'grid',
                 gridTemplateColumns: `repeat(${columns}, 1fr)`,
-                width: `${widthValue}%`,
-                marginLeft: hAlign === 'center' ? 'auto' : hAlign === 'end' ? 'auto' : undefined,
-                marginRight: hAlign === 'center' ? 'auto' : hAlign === 'start' ? 'auto' : undefined,
+                gap: '8px',
+                width: '100%',
               }}
             >
               {items.map((item: any) => (
                 <div 
                   key={item.id} 
-                  className="flex flex-col items-center justify-center gap-2 p-3"
+                  className="flex flex-col items-center justify-center gap-2 p-3 overflow-hidden"
                   style={{
                     background: bgStyle,
                     borderWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
@@ -2132,7 +2109,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   {disposition === 'legend-chart' ? (
                     <>
                       <p 
-                        className="text-xs text-center leading-relaxed line-clamp-2"
+                        className="text-xs text-center leading-relaxed line-clamp-2 w-full"
                         style={{ color: textColor || undefined }}
                       >
                         {item.label}
@@ -2149,7 +2126,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                         : renderCircularChart(item.value, item.color)
                       }
                       <p 
-                        className="text-xs text-center leading-relaxed line-clamp-2"
+                        className="text-xs text-center leading-relaxed line-clamp-2 w-full"
                         style={{ color: textColor || undefined }}
                       >
                         {item.label}
