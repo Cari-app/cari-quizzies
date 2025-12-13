@@ -65,12 +65,20 @@ export function ButtonRenderer({
     buttonCustomStyle.paddingBottom = `${config.buttonPaddingY}px`;
   }
 
+  // Determine text color for button content
+  const textColor = isCustomStyle && config.buttonTextColor 
+    ? config.buttonTextColor 
+    : (!isCustomStyle && !config.buttonStyle ? '#FFFFFF' : undefined);
+
   const buttonContent = (
     <>
       {config.buttonIcon && config.buttonIconPosition === 'left' && (
         <span className="mr-2">{config.buttonIcon}</span>
       )}
-      <span dangerouslySetInnerHTML={{ __html: processTemplate(config.buttonText || 'Continuar') }} />
+      <span 
+        style={{ color: textColor }}
+        dangerouslySetInnerHTML={{ __html: processTemplate(config.buttonText || 'Continuar') }} 
+      />
       {config.buttonIcon && config.buttonIconPosition !== 'left' && (
         <span className="ml-2">{config.buttonIcon}</span>
       )}
