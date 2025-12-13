@@ -59,20 +59,18 @@ const colorStrokeClasses: Record<MetricItem['color'], string> = {
 };
 
 function BarChart({ value, color, valueColor }: { value: number; color: MetricItem['color']; valueColor?: string }) {
-  const height = Math.max(10, (value / 100) * 80);
-  
   return (
-    <div className="flex flex-col items-center gap-1">
+    <div className="flex flex-col items-center gap-2 w-full">
       <span 
-        className="text-sm"
+        className="text-sm font-medium"
         style={{ color: valueColor || undefined }}
       >
         {value}%
       </span>
-      <div className="w-12 h-20 bg-muted/30 rounded-sm flex items-end justify-center overflow-hidden">
+      <div className="w-full h-20 bg-muted/30 rounded-md flex items-end overflow-hidden">
         <div 
-          className={cn("w-8 rounded-t-sm transition-all duration-500", colorBgClasses[color])}
-          style={{ height: `${height}%` }}
+          className={cn("w-full rounded-t-md transition-all duration-500", colorBgClasses[color])}
+          style={{ height: `${Math.max(5, value)}%` }}
         />
       </div>
     </div>
