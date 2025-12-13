@@ -46,7 +46,7 @@ export function AdminHeader({ title, subtitle }: AdminHeaderProps) {
   };
 
   return (
-    <header className="h-16 border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-30">
+    <header className="h-16 bg-background/80 backdrop-blur-sm sticky top-0 z-30">
       <div className="h-full px-6 flex items-center justify-between">
         {/* Page title */}
         <div>
