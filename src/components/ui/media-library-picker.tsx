@@ -213,54 +213,59 @@ export function MediaLibraryPicker({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl h-[600px] flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <ImageIcon className="w-5 h-5" />
+      <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col p-0 gap-0 overflow-hidden">
+        <DialogHeader className="px-6 py-4 border-b bg-muted/30">
+          <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
+            <ImageIcon className="w-5 h-5 text-primary" />
             Biblioteca de Mídia
           </DialogTitle>
         </DialogHeader>
 
         <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)} className="flex-1 flex flex-col min-h-0">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="library" className="gap-2">
-              <ImageIcon className="w-4 h-4" />
-              Biblioteca
-            </TabsTrigger>
-            <TabsTrigger value="upload" className="gap-2">
-              <Upload className="w-4 h-4" />
-              Enviar
-            </TabsTrigger>
-            <TabsTrigger value="url" className="gap-2">
-              <Link className="w-4 h-4" />
-              URL
-            </TabsTrigger>
-          </TabsList>
+          <div className="px-6 pt-4">
+            <TabsList className="grid w-full grid-cols-3 h-10 p-1 bg-muted/50">
+              <TabsTrigger value="library" className="gap-2 text-sm data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                <ImageIcon className="w-4 h-4" />
+                Biblioteca
+              </TabsTrigger>
+              <TabsTrigger value="upload" className="gap-2 text-sm data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                <Upload className="w-4 h-4" />
+                Enviar
+              </TabsTrigger>
+              <TabsTrigger value="url" className="gap-2 text-sm data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                <Link className="w-4 h-4" />
+                URL
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <TabsContent value="library" className="flex-1 flex flex-col min-h-0 mt-4">
+          <TabsContent value="library" className="flex-1 flex flex-col min-h-0 mt-0 px-6 py-4">
             {loading ? (
-              <div className="flex-1 flex items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+              <div className="flex-1 flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
             ) : media.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
-                <ImageIcon className="w-12 h-12 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground mb-2">Nenhuma imagem na biblioteca</p>
-                <p className="text-sm text-muted-foreground">
-                  Envie imagens ou adicione URLs para usar em seus quizzes
+              <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
+                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                  <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <p className="font-medium text-foreground mb-1">Nenhuma imagem</p>
+                <p className="text-sm text-muted-foreground max-w-xs">
+                  Envie imagens ou adicione URLs para começar sua biblioteca
                 </p>
               </div>
             ) : (
-              <ScrollArea className="flex-1">
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 p-1">
+              <ScrollArea className="flex-1 -mx-2">
+                <div className="grid grid-cols-4 gap-3 p-2">
                   {media.map((item) => (
                     <div
                       key={item.id}
                       className={cn(
-                        "relative group aspect-square rounded-lg overflow-hidden border-2 cursor-pointer transition-all",
+                        "relative group aspect-square rounded-xl overflow-hidden cursor-pointer transition-all duration-200",
+                        "bg-muted/50 border-2",
                         selectedId === item.id
-                          ? "border-primary ring-2 ring-primary/20"
-                          : "border-border hover:border-primary/50"
+                          ? "border-primary ring-4 ring-primary/20 scale-[0.98]"
+                          : "border-transparent hover:border-primary/30 hover:scale-[0.98]"
                       )}
                       onClick={() => setSelectedId(item.id)}
                     >
@@ -275,53 +280,43 @@ export function MediaLibraryPicker({
                       
                       {/* Selection indicator */}
                       {selectedId === item.id && (
-                        <div className="absolute top-2 right-2 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
-                          <Check className="w-4 h-4 text-primary-foreground" />
+                        <div className="absolute top-1.5 right-1.5 w-5 h-5 bg-primary rounded-full flex items-center justify-center shadow-lg">
+                          <Check className="w-3 h-3 text-primary-foreground" />
                         </div>
                       )}
 
                       {/* Hover overlay */}
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-between p-2">
-                        <span className="text-white text-xs truncate flex-1">
-                          {formatSize(item.file_size)}
-                        </span>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDelete(item.id, item.file_url);
-                          }}
-                          className="p-1 text-white hover:text-red-400 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-end p-2">
+                        <div className="flex items-center justify-between w-full">
+                          <span className="text-white/90 text-xs font-medium truncate flex-1 mr-2">
+                            {formatSize(item.file_size)}
+                          </span>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(item.id, item.file_url);
+                            }}
+                            className="p-1.5 rounded-full bg-white/10 backdrop-blur-sm text-white hover:bg-red-500/80 transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
               </ScrollArea>
             )}
-
-            {/* Select button */}
-            {media.length > 0 && (
-              <div className="pt-4 border-t flex justify-end gap-2">
-                <Button variant="outline" onClick={() => onOpenChange(false)}>
-                  Cancelar
-                </Button>
-                <Button onClick={handleSelect} disabled={!selectedId}>
-                  Usar imagem selecionada
-                </Button>
-              </div>
-            )}
           </TabsContent>
 
-          <TabsContent value="upload" className="flex-1 flex flex-col items-center justify-center mt-4">
-            <div className="w-full max-w-md space-y-4">
+          <TabsContent value="upload" className="flex-1 flex flex-col items-center justify-center px-6 py-8">
+            <div className="w-full max-w-sm">
               <div
                 className={cn(
-                  "border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer",
+                  "border-2 border-dashed rounded-2xl p-10 text-center transition-all cursor-pointer",
                   uploading
-                    ? "border-primary/50 bg-primary/5"
-                    : "border-border hover:border-primary/50"
+                    ? "border-primary bg-primary/5"
+                    : "border-muted-foreground/25 hover:border-primary/50 hover:bg-muted/30"
                 )}
               >
                 <input
@@ -334,19 +329,24 @@ export function MediaLibraryPicker({
                 />
                 <label
                   htmlFor="media-upload-input"
-                  className="cursor-pointer flex flex-col items-center gap-3"
+                  className="cursor-pointer flex flex-col items-center gap-4"
                 >
-                  {uploading ? (
-                    <Loader2 className="w-12 h-12 text-primary animate-spin" />
-                  ) : (
-                    <Upload className="w-12 h-12 text-muted-foreground" />
-                  )}
-                  <div>
-                    <p className="font-medium">
+                  <div className={cn(
+                    "w-14 h-14 rounded-full flex items-center justify-center transition-colors",
+                    uploading ? "bg-primary/10" : "bg-muted"
+                  )}>
+                    {uploading ? (
+                      <Loader2 className="w-7 h-7 text-primary animate-spin" />
+                    ) : (
+                      <Upload className="w-7 h-7 text-muted-foreground" />
+                    )}
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-medium text-foreground">
                       {uploading ? 'Enviando...' : 'Clique para enviar'}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      PNG, JPG, GIF até 5MB
+                      PNG, JPG, GIF • Máx 5MB
                     </p>
                   </div>
                 </label>
@@ -354,37 +354,40 @@ export function MediaLibraryPicker({
             </div>
           </TabsContent>
 
-          <TabsContent value="url" className="flex-1 flex flex-col items-center justify-center mt-4">
-            <div className="w-full max-w-md space-y-4">
+          <TabsContent value="url" className="flex-1 flex flex-col items-center justify-center px-6 py-8">
+            <div className="w-full max-w-sm space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="image-url">URL da imagem</Label>
+                <Label htmlFor="image-url" className="text-sm font-medium">URL da imagem</Label>
                 <Input
                   id="image-url"
                   placeholder="https://exemplo.com/imagem.jpg"
                   value={urlInput}
                   onChange={(e) => setUrlInput(e.target.value)}
                   disabled={uploading}
+                  className="h-10"
                 />
               </div>
 
               {urlInput && (
-                <div className="border rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground mb-2">Pré-visualização:</p>
-                  <img
-                    src={urlInput}
-                    alt="Preview"
-                    className="max-h-48 rounded mx-auto"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/placeholder.svg';
-                    }}
-                  />
+                <div className="rounded-xl overflow-hidden bg-muted/50 p-3">
+                  <p className="text-xs text-muted-foreground mb-2 font-medium">Pré-visualização</p>
+                  <div className="aspect-video rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+                    <img
+                      src={urlInput}
+                      alt="Preview"
+                      className="max-h-full max-w-full object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/placeholder.svg';
+                      }}
+                    />
+                  </div>
                 </div>
               )}
 
               <Button
                 onClick={handleUrlSubmit}
                 disabled={!urlInput.trim() || uploading}
-                className="w-full"
+                className="w-full h-10"
               >
                 {uploading ? (
                   <>
@@ -398,6 +401,18 @@ export function MediaLibraryPicker({
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Footer with actions */}
+        {tab === 'library' && media.length > 0 && (
+          <div className="px-6 py-4 border-t bg-muted/30 flex justify-end gap-3">
+            <Button variant="ghost" onClick={() => onOpenChange(false)} className="h-9">
+              Cancelar
+            </Button>
+            <Button onClick={handleSelect} disabled={!selectedId} className="h-9 px-6">
+              Usar imagem
+            </Button>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
