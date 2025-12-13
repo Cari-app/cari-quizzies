@@ -554,12 +554,20 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           }, ${config.buttonGradientFrom || '#3b82f6'}, ${config.buttonGradientTo || '#8b5cf6'})`
         } : {};
 
+        // Determine text color for button content
+        const buttonTextColorValue = isCustomStyle 
+          ? (config.buttonTextColor || '#ffffff')
+          : undefined; // Let CSS handle it for non-custom styles
+
         const buttonContent = (
           <>
             {config.buttonIcon && config.buttonIconPosition === 'left' && (
               <span className="mr-2">{config.buttonIcon}</span>
             )}
-            <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.buttonText || 'Botão') }} />
+            <span 
+              style={buttonTextColorValue ? { color: buttonTextColorValue } : undefined}
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.buttonText || 'Botão') }} 
+            />
             {config.buttonIcon && config.buttonIconPosition !== 'left' && (
               <span className="ml-2">{config.buttonIcon}</span>
             )}
