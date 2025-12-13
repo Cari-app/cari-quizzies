@@ -210,7 +210,17 @@ interface ComponentConfig {
   priceType?: 'illustrative' | 'redirect';
   priceRedirectUrl?: string;
   priceLayout?: 'horizontal' | 'vertical';
-  priceStyle?: 'theme' | 'red' | 'info' | 'success' | 'warning';
+  priceBgType?: 'solid' | 'gradient' | 'transparent';
+  priceBgColor?: string;
+  priceGradientStart?: string;
+  priceGradientEnd?: string;
+  priceGradientAngle?: number;
+  priceTitleColor?: string;
+  priceValueColor?: string;
+  pricePrefixColor?: string;
+  priceBorderColor?: string;
+  priceBorderWidth?: number;
+  priceBorderRadius?: number;
   // Before-After specific
   beforeAfterImage1?: string;
   beforeAfterImage2?: string;
@@ -2159,7 +2169,6 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         const horizontalAlign = config.horizontalAlign || 'start';
         const justifyClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
         const layout = config.priceLayout || 'horizontal';
-        const style = config.priceStyle || 'theme';
         const title = config.priceTitle || 'Plano PRO';
         const prefix = config.pricePrefix || '';
         const priceVal = config.priceValue || 'R$ 89,90';
@@ -2168,13 +2177,24 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         const priceType = config.priceType || 'illustrative';
         const redirectUrl = config.priceRedirectUrl || '';
         
-        const styleClasses = {
-          theme: 'bg-background border-border',
-          red: 'bg-red-50 border-red-200 dark:bg-red-950/30 dark:border-red-800',
-          info: 'bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800',
-          success: 'bg-green-50 border-green-200 dark:bg-green-950/30 dark:border-green-800',
-          warning: 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950/30 dark:border-yellow-800',
-        }[style] || 'bg-background border-border';
+        // Custom styles
+        const bgType = config.priceBgType || 'solid';
+        const bgColor = config.priceBgColor;
+        const gradientStart = config.priceGradientStart || '#667eea';
+        const gradientEnd = config.priceGradientEnd || '#764ba2';
+        const gradientAngle = config.priceGradientAngle ?? 135;
+        const titleColor = config.priceTitleColor;
+        const valueColor = config.priceValueColor;
+        const prefixColor = config.pricePrefixColor;
+        const borderColor = config.priceBorderColor;
+        const borderWidth = config.priceBorderWidth ?? 1;
+        const borderRadius = config.priceBorderRadius ?? 12;
+        
+        const bgStyle = bgType === 'transparent' 
+          ? 'transparent'
+          : bgType === 'gradient' 
+            ? `linear-gradient(${gradientAngle}deg, ${gradientStart}, ${gradientEnd})`
+            : bgColor || undefined;
 
         const handlePriceClick = () => {
           if (priceType === 'redirect' && redirectUrl) {
@@ -2188,11 +2208,17 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
               <div 
                 onClick={handlePriceClick}
                 className={cn(
-                  "relative border rounded-xl p-4 transition-all",
-                  styleClasses,
+                  "relative p-4 transition-all",
                   layout === 'horizontal' ? 'flex items-center justify-between gap-4' : 'flex flex-col gap-2',
                   priceType === 'redirect' && redirectUrl && 'cursor-pointer hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
                 )}
+                style={{
+                  background: bgStyle,
+                  borderWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
+                  borderStyle: borderWidth > 0 ? 'solid' : 'none',
+                  borderColor: borderColor || undefined,
+                  borderRadius: `${borderRadius}px`,
+                }}
               >
                 {/* Highlight badge */}
                 {highlight && (
@@ -2205,7 +2231,12 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                 
                 {/* Title */}
                 <div className={cn(layout === 'vertical' && 'text-center', highlight && 'pt-2')}>
-                  <h3 className="font-semibold text-lg text-foreground">{title}</h3>
+                  <h3 
+                    className="font-semibold text-lg"
+                    style={{ color: titleColor || undefined }}
+                  >
+                    {title}
+                  </h3>
                 </div>
                 
                 {/* Price section */}
@@ -2214,13 +2245,28 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                   layout === 'vertical' ? 'items-center' : 'items-end'
                 )}>
                   {prefix && (
-                    <span className="text-xs text-muted-foreground font-medium">{prefix}</span>
+                    <span 
+                      className="text-xs font-medium"
+                      style={{ color: prefixColor || undefined }}
+                    >
+                      {prefix}
+                    </span>
                   )}
                   <div className="flex items-baseline gap-1">
-                    <span className="text-2xl font-bold text-foreground">{priceVal}</span>
+                    <span 
+                      className="text-2xl font-bold"
+                      style={{ color: valueColor || undefined }}
+                    >
+                      {priceVal}
+                    </span>
                   </div>
                   {suffix && (
-                    <span className="text-xs text-muted-foreground">{suffix}</span>
+                    <span 
+                      className="text-xs"
+                      style={{ color: prefixColor || undefined }}
+                    >
+                      {suffix}
+                    </span>
                   )}
                 </div>
               </div>
