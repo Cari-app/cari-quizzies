@@ -285,6 +285,8 @@ export interface ComponentConfig {
   defaultValue?: number;
   barColor?: string;
   useThemeColor?: boolean; // When true, use global primary color
+  valueColor?: string; // Color for the displayed value
+  toggleColor?: string; // Color for the unit toggle button
   // Alert specific
   alertStyle?: 'red' | 'yellow' | 'green' | 'blue' | 'gray';
   alertHighlight?: boolean;
@@ -677,15 +679,58 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           </Select>
         </div>
 
-        {/* Bar Color */}
-        <ThemeColorPicker
-          label="Cor da barra"
-          value={config.barColor || themeColor}
-          useTheme={config.useThemeColor !== false}
-          themeColor={themeColor}
-          onChange={(color) => updateConfig({ barColor: color })}
-          onUseThemeChange={(useTheme) => updateConfig({ useThemeColor: useTheme, barColor: useTheme ? themeColor : config.barColor })}
-        />
+        {/* Colors Section */}
+        <div className="space-y-3">
+          <Label className="text-xs text-muted-foreground">Cores</Label>
+          
+          {/* Bar Color */}
+          <ThemeColorPicker
+            label="Cor da barra"
+            value={config.barColor || themeColor}
+            useTheme={config.useThemeColor !== false}
+            themeColor={themeColor}
+            onChange={(color) => updateConfig({ barColor: color })}
+            onUseThemeChange={(useTheme) => updateConfig({ useThemeColor: useTheme, barColor: useTheme ? themeColor : config.barColor })}
+          />
+          
+          {/* Value Color */}
+          <div>
+            <Label className="text-xs text-muted-foreground mb-1 block">Cor do valor</Label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={config.valueColor || '#000000'}
+                onChange={(e) => updateConfig({ valueColor: e.target.value })}
+                className="w-8 h-8 rounded cursor-pointer border border-border"
+              />
+              <Input
+                value={config.valueColor || ''}
+                onChange={(e) => updateConfig({ valueColor: e.target.value })}
+                placeholder="Herdar do tema"
+                className="flex-1 text-sm"
+              />
+            </div>
+          </div>
+          
+          {/* Toggle Button Color */}
+          <div>
+            <Label className="text-xs text-muted-foreground mb-1 block">Cor do botão toggle</Label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={config.toggleColor || '#1f2937'}
+                onChange={(e) => updateConfig({ toggleColor: e.target.value })}
+                className="w-8 h-8 rounded cursor-pointer border border-border"
+              />
+              <Input
+                value={config.toggleColor || ''}
+                onChange={(e) => updateConfig({ toggleColor: e.target.value })}
+                placeholder="Padrão"
+                className="flex-1 text-sm"
+              />
+            </div>
+          </div>
+        </div>
 
         {/* Campo obrigatório */}
         <div className="flex items-center gap-2">

@@ -371,7 +371,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           const altUnit = comp.type === 'height' ? 'pol' : 'lb';
           return (
             <div className="p-4">
-              <SlidingRuler
+<SlidingRuler
                 value={defaultVal}
                 onChange={() => {}}
                 min={minVal}
@@ -380,6 +380,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                 unit={unit}
                 altUnit={altUnit}
                 barColor={config.barColor}
+                valueColor={config.valueColor}
+                toggleColor={config.toggleColor}
               />
             </div>
           );
