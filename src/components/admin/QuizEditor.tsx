@@ -957,6 +957,7 @@ export function QuizEditor() {
                     onComponentsChange={updateCurrentStageComponents}
                     selectedComponentId={selectedComponent?.id}
                     onSelectComponent={setSelectedComponent}
+                    designSettings={designSettings}
                   />
                 ) : (
                   <div className="flex-1 flex items-center justify-center">
