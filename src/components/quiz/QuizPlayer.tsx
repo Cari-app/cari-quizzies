@@ -46,6 +46,29 @@ interface ComponentConfig {
   buttonText?: string;
   buttonStyle?: string;
   buttonAction?: string;
+  buttonLink?: string;
+  // Button design
+  buttonSize?: 'sm' | 'md' | 'lg' | 'xl';
+  buttonFullWidth?: boolean;
+  buttonBgColor?: string;
+  buttonTextColor?: string;
+  buttonBorderColor?: string;
+  buttonBorderWidth?: number;
+  buttonBorderRadius?: number;
+  buttonShadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'glow';
+  buttonGradient?: boolean;
+  buttonGradientFrom?: string;
+  buttonGradientTo?: string;
+  buttonGradientDirection?: 'to-r' | 'to-l' | 'to-t' | 'to-b' | 'to-tr' | 'to-tl' | 'to-br' | 'to-bl';
+  buttonHoverEffect?: 'none' | 'darken' | 'lighten' | 'scale' | 'lift' | 'glow';
+  buttonAnimation?: 'none' | 'pulse' | 'bounce' | 'shine' | 'shake';
+  buttonIcon?: string;
+  buttonIconPosition?: 'left' | 'right';
+  buttonPaddingX?: number;
+  buttonPaddingY?: number;
+  buttonFontWeight?: 'normal' | 'medium' | 'semibold' | 'bold';
+  buttonFontSize?: number;
+  buttonLetterSpacing?: number;
   content?: string;
   textAlign?: string;
   fontSize?: string;
@@ -780,28 +803,153 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           </div>
         );
 
-      case 'button':
+      case 'button': {
         const buttonAction = config.buttonAction || 'next';
+        
+        const getSizeClasses = () => {
+          switch (config.buttonSize) {
+            case 'sm': return 'py-2 px-4 text-xs';
+            case 'lg': return 'py-4 px-8 text-base';
+            case 'xl': return 'py-5 px-10 text-lg';
+            default: return 'py-3 px-6 text-sm';
+          }
+        };
+
+        const getShadowClass = () => {
+          switch (config.buttonShadow) {
+            case 'sm': return 'shadow-sm';
+            case 'md': return 'shadow-md';
+            case 'lg': return 'shadow-lg';
+            case 'xl': return 'shadow-xl';
+            case 'glow': return 'shadow-[0_0_20px_rgba(var(--primary),0.4)]';
+            default: return '';
+          }
+        };
+
+        const getFontWeight = () => {
+          switch (config.buttonFontWeight) {
+            case 'normal': return 'font-normal';
+            case 'semibold': return 'font-semibold';
+            case 'bold': return 'font-bold';
+            default: return 'font-medium';
+          }
+        };
+
+        const getHoverEffect = () => {
+          switch (config.buttonHoverEffect) {
+            case 'darken': return 'hover:brightness-90';
+            case 'lighten': return 'hover:brightness-110';
+            case 'scale': return 'hover:scale-105';
+            case 'lift': return 'hover:-translate-y-1 hover:shadow-lg';
+            case 'glow': return 'hover:shadow-[0_0_25px_rgba(var(--primary),0.5)]';
+            default: return '';
+          }
+        };
+
+        const getAnimationClass = () => {
+          switch (config.buttonAnimation) {
+            case 'pulse': return 'animate-pulse';
+            case 'bounce': return 'animate-bounce';
+            case 'shine': return 'btn-shine';
+            case 'shake': return 'btn-shake';
+            default: return '';
+          }
+        };
+
+        const isCustomStyle = config.buttonStyle === 'custom';
+        const buttonWidth = config.buttonFullWidth !== false ? 'w-full' : 'w-auto';
+
+        // Build custom style object
+        const buttonCustomStyle: React.CSSProperties = {};
+        
+        if (isCustomStyle) {
+          if (config.buttonGradient) {
+            buttonCustomStyle.background = `linear-gradient(${
+              config.buttonGradientDirection === 'to-r' ? 'to right' :
+              config.buttonGradientDirection === 'to-l' ? 'to left' :
+              config.buttonGradientDirection === 'to-t' ? 'to top' :
+              config.buttonGradientDirection === 'to-b' ? 'to bottom' :
+              config.buttonGradientDirection === 'to-tr' ? 'to top right' :
+              config.buttonGradientDirection === 'to-br' ? 'to bottom right' :
+              config.buttonGradientDirection === 'to-tl' ? 'to top left' :
+              config.buttonGradientDirection === 'to-bl' ? 'to bottom left' : 'to right'
+            }, ${config.buttonGradientFrom || '#3b82f6'}, ${config.buttonGradientTo || '#8b5cf6'})`;
+          } else if (config.buttonBgColor) {
+            buttonCustomStyle.backgroundColor = config.buttonBgColor;
+          }
+          if (config.buttonTextColor) {
+            buttonCustomStyle.color = config.buttonTextColor;
+          }
+          if (config.buttonBorderColor && (config.buttonBorderWidth ?? 0) > 0) {
+            buttonCustomStyle.borderColor = config.buttonBorderColor;
+            buttonCustomStyle.borderWidth = `${config.buttonBorderWidth}px`;
+            buttonCustomStyle.borderStyle = 'solid';
+          }
+        }
+        
+        if (config.buttonBorderRadius !== undefined) {
+          buttonCustomStyle.borderRadius = `${config.buttonBorderRadius}px`;
+        }
+        if (config.buttonFontSize) {
+          buttonCustomStyle.fontSize = `${config.buttonFontSize}px`;
+        }
+        if (config.buttonLetterSpacing) {
+          buttonCustomStyle.letterSpacing = `${config.buttonLetterSpacing}px`;
+        }
+        if (config.buttonPaddingX) {
+          buttonCustomStyle.paddingLeft = `${config.buttonPaddingX}px`;
+          buttonCustomStyle.paddingRight = `${config.buttonPaddingX}px`;
+        }
+        if (config.buttonPaddingY) {
+          buttonCustomStyle.paddingTop = `${config.buttonPaddingY}px`;
+          buttonCustomStyle.paddingBottom = `${config.buttonPaddingY}px`;
+        }
+
+        const buttonContent = (
+          <>
+            {config.buttonIcon && config.buttonIconPosition === 'left' && (
+              <span className="mr-2">{config.buttonIcon}</span>
+            )}
+            <span dangerouslySetInnerHTML={{ __html: processTemplate(config.buttonText || 'Continuar') }} />
+            {config.buttonIcon && config.buttonIconPosition !== 'left' && (
+              <span className="ml-2">{config.buttonIcon}</span>
+            )}
+          </>
+        );
+
         return (
           <div className="py-4">
-            <Button
+            <button
               onClick={() => {
-                if (buttonAction === 'submit') {
+                if (buttonAction === 'link' && config.buttonLink) {
+                  window.open(config.buttonLink, '_blank');
+                } else if (buttonAction === 'submit') {
                   handleSubmit();
                 } else {
                   handleNavigateByComponent(comp.id);
                 }
               }}
               className={cn(
-                "w-full",
-                config.buttonStyle === 'secondary' && "bg-secondary text-secondary-foreground",
-                config.buttonStyle === 'outline' && "border border-border bg-transparent"
+                "inline-flex items-center justify-center transition-all duration-200",
+                buttonWidth,
+                getSizeClasses(),
+                getShadowClass(),
+                getFontWeight(),
+                getHoverEffect(),
+                getAnimationClass(),
+                !isCustomStyle && config.buttonStyle === 'primary' && "bg-primary text-primary-foreground",
+                !isCustomStyle && config.buttonStyle === 'secondary' && "bg-secondary text-secondary-foreground",
+                !isCustomStyle && config.buttonStyle === 'outline' && "border border-border bg-transparent",
+                !isCustomStyle && !config.buttonStyle && "bg-primary text-primary-foreground",
+                config.buttonBorderRadius === undefined && "rounded-lg"
               )}
+              style={buttonCustomStyle}
             >
-              {processTemplate(config.buttonText || 'Continuar')}
-            </Button>
+              {buttonContent}
+            </button>
           </div>
         );
+      }
 
       case 'options':
       case 'single':
