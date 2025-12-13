@@ -2084,17 +2084,19 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         };
         
         return (
-          <div 
-            className={cn("px-4 py-4 flex", justifyClass)}
-            style={{ width: `${widthValue}%` }}
-          >
+          <div className="w-full px-4 py-4">
             <div 
-              className={cn("gap-2 w-full", layoutClass)}
+              className={cn("gap-2", layoutClass)}
+              style={{ 
+                width: `${widthValue}%`,
+                marginLeft: hAlign === 'center' ? 'auto' : hAlign === 'end' ? 'auto' : undefined,
+                marginRight: hAlign === 'center' ? 'auto' : hAlign === 'start' ? 'auto' : undefined,
+              }}
             >
               {items.map((item: any) => (
                 <div 
                   key={item.id} 
-                  className="flex flex-col items-center justify-center gap-2 p-3"
+                  className="flex flex-col items-center justify-center gap-2 p-3 min-w-0"
                   style={{
                     background: bgStyle,
                     borderWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
@@ -2106,7 +2108,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   {disposition === 'legend-chart' ? (
                     <>
                       <p 
-                        className="text-xs text-center px-1 leading-relaxed line-clamp-2"
+                        className="text-xs text-center px-1 leading-relaxed line-clamp-2 w-full break-words"
                         style={{ color: textColor || undefined }}
                       >
                         {item.label}
@@ -2123,7 +2125,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                         : renderCircularChart(item.value, item.color)
                       }
                       <p 
-                        className="text-xs text-center px-1 leading-relaxed line-clamp-2"
+                        className="text-xs text-center px-1 leading-relaxed line-clamp-2 w-full break-words"
                         style={{ color: textColor || undefined }}
                       >
                         {item.label}
