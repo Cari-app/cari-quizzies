@@ -182,8 +182,6 @@ function SliderField({
 }
 
 export function AppearanceEditor({ config, onUpdate, componentType, themeColor }: AppearanceEditorProps) {
-  console.log('AppearanceEditor rendering for:', componentType, 'config:', config);
-  
   // Components that support each feature
   const inputComponents = ['input', 'email', 'phone', 'number', 'date', 'textarea', 'height', 'weight'];
   const textComponents = ['text', 'heading', 'button'];
@@ -191,7 +189,6 @@ export function AppearanceEditor({ config, onUpdate, componentType, themeColor }
   
   const showLabelStyle = inputComponents.includes(componentType);
   const showTextAlign = [...textComponents, ...inputComponents].includes(componentType);
-  const showFontSize = textComponents.includes(componentType);
   const showSpacing = !layoutOnlyComponents.includes(componentType);
   const showBorder = !['spacer', 'script'].includes(componentType);
   const showColors = !layoutOnlyComponents.includes(componentType);
@@ -252,70 +249,6 @@ export function AppearanceEditor({ config, onUpdate, componentType, themeColor }
           suffix="%"
         />
 
-        {/* Horizontal and Vertical alignment */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <Label className="text-xs text-muted-foreground">Alinhamento horizontal</Label>
-            <Select 
-              value={config.horizontalAlign || 'start'} 
-              onValueChange={(v) => {
-                console.log('horizontalAlign changed to:', v);
-                onUpdate({ horizontalAlign: v as AppearanceConfig['horizontalAlign'] });
-              }}
-            >
-              <SelectTrigger className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="start">Começo</SelectItem>
-                <SelectItem value="center">Centro</SelectItem>
-                <SelectItem value="end">Fim</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label className="text-xs text-muted-foreground">Alinhamento vertical</Label>
-            <Select 
-              value={config.verticalAlign || 'auto'} 
-              onValueChange={(v) => {
-                console.log('verticalAlign changed to:', v);
-                onUpdate({ verticalAlign: v as AppearanceConfig['verticalAlign'] });
-              }}
-            >
-              <SelectTrigger className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="auto">Auto</SelectItem>
-                <SelectItem value="start">Começo</SelectItem>
-                <SelectItem value="center">Centro</SelectItem>
-                <SelectItem value="end">Fim</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Font size */}
-        {showFontSize && (
-          <div>
-            <Label className="text-xs text-muted-foreground">Tamanho da fonte</Label>
-            <Select 
-              value={config.fontSize || 'base'} 
-              onValueChange={(v) => onUpdate({ fontSize: v as AppearanceConfig['fontSize'] })}
-            >
-              <SelectTrigger className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="sm">Pequeno</SelectItem>
-                <SelectItem value="base">Normal</SelectItem>
-                <SelectItem value="lg">Grande</SelectItem>
-                <SelectItem value="xl">Extra grande</SelectItem>
-                <SelectItem value="2xl">Título</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
       </Section>
 
       {/* Spacing */}
