@@ -474,6 +474,27 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           }
         };
 
+        // Get animation class
+        const getAnimationClass = (anim?: string): string => {
+          switch (anim) {
+            case 'pulse': return 'animate-pulse';
+            case 'bounce': return 'animate-bounce';
+            case 'shake': return 'btn-attention';
+            default: return '';
+          }
+        };
+
+        // Get hover class
+        const getHoverClass = (hover?: string): string => {
+          switch (hover) {
+            case 'darken': return 'hover:brightness-90';
+            case 'lighten': return 'hover:brightness-110';
+            case 'scale': return 'hover:scale-105';
+            case 'lift': return 'hover:-translate-y-1 hover:shadow-lg';
+            default: return '';
+          }
+        };
+
         const style: React.CSSProperties = {
           background,
           color: config.buttonTextColor || '#ffffff',
@@ -489,11 +510,15 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           alignItems: 'center',
           justifyContent: 'center',
           boxShadow: getShadow(config.buttonShadow),
+          transition: 'all 0.2s ease',
         };
+
+        const animClass = getAnimationClass(config.buttonAnimation);
+        const hoverClass = getHoverClass(config.buttonHoverEffect);
 
         return (
           <div className="p-4">
-            <button style={style}>
+            <button style={style} className={cn(animClass, hoverClass)}>
               {config.buttonText || 'Botão'}
             </button>
           </div>

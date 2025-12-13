@@ -160,6 +160,38 @@ export function ReadonlyDropZone({ components, designSettings }: ReadonlyDropZon
           background = hexToRgba(config.buttonBgColor || '#000000', opacity);
         }
 
+        // Get shadow
+        const getShadow = (shadow?: string): string => {
+          switch (shadow) {
+            case 'sm': return '0 1px 2px 0 rgb(0 0 0 / 0.05)';
+            case 'md': return '0 4px 6px -1px rgb(0 0 0 / 0.1)';
+            case 'lg': return '0 10px 15px -3px rgb(0 0 0 / 0.1)';
+            case 'xl': return '0 20px 25px -5px rgb(0 0 0 / 0.1)';
+            default: return 'none';
+          }
+        };
+
+        // Get animation class
+        const getAnimationClass = (anim?: string): string => {
+          switch (anim) {
+            case 'pulse': return 'animate-pulse';
+            case 'bounce': return 'animate-bounce';
+            case 'shake': return 'btn-attention';
+            default: return '';
+          }
+        };
+
+        // Get hover class
+        const getHoverClass = (hover?: string): string => {
+          switch (hover) {
+            case 'darken': return 'hover:brightness-90';
+            case 'lighten': return 'hover:brightness-110';
+            case 'scale': return 'hover:scale-105';
+            case 'lift': return 'hover:-translate-y-1 hover:shadow-lg';
+            default: return '';
+          }
+        };
+
         const style: React.CSSProperties = {
           background,
           color: config.buttonTextColor || '#ffffff',
@@ -174,11 +206,16 @@ export function ReadonlyDropZone({ components, designSettings }: ReadonlyDropZon
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
+          boxShadow: getShadow(config.buttonShadow),
+          transition: 'all 0.2s ease',
         };
+
+        const animClass = getAnimationClass(config.buttonAnimation);
+        const hoverClass = getHoverClass(config.buttonHoverEffect);
 
         return (
           <div className="p-4">
-            <button style={style}>
+            <button style={style} className={cn(animClass, hoverClass)}>
               {config.buttonText || 'Botão'}
             </button>
           </div>
