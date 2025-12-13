@@ -2092,13 +2092,26 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           );
         };
         
+        // Determine number of columns based on layout setting
+        const getGridColumns = () => {
+          switch (layout) {
+            case 'list': return 1;
+            case 'grid-2': return 2;
+            case 'grid-3': return 3;
+            case 'grid-4': return 4;
+            default: return 2;
+          }
+        };
+        
+        const columns = getGridColumns();
+        
         return (
           <div className="w-full px-4 py-4">
             <div 
               className="gap-2"
               style={{ 
                 display: 'grid',
-                gridTemplateColumns: `repeat(auto-fit, minmax(80px, 1fr))`,
+                gridTemplateColumns: `repeat(${columns}, 1fr)`,
                 width: `${widthValue}%`,
                 marginLeft: hAlign === 'center' ? 'auto' : hAlign === 'end' ? 'auto' : undefined,
                 marginRight: hAlign === 'center' ? 'auto' : hAlign === 'start' ? 'auto' : undefined,
@@ -2107,7 +2120,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               {items.map((item: any) => (
                 <div 
                   key={item.id} 
-                  className="flex flex-col items-center justify-center gap-2 p-3 min-w-0"
+                  className="flex flex-col items-center justify-center gap-2 p-3"
                   style={{
                     background: bgStyle,
                     borderWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
@@ -2119,7 +2132,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   {disposition === 'legend-chart' ? (
                     <>
                       <p 
-                        className="text-xs text-center px-1 leading-relaxed line-clamp-2 w-full break-words"
+                        className="text-xs text-center leading-relaxed line-clamp-2"
                         style={{ color: textColor || undefined }}
                       >
                         {item.label}
@@ -2136,7 +2149,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                         : renderCircularChart(item.value, item.color)
                       }
                       <p 
-                        className="text-xs text-center px-1 leading-relaxed line-clamp-2 w-full break-words"
+                        className="text-xs text-center leading-relaxed line-clamp-2"
                         style={{ color: textColor || undefined }}
                       >
                         {item.label}
