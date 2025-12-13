@@ -1163,7 +1163,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 <RichTextInput
               value={config.description || ''}
               onChange={(description) => updateConfig({ description })}
-              placeholder="Descrição (opcional)"
+              placeholder="Digite aqui uma descrição"
               className="text-sm text-muted-foreground"
             />
           </div>
