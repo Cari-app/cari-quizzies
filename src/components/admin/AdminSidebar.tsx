@@ -116,7 +116,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
     >
       {/* Logo */}
       <div className={cn(
-        "h-16 flex items-center border-b border-border px-4",
+        "h-16 flex items-center px-4",
         collapsed ? "justify-center" : "justify-between"
       )}>
         <Link to="/admin" className="flex items-center">
@@ -154,7 +154,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
       </nav>
 
       {/* Bottom navigation */}
-      <div className="px-3 py-4 border-t border-border space-y-1">
+      <div className="px-3 py-4 space-y-1">
         {bottomNavItems.map((item) => (
           <NavItem key={item.path} item={item} />
         ))}
