@@ -433,9 +433,49 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           </div>
         );
       case 'button': {
-        // Simple, direct style application
+        // Helper to convert hex to rgba
+        const hexToRgba = (hex: string, opacity: number): string => {
+          const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+          if (!result) return hex;
+          const r = parseInt(result[1], 16);
+          const g = parseInt(result[2], 16);
+          const b = parseInt(result[3], 16);
+          return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+        };
+
+        // Build background
+        const opacity = config.buttonBgOpacity ?? 1;
+        let background: string;
+        
+        if (config.buttonGradient) {
+          const dir = config.buttonGradientDirection === 'to-l' ? 'to left' :
+            config.buttonGradientDirection === 'to-t' ? 'to top' :
+            config.buttonGradientDirection === 'to-b' ? 'to bottom' :
+            config.buttonGradientDirection === 'to-tr' ? 'to top right' :
+            config.buttonGradientDirection === 'to-tl' ? 'to top left' :
+            config.buttonGradientDirection === 'to-br' ? 'to bottom right' :
+            config.buttonGradientDirection === 'to-bl' ? 'to bottom left' : 'to right';
+          const from = config.buttonGradientFrom || '#000000';
+          const to = config.buttonGradientTo || '#333333';
+          background = `linear-gradient(${dir}, ${hexToRgba(from, opacity)}, ${hexToRgba(to, opacity)})`;
+        } else {
+          const bgColor = config.buttonBgColor || '#000000';
+          background = hexToRgba(bgColor, opacity);
+        }
+
+        // Get shadow
+        const getShadow = (shadow?: string): string => {
+          switch (shadow) {
+            case 'sm': return '0 1px 2px 0 rgb(0 0 0 / 0.05)';
+            case 'md': return '0 4px 6px -1px rgb(0 0 0 / 0.1)';
+            case 'lg': return '0 10px 15px -3px rgb(0 0 0 / 0.1)';
+            case 'xl': return '0 20px 25px -5px rgb(0 0 0 / 0.1)';
+            default: return 'none';
+          }
+        };
+
         const style: React.CSSProperties = {
-          backgroundColor: config.buttonBgColor || '#000000',
+          background,
           color: config.buttonTextColor || '#ffffff',
           fontSize: config.buttonFontSize ? `${config.buttonFontSize}px` : '16px',
           borderRadius: `${config.buttonBorderRadius ?? 8}px`,
@@ -448,6 +488,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
+          boxShadow: getShadow(config.buttonShadow),
         };
 
         return (

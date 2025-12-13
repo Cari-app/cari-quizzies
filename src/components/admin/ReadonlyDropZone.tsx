@@ -132,8 +132,36 @@ export function ReadonlyDropZone({ components, designSettings }: ReadonlyDropZon
         );
 
       case 'button': {
+        // Helper to convert hex to rgba
+        const hexToRgba = (hex: string, opacity: number): string => {
+          const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+          if (!result) return hex;
+          const r = parseInt(result[1], 16);
+          const g = parseInt(result[2], 16);
+          const b = parseInt(result[3], 16);
+          return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+        };
+
+        const opacity = config.buttonBgOpacity ?? 1;
+        let background: string;
+        
+        if (config.buttonGradient) {
+          const dir = config.buttonGradientDirection === 'to-l' ? 'to left' :
+            config.buttonGradientDirection === 'to-t' ? 'to top' :
+            config.buttonGradientDirection === 'to-b' ? 'to bottom' :
+            config.buttonGradientDirection === 'to-tr' ? 'to top right' :
+            config.buttonGradientDirection === 'to-tl' ? 'to top left' :
+            config.buttonGradientDirection === 'to-br' ? 'to bottom right' :
+            config.buttonGradientDirection === 'to-bl' ? 'to bottom left' : 'to right';
+          const from = config.buttonGradientFrom || '#000000';
+          const to = config.buttonGradientTo || '#333333';
+          background = `linear-gradient(${dir}, ${hexToRgba(from, opacity)}, ${hexToRgba(to, opacity)})`;
+        } else {
+          background = hexToRgba(config.buttonBgColor || '#000000', opacity);
+        }
+
         const style: React.CSSProperties = {
-          backgroundColor: config.buttonBgColor || '#000000',
+          background,
           color: config.buttonTextColor || '#ffffff',
           fontSize: config.buttonFontSize ? `${config.buttonFontSize}px` : '16px',
           borderRadius: `${config.buttonBorderRadius ?? 8}px`,

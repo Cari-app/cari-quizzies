@@ -64,6 +64,7 @@ export interface ComponentConfig {
   buttonBorderWidth?: number;
   buttonBorderRadius?: number;
   buttonShadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'glow';
+  buttonBgOpacity?: number;
   buttonGradient?: boolean;
   buttonGradientFrom?: string;
   buttonGradientTo?: string;
