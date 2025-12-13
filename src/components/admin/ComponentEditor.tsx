@@ -1472,13 +1472,14 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                     </PopoverContent>
                   </Popover>
                   
-                  <Input
-                    value={opt.text}
-                    onChange={(e) => { e.stopPropagation(); updateOption(opt.id, { text: e.target.value }); }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="flex-1 border-0 bg-transparent"
-                    placeholder="Texto da opção"
-                  />
+                  <div className="flex-1" onClick={(e) => e.stopPropagation()}>
+                    <RichTextInput
+                      value={opt.text}
+                      onChange={(text) => updateOption(opt.id, { text })}
+                      placeholder="Texto da opção"
+                      className="border-0 bg-transparent min-h-[36px]"
+                    />
+                  </div>
                   <button 
                     onClick={(e) => { e.stopPropagation(); setExpandedOptionId(expandedOptionId === opt.id ? null : opt.id); }}
                     className="p-1 hover:bg-muted rounded"
