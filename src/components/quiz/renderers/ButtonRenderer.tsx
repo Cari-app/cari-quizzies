@@ -16,72 +16,66 @@ export function ButtonRenderer({
   processTemplate 
 }: RendererProps) {
   const buttonAction = config.buttonAction || 'next';
-  const isCustomStyle = config.buttonStyle === 'custom';
   const buttonWidth = config.buttonFullWidth !== false ? 'w-full' : 'w-auto';
 
-  // Build custom style object
-  const buttonCustomStyle: React.CSSProperties = {};
+  // Build button style object - always apply custom colors when set
+  const buttonStyle: React.CSSProperties = {};
   
-  if (isCustomStyle) {
-    if (config.buttonGradient) {
-      buttonCustomStyle.background = `linear-gradient(${
-        config.buttonGradientDirection === 'to-r' ? 'to right' :
-        config.buttonGradientDirection === 'to-l' ? 'to left' :
-        config.buttonGradientDirection === 'to-t' ? 'to top' :
-        config.buttonGradientDirection === 'to-b' ? 'to bottom' :
-        config.buttonGradientDirection === 'to-tr' ? 'to top right' :
-        config.buttonGradientDirection === 'to-br' ? 'to bottom right' :
-        config.buttonGradientDirection === 'to-tl' ? 'to top left' :
-        config.buttonGradientDirection === 'to-bl' ? 'to bottom left' : 'to right'
-      }, ${config.buttonGradientFrom || '#3b82f6'}, ${config.buttonGradientTo || '#8b5cf6'})`;
-    } else if (config.buttonBgColor) {
-      buttonCustomStyle.backgroundColor = config.buttonBgColor;
-    }
-    if (config.buttonTextColor) {
-      buttonCustomStyle.color = config.buttonTextColor;
-    }
-    if (config.buttonBorderColor && (config.buttonBorderWidth ?? 0) > 0) {
-      buttonCustomStyle.borderColor = config.buttonBorderColor;
-      buttonCustomStyle.borderWidth = `${config.buttonBorderWidth}px`;
-      buttonCustomStyle.borderStyle = 'solid';
-    }
+  // Background: gradient > custom color > default black
+  if (config.buttonGradient) {
+    buttonStyle.background = `linear-gradient(${
+      config.buttonGradientDirection === 'to-r' ? 'to right' :
+      config.buttonGradientDirection === 'to-l' ? 'to left' :
+      config.buttonGradientDirection === 'to-t' ? 'to top' :
+      config.buttonGradientDirection === 'to-b' ? 'to bottom' :
+      config.buttonGradientDirection === 'to-tr' ? 'to top right' :
+      config.buttonGradientDirection === 'to-br' ? 'to bottom right' :
+      config.buttonGradientDirection === 'to-tl' ? 'to top left' :
+      config.buttonGradientDirection === 'to-bl' ? 'to bottom left' : 'to right'
+    }, ${config.buttonGradientFrom || '#000000'}, ${config.buttonGradientTo || '#333333'})`;
+  } else {
+    buttonStyle.backgroundColor = config.buttonBgColor || '#000000';
   }
   
+  // Text color: custom > default white
+  buttonStyle.color = config.buttonTextColor || '#FFFFFF';
+  
+  // Border
+  if (config.buttonBorderColor && (config.buttonBorderWidth ?? 0) > 0) {
+    buttonStyle.borderColor = config.buttonBorderColor;
+    buttonStyle.borderWidth = `${config.buttonBorderWidth}px`;
+    buttonStyle.borderStyle = 'solid';
+  }
+  
+  // Border radius
   if (config.buttonBorderRadius !== undefined) {
-    buttonCustomStyle.borderRadius = `${config.buttonBorderRadius}px`;
+    buttonStyle.borderRadius = `${config.buttonBorderRadius}px`;
   }
+  
+  // Font size
   if (config.buttonFontSize) {
-    buttonCustomStyle.fontSize = `${config.buttonFontSize}px`;
+    buttonStyle.fontSize = `${config.buttonFontSize}px`;
   }
+  
+  // Letter spacing
   if (config.buttonLetterSpacing) {
-    buttonCustomStyle.letterSpacing = `${config.buttonLetterSpacing}px`;
+    buttonStyle.letterSpacing = `${config.buttonLetterSpacing}px`;
   }
+  
+  // Padding
   if (config.buttonPaddingX) {
-    buttonCustomStyle.paddingLeft = `${config.buttonPaddingX}px`;
-    buttonCustomStyle.paddingRight = `${config.buttonPaddingX}px`;
+    buttonStyle.paddingLeft = `${config.buttonPaddingX}px`;
+    buttonStyle.paddingRight = `${config.buttonPaddingX}px`;
   }
   if (config.buttonPaddingY) {
-    buttonCustomStyle.paddingTop = `${config.buttonPaddingY}px`;
-    buttonCustomStyle.paddingBottom = `${config.buttonPaddingY}px`;
+    buttonStyle.paddingTop = `${config.buttonPaddingY}px`;
+    buttonStyle.paddingBottom = `${config.buttonPaddingY}px`;
   }
 
-  // Determine if we should force white text (only for primary/default WITHOUT custom text color)
-  const isPrimaryOrDefault = !isCustomStyle && (!config.buttonStyle || config.buttonStyle === 'primary');
-  const hasCustomTextColor = config.buttonTextColor && config.buttonTextColor !== '';
-  
-  // Use custom color if set, otherwise white for primary/default, otherwise inherit
-  const textColor = hasCustomTextColor 
-    ? config.buttonTextColor 
-    : (isPrimaryOrDefault ? '#FFFFFF' : undefined);
-
-  // Only strip color styles if we're forcing a color, preserve all other styles (font-size, etc.)
+  // Process button text - strip inline color styles so our color applies
   const processButtonText = (text: string) => {
-    if (!hasCustomTextColor && isPrimaryOrDefault) {
-      // Force white: strip only color styles, keep font-size, font-weight, etc.
-      return text.replace(/color:\s*[^;]+;?/gi, '');
-    }
-    // Custom color or other styles: keep everything
-    return text;
+    // Strip only color styles, keep font-size, font-weight, etc.
+    return text.replace(/color:\s*[^;]+;?/gi, '');
   };
 
   const buttonText = processButtonText(config.buttonText || 'Continuar');
@@ -91,10 +85,7 @@ export function ButtonRenderer({
       {config.buttonIcon && config.buttonIconPosition === 'left' && (
         <span className="mr-2">{config.buttonIcon}</span>
       )}
-      <span 
-        style={{ color: textColor }}
-        dangerouslySetInnerHTML={{ __html: processTemplate(buttonText) }} 
-      />
+      <span dangerouslySetInnerHTML={{ __html: processTemplate(buttonText) }} />
       {config.buttonIcon && config.buttonIconPosition !== 'left' && (
         <span className="ml-2">{config.buttonIcon}</span>
       )}
@@ -111,13 +102,6 @@ export function ButtonRenderer({
     }
   };
 
-  // Default/primary button style: black background with white text (inline to override CSS)
-  const buttonStyles: React.CSSProperties = {};
-  if (isPrimaryOrDefault) {
-    buttonStyles.backgroundColor = '#000000';
-    buttonStyles.color = '#FFFFFF';
-  }
-
   return (
     <div className="py-4">
       <button
@@ -130,11 +114,9 @@ export function ButtonRenderer({
           getFontWeight(config.buttonFontWeight),
           getHoverEffect(config.buttonHoverEffect),
           getAnimationClass(config.buttonAnimation),
-          !isCustomStyle && config.buttonStyle === 'secondary' && "bg-secondary text-secondary-foreground",
-          !isCustomStyle && config.buttonStyle === 'outline' && "border border-border bg-transparent",
           config.buttonBorderRadius === undefined && "rounded-lg"
         )}
-        style={{ ...buttonStyles, ...buttonCustomStyle }}
+        style={buttonStyle}
       >
         {buttonContent}
       </button>
