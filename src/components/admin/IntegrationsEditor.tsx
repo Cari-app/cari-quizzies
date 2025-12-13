@@ -236,34 +236,13 @@ export function IntegrationsEditor({
             </p>
           </div>
 
-          {/* Trigger Options */}
-          <div className="space-y-3 pt-4 border-t">
-            <Label className="text-sm font-medium">Quando disparar</Label>
-            
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label htmlFor="trigger-first" className="text-sm font-normal">Primeira resposta</Label>
-                <p className="text-xs text-muted-foreground">
-                  Dispara assim que o usuário responder a primeira etapa
-                </p>
-              </div>
-              <Switch
-                id="trigger-first"
-                checked={webhookSettings.triggerOnFirstResponse ?? false}
-                onCheckedChange={(checked) => updateSettings('triggerOnFirstResponse', checked)}
-                disabled={!webhookEnabled}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-sm font-normal text-muted-foreground">Quiz completado</Label>
-                <p className="text-xs text-muted-foreground">
-                  Sempre dispara quando o quiz é finalizado
-                </p>
-              </div>
-              <Switch checked={true} disabled />
-            </div>
+          {/* Info about Webhook Trigger Component */}
+          <div className="p-3 bg-orange-500/10 rounded-lg border border-orange-500/20 mt-4">
+            <p className="text-sm font-medium text-orange-600 dark:text-orange-400">Como disparar o webhook?</p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Adicione o componente "Webhook" em qualquer etapa do quiz. Quando essa etapa carregar, 
+              o webhook será disparado com todos os dados coletados até aquele ponto.
+            </p>
           </div>
 
           <div className="flex items-center gap-3 pt-4">
