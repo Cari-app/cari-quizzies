@@ -281,7 +281,7 @@ function FormFieldEditor({
               className="rounded border-border"
             />
             <Label htmlFor={`hideLabel-${field.id}`} className="text-sm cursor-pointer">
-              Ocultar título (mostrar só placeholder)
+              Ocultar título
             </Label>
           </div>
 
