@@ -309,6 +309,21 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           horizontalAlign: 'start',
           verticalAlign: 'auto'
         };
+      case 'progress':
+        return {
+          progressStyle: 'bar',
+          progressShowText: 'percent',
+          progressTextPosition: 'right',
+          progressHeight: 8,
+          progressBarColor: '#000000',
+          progressBgColor: '#e5e7eb',
+          progressTextColor: '#374151',
+          progressBorderRadius: 9999,
+          progressAnimated: true,
+          width: 100,
+          horizontalAlign: 'start',
+          verticalAlign: 'auto'
+        };
       default:
         return {};
     }
@@ -2139,6 +2154,86 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   )}
                 </div>
               ))}
+            </div>
+          </div>
+        );
+      }
+      case 'progress': {
+        const style = config.progressStyle || 'bar';
+        const height = config.progressHeight || 8;
+        const barColor = config.progressBarColor || '#000000';
+        const bgColor = config.progressBgColor || '#e5e7eb';
+        const textColor = config.progressTextColor || '#374151';
+        const borderRadius = config.progressBorderRadius ?? 9999;
+        const showText = config.progressShowText || 'none';
+        
+        // Preview with mock progress
+        const mockProgress = 60;
+        
+        return (
+          <div className="p-4 w-full">
+            <div className="flex items-center gap-3">
+              {style === 'bar' && (
+                <div 
+                  className="flex-1 overflow-hidden"
+                  style={{ backgroundColor: bgColor, height: `${height}px`, borderRadius: `${borderRadius}px` }}
+                >
+                  <div 
+                    style={{ width: `${mockProgress}%`, height: '100%', backgroundColor: barColor, borderRadius: `${borderRadius}px` }}
+                  />
+                </div>
+              )}
+              {style === 'segments' && (
+                <div className="flex gap-1 flex-1">
+                  {[1,2,3,4,5].map((_, i) => (
+                    <div 
+                      key={i}
+                      className="flex-1"
+                      style={{ backgroundColor: i < 3 ? barColor : bgColor, height: `${height}px`, borderRadius: `${borderRadius}px` }}
+                    />
+                  ))}
+                </div>
+              )}
+              {style === 'steps' && (
+                <div className="flex items-center justify-between flex-1">
+                  {[1,2,3,4,5].map((n, i) => (
+                    <div key={i} className="flex items-center flex-1">
+                      <div 
+                        className="flex items-center justify-center text-xs font-medium shrink-0"
+                        style={{ 
+                          width: '24px', height: '24px',
+                          backgroundColor: i < 3 ? barColor : bgColor,
+                          color: i < 3 ? '#fff' : textColor,
+                          borderRadius: '50%'
+                        }}
+                      >
+                        {n}
+                      </div>
+                      {i < 4 && <div className="flex-1 mx-1" style={{ height: '2px', backgroundColor: i < 2 ? barColor : bgColor }} />}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {style === 'dots' && (
+                <div className="flex gap-2 justify-center flex-1">
+                  {[1,2,3,4,5].map((_, i) => (
+                    <div 
+                      key={i}
+                      style={{ 
+                        width: '10px', height: '10px',
+                        backgroundColor: i < 3 ? barColor : bgColor,
+                        borderRadius: '50%',
+                        transform: i === 2 ? 'scale(1.2)' : 'scale(1)'
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+              {showText !== 'none' && (
+                <span className="text-sm font-medium" style={{ color: textColor }}>
+                  {showText === 'percent' ? '60%' : showText === 'steps' ? '3 de 5' : '3 de 5 (60%)'}
+                </span>
+              )}
             </div>
           </div>
         );

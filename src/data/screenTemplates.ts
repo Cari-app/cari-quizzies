@@ -207,8 +207,9 @@ export const componentPalette = {
     { type: 'charts', name: 'Gráficos', icon: 'chart-pie' },
   ],
   customization: [
+    { type: 'progress', name: 'Progresso', icon: 'loader', isNew: true },
     { type: 'spacer', name: 'Espaço', icon: 'move-vertical' },
     { type: 'script', name: 'Script', icon: 'code' },
-    { type: 'webhook_trigger', name: 'Webhook', icon: 'webhook', isNew: true },
+    { type: 'webhook_trigger', name: 'Webhook', icon: 'webhook' },
   ],
 };
