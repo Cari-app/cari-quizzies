@@ -1677,8 +1677,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             }}
           >
             <div 
-              className="flex flex-col gap-2 p-4"
-              style={{ width: `${widthValue}%` }}
+              className="flex flex-col gap-2 w-full"
+              style={{ maxWidth: `${widthValue}%` }}
             >
               {faqItems.map((item, index) => (
                 <div 
