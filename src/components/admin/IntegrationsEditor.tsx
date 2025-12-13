@@ -128,41 +128,47 @@ export function IntegrationsEditor({
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        {/* N8N Integration Card */}
-        <div className="p-3 border rounded-lg bg-card space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-md bg-orange-500/10 flex items-center justify-center">
-                <Webhook className="w-4 h-4 text-orange-500" />
-              </div>
-              <span className="text-sm font-medium">N8N</span>
-            </div>
-            <Switch
-              checked={webhookEnabled}
-              onCheckedChange={onWebhookEnabledChange}
-            />
+      {/* N8N Integration Card */}
+      <div className="flex items-center justify-between p-4 border rounded-lg bg-card">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-lg bg-orange-500/10 flex items-center justify-center">
+            <Webhook className="w-6 h-6 text-orange-500" />
           </div>
+          <div>
+            <h3 className="font-medium">N8N Webhook</h3>
+            <p className="text-sm text-muted-foreground">
+              {webhookUrl ? 'Configurado' : 'Não configurado'}
+            </p>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <Switch
+            checked={webhookEnabled}
+            onCheckedChange={onWebhookEnabledChange}
+          />
           <Button
             variant="outline"
             size="sm"
             onClick={() => setIsSheetOpen(true)}
-            className="w-full gap-2 h-8 text-xs"
+            className="gap-2"
           >
-            <Settings2 className="w-3 h-3" />
-            Configurar
+            <Settings2 className="w-4 h-4" />
+            Editar
           </Button>
         </div>
+      </div>
 
-        {/* Future integrations placeholder */}
-        <div className="p-3 border border-dashed rounded-lg opacity-40 space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center">
-              <Webhook className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <span className="text-sm font-medium text-muted-foreground">Em breve</span>
+      {/* Future integrations placeholder */}
+      <div className="flex items-center justify-between p-4 border border-dashed rounded-lg opacity-50">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
+            <Webhook className="w-6 h-6 text-muted-foreground" />
           </div>
-          <div className="h-8" />
+          <div>
+            <h3 className="font-medium text-muted-foreground">Mais integrações</h3>
+            <p className="text-sm text-muted-foreground">Em breve...</p>
+          </div>
         </div>
       </div>
 
