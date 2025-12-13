@@ -4513,97 +4513,24 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     if (isPriceComponent) {
       return (
         <div className="space-y-4">
-          {/* Layout */}
+          {/* Cor de fundo */}
           <div>
-            <Label className="text-xs text-muted-foreground">Layout</Label>
-            <Select 
-              value={config.priceLayout || 'horizontal'} 
-              onValueChange={(v) => updateConfig({ priceLayout: v as ComponentConfig['priceLayout'] })}
-            >
-              <SelectTrigger className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="horizontal">Horizontal</SelectItem>
-                <SelectItem value="vertical">Vertical</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Fundo */}
-          <div className="border border-border rounded-lg p-3 space-y-3">
-            <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Fundo</Label>
-            
-            <div>
-              <Label className="text-xs text-muted-foreground">Tipo de fundo</Label>
-              <Select 
-                value={config.priceBgType || 'solid'} 
-                onValueChange={(v) => updateConfig({ priceBgType: v as 'solid' | 'gradient' | 'transparent' })}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="solid">Cor sólida</SelectItem>
-                  <SelectItem value="gradient">Gradiente</SelectItem>
-                  <SelectItem value="transparent">Transparente</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {config.priceBgType === 'gradient' && (
-              <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Cor inicial</Label>
-                    <Input
-                      type="color"
-                      value={config.priceGradientStart || '#667eea'}
-                      onChange={(e) => updateConfig({ priceGradientStart: e.target.value })}
-                      className="mt-1 h-9 w-full cursor-pointer"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Cor final</Label>
-                    <Input
-                      type="color"
-                      value={config.priceGradientEnd || '#764ba2'}
-                      onChange={(e) => updateConfig({ priceGradientEnd: e.target.value })}
-                      className="mt-1 h-9 w-full cursor-pointer"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-xs text-muted-foreground">Ângulo ({config.priceGradientAngle ?? 135}°)</Label>
-                  <Slider
-                    value={[config.priceGradientAngle ?? 135]}
-                    onValueChange={([v]) => updateConfig({ priceGradientAngle: v })}
-                    min={0}
-                    max={360}
-                    step={15}
-                    className="mt-2"
-                  />
-                </div>
-                <div 
-                  className="h-8 rounded-md border border-border"
-                  style={{
-                    background: `linear-gradient(${config.priceGradientAngle ?? 135}deg, ${config.priceGradientStart || '#667eea'}, ${config.priceGradientEnd || '#764ba2'})`
-                  }}
-                />
-              </div>
-            )}
-
-            {(!config.priceBgType || config.priceBgType === 'solid') && (
-              <div>
-                <Label className="text-xs text-muted-foreground">Cor de fundo</Label>
-                <Input
+            <Label className="text-xs text-muted-foreground mb-1 block">Cor de fundo</Label>
+            <div className="flex items-center gap-2">
+              <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.priceBgColor || '#ffffff' }}>
+                <input
                   type="color"
                   value={config.priceBgColor || '#ffffff'}
                   onChange={(e) => updateConfig({ priceBgColor: e.target.value })}
-                  className="mt-1 h-9 w-full cursor-pointer"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
               </div>
-            )}
+              <Input
+                value={config.priceBgColor || '#ffffff'}
+                onChange={(e) => updateConfig({ priceBgColor: e.target.value })}
+                className="flex-1 font-mono text-sm"
+              />
+            </div>
           </div>
 
           {/* Cores de texto */}
@@ -4612,30 +4539,57 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-xs text-muted-foreground">Título</Label>
-                <Input
-                  type="color"
-                  value={config.priceTitleColor || '#1f2937'}
-                  onChange={(e) => updateConfig({ priceTitleColor: e.target.value })}
-                  className="mt-1 h-9 w-full cursor-pointer"
-                />
+                <Label className="text-xs text-muted-foreground mb-1 block">Título</Label>
+                <div className="flex items-center gap-2">
+                  <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.priceTitleColor || '#1f2937' }}>
+                    <input
+                      type="color"
+                      value={config.priceTitleColor || '#1f2937'}
+                      onChange={(e) => updateConfig({ priceTitleColor: e.target.value })}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                  <Input
+                    value={config.priceTitleColor || '#1f2937'}
+                    onChange={(e) => updateConfig({ priceTitleColor: e.target.value })}
+                    className="flex-1 font-mono text-sm"
+                  />
+                </div>
               </div>
               <div>
-                <Label className="text-xs text-muted-foreground">Valor</Label>
-                <Input
-                  type="color"
-                  value={config.priceValueColor || '#1f2937'}
-                  onChange={(e) => updateConfig({ priceValueColor: e.target.value })}
-                  className="mt-1 h-9 w-full cursor-pointer"
-                />
+                <Label className="text-xs text-muted-foreground mb-1 block">Valor</Label>
+                <div className="flex items-center gap-2">
+                  <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.priceValueColor || '#1f2937' }}>
+                    <input
+                      type="color"
+                      value={config.priceValueColor || '#1f2937'}
+                      onChange={(e) => updateConfig({ priceValueColor: e.target.value })}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                  <Input
+                    value={config.priceValueColor || '#1f2937'}
+                    onChange={(e) => updateConfig({ priceValueColor: e.target.value })}
+                    className="flex-1 font-mono text-sm"
+                  />
+                </div>
               </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Prefixo/Sufixo</Label>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground mb-1 block">Prefixo/Sufixo</Label>
+              <div className="flex items-center gap-2">
+                <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.pricePrefixColor || '#6b7280' }}>
+                  <input
+                    type="color"
+                    value={config.pricePrefixColor || '#6b7280'}
+                    onChange={(e) => updateConfig({ pricePrefixColor: e.target.value })}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </div>
                 <Input
-                  type="color"
                   value={config.pricePrefixColor || '#6b7280'}
                   onChange={(e) => updateConfig({ pricePrefixColor: e.target.value })}
-                  className="mt-1 h-9 w-full cursor-pointer"
+                  className="flex-1 font-mono text-sm"
                 />
               </div>
             </div>
@@ -4646,13 +4600,22 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Bordas</Label>
             
             <div>
-              <Label className="text-xs text-muted-foreground">Cor da borda</Label>
-              <Input
-                type="color"
-                value={config.priceBorderColor || '#e5e7eb'}
-                onChange={(e) => updateConfig({ priceBorderColor: e.target.value })}
-                className="mt-1 h-9 w-full cursor-pointer"
-              />
+              <Label className="text-xs text-muted-foreground mb-1 block">Cor da borda</Label>
+              <div className="flex items-center gap-2">
+                <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.priceBorderColor || '#e5e7eb' }}>
+                  <input
+                    type="color"
+                    value={config.priceBorderColor || '#e5e7eb'}
+                    onChange={(e) => updateConfig({ priceBorderColor: e.target.value })}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </div>
+                <Input
+                  value={config.priceBorderColor || '#e5e7eb'}
+                  onChange={(e) => updateConfig({ priceBorderColor: e.target.value })}
+                  className="flex-1 font-mono text-sm"
+                />
+              </div>
             </div>
             
             <div className="grid grid-cols-2 gap-3">
@@ -4678,77 +4641,6 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                   className="mt-1"
                 />
               </div>
-            </div>
-          </div>
-
-          {/* Width */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <Label className="text-xs text-muted-foreground">Largura</Label>
-              <div className="flex items-center gap-1">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-6 w-6"
-                  onClick={() => updateConfig({ width: Math.max(10, (config.width || 100) - 5) })}
-                >
-                  −
-                </Button>
-                <span className="text-sm font-medium w-12 text-center">{config.width || 100}%</span>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-6 w-6"
-                  onClick={() => updateConfig({ width: Math.min(100, (config.width || 100) + 5) })}
-                >
-                  +
-                </Button>
-              </div>
-            </div>
-            <Slider
-              value={[config.width || 100]}
-              onValueChange={([value]) => updateConfig({ width: value })}
-              min={10}
-              max={100}
-              step={5}
-              className="w-full"
-            />
-          </div>
-
-          {/* Horizontal and Vertical alignment */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-xs text-muted-foreground">Alinhamento horizontal</Label>
-              <Select 
-                value={config.horizontalAlign || 'start'} 
-                onValueChange={(v) => updateConfig({ horizontalAlign: v as ComponentConfig['horizontalAlign'] })}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="start">Começo</SelectItem>
-                  <SelectItem value="center">Centro</SelectItem>
-                  <SelectItem value="end">Fim</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">Alinhamento vertical</Label>
-              <Select 
-                value={config.verticalAlign || 'auto'} 
-                onValueChange={(v) => updateConfig({ verticalAlign: v as ComponentConfig['verticalAlign'] })}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="auto">Auto</SelectItem>
-                  <SelectItem value="start">Começo</SelectItem>
-                  <SelectItem value="center">Centro</SelectItem>
-                  <SelectItem value="end">Fim</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </div>
         </div>
