@@ -25,7 +25,7 @@ export function SlidingRuler({
   step = 1,
   unit,
   altUnit,
-  barColor = '#22c55e',
+  barColor = '#000000',
   valueColor,
   toggleColor,
   tickColor,

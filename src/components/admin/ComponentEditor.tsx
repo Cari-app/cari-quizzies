@@ -1022,12 +1022,12 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                         <div className="flex gap-2 mt-1">
                           <input
                             type="color"
-                            value={config.buttonGradientFrom || '#3b82f6'}
+                            value={config.buttonGradientFrom || '#000000'}
                             onChange={(e) => updateConfig({ buttonGradientFrom: e.target.value })}
                             className="w-10 h-9 rounded border border-border cursor-pointer"
                           />
                           <Input
-                            value={config.buttonGradientFrom || '#3b82f6'}
+                            value={config.buttonGradientFrom || '#000000'}
                             onChange={(e) => updateConfig({ buttonGradientFrom: e.target.value })}
                             className="flex-1 font-mono text-xs"
                           />
@@ -1038,12 +1038,12 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                         <div className="flex gap-2 mt-1">
                           <input
                             type="color"
-                            value={config.buttonGradientTo || '#8b5cf6'}
+                            value={config.buttonGradientTo || '#333333'}
                             onChange={(e) => updateConfig({ buttonGradientTo: e.target.value })}
                             className="w-10 h-9 rounded border border-border cursor-pointer"
                           />
                           <Input
-                            value={config.buttonGradientTo || '#8b5cf6'}
+                            value={config.buttonGradientTo || '#333333'}
                             onChange={(e) => updateConfig({ buttonGradientTo: e.target.value })}
                             className="flex-1 font-mono text-xs"
                           />
@@ -1076,12 +1076,12 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                     <div className="flex gap-2 mt-1">
                       <input
                         type="color"
-                        value={config.buttonBgColor || '#3b82f6'}
+                        value={config.buttonBgColor || '#000000'}
                         onChange={(e) => updateConfig({ buttonBgColor: e.target.value })}
                         className="w-10 h-9 rounded border border-border cursor-pointer"
                       />
                       <Input
-                        value={config.buttonBgColor || '#3b82f6'}
+                        value={config.buttonBgColor || '#000000'}
                         onChange={(e) => updateConfig({ buttonBgColor: e.target.value })}
                         className="flex-1 font-mono text-xs"
                       />
@@ -1112,12 +1112,12 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                     <div className="flex gap-2 mt-1">
                       <input
                         type="color"
-                        value={config.buttonBorderColor || '#3b82f6'}
+                        value={config.buttonBorderColor || '#000000'}
                         onChange={(e) => updateConfig({ buttonBorderColor: e.target.value })}
                         className="w-10 h-9 rounded border border-border cursor-pointer"
                       />
                       <Input
-                        value={config.buttonBorderColor || '#3b82f6'}
+                        value={config.buttonBorderColor || '#000000'}
                         onChange={(e) => updateConfig({ buttonBorderColor: e.target.value })}
                         className="flex-1 font-mono text-xs"
                       />
@@ -2439,11 +2439,11 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           <div className="flex gap-2">
             <div 
               className="relative w-10 h-8 rounded border overflow-hidden cursor-pointer"
-              style={{ backgroundColor: config.loadingBarColor || 'hsl(var(--primary))' }}
+              style={{ backgroundColor: config.loadingBarColor || '#000000' }}
             >
               <input
                 type="color"
-                value={config.loadingBarColor || '#22c55e'}
+                value={config.loadingBarColor || '#000000'}
                 onChange={(e) => updateConfig({ loadingBarColor: e.target.value })}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />
@@ -3133,11 +3133,11 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                     <div className="flex gap-2">
                       <div 
                         className="relative w-10 h-8 rounded border overflow-hidden cursor-pointer"
-                        style={{ backgroundColor: item.borderColor || 'hsl(var(--primary) / 0.3)' }}
+                        style={{ backgroundColor: item.borderColor || '#000000' }}
                       >
                         <input
                           type="color"
-                          value={item.borderColor || '#8b5cf6'}
+                          value={item.borderColor || '#000000'}
                           onChange={(e) => updateArgument(item.id, { borderColor: e.target.value })}
                           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                         />
