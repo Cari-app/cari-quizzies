@@ -1929,16 +1929,16 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               >
                 {value}%
               </span>
-              <div className="w-full h-16 rounded-xl overflow-hidden relative" style={{ 
-                background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.05) 100%)',
-                boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.15)'
+              <div className="w-full h-16 rounded-lg overflow-hidden relative" style={{ 
+                background: 'linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.03) 100%)',
+                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
               }}>
                 <div 
-                  className="absolute bottom-0 left-0 w-full rounded-xl transition-all duration-700 ease-out"
+                  className="absolute bottom-0 left-0 w-full rounded-t-lg transition-all duration-700 ease-out"
                   style={{ 
                     height: `${Math.max(8, value)}%`,
                     background: colorGradients[color] || colorGradients.theme,
-                    boxShadow: '0 -2px 10px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.3)'
+                    boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.25)'
                   }}
                 />
               </div>
