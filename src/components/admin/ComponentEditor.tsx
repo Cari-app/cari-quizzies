@@ -198,9 +198,31 @@ export interface ComponentConfig {
   maxLength?: number;
   // Button specific
   buttonText?: string;
-  buttonStyle?: 'primary' | 'secondary' | 'outline';
+  buttonStyle?: 'primary' | 'secondary' | 'outline' | 'custom';
   buttonAction?: 'next' | 'submit' | 'link';
   buttonLink?: string;
+  // Button design
+  buttonSize?: 'sm' | 'md' | 'lg' | 'xl';
+  buttonFullWidth?: boolean;
+  buttonBgColor?: string;
+  buttonTextColor?: string;
+  buttonBorderColor?: string;
+  buttonBorderWidth?: number;
+  buttonBorderRadius?: number;
+  buttonShadow?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'glow';
+  buttonGradient?: boolean;
+  buttonGradientFrom?: string;
+  buttonGradientTo?: string;
+  buttonGradientDirection?: 'to-r' | 'to-l' | 'to-t' | 'to-b' | 'to-tr' | 'to-tl' | 'to-br' | 'to-bl';
+  buttonHoverEffect?: 'none' | 'darken' | 'lighten' | 'scale' | 'lift' | 'glow';
+  buttonAnimation?: 'none' | 'pulse' | 'bounce' | 'shine' | 'shake';
+  buttonIcon?: string;
+  buttonIconPosition?: 'left' | 'right';
+  buttonPaddingX?: number;
+  buttonPaddingY?: number;
+  buttonFontWeight?: 'normal' | 'medium' | 'semibold' | 'bold';
+  buttonFontSize?: number;
+  buttonLetterSpacing?: number;
   // Options specific
   options?: OptionItem[];
   allowMultiple?: boolean;
@@ -758,62 +780,427 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     );
   };
 
-  const renderButtonComponentTab = () => (
-    <div className="space-y-4">
-      <ComponentIdDisplay
-        id={component.id}
-        customId={component.customId}
-        type={component.type}
-        onUpdateCustomId={onUpdateCustomId}
-        generateSlug={generateSlug}
-      />
-      <div>
-        <Label className="text-xs text-muted-foreground">Texto do botão</Label>
-        <RichTextInput
-          value={config.buttonText || 'Continuar'}
-          onChange={(buttonText) => updateConfig({ buttonText })}
-          className="mt-1"
+  const renderButtonComponentTab = () => {
+    const emojiList = ['🚀', '✅', '→', '↗', '💪', '🔥', '⭐', '💎', '🎯', '❤️', '👍', '✨', '🎉', '💰', '🛒', '📩'];
+    
+    return (
+      <div className="space-y-4">
+        <ComponentIdDisplay
+          id={component.id}
+          customId={component.customId}
+          type={component.type}
+          onUpdateCustomId={onUpdateCustomId}
+          generateSlug={generateSlug}
         />
-      </div>
-      <div>
-        <Label className="text-xs text-muted-foreground">Estilo</Label>
-        <Select value={config.buttonStyle || 'primary'} onValueChange={(v) => updateConfig({ buttonStyle: v as ComponentConfig['buttonStyle'] })}>
-          <SelectTrigger className="mt-1">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="primary">Primário</SelectItem>
-            <SelectItem value="secondary">Secundário</SelectItem>
-            <SelectItem value="outline">Outline</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div>
-        <Label className="text-xs text-muted-foreground">Ação</Label>
-        <Select value={config.buttonAction || 'next'} onValueChange={(v) => updateConfig({ buttonAction: v as ComponentConfig['buttonAction'] })}>
-          <SelectTrigger className="mt-1">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="next">Próxima etapa</SelectItem>
-            <SelectItem value="submit">Enviar formulário</SelectItem>
-            <SelectItem value="link">Abrir link</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      {config.buttonAction === 'link' && (
+        
+        {/* Texto do botão */}
         <div>
-          <Label className="text-xs text-muted-foreground">URL do link</Label>
-          <Input
-            value={config.buttonLink || ''}
-            onChange={(e) => updateConfig({ buttonLink: e.target.value })}
-            placeholder="https://..."
+          <Label className="text-xs text-muted-foreground">Texto do botão</Label>
+          <RichTextInput
+            value={config.buttonText || 'Continuar'}
+            onChange={(buttonText) => updateConfig({ buttonText })}
             className="mt-1"
           />
         </div>
-      )}
-    </div>
-  );
+        
+        {/* Ação */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Ação</Label>
+          <Select value={config.buttonAction || 'next'} onValueChange={(v) => updateConfig({ buttonAction: v as ComponentConfig['buttonAction'] })}>
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="next">Próxima etapa</SelectItem>
+              <SelectItem value="submit">Enviar formulário</SelectItem>
+              <SelectItem value="link">Abrir link</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        {config.buttonAction === 'link' && (
+          <div>
+            <Label className="text-xs text-muted-foreground">URL do link</Label>
+            <Input
+              value={config.buttonLink || ''}
+              onChange={(e) => updateConfig({ buttonLink: e.target.value })}
+              placeholder="https://..."
+              className="mt-1"
+            />
+          </div>
+        )}
+
+        {/* Ícone */}
+        <Collapsible>
+          <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Plus className="w-4 h-4" />
+            ÍCONE
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-4 space-y-4">
+            <div>
+              <Label className="text-xs text-muted-foreground">Ícone</Label>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <button
+                  onClick={() => updateConfig({ buttonIcon: '' })}
+                  className={cn(
+                    "w-10 h-10 rounded-lg border flex items-center justify-center text-xs transition-colors",
+                    !config.buttonIcon ? "border-primary bg-primary/10" : "border-border hover:bg-muted"
+                  )}
+                >
+                  Nenhum
+                </button>
+                {emojiList.map((emoji) => (
+                  <button
+                    key={emoji}
+                    onClick={() => updateConfig({ buttonIcon: emoji })}
+                    className={cn(
+                      "w-10 h-10 rounded-lg border flex items-center justify-center text-lg transition-colors",
+                      config.buttonIcon === emoji ? "border-primary bg-primary/10" : "border-border hover:bg-muted"
+                    )}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {config.buttonIcon && (
+              <div>
+                <Label className="text-xs text-muted-foreground">Posição do ícone</Label>
+                <Select 
+                  value={config.buttonIconPosition || 'right'} 
+                  onValueChange={(v) => updateConfig({ buttonIconPosition: v as 'left' | 'right' })}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="left">Esquerda</SelectItem>
+                    <SelectItem value="right">Direita</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Design */}
+        <Collapsible>
+          <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Plus className="w-4 h-4" />
+            DESIGN
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-4 space-y-4">
+            {/* Estilo base */}
+            <div>
+              <Label className="text-xs text-muted-foreground">Estilo base</Label>
+              <Select value={config.buttonStyle || 'primary'} onValueChange={(v) => updateConfig({ buttonStyle: v as ComponentConfig['buttonStyle'] })}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="primary">Primário</SelectItem>
+                  <SelectItem value="secondary">Secundário</SelectItem>
+                  <SelectItem value="outline">Outline</SelectItem>
+                  <SelectItem value="custom">Customizado</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Cores customizadas (só mostra se estilo for custom) */}
+            {config.buttonStyle === 'custom' && (
+              <>
+                {/* Gradiente toggle */}
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs text-muted-foreground">Usar gradiente</Label>
+                  <Switch
+                    checked={config.buttonGradient || false}
+                    onCheckedChange={(checked) => updateConfig({ buttonGradient: checked })}
+                  />
+                </div>
+
+                {config.buttonGradient ? (
+                  <>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Cor inicial</Label>
+                        <div className="flex gap-2 mt-1">
+                          <input
+                            type="color"
+                            value={config.buttonGradientFrom || '#3b82f6'}
+                            onChange={(e) => updateConfig({ buttonGradientFrom: e.target.value })}
+                            className="w-10 h-9 rounded border border-border cursor-pointer"
+                          />
+                          <Input
+                            value={config.buttonGradientFrom || '#3b82f6'}
+                            onChange={(e) => updateConfig({ buttonGradientFrom: e.target.value })}
+                            className="flex-1 font-mono text-xs"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground">Cor final</Label>
+                        <div className="flex gap-2 mt-1">
+                          <input
+                            type="color"
+                            value={config.buttonGradientTo || '#8b5cf6'}
+                            onChange={(e) => updateConfig({ buttonGradientTo: e.target.value })}
+                            className="w-10 h-9 rounded border border-border cursor-pointer"
+                          />
+                          <Input
+                            value={config.buttonGradientTo || '#8b5cf6'}
+                            onChange={(e) => updateConfig({ buttonGradientTo: e.target.value })}
+                            className="flex-1 font-mono text-xs"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Direção do gradiente</Label>
+                      <Select 
+                        value={config.buttonGradientDirection || 'to-r'} 
+                        onValueChange={(v) => updateConfig({ buttonGradientDirection: v as ComponentConfig['buttonGradientDirection'] })}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="to-r">→ Para direita</SelectItem>
+                          <SelectItem value="to-l">← Para esquerda</SelectItem>
+                          <SelectItem value="to-t">↑ Para cima</SelectItem>
+                          <SelectItem value="to-b">↓ Para baixo</SelectItem>
+                          <SelectItem value="to-tr">↗ Diagonal superior</SelectItem>
+                          <SelectItem value="to-br">↘ Diagonal inferior</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                ) : (
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Cor de fundo</Label>
+                    <div className="flex gap-2 mt-1">
+                      <input
+                        type="color"
+                        value={config.buttonBgColor || '#3b82f6'}
+                        onChange={(e) => updateConfig({ buttonBgColor: e.target.value })}
+                        className="w-10 h-9 rounded border border-border cursor-pointer"
+                      />
+                      <Input
+                        value={config.buttonBgColor || '#3b82f6'}
+                        onChange={(e) => updateConfig({ buttonBgColor: e.target.value })}
+                        className="flex-1 font-mono text-xs"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <Label className="text-xs text-muted-foreground">Cor do texto</Label>
+                  <div className="flex gap-2 mt-1">
+                    <input
+                      type="color"
+                      value={config.buttonTextColor || '#ffffff'}
+                      onChange={(e) => updateConfig({ buttonTextColor: e.target.value })}
+                      className="w-10 h-9 rounded border border-border cursor-pointer"
+                    />
+                    <Input
+                      value={config.buttonTextColor || '#ffffff'}
+                      onChange={(e) => updateConfig({ buttonTextColor: e.target.value })}
+                      className="flex-1 font-mono text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Cor da borda</Label>
+                    <div className="flex gap-2 mt-1">
+                      <input
+                        type="color"
+                        value={config.buttonBorderColor || '#3b82f6'}
+                        onChange={(e) => updateConfig({ buttonBorderColor: e.target.value })}
+                        className="w-10 h-9 rounded border border-border cursor-pointer"
+                      />
+                      <Input
+                        value={config.buttonBorderColor || '#3b82f6'}
+                        onChange={(e) => updateConfig({ buttonBorderColor: e.target.value })}
+                        className="flex-1 font-mono text-xs"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Espessura da borda</Label>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Slider
+                        value={[config.buttonBorderWidth ?? 0]}
+                        onValueChange={(vals) => updateConfig({ buttonBorderWidth: vals[0] })}
+                        min={0}
+                        max={8}
+                        step={1}
+                        className="flex-1"
+                      />
+                      <span className="text-xs w-8 text-right">{config.buttonBorderWidth ?? 0}px</span>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Tamanho */}
+            <div>
+              <Label className="text-xs text-muted-foreground">Tamanho</Label>
+              <Select value={config.buttonSize || 'md'} onValueChange={(v) => updateConfig({ buttonSize: v as ComponentConfig['buttonSize'] })}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="sm">Pequeno</SelectItem>
+                  <SelectItem value="md">Médio</SelectItem>
+                  <SelectItem value="lg">Grande</SelectItem>
+                  <SelectItem value="xl">Extra grande</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Largura total */}
+            <div className="flex items-center justify-between">
+              <Label className="text-xs text-muted-foreground">Largura total</Label>
+              <Switch
+                checked={config.buttonFullWidth !== false}
+                onCheckedChange={(checked) => updateConfig({ buttonFullWidth: checked })}
+              />
+            </div>
+
+            {/* Border radius */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label className="text-xs text-muted-foreground">Arredondamento</Label>
+                <span className="text-xs">{config.buttonBorderRadius ?? 8}px</span>
+              </div>
+              <Slider
+                value={[config.buttonBorderRadius ?? 8]}
+                onValueChange={(vals) => updateConfig({ buttonBorderRadius: vals[0] })}
+                min={0}
+                max={50}
+                step={2}
+              />
+            </div>
+
+            {/* Sombra */}
+            <div>
+              <Label className="text-xs text-muted-foreground">Sombra</Label>
+              <Select value={config.buttonShadow || 'none'} onValueChange={(v) => updateConfig({ buttonShadow: v as ComponentConfig['buttonShadow'] })}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhuma</SelectItem>
+                  <SelectItem value="sm">Pequena</SelectItem>
+                  <SelectItem value="md">Média</SelectItem>
+                  <SelectItem value="lg">Grande</SelectItem>
+                  <SelectItem value="xl">Extra grande</SelectItem>
+                  <SelectItem value="glow">Glow (brilho)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Tipografia */}
+        <Collapsible>
+          <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Plus className="w-4 h-4" />
+            TIPOGRAFIA
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-4 space-y-4">
+            <div>
+              <Label className="text-xs text-muted-foreground">Peso da fonte</Label>
+              <Select value={config.buttonFontWeight || 'medium'} onValueChange={(v) => updateConfig({ buttonFontWeight: v as ComponentConfig['buttonFontWeight'] })}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="normal">Normal</SelectItem>
+                  <SelectItem value="medium">Médio</SelectItem>
+                  <SelectItem value="semibold">Semi-bold</SelectItem>
+                  <SelectItem value="bold">Bold</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label className="text-xs text-muted-foreground">Tamanho da fonte</Label>
+                <span className="text-xs">{config.buttonFontSize ?? 14}px</span>
+              </div>
+              <Slider
+                value={[config.buttonFontSize ?? 14]}
+                onValueChange={(vals) => updateConfig({ buttonFontSize: vals[0] })}
+                min={10}
+                max={24}
+                step={1}
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label className="text-xs text-muted-foreground">Espaçamento das letras</Label>
+                <span className="text-xs">{config.buttonLetterSpacing ?? 0}px</span>
+              </div>
+              <Slider
+                value={[config.buttonLetterSpacing ?? 0]}
+                onValueChange={(vals) => updateConfig({ buttonLetterSpacing: vals[0] })}
+                min={-2}
+                max={8}
+                step={0.5}
+              />
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* Efeitos */}
+        <Collapsible>
+          <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <Plus className="w-4 h-4" />
+            EFEITOS
+          </CollapsibleTrigger>
+          <CollapsibleContent className="pt-4 space-y-4">
+            <div>
+              <Label className="text-xs text-muted-foreground">Efeito ao passar o mouse</Label>
+              <Select value={config.buttonHoverEffect || 'none'} onValueChange={(v) => updateConfig({ buttonHoverEffect: v as ComponentConfig['buttonHoverEffect'] })}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhum</SelectItem>
+                  <SelectItem value="darken">Escurecer</SelectItem>
+                  <SelectItem value="lighten">Clarear</SelectItem>
+                  <SelectItem value="scale">Aumentar</SelectItem>
+                  <SelectItem value="lift">Elevar</SelectItem>
+                  <SelectItem value="glow">Brilho</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label className="text-xs text-muted-foreground">Animação contínua</Label>
+              <Select value={config.buttonAnimation || 'none'} onValueChange={(v) => updateConfig({ buttonAnimation: v as ComponentConfig['buttonAnimation'] })}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhuma</SelectItem>
+                  <SelectItem value="pulse">Pulsar</SelectItem>
+                  <SelectItem value="bounce">Pular</SelectItem>
+                  <SelectItem value="shine">Brilho deslizante</SelectItem>
+                  <SelectItem value="shake">Tremer</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
+    );
+  };
 
   const [expandedOptionId, setExpandedOptionId] = useState<string | null>(null);
   const [showMediaSelector, setShowMediaSelector] = useState<string | null>(null);

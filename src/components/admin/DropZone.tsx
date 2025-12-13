@@ -421,19 +421,161 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             {config.helpText && <p className="text-xs opacity-60 mt-1">{config.helpText}</p>}
           </div>
         );
-      case 'button':
+      case 'button': {
+        const getSizeClasses = () => {
+          switch (config.buttonSize) {
+            case 'sm': return 'py-2 px-4 text-xs';
+            case 'lg': return 'py-4 px-8 text-base';
+            case 'xl': return 'py-5 px-10 text-lg';
+            default: return 'py-3 px-6 text-sm';
+          }
+        };
+
+        const getShadowClass = () => {
+          switch (config.buttonShadow) {
+            case 'sm': return 'shadow-sm';
+            case 'md': return 'shadow-md';
+            case 'lg': return 'shadow-lg';
+            case 'xl': return 'shadow-xl';
+            case 'glow': return 'shadow-[0_0_20px_rgba(var(--primary),0.4)]';
+            default: return '';
+          }
+        };
+
+        const getFontWeight = () => {
+          switch (config.buttonFontWeight) {
+            case 'normal': return 'font-normal';
+            case 'semibold': return 'font-semibold';
+            case 'bold': return 'font-bold';
+            default: return 'font-medium';
+          }
+        };
+
+        const getHoverEffect = () => {
+          switch (config.buttonHoverEffect) {
+            case 'darken': return 'hover:brightness-90';
+            case 'lighten': return 'hover:brightness-110';
+            case 'scale': return 'hover:scale-105';
+            case 'lift': return 'hover:-translate-y-1 hover:shadow-lg';
+            case 'glow': return 'hover:shadow-[0_0_25px_rgba(var(--primary),0.5)]';
+            default: return '';
+          }
+        };
+
+        const getAnimationClass = () => {
+          switch (config.buttonAnimation) {
+            case 'pulse': return 'animate-pulse';
+            case 'bounce': return 'animate-bounce';
+            case 'shine': return 'btn-shine';
+            case 'shake': return 'btn-shake';
+            default: return '';
+          }
+        };
+
+        const getGradientDirection = () => {
+          switch (config.buttonGradientDirection) {
+            case 'to-l': return 'bg-gradient-to-l';
+            case 'to-t': return 'bg-gradient-to-t';
+            case 'to-b': return 'bg-gradient-to-b';
+            case 'to-tr': return 'bg-gradient-to-tr';
+            case 'to-tl': return 'bg-gradient-to-tl';
+            case 'to-br': return 'bg-gradient-to-br';
+            case 'to-bl': return 'bg-gradient-to-bl';
+            default: return 'bg-gradient-to-r';
+          }
+        };
+
+        const isCustomStyle = config.buttonStyle === 'custom';
+        const buttonWidth = config.buttonFullWidth !== false ? 'w-full' : 'w-auto';
+
+        // Build custom style object
+        const customStyle: React.CSSProperties = {};
+        
+        if (isCustomStyle) {
+          if (config.buttonGradient) {
+            // Gradient will be applied via className
+          } else if (config.buttonBgColor) {
+            customStyle.backgroundColor = config.buttonBgColor;
+          }
+          if (config.buttonTextColor) {
+            customStyle.color = config.buttonTextColor;
+          }
+          if (config.buttonBorderColor && (config.buttonBorderWidth ?? 0) > 0) {
+            customStyle.borderColor = config.buttonBorderColor;
+            customStyle.borderWidth = `${config.buttonBorderWidth}px`;
+            customStyle.borderStyle = 'solid';
+          }
+        }
+        
+        if (config.buttonBorderRadius !== undefined) {
+          customStyle.borderRadius = `${config.buttonBorderRadius}px`;
+        }
+        if (config.buttonFontSize) {
+          customStyle.fontSize = `${config.buttonFontSize}px`;
+        }
+        if (config.buttonLetterSpacing) {
+          customStyle.letterSpacing = `${config.buttonLetterSpacing}px`;
+        }
+        if (config.buttonPaddingX) {
+          customStyle.paddingLeft = `${config.buttonPaddingX}px`;
+          customStyle.paddingRight = `${config.buttonPaddingX}px`;
+        }
+        if (config.buttonPaddingY) {
+          customStyle.paddingTop = `${config.buttonPaddingY}px`;
+          customStyle.paddingBottom = `${config.buttonPaddingY}px`;
+        }
+
+        // Gradient colors for custom style
+        const gradientStyle = isCustomStyle && config.buttonGradient ? {
+          background: `linear-gradient(${
+            config.buttonGradientDirection === 'to-r' ? 'to right' :
+            config.buttonGradientDirection === 'to-l' ? 'to left' :
+            config.buttonGradientDirection === 'to-t' ? 'to top' :
+            config.buttonGradientDirection === 'to-b' ? 'to bottom' :
+            config.buttonGradientDirection === 'to-tr' ? 'to top right' :
+            config.buttonGradientDirection === 'to-br' ? 'to bottom right' :
+            config.buttonGradientDirection === 'to-tl' ? 'to top left' :
+            config.buttonGradientDirection === 'to-bl' ? 'to bottom left' : 'to right'
+          }, ${config.buttonGradientFrom || '#3b82f6'}, ${config.buttonGradientTo || '#8b5cf6'})`
+        } : {};
+
+        const buttonContent = (
+          <>
+            {config.buttonIcon && config.buttonIconPosition === 'left' && (
+              <span className="mr-2">{config.buttonIcon}</span>
+            )}
+            <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.buttonText || 'Botão') }} />
+            {config.buttonIcon && config.buttonIconPosition !== 'left' && (
+              <span className="ml-2">{config.buttonIcon}</span>
+            )}
+          </>
+        );
+
         return (
           <div className="p-4">
-            <button className={cn(
-              "w-full py-3 rounded-lg text-sm font-medium transition-colors",
-              config.buttonStyle === 'primary' && "bg-primary text-primary-foreground",
-              config.buttonStyle === 'secondary' && "bg-secondary text-secondary-foreground",
-              config.buttonStyle === 'outline' && "border border-border bg-transparent"
-            )}>
-              {config.buttonText || 'Botão'}
+            <button 
+              className={cn(
+                "inline-flex items-center justify-center transition-all duration-200",
+                buttonWidth,
+                !config.buttonSize && getSizeClasses(),
+                getSizeClasses(),
+                getShadowClass(),
+                getFontWeight(),
+                getHoverEffect(),
+                getAnimationClass(),
+                !isCustomStyle && config.buttonStyle === 'primary' && "bg-primary text-primary-foreground",
+                !isCustomStyle && config.buttonStyle === 'secondary' && "bg-secondary text-secondary-foreground",
+                !isCustomStyle && config.buttonStyle === 'outline' && "border border-border bg-transparent",
+                !isCustomStyle && !config.buttonStyle && "bg-primary text-primary-foreground",
+                config.buttonBorderRadius === undefined && "rounded-lg"
+              )}
+              style={{ ...customStyle, ...gradientStyle }}
+            >
+              {buttonContent}
             </button>
           </div>
         );
+      }
       case 'options':
       case 'single':
       case 'multiple': {
