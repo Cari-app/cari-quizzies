@@ -76,7 +76,7 @@ export const defaultDesignSettings: QuizDesignSettings = {
   progressBar: 'top',
   headerDivider: {
     show: true,
-    color: '#A855F7',
+    color: '#000000',
     thickness: 1,
   },
   backIcon: {
@@ -84,10 +84,10 @@ export const defaultDesignSettings: QuizDesignSettings = {
     size: 'medium',
     style: 'chevron',
   },
-  primaryColor: '#A855F7',
+  primaryColor: '#000000',
   backgroundColor: '#FFFFFF',
   textColor: '#1F2937',
-  titleColor: '#A855F7',
+  titleColor: '#000000',
   fontSize: 16,
   titleSize: 'medium',
   titleFont: 'Montserrat',
