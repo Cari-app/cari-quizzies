@@ -229,22 +229,13 @@ export function SlidingRuler({
       </div>
       
       {/* Progress Track */}
-      <div className="relative h-3 mt-2 px-3">
+      <div className="relative h-2 mt-2">
         {/* Track Background */}
-        <div className="absolute inset-x-3 top-1/2 -translate-y-1/2 h-1.5 bg-foreground/20 rounded-full" />
+        <div className="absolute inset-0 h-1.5 bg-foreground/20 rounded-full" />
         {/* Progress Fill */}
         <div 
-          className="absolute top-1/2 -translate-y-1/2 h-1.5 rounded-full left-3"
-          style={{ width: `calc(${progressPercent}% - 12px)`, backgroundColor: barColor }}
-        />
-        {/* Thumb */}
-        <div 
-          className="absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-white rounded-full shadow-lg border-2"
-          style={{ 
-            left: `calc(${progressPercent}%)`,
-            transform: 'translate(-50%, -50%)',
-            borderColor: barColor
-          }}
+          className="absolute top-0 h-1.5 rounded-full"
+          style={{ width: `${progressPercent}%`, backgroundColor: barColor }}
         />
       </div>
       
