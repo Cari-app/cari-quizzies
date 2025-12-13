@@ -830,58 +830,6 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           </div>
         )}
 
-        {/* Ícone */}
-        <Collapsible>
-          <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <Plus className="w-4 h-4" />
-            ÍCONE
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pt-4 space-y-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">Ícone</Label>
-              <div className="flex flex-wrap gap-2 mt-2">
-                <button
-                  onClick={() => updateConfig({ buttonIcon: '' })}
-                  className={cn(
-                    "w-10 h-10 rounded-lg border flex items-center justify-center text-xs transition-colors",
-                    !config.buttonIcon ? "border-primary bg-primary/10" : "border-border hover:bg-muted"
-                  )}
-                >
-                  Nenhum
-                </button>
-                {emojiList.map((emoji) => (
-                  <button
-                    key={emoji}
-                    onClick={() => updateConfig({ buttonIcon: emoji })}
-                    className={cn(
-                      "w-10 h-10 rounded-lg border flex items-center justify-center text-lg transition-colors",
-                      config.buttonIcon === emoji ? "border-primary bg-primary/10" : "border-border hover:bg-muted"
-                    )}
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {config.buttonIcon && (
-              <div>
-                <Label className="text-xs text-muted-foreground">Posição do ícone</Label>
-                <Select 
-                  value={config.buttonIconPosition || 'right'} 
-                  onValueChange={(v) => updateConfig({ buttonIconPosition: v as 'left' | 'right' })}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="left">Esquerda</SelectItem>
-                    <SelectItem value="right">Direita</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-          </CollapsibleContent>
-        </Collapsible>
 
         {/* Design */}
         <Collapsible>
@@ -1105,57 +1053,6 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           </CollapsibleContent>
         </Collapsible>
 
-        {/* Tipografia */}
-        <Collapsible>
-          <CollapsibleTrigger className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <Plus className="w-4 h-4" />
-            TIPOGRAFIA
-          </CollapsibleTrigger>
-          <CollapsibleContent className="pt-4 space-y-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">Peso da fonte</Label>
-              <Select value={config.buttonFontWeight || 'medium'} onValueChange={(v) => updateConfig({ buttonFontWeight: v as ComponentConfig['buttonFontWeight'] })}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="normal">Normal</SelectItem>
-                  <SelectItem value="medium">Médio</SelectItem>
-                  <SelectItem value="semibold">Semi-bold</SelectItem>
-                  <SelectItem value="bold">Bold</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <Label className="text-xs text-muted-foreground">Tamanho da fonte</Label>
-                <span className="text-xs">{config.buttonFontSize ?? 14}px</span>
-              </div>
-              <Slider
-                value={[config.buttonFontSize ?? 14]}
-                onValueChange={(vals) => updateConfig({ buttonFontSize: vals[0] })}
-                min={10}
-                max={24}
-                step={1}
-              />
-            </div>
-
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <Label className="text-xs text-muted-foreground">Espaçamento das letras</Label>
-                <span className="text-xs">{config.buttonLetterSpacing ?? 0}px</span>
-              </div>
-              <Slider
-                value={[config.buttonLetterSpacing ?? 0]}
-                onValueChange={(vals) => updateConfig({ buttonLetterSpacing: vals[0] })}
-                min={-2}
-                max={8}
-                step={0.5}
-              />
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
 
         {/* Efeitos */}
         <Collapsible>
