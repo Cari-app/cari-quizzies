@@ -1973,12 +1973,34 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         
         const justifyClass = hAlign === 'center' ? 'justify-center' : hAlign === 'end' ? 'justify-end' : 'justify-start';
         
-        const layoutClasses: Record<string, string> = {
-          'list': 'flex flex-col',
-          'grid-2': 'grid grid-cols-2',
-          'grid-3': 'grid grid-cols-3',
-          'grid-4': 'grid grid-cols-4',
+        // Determine responsive columns based on width
+        const getResponsiveLayout = (baseLayout: string, widthPercent: number) => {
+          // If width is small, reduce columns
+          if (widthPercent <= 50) {
+            // For small widths, use max 2 columns or list
+            if (baseLayout === 'grid-4' || baseLayout === 'grid-3') return 'grid-cols-2';
+            if (baseLayout === 'grid-2') return 'grid-cols-1';
+            return 'flex-col';
+          }
+          if (widthPercent <= 70) {
+            // For medium widths, reduce by 1 column
+            if (baseLayout === 'grid-4') return 'grid-cols-3';
+            if (baseLayout === 'grid-3') return 'grid-cols-2';
+            return baseLayout === 'list' ? 'flex-col' : 'grid-cols-2';
+          }
+          // Full width, use original layout
+          const layoutClasses: Record<string, string> = {
+            'list': 'flex-col',
+            'grid-2': 'grid-cols-2',
+            'grid-3': 'grid-cols-3',
+            'grid-4': 'grid-cols-4',
+          };
+          return layoutClasses[baseLayout] || 'grid-cols-2';
         };
+        
+        const responsiveLayout = getResponsiveLayout(layout, widthValue);
+        const isGrid = layout !== 'list';
+        const layoutClass = isGrid ? `grid ${responsiveLayout}` : `flex ${responsiveLayout}`;
 
         const colorGradients: Record<string, string> = {
           theme: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.7) 100%)',
@@ -2084,7 +2106,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         return (
           <div className={cn("w-full px-4 py-4 flex", justifyClass)}>
             <div 
-              className={cn("gap-2", layoutClasses[layout])}
+              className={cn("gap-2", layoutClass)}
               style={{ width: `${widthValue}%` }}
             >
               {items.map((item: any) => (
