@@ -419,6 +419,16 @@ export interface ComponentConfig {
   }>;
   metricsLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
   metricsDisposition?: 'chart-legend' | 'legend-chart';
+  metricsBgType?: 'solid' | 'gradient' | 'transparent';
+  metricsBgColor?: string;
+  metricsGradientStart?: string;
+  metricsGradientEnd?: string;
+  metricsGradientAngle?: number;
+  metricsTextColor?: string;
+  metricsValueColor?: string;
+  metricsBorderColor?: string;
+  metricsBorderWidth?: number;
+  metricsBorderRadius?: number;
   // Charts specific
   chartConfig?: ChartConfig;
 }
@@ -4723,6 +4733,148 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     if (isMetricsComponent) {
       return (
         <div className="space-y-4">
+          {/* Fundo */}
+          <div className="border border-border rounded-lg p-3 space-y-3">
+            <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Fundo</Label>
+            
+            <div>
+              <Label className="text-xs text-muted-foreground">Tipo de fundo</Label>
+              <Select 
+                value={config.metricsBgType || 'solid'} 
+                onValueChange={(v) => updateConfig({ metricsBgType: v as 'solid' | 'gradient' | 'transparent' })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="solid">Cor sólida</SelectItem>
+                  <SelectItem value="gradient">Gradiente</SelectItem>
+                  <SelectItem value="transparent">Transparente</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {config.metricsBgType === 'gradient' && (
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Cor inicial</Label>
+                    <Input
+                      type="color"
+                      value={config.metricsGradientStart || '#667eea'}
+                      onChange={(e) => updateConfig({ metricsGradientStart: e.target.value })}
+                      className="mt-1 h-9 w-full cursor-pointer"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Cor final</Label>
+                    <Input
+                      type="color"
+                      value={config.metricsGradientEnd || '#764ba2'}
+                      onChange={(e) => updateConfig({ metricsGradientEnd: e.target.value })}
+                      className="mt-1 h-9 w-full cursor-pointer"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Ângulo ({config.metricsGradientAngle ?? 135}°)</Label>
+                  <Slider
+                    value={[config.metricsGradientAngle ?? 135]}
+                    onValueChange={([v]) => updateConfig({ metricsGradientAngle: v })}
+                    min={0}
+                    max={360}
+                    step={15}
+                    className="mt-2"
+                  />
+                </div>
+                <div 
+                  className="h-8 rounded-md border border-border"
+                  style={{
+                    background: `linear-gradient(${config.metricsGradientAngle ?? 135}deg, ${config.metricsGradientStart || '#667eea'}, ${config.metricsGradientEnd || '#764ba2'})`
+                  }}
+                />
+              </div>
+            )}
+
+            {(!config.metricsBgType || config.metricsBgType === 'solid') && (
+              <div>
+                <Label className="text-xs text-muted-foreground">Cor de fundo</Label>
+                <Input
+                  type="color"
+                  value={config.metricsBgColor || '#ffffff'}
+                  onChange={(e) => updateConfig({ metricsBgColor: e.target.value })}
+                  className="mt-1 h-9 w-full cursor-pointer"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Cores de texto */}
+          <div className="border border-border rounded-lg p-3 space-y-3">
+            <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Cores de texto</Label>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs text-muted-foreground">Legenda</Label>
+                <Input
+                  type="color"
+                  value={config.metricsTextColor || '#6b7280'}
+                  onChange={(e) => updateConfig({ metricsTextColor: e.target.value })}
+                  className="mt-1 h-9 w-full cursor-pointer"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Valor</Label>
+                <Input
+                  type="color"
+                  value={config.metricsValueColor || '#6b7280'}
+                  onChange={(e) => updateConfig({ metricsValueColor: e.target.value })}
+                  className="mt-1 h-9 w-full cursor-pointer"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Bordas */}
+          <div className="border border-border rounded-lg p-3 space-y-3">
+            <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Bordas</Label>
+            
+            <div>
+              <Label className="text-xs text-muted-foreground">Cor da borda</Label>
+              <Input
+                type="color"
+                value={config.metricsBorderColor || '#e5e7eb'}
+                onChange={(e) => updateConfig({ metricsBorderColor: e.target.value })}
+                className="mt-1 h-9 w-full cursor-pointer"
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs text-muted-foreground">Espessura</Label>
+                <Input
+                  type="number"
+                  value={config.metricsBorderWidth ?? 1}
+                  onChange={(e) => updateConfig({ metricsBorderWidth: parseInt(e.target.value) || 0 })}
+                  min={0}
+                  max={10}
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Arredondamento</Label>
+                <Input
+                  type="number"
+                  value={config.metricsBorderRadius ?? 8}
+                  onChange={(e) => updateConfig({ metricsBorderRadius: parseInt(e.target.value) || 0 })}
+                  min={0}
+                  max={50}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Width */}
           <div>
             <div className="flex items-center justify-between mb-2">

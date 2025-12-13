@@ -1863,6 +1863,18 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const widthValue = config.width || 100;
         const hAlign = config.horizontalAlign || 'start';
         
+        // Custom styles
+        const bgType = config.metricsBgType || 'solid';
+        const bgColor = config.metricsBgColor;
+        const gradientStart = config.metricsGradientStart || '#667eea';
+        const gradientEnd = config.metricsGradientEnd || '#764ba2';
+        const gradientAngle = config.metricsGradientAngle ?? 135;
+        const textColor = config.metricsTextColor;
+        const valueColor = config.metricsValueColor;
+        const borderColor = config.metricsBorderColor;
+        const borderWidth = config.metricsBorderWidth ?? 1;
+        const borderRadius = config.metricsBorderRadius ?? 8;
+        
         const justifyClass = hAlign === 'center' ? 'justify-center' : hAlign === 'end' ? 'justify-end' : 'justify-start';
         
         const layoutClasses: Record<string, string> = {
@@ -1901,12 +1913,23 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           red: 'text-red-500',
           black: 'text-foreground',
         };
+
+        const bgStyle = bgType === 'transparent' 
+          ? 'transparent'
+          : bgType === 'gradient' 
+            ? `linear-gradient(${gradientAngle}deg, ${gradientStart}, ${gradientEnd})`
+            : bgColor || undefined;
         
         const renderBarChart = (value: number, color: string) => {
           const height = Math.max(10, (value / 100) * 80);
           return (
             <div className="flex flex-col items-center gap-1">
-              <span className="text-xs text-muted-foreground">{value}%</span>
+              <span 
+                className="text-xs"
+                style={{ color: valueColor || undefined }}
+              >
+                {value}%
+              </span>
               <div className="w-8 h-14 bg-muted/30 rounded-sm flex items-end justify-center overflow-hidden">
                 <div 
                   className={cn("w-6 rounded-t-sm", colorBgClasses[color] || 'bg-primary')}
@@ -1946,7 +1969,10 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   className={colorStrokeClasses[color] || 'stroke-primary'}
                 />
               </svg>
-              <span className={cn("absolute text-xs font-semibold", colorTextClasses[color] || 'text-primary')}>
+              <span 
+                className={cn("absolute text-xs font-semibold", !valueColor && (colorTextClasses[color] || 'text-primary'))}
+                style={{ color: valueColor || undefined }}
+              >
                 {value}%
               </span>
             </div>
@@ -1960,10 +1986,23 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               style={{ width: `${widthValue}%` }}
             >
               {items.map((item: any) => (
-                <div key={item.id} className="flex flex-col items-center justify-center gap-2 p-3 bg-card rounded-lg border border-border">
+                <div 
+                  key={item.id} 
+                  className="flex flex-col items-center justify-center gap-2 p-3"
+                  style={{
+                    background: bgStyle,
+                    borderWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
+                    borderStyle: borderWidth > 0 ? 'solid' : 'none',
+                    borderColor: borderColor || undefined,
+                    borderRadius: `${borderRadius}px`,
+                  }}
+                >
                   {disposition === 'legend-chart' ? (
                     <>
-                      <p className="text-xs text-center text-muted-foreground px-1 leading-relaxed line-clamp-2">
+                      <p 
+                        className="text-xs text-center px-1 leading-relaxed line-clamp-2"
+                        style={{ color: textColor || undefined }}
+                      >
                         {item.label}
                       </p>
                       {item.type === 'bar' 
@@ -1977,7 +2016,10 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                         ? renderBarChart(item.value, item.color)
                         : renderCircularChart(item.value, item.color)
                       }
-                      <p className="text-xs text-center text-muted-foreground px-1 leading-relaxed line-clamp-2">
+                      <p 
+                        className="text-xs text-center px-1 leading-relaxed line-clamp-2"
+                        style={{ color: textColor || undefined }}
+                      >
                         {item.label}
                       </p>
                     </>

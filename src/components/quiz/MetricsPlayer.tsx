@@ -15,6 +15,17 @@ interface MetricsPlayerProps {
   width?: number;
   horizontalAlign?: 'start' | 'center' | 'end';
   verticalAlign?: 'auto' | 'start' | 'center' | 'end';
+  // Custom styling
+  bgType?: 'solid' | 'gradient' | 'transparent';
+  bgColor?: string;
+  gradientStart?: string;
+  gradientEnd?: string;
+  gradientAngle?: number;
+  textColor?: string;
+  valueColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  borderRadius?: number;
 }
 
 const colorClasses: Record<MetricItem['color'], string> = {
@@ -47,12 +58,17 @@ const colorStrokeClasses: Record<MetricItem['color'], string> = {
   black: 'stroke-foreground',
 };
 
-function BarChart({ value, color }: { value: number; color: MetricItem['color'] }) {
+function BarChart({ value, color, valueColor }: { value: number; color: MetricItem['color']; valueColor?: string }) {
   const height = Math.max(10, (value / 100) * 80);
   
   return (
     <div className="flex flex-col items-center gap-1">
-      <span className="text-sm text-muted-foreground">{value}%</span>
+      <span 
+        className="text-sm"
+        style={{ color: valueColor || undefined }}
+      >
+        {value}%
+      </span>
       <div className="w-12 h-20 bg-muted/30 rounded-sm flex items-end justify-center overflow-hidden">
         <div 
           className={cn("w-8 rounded-t-sm transition-all duration-500", colorBgClasses[color])}
@@ -63,7 +79,7 @@ function BarChart({ value, color }: { value: number; color: MetricItem['color'] 
   );
 }
 
-function CircularChart({ value, color }: { value: number; color: MetricItem['color'] }) {
+function CircularChart({ value, color, valueColor }: { value: number; color: MetricItem['color']; valueColor?: string }) {
   const radius = 30;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (value / 100) * circumference;
@@ -94,26 +110,61 @@ function CircularChart({ value, color }: { value: number; color: MetricItem['col
           className={cn("transition-all duration-500", colorStrokeClasses[color])}
         />
       </svg>
-      <span className={cn("absolute text-lg font-semibold", colorClasses[color])}>
+      <span 
+        className={cn("absolute text-lg font-semibold", !valueColor && colorClasses[color])}
+        style={{ color: valueColor || undefined }}
+      >
         {value}%
       </span>
     </div>
   );
 }
 
-function MetricCard({ item, disposition }: { item: MetricItem; disposition: MetricsPlayerProps['disposition'] }) {
+interface MetricCardProps {
+  item: MetricItem;
+  disposition: MetricsPlayerProps['disposition'];
+  bgStyle?: string;
+  textColor?: string;
+  valueColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  borderRadius?: number;
+}
+
+function MetricCard({ 
+  item, 
+  disposition, 
+  bgStyle, 
+  textColor, 
+  valueColor,
+  borderColor, 
+  borderWidth = 1, 
+  borderRadius = 8 
+}: MetricCardProps) {
   const chart = item.type === 'bar' 
-    ? <BarChart value={item.value} color={item.color} />
-    : <CircularChart value={item.value} color={item.color} />;
+    ? <BarChart value={item.value} color={item.color} valueColor={valueColor} />
+    : <CircularChart value={item.value} color={item.color} valueColor={valueColor} />;
   
   const legend = (
-    <p className="text-sm text-center text-muted-foreground px-2 leading-relaxed">
+    <p 
+      className="text-sm text-center px-2 leading-relaxed"
+      style={{ color: textColor || undefined }}
+    >
       {item.label}
     </p>
   );
 
   return (
-    <div className="flex flex-col items-center justify-center gap-3 p-4 bg-card rounded-lg border border-border">
+    <div 
+      className="flex flex-col items-center justify-center gap-3 p-4"
+      style={{
+        background: bgStyle,
+        borderWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
+        borderStyle: borderWidth > 0 ? 'solid' : 'none',
+        borderColor: borderColor || undefined,
+        borderRadius: `${borderRadius}px`,
+      }}
+    >
       {disposition === 'legend-chart' ? (
         <>
           {legend}
@@ -136,6 +187,16 @@ export function MetricsPlayer({
   width = 100,
   horizontalAlign = 'start',
   verticalAlign = 'auto',
+  bgType = 'solid',
+  bgColor,
+  gradientStart = '#667eea',
+  gradientEnd = '#764ba2',
+  gradientAngle = 135,
+  textColor,
+  valueColor,
+  borderColor,
+  borderWidth = 1,
+  borderRadius = 8,
 }: MetricsPlayerProps) {
   const alignClasses = {
     start: 'justify-start',
@@ -157,6 +218,12 @@ export function MetricsPlayer({
     'grid-4': 'grid grid-cols-4',
   };
 
+  const bgStyle = bgType === 'transparent' 
+    ? 'transparent'
+    : bgType === 'gradient' 
+      ? `linear-gradient(${gradientAngle}deg, ${gradientStart}, ${gradientEnd})`
+      : bgColor || undefined;
+
   return (
     <div 
       className={cn("flex", alignClasses[horizontalAlign], verticalAlignClasses[verticalAlign])}
@@ -169,7 +236,17 @@ export function MetricsPlayer({
         style={{ width: `${width}%` }}
       >
         {items.map((item) => (
-          <MetricCard key={item.id} item={item} disposition={disposition} />
+          <MetricCard 
+            key={item.id} 
+            item={item} 
+            disposition={disposition}
+            bgStyle={bgStyle}
+            textColor={textColor}
+            valueColor={valueColor}
+            borderColor={borderColor}
+            borderWidth={borderWidth}
+            borderRadius={borderRadius}
+          />
         ))}
       </div>
     </div>
