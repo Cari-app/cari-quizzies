@@ -1137,20 +1137,35 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const description = config.loadingDescription || '';
         const showTitle = config.showLoadingTitle !== false;
         const showProgress = config.showLoadingProgress !== false;
+        const bgColor = config.loadingBgColor;
+        const textColor = config.loadingTextColor;
+        const barColor = config.loadingBarColor;
+        const borderColor = config.loadingBorderColor;
         
         return (
-          <div className="w-full border border-border rounded-lg p-4 bg-background">
+          <div 
+            className="w-full rounded-lg p-4"
+            style={{
+              backgroundColor: bgColor || undefined,
+              borderWidth: '1px',
+              borderStyle: 'solid',
+              borderColor: borderColor || 'hsl(var(--border))'
+            }}
+          >
             {showTitle && (
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium">{title}</span>
-                <span className="text-xs text-muted-foreground">100%</span>
+                <span className="text-sm font-medium" style={{ color: textColor || undefined }}>{title}</span>
+                <span className="text-xs" style={{ color: textColor ? `${textColor}80` : undefined }}>100%</span>
               </div>
             )}
             {showProgress && (
-              <div className="h-2 bg-foreground rounded-full mb-3" />
+              <div 
+                className="h-2 rounded-full mb-3" 
+                style={{ backgroundColor: barColor || 'hsl(var(--foreground))' }}
+              />
             )}
             {description && (
-              <p className="text-sm text-muted-foreground text-center">{description}</p>
+              <p className="text-sm text-center" style={{ color: textColor ? `${textColor}99` : undefined }}>{description}</p>
             )}
           </div>
         );
@@ -1166,9 +1181,14 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const showProgress = config.showLevelProgress !== false;
         const levelType = config.levelType || 'line';
         const levelColor = config.levelColor || 'theme';
+        const bgColor = config.levelBgColor;
+        const textColor = config.levelTextColor;
+        const barColor = config.levelBarColor;
+        const borderColor = config.levelBorderColor;
         
-        // Get gradient/color based on levelColor
+        // Get gradient/color based on levelColor (or custom barColor)
         const getBarBackground = () => {
+          if (barColor) return barColor;
           switch (levelColor) {
             case 'green-red':
               return 'linear-gradient(to right, #22c55e, #eab308, #f97316, #ef4444)';
@@ -1194,12 +1214,17 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             {/* Indicator text tooltip */}
             {indicatorText && (
               <div 
-                className="absolute -top-8 transform -translate-x-1/2 bg-foreground text-background text-xs px-2 py-1 rounded whitespace-nowrap z-10"
-                style={{ left: `${percentage}%` }}
+                className="absolute -top-8 transform -translate-x-1/2 text-xs px-2 py-1 rounded whitespace-nowrap z-10"
+                style={{ 
+                  left: `${percentage}%`,
+                  backgroundColor: textColor || 'hsl(var(--foreground))',
+                  color: bgColor || 'hsl(var(--background))'
+                }}
               >
                 {indicatorText}
                 <div 
-                  className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-foreground"
+                  className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent"
+                  style={{ borderTopColor: textColor || 'hsl(var(--foreground))' }}
                 />
               </div>
             )}
@@ -1215,8 +1240,13 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             {/* Indicator circle - only shown when showMeter is true */}
             {showMeter && (
               <div 
-                className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-background border-2 border-foreground rounded-full shadow-md pointer-events-none"
-                style={{ left: `calc(${percentage}% - 8px)` }}
+                className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full shadow-md pointer-events-none"
+                style={{ 
+                  left: `calc(${percentage}% - 8px)`,
+                  backgroundColor: bgColor || 'hsl(var(--background))',
+                  borderWidth: '2px',
+                  borderColor: textColor || 'hsl(var(--foreground))'
+                }}
               />
             )}
           </div>
@@ -1231,12 +1261,17 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               {/* Indicator text tooltip */}
               {indicatorText && (
                 <div 
-                  className="absolute -top-8 transform -translate-x-1/2 bg-foreground text-background text-xs px-2 py-1 rounded whitespace-nowrap z-10"
-                  style={{ left: `${percentage}%` }}
+                  className="absolute -top-8 transform -translate-x-1/2 text-xs px-2 py-1 rounded whitespace-nowrap z-10"
+                  style={{ 
+                    left: `${percentage}%`,
+                    backgroundColor: textColor || 'hsl(var(--foreground))',
+                    color: bgColor || 'hsl(var(--background))'
+                  }}
                 >
                   {indicatorText}
                   <div 
-                    className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-foreground"
+                    className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent"
+                    style={{ borderTopColor: textColor || 'hsl(var(--foreground))' }}
                   />
                 </div>
               )}
@@ -1251,15 +1286,20 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                         "h-2 flex-1 rounded-full transition-colors",
                         isFilled ? "" : "bg-muted"
                       )}
-                      style={isFilled ? { background: levelColor === 'theme' || levelColor === 'opaque' ? 'hsl(var(--foreground))' : getBarBackground() } : undefined}
+                      style={isFilled ? { background: getBarBackground() } : undefined}
                     />
                   );
                 })}
                 {/* Indicator circle - only shown when showMeter is true */}
                 {showMeter && (
                   <div 
-                    className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-background border-2 border-foreground rounded-full shadow-md pointer-events-none"
-                    style={{ left: `calc(${percentage}% - 8px)` }}
+                    className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full shadow-md pointer-events-none"
+                    style={{ 
+                      left: `calc(${percentage}% - 8px)`,
+                      backgroundColor: bgColor || 'hsl(var(--background))',
+                      borderWidth: '2px',
+                      borderColor: textColor || 'hsl(var(--foreground))'
+                    }}
                   />
                 )}
               </div>
@@ -1268,18 +1308,26 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         };
         
         return (
-          <div className="w-full border border-border rounded-lg p-4 bg-background">
+          <div 
+            className="w-full rounded-lg p-4"
+            style={{
+              backgroundColor: bgColor || undefined,
+              borderWidth: '1px',
+              borderStyle: 'solid',
+              borderColor: borderColor || 'hsl(var(--border))'
+            }}
+          >
             {/* Header with title and percentage */}
             <div className="flex justify-between items-start mb-1">
-              <div className="font-semibold text-sm">{title}</div>
+              <div className="font-semibold text-sm" style={{ color: textColor || undefined }}>{title}</div>
               {showProgress && (
-                <div className="text-sm text-muted-foreground">{percentage}%</div>
+                <div className="text-sm" style={{ color: textColor ? `${textColor}99` : undefined }}>{percentage}%</div>
               )}
             </div>
             
             {/* Subtitle */}
             {subtitle && (
-              <div className="text-sm text-muted-foreground mb-2">{subtitle}</div>
+              <div className="text-sm mb-2" style={{ color: textColor ? `${textColor}99` : undefined }}>{subtitle}</div>
             )}
             
             {/* Level bar - always visible */}
@@ -1289,7 +1337,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             
             {/* Legends */}
             {legends.length > 0 && (
-              <div className="text-xs text-muted-foreground mt-2">
+              <div className="text-xs mt-2" style={{ color: textColor ? `${textColor}80` : undefined }}>
                 {legends.join(' · ')}
               </div>
             )}
