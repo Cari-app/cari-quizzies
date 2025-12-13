@@ -4511,27 +4511,100 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
     // Price component appearance
     if (isPriceComponent) {
+      const priceBgType = config.priceBgType || 'solid';
       return (
         <div className="space-y-4">
-          {/* Cor de fundo */}
+          {/* Tipo de fundo */}
           <div>
-            <Label className="text-xs text-muted-foreground mb-1 block">Cor de fundo</Label>
-            <div className="flex items-center gap-2">
-              <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.priceBgColor || '#ffffff' }}>
-                <input
-                  type="color"
+            <Label className="text-xs text-muted-foreground mb-1 block">Tipo de fundo</Label>
+            <Select
+              value={priceBgType}
+              onValueChange={(v) => updateConfig({ priceBgType: v as 'solid' | 'gradient' | 'transparent' })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="solid">Cor sólida</SelectItem>
+                <SelectItem value="gradient">Gradiente</SelectItem>
+                <SelectItem value="transparent">Transparente</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Cor de fundo (sólida) */}
+          {priceBgType === 'solid' && (
+            <div>
+              <Label className="text-xs text-muted-foreground mb-1 block">Cor de fundo</Label>
+              <div className="flex items-center gap-2">
+                <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.priceBgColor || '#ffffff' }}>
+                  <input
+                    type="color"
+                    value={config.priceBgColor || '#ffffff'}
+                    onChange={(e) => updateConfig({ priceBgColor: e.target.value })}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </div>
+                <Input
                   value={config.priceBgColor || '#ffffff'}
                   onChange={(e) => updateConfig({ priceBgColor: e.target.value })}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  className="flex-1 font-mono text-sm"
                 />
               </div>
-              <Input
-                value={config.priceBgColor || '#ffffff'}
-                onChange={(e) => updateConfig({ priceBgColor: e.target.value })}
-                className="flex-1 font-mono text-sm"
-              />
             </div>
-          </div>
+          )}
+
+          {/* Gradiente */}
+          {priceBgType === 'gradient' && (
+            <div className="space-y-3">
+              <div>
+                <Label className="text-xs text-muted-foreground mb-1 block">Cor inicial</Label>
+                <div className="flex items-center gap-2">
+                  <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.priceGradientStart || '#ffffff' }}>
+                    <input
+                      type="color"
+                      value={config.priceGradientStart || '#ffffff'}
+                      onChange={(e) => updateConfig({ priceGradientStart: e.target.value })}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                  <Input
+                    value={config.priceGradientStart || '#ffffff'}
+                    onChange={(e) => updateConfig({ priceGradientStart: e.target.value })}
+                    className="flex-1 font-mono text-sm"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground mb-1 block">Cor final</Label>
+                <div className="flex items-center gap-2">
+                  <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.priceGradientEnd || '#f3f4f6' }}>
+                    <input
+                      type="color"
+                      value={config.priceGradientEnd || '#f3f4f6'}
+                      onChange={(e) => updateConfig({ priceGradientEnd: e.target.value })}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                  <Input
+                    value={config.priceGradientEnd || '#f3f4f6'}
+                    onChange={(e) => updateConfig({ priceGradientEnd: e.target.value })}
+                    className="flex-1 font-mono text-sm"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground mb-1 block">Ângulo ({config.priceGradientAngle ?? 180}°)</Label>
+                <Slider
+                  value={[config.priceGradientAngle ?? 180]}
+                  onValueChange={([v]) => updateConfig({ priceGradientAngle: v })}
+                  min={0}
+                  max={360}
+                  step={15}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Cores de texto */}
           <div className="border border-border rounded-lg p-3 space-y-3">
