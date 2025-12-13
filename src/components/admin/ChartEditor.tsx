@@ -64,8 +64,8 @@ export function ChartEditorComponentTab({ config, onUpdate }: ChartEditorProps) 
         { id: crypto.randomUUID(), label: 'Amanhã', value: 80 },
       ],
       fillType: 'solid',
-      color: '#71717A',
-      gradientColors: ['#dc2626', '#fbbf24', '#22c55e'],
+      color: '#000000',
+      gradientColors: ['#000000', '#333333', '#666666'],
     };
     onUpdate({ 
       dataSets: [...config.dataSets, newDataSet],
@@ -499,7 +499,7 @@ export function ChartEditorAppearanceTab({ config, onUpdate }: ChartEditorProps)
               <Label className="text-xs text-muted-foreground">Cores por item</Label>
               <div className="space-y-2 mt-2">
                 {selectedDataSet.data.map((point, index) => {
-                  const defaultColors = ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4'];
+                  const defaultColors = ['#000000', '#333333', '#555555', '#777777', '#999999', '#BBBBBB', '#DDDDDD'];
                   const pointColor = point.color || defaultColors[index % defaultColors.length];
                   return (
                     <div key={point.id} className="flex gap-2 items-center">
@@ -616,8 +616,8 @@ export function getDefaultChartConfig(): ChartConfig {
           { id: crypto.randomUUID(), label: 'Amanhã', value: 90 },
         ],
         fillType: 'gradient',
-        color: '#dc2626',
-        gradientColors: ['#dc2626', '#fbbf24', '#22c55e'],
+        color: '#000000',
+        gradientColors: ['#000000', '#333333', '#666666'],
       },
       {
         id: dataSetBId,

@@ -551,7 +551,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             config.buttonGradientDirection === 'to-br' ? 'to bottom right' :
             config.buttonGradientDirection === 'to-tl' ? 'to top left' :
             config.buttonGradientDirection === 'to-bl' ? 'to bottom left' : 'to right'
-          }, ${config.buttonGradientFrom || '#3b82f6'}, ${config.buttonGradientTo || '#8b5cf6'})`
+          }, ${config.buttonGradientFrom || '#000000'}, ${config.buttonGradientTo || '#333333'})`
         } : {};
 
         // Determine text color for button content - ALWAYS force color to ensure visibility
