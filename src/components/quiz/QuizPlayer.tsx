@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback, forwardRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
@@ -606,7 +606,7 @@ function FaqAccordion({
   );
 }
 
-export function QuizPlayer({ slug }: QuizPlayerProps) {
+export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug }, ref) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
@@ -2946,6 +2946,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
 
   return (
     <div 
+      ref={ref}
       className="min-h-screen flex flex-col relative"
       style={{ 
         color: designSettings.textColor,
@@ -3160,4 +3161,6 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       {renderNotificationOverlay()}
     </div>
   );
-}
+});
+
+QuizPlayer.displayName = 'QuizPlayer';
