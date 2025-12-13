@@ -1683,7 +1683,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               {faqItems.map((item, index) => (
                 <div 
                   key={item.id}
-                  className="overflow-hidden"
+                  className="overflow-hidden w-full"
                   style={{
                     background: bgStyle,
                     borderWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
