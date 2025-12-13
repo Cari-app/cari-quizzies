@@ -8,9 +8,15 @@ export function sanitizeHtml(html: string | undefined | null): string {
   if (!html) return '';
   
   return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: ['b', 'i', 'u', 's', 'em', 'strong', 'span', 'p', 'br', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre', 'div', 'font'],
-    ALLOWED_ATTR: ['style', 'class', 'href', 'target', 'rel', 'color', 'size'],
-    ALLOW_DATA_ATTR: false,
+    ALLOWED_TAGS: [
+      'b', 'i', 'u', 's', 'em', 'strong', 'span', 'p', 'br', 
+      'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'a', 'ul', 'ol', 'li', 
+      'blockquote', 'code', 'pre', 'div', 'font',
+      // Tiptap specific tags
+      'mark', 'sub', 'sup', 'strike'
+    ],
+    ALLOWED_ATTR: ['style', 'class', 'href', 'target', 'rel', 'color', 'size', 'data-color'],
+    ALLOW_DATA_ATTR: true,
   });
 }
 
