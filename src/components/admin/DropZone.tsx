@@ -2084,10 +2084,12 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         };
         
         return (
-          <div className={cn("w-full px-4 py-4 flex", justifyClass)}>
+          <div 
+            className={cn("px-4 py-4 flex", justifyClass)}
+            style={{ width: `${widthValue}%` }}
+          >
             <div 
-              className={cn("gap-2", layoutClass)}
-              style={{ width: `${widthValue}%` }}
+              className={cn("gap-2 w-full", layoutClass)}
             >
               {items.map((item: any) => (
                 <div 
