@@ -342,6 +342,11 @@ export interface ComponentConfig {
   levelBorderColor?: string;
   levelBorderWidth?: number;
   levelBorderRadius?: number;
+  levelNavigation?: 'none' | 'next' | 'submit' | 'link';
+  levelDestination?: 'next' | 'specific';
+  levelDestinationStageId?: string;
+  levelDestinationUrl?: string;
+  levelNavigationDelay?: number;
   // Arguments specific
   argumentItems?: ArgumentItem[];
   argumentLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
@@ -2566,6 +2571,76 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           />
           <Label htmlFor="showProgress" className="text-sm cursor-pointer">Mostrar progresso?</Label>
         </div>
+      </div>
+
+      {/* Navegação */}
+      <div className="border border-border rounded-lg p-3 space-y-3">
+        <Label className="text-xs text-muted-foreground block">Navegação</Label>
+        
+        {/* Tipo de Navegação */}
+        <div>
+          <Label className="text-xs text-muted-foreground">Tipo de navegação</Label>
+          <Select 
+            value={config.levelNavigation || 'none'} 
+            onValueChange={(v) => updateConfig({ levelNavigation: v as ComponentConfig['levelNavigation'] })}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Nenhuma (apenas visual)</SelectItem>
+              <SelectItem value="next">Navegar entre etapas</SelectItem>
+              <SelectItem value="submit">Enviar formulário</SelectItem>
+              <SelectItem value="link">Redirecionar para URL</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Delay para navegação */}
+        {config.levelNavigation && config.levelNavigation !== 'none' && (
+          <div>
+            <Label className="text-xs text-muted-foreground">Delay (segundos)</Label>
+            <Input
+              type="number"
+              value={config.levelNavigationDelay ?? 2}
+              onChange={(e) => updateConfig({ levelNavigationDelay: parseInt(e.target.value) || 0 })}
+              min={0}
+              className="mt-1"
+            />
+          </div>
+        )}
+
+        {/* Destino do redirecionamento */}
+        {config.levelNavigation === 'next' && (
+          <div>
+            <Label className="text-xs text-muted-foreground">Destino do redirecionamento</Label>
+            <Select 
+              value={config.levelDestination || 'next'} 
+              onValueChange={(v) => updateConfig({ levelDestination: v as ComponentConfig['levelDestination'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="next">Etapa seguinte</SelectItem>
+                <SelectItem value="specific">Etapa específica</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {/* URL de redirecionamento */}
+        {config.levelNavigation === 'link' && (
+          <div>
+            <Label className="text-xs text-muted-foreground">URL de redirecionamento</Label>
+            <Input
+              value={config.levelDestinationUrl || ''}
+              onChange={(e) => updateConfig({ levelDestinationUrl: e.target.value })}
+              placeholder="https://..."
+              className="mt-1"
+            />
+          </div>
+        )}
       </div>
 
       {/* Cores */}
