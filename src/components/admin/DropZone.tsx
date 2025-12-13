@@ -1973,14 +1973,23 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         
         const justifyClass = hAlign === 'center' ? 'justify-center' : hAlign === 'end' ? 'justify-end' : 'justify-start';
         
-        const layoutClasses: Record<string, string> = {
-          'list': 'flex flex-col',
-          'grid-2': 'grid grid-cols-2',
-          'grid-3': 'grid grid-cols-3',
-          'grid-4': 'grid grid-cols-4',
+        // Calculate grid columns - use inline style for responsive behavior
+        const getGridStyle = (layoutType: string, containerWidth: number) => {
+          const cols = layoutType === 'list' ? 1 : 
+                       layoutType === 'grid-2' ? 2 : 
+                       layoutType === 'grid-3' ? 3 : 
+                       layoutType === 'grid-4' ? 4 : 2;
+          
+          // Minimum item width of 80px to ensure readability
+          const minItemWidth = 80;
+          return {
+            display: 'grid',
+            gridTemplateColumns: `repeat(auto-fit, minmax(${minItemWidth}px, 1fr))`,
+            maxColumns: cols,
+          };
         };
         
-        const layoutClass = layoutClasses[layout] || 'grid grid-cols-2';
+        const gridStyle = getGridStyle(layout, widthValue);
 
         const colorGradients: Record<string, string> = {
           theme: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.7) 100%)',
@@ -2086,8 +2095,10 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         return (
           <div className="w-full px-4 py-4">
             <div 
-              className={cn("gap-2", layoutClass)}
+              className="gap-2"
               style={{ 
+                display: 'grid',
+                gridTemplateColumns: `repeat(auto-fit, minmax(80px, 1fr))`,
                 width: `${widthValue}%`,
                 marginLeft: hAlign === 'center' ? 'auto' : hAlign === 'end' ? 'auto' : undefined,
                 marginRight: hAlign === 'center' ? 'auto' : hAlign === 'start' ? 'auto' : undefined,
