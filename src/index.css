@@ -28,9 +28,9 @@
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
 
-    /* Accent - Purple for small details (toggles, links, selectors) */
-    --accent: 271 91% 65%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent - Black for most UI elements */
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 9%;
 
     /* Destructive */
     --destructive: 0 84% 60%;
@@ -39,7 +39,7 @@
     /* Border & Input */
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    --ring: 271 91% 65%;
+    --ring: 0 0% 9%;
 
     /* Radius */
     --radius: 0.5rem;
@@ -49,12 +49,12 @@
     --sidebar-foreground: 0 0% 4%;
     --sidebar-primary: 0 0% 9%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 271 91% 65%;
-    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 9%;
     --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 271 91% 65%;
+    --sidebar-ring: 0 0% 9%;
 
-    /* Purple tokens for accents */
+    /* Purple tokens - ONLY for toggles and links */
     --purple: 271 91% 65%;
     --purple-foreground: 0 0% 100%;
   }
@@ -84,9 +84,9 @@
     --muted: 0 0% 12%;
     --muted-foreground: 0 0% 55%;
 
-    /* Accent - Purple for small details */
-    --accent: 271 91% 65%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent - White for most UI elements */
+    --accent: 0 0% 12%;
+    --accent-foreground: 0 0% 98%;
 
     /* Destructive */
     --destructive: 0 62% 30%;
@@ -95,19 +95,19 @@
     /* Border & Input */
     --border: 0 0% 15%;
     --input: 0 0% 15%;
-    --ring: 271 91% 65%;
+    --ring: 0 0% 98%;
 
     /* Sidebar */
     --sidebar-background: 0 0% 4%;
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 0 0% 98%;
     --sidebar-primary-foreground: 0 0% 4%;
-    --sidebar-accent: 271 91% 65%;
-    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 12%;
+    --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 0 0% 15%;
-    --sidebar-ring: 271 91% 65%;
+    --sidebar-ring: 0 0% 98%;
 
-    /* Purple tokens */
+    /* Purple tokens - ONLY for toggles and links */
     --purple: 271 91% 65%;
     --purple-foreground: 0 0% 100%;
   }
