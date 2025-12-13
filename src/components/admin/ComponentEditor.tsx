@@ -5083,6 +5083,21 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
     // FAQ component appearance
     if (isFaqComponent) {
+      // Helper component for full-width color bar picker
+      const ColorBarPicker = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
+        <div>
+          <Label className="text-xs text-muted-foreground mb-1 block">{label}</Label>
+          <div className="relative h-8 rounded-md border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: value }}>
+            <input
+              type="color"
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+          </div>
+        </div>
+      );
+      
       return (
         <div className="space-y-4">
           {/* Detalhe */}
@@ -5102,18 +5117,18 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             </Select>
           </div>
 
-          {/* Colors */}
+          {/* CORES section */}
           <div className="border border-border rounded-lg p-3 space-y-3">
             <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Cores</Label>
             
-            {/* Fundo */}
+            {/* Tipo de fundo */}
             <div>
-              <Label className="text-xs text-muted-foreground">Tipo de fundo</Label>
+              <Label className="text-xs text-muted-foreground mb-1 block">Tipo de fundo</Label>
               <Select 
                 value={config.faqBgType || 'solid'} 
                 onValueChange={(v) => updateConfig({ faqBgType: v as 'solid' | 'gradient' | 'transparent' })}
               >
-                <SelectTrigger className="mt-1">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -5124,105 +5139,71 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
               </Select>
             </div>
 
+            {/* Cor de fundo (sólida) */}
+            {(!config.faqBgType || config.faqBgType === 'solid') && (
+              <ColorBarPicker 
+                label="Cor de fundo" 
+                value={config.faqBgColor || '#ffffff'} 
+                onChange={(v) => updateConfig({ faqBgColor: v })} 
+              />
+            )}
+
+            {/* Gradiente */}
             {config.faqBgType === 'gradient' && (
               <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Cor inicial</Label>
-                    <Input
-                      type="color"
-                      value={config.faqGradientStart || '#667eea'}
-                      onChange={(e) => updateConfig({ faqGradientStart: e.target.value })}
-                      className="mt-1 h-9 w-full cursor-pointer"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Cor final</Label>
-                    <Input
-                      type="color"
-                      value={config.faqGradientEnd || '#764ba2'}
-                      onChange={(e) => updateConfig({ faqGradientEnd: e.target.value })}
-                      className="mt-1 h-9 w-full cursor-pointer"
-                    />
-                  </div>
-                </div>
+                <ColorBarPicker 
+                  label="Cor inicial" 
+                  value={config.faqGradientStart || '#667eea'} 
+                  onChange={(v) => updateConfig({ faqGradientStart: v })} 
+                />
+                <ColorBarPicker 
+                  label="Cor final" 
+                  value={config.faqGradientEnd || '#764ba2'} 
+                  onChange={(v) => updateConfig({ faqGradientEnd: v })} 
+                />
                 <div>
-                  <Label className="text-xs text-muted-foreground">Ângulo ({config.faqGradientAngle ?? 135}°)</Label>
+                  <Label className="text-xs text-muted-foreground mb-1 block">Ângulo ({config.faqGradientAngle ?? 135}°)</Label>
                   <Slider
                     value={[config.faqGradientAngle ?? 135]}
                     onValueChange={([v]) => updateConfig({ faqGradientAngle: v })}
                     min={0}
                     max={360}
                     step={15}
-                    className="mt-2"
                   />
                 </div>
-                {/* Preview */}
-                <div 
-                  className="h-8 rounded-md border border-border"
-                  style={{
-                    background: `linear-gradient(${config.faqGradientAngle ?? 135}deg, ${config.faqGradientStart || '#667eea'}, ${config.faqGradientEnd || '#764ba2'})`
-                  }}
-                />
               </div>
             )}
 
-            {(!config.faqBgType || config.faqBgType === 'solid') && (
-              <div>
-                <Label className="text-xs text-muted-foreground">Cor de fundo</Label>
-                <Input
-                  type="color"
-                  value={config.faqBgColor || '#ffffff'}
-                  onChange={(e) => updateConfig({ faqBgColor: e.target.value })}
-                  className="mt-1 h-9 w-full cursor-pointer"
-                />
-              </div>
-            )}
-
+            {/* Cores de texto em grid */}
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label className="text-xs text-muted-foreground">Título</Label>
-                <Input
-                  type="color"
-                  value={config.faqTextColor || '#1f2937'}
-                  onChange={(e) => updateConfig({ faqTextColor: e.target.value })}
-                  className="mt-1 h-9 w-full cursor-pointer"
-                />
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Resposta</Label>
-                <Input
-                  type="color"
-                  value={config.faqAnswerColor || '#6b7280'}
-                  onChange={(e) => updateConfig({ faqAnswerColor: e.target.value })}
-                  className="mt-1 h-9 w-full cursor-pointer"
-                />
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Ícone</Label>
-                <Input
-                  type="color"
-                  value={config.faqIconColor || '#6b7280'}
-                  onChange={(e) => updateConfig({ faqIconColor: e.target.value })}
-                  className="mt-1 h-9 w-full cursor-pointer"
-                />
-              </div>
+              <ColorBarPicker 
+                label="Título" 
+                value={config.faqTextColor || '#1f2937'} 
+                onChange={(v) => updateConfig({ faqTextColor: v })} 
+              />
+              <ColorBarPicker 
+                label="Resposta" 
+                value={config.faqAnswerColor || '#6b7280'} 
+                onChange={(v) => updateConfig({ faqAnswerColor: v })} 
+              />
             </div>
+            
+            <ColorBarPicker 
+              label="Ícone" 
+              value={config.faqIconColor || '#6b7280'} 
+              onChange={(v) => updateConfig({ faqIconColor: v })} 
+            />
           </div>
 
-          {/* Borders */}
+          {/* BORDAS section */}
           <div className="border border-border rounded-lg p-3 space-y-3">
             <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Bordas</Label>
             
-            <div>
-              <Label className="text-xs text-muted-foreground">Cor da borda</Label>
-              <Input
-                type="color"
-                value={config.faqBorderColor || '#e5e7eb'}
-                onChange={(e) => updateConfig({ faqBorderColor: e.target.value })}
-                className="mt-1 h-9 w-full cursor-pointer"
-              />
-            </div>
+            <ColorBarPicker 
+              label="Cor da borda" 
+              value={config.faqBorderColor || '#e5e7eb'} 
+              onChange={(v) => updateConfig({ faqBorderColor: v })} 
+            />
             
             <div className="grid grid-cols-2 gap-3">
               <div>
