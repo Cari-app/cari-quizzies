@@ -21,9 +21,14 @@ export interface QuizDesignSettings {
     type: 'image' | 'url' | 'emoji';
     value: string;
   };
-  logoSizePixels: number; // Size in pixels (20-200)
+  logoSizePixels: number;
   logoPosition: 'left' | 'center' | 'right';
-  logoLayout: 'above' | 'inline' | 'below'; // Logo position relative to progress bar
+  logoLayout: 'above' | 'inline' | 'below';
+  logoSpacing: {
+    marginTop: number;
+    marginBottom: number;
+    paddingX: number;
+  };
   progressBar: 'hidden' | 'top' | 'bottom';
   
   // HEADER STYLING
@@ -62,6 +67,11 @@ export const defaultDesignSettings: QuizDesignSettings = {
   logoSizePixels: 40,
   logoPosition: 'center',
   logoLayout: 'above',
+  logoSpacing: {
+    marginTop: 16,
+    marginBottom: 8,
+    paddingX: 16,
+  },
   progressBar: 'top',
   headerDivider: {
     show: true,
@@ -382,6 +392,50 @@ export function DesignEditor({ settings, onSettingsChange }: DesignEditorProps) 
                     <SelectItem value="below">Abaixo da barra</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+            </div>
+
+            {/* Logo Spacing */}
+            <div className="border-t border-border pt-4 space-y-3">
+              <Label className="text-xs font-semibold uppercase tracking-wider">Espaçamento da logo</Label>
+              
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Topo</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={60}
+                    value={settings.logoSpacing?.marginTop ?? 16}
+                    onChange={(e) => updateSettings({ 
+                      logoSpacing: { ...settings.logoSpacing, marginTop: Number(e.target.value) } 
+                    })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Base</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={60}
+                    value={settings.logoSpacing?.marginBottom ?? 8}
+                    onChange={(e) => updateSettings({ 
+                      logoSpacing: { ...settings.logoSpacing, marginBottom: Number(e.target.value) } 
+                    })}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Lateral</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={60}
+                    value={settings.logoSpacing?.paddingX ?? 16}
+                    onChange={(e) => updateSettings({ 
+                      logoSpacing: { ...settings.logoSpacing, paddingX: Number(e.target.value) } 
+                    })}
+                  />
+                </div>
               </div>
             </div>
 
