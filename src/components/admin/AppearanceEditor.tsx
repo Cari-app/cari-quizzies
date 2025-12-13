@@ -256,7 +256,10 @@ export function AppearanceEditor({ config, onUpdate, componentType, themeColor }
             <Label className="text-xs text-muted-foreground">Alinhamento horizontal</Label>
             <Select 
               value={config.horizontalAlign || 'start'} 
-              onValueChange={(v) => onUpdate({ horizontalAlign: v as AppearanceConfig['horizontalAlign'] })}
+              onValueChange={(v) => {
+                console.log('horizontalAlign changed to:', v);
+                onUpdate({ horizontalAlign: v as AppearanceConfig['horizontalAlign'] });
+              }}
             >
               <SelectTrigger className="mt-1">
                 <SelectValue />
@@ -272,7 +275,10 @@ export function AppearanceEditor({ config, onUpdate, componentType, themeColor }
             <Label className="text-xs text-muted-foreground">Alinhamento vertical</Label>
             <Select 
               value={config.verticalAlign || 'auto'} 
-              onValueChange={(v) => onUpdate({ verticalAlign: v as AppearanceConfig['verticalAlign'] })}
+              onValueChange={(v) => {
+                console.log('verticalAlign changed to:', v);
+                onUpdate({ verticalAlign: v as AppearanceConfig['verticalAlign'] });
+              }}
             >
               <SelectTrigger className="mt-1">
                 <SelectValue />
