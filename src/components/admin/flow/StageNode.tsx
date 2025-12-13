@@ -1,7 +1,14 @@
 import { memo } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { cn } from '@/lib/utils';
-import { icons } from 'lucide-react';
+import { icons, ChevronRight } from 'lucide-react';
+
+interface OptionItem {
+  id: string;
+  text: string;
+  destination?: string;
+  [key: string]: any;
+}
 
 interface ComponentData {
   id: string;
@@ -11,7 +18,7 @@ interface ComponentData {
   config?: {
     buttonAction?: string;
     autoAdvance?: boolean;
-    options?: Array<{ destination?: string }>;
+    options?: OptionItem[];
     [key: string]: any;
   };
 }
@@ -24,26 +31,25 @@ interface StageNodeData {
 }
 
 // Types that can trigger navigation
-const CONNECTABLE_TYPES = ['button', 'options', 'single_choice', 'multiple_choice', 'loading'];
+const CONNECTABLE_TYPES = ['button', 'loading'];
+const OPTIONS_TYPES = ['options', 'single', 'multiple', 'single_choice', 'multiple_choice'];
 
 const canConnect = (comp: ComponentData): boolean => {
   if (CONNECTABLE_TYPES.includes(comp.type)) {
-    // Check if button has navigation action
     if (comp.type === 'button') {
       const action = comp.config?.buttonAction;
       return action === 'next' || action === 'submit' || action === 'specific';
     }
-    // Check if options have auto-advance or destinations
-    if (comp.type === 'options' || comp.type === 'single_choice' || comp.type === 'multiple_choice') {
-      return comp.config?.autoAdvance !== false;
-    }
-    // Loading always navigates
     if (comp.type === 'loading') {
       return true;
     }
     return true;
   }
   return false;
+};
+
+const isOptionsComponent = (comp: ComponentData): boolean => {
+  return OPTIONS_TYPES.includes(comp.type);
 };
 
 // Map component types to icons
@@ -61,16 +67,22 @@ const getComponentIcon = (type: string, iconName: string) => {
   return <span className="text-[10px]">{iconName}</span>;
 };
 
+// Extract text from HTML
+const stripHtml = (html: string): string => {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  return doc.body.textContent || html;
+};
+
 export const StageNode = memo(({ data, selected }: NodeProps & { data: StageNodeData }) => {
   const allComponents = data.components;
   
   // Check if any component can navigate
-  const hasConnectableComponents = allComponents.some(comp => canConnect(comp));
+  const hasConnectableComponents = allComponents.some(comp => canConnect(comp) || isOptionsComponent(comp));
 
   return (
     <div
       className={cn(
-        "bg-background border rounded-lg shadow-sm min-w-[180px] max-w-[220px] transition-all",
+        "bg-background border rounded-lg shadow-sm min-w-[180px] max-w-[250px] transition-all",
         selected || data.isSelected 
           ? "border-primary ring-2 ring-primary/20" 
           : "border-border hover:border-muted-foreground/50"
@@ -94,6 +106,44 @@ export const StageNode = memo(({ data, selected }: NodeProps & { data: StageNode
           <>
             {allComponents.map((comp, idx) => {
               const isConnectable = canConnect(comp);
+              const hasOptions = isOptionsComponent(comp);
+              const options = comp.config?.options || [];
+              
+              // For options components, show each option with its own handle
+              if (hasOptions && options.length > 0) {
+                return (
+                  <div key={comp.id || idx} className="space-y-0.5">
+                    {/* Component header */}
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded text-[11px] bg-muted/30">
+                      {getComponentIcon(comp.type, comp.icon)}
+                      <span className="truncate flex-1 font-medium">{comp.name}</span>
+                    </div>
+                    
+                    {/* Individual options */}
+                    {options.map((option, optIdx) => (
+                      <div
+                        key={option.id || optIdx}
+                        className="flex items-center gap-1.5 pl-5 pr-2 py-0.5 rounded text-[10px] relative hover:bg-primary/10"
+                      >
+                        <ChevronRight className="w-2.5 h-2.5 text-muted-foreground/60" />
+                        <span className="truncate flex-1 text-muted-foreground">
+                          {stripHtml(option.text || `Opção ${optIdx + 1}`)}
+                        </span>
+                        
+                        {/* Individual option connection handle */}
+                        <Handle
+                          type="source"
+                          position={Position.Right}
+                          id={`opt-${comp.id}-${option.id}`}
+                          className="!w-2 !h-2 !bg-primary/60 !border-2 !border-primary !right-[-8px] hover:!bg-primary transition-colors"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                );
+              }
+              
+              // Regular connectable component
               return (
                 <div
                   key={comp.id || idx}
