@@ -1154,10 +1154,10 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           </Select>
 
           <div className="text-center p-4 border border-border rounded-lg bg-muted/20 space-y-2">
-            <RichTextInput
-              value={config.label || 'Qual a questão a ser respondida?'}
+<RichTextInput
+              value={config.label || ''}
               onChange={(label) => updateConfig({ label })}
-              placeholder="Título da pergunta"
+              placeholder="Qual a questão a ser respondida?"
               className="text-center"
             />
 <RichTextInput
