@@ -42,6 +42,16 @@ export interface FaqItem {
   answer: string;
 }
 
+export interface FormFieldItem {
+  id: string;
+  type: 'text' | 'email' | 'phone' | 'number' | 'date' | 'textarea';
+  label: string;
+  placeholder?: string;
+  required?: boolean;
+  customId?: string;
+  defaultCountry?: string;
+}
+
 export interface ComponentConfig {
   defaultCountry?: string;
   label?: string;
@@ -286,6 +296,10 @@ export interface ComponentConfig {
   // Webhook trigger specific
   webhookActive?: boolean;
   webhookDescription?: string;
+  // Form component specific
+  formFields?: FormFieldItem[];
+  formTitle?: string;
+  formSpacing?: 'compact' | 'normal' | 'relaxed';
 }
 
 export interface DroppedComponent {
