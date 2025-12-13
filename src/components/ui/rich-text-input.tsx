@@ -629,8 +629,11 @@ export function RichTextInput({
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
-      const cleanedHtml = html === "<p></p>" ? "" : html;
-      onChange(cleanedHtml);
+      // Clean up empty content - check for various empty states
+      const isEmpty = !html || html === "<p></p>" || html.trim() === "" || 
+                      html.replace(/<p><\/p>/g, '').trim() === "" ||
+                      html.replace(/<[^>]*>/g, '').trim() === "";
+      onChange(isEmpty ? "" : html);
     },
     onSelectionUpdate: ({ editor }) => {
       // Clear any pending hide timeout

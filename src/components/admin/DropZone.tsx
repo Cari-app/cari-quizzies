@@ -679,8 +679,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         
         return (
           <div className="p-4">
-            {config.label && <div className="rich-text font-medium mb-1" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
-            {config.description && <div className="rich-text text-muted-foreground mb-3" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.description) }} />}
+{config.label && config.label.replace(/<[^>]*>/g, '').trim() && <div className="rich-text font-medium mb-1" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
+            {config.description && config.description.replace(/<[^>]*>/g, '').trim() && <div className="rich-text text-muted-foreground mb-3" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.description) }} />}
             <div className={cn(getLayoutClass(), getSpacing())}>
               {(config.options || []).map((opt, i) => {
                 const isSelected = i === 0;
