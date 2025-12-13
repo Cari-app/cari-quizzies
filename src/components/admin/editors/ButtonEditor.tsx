@@ -31,16 +31,6 @@ const SHADOW_OPTIONS = [
   { value: 'glow', label: 'Glow' },
 ];
 
-const GRADIENT_DIRECTIONS = [
-  { value: 'to-r', label: '→ Direita' },
-  { value: 'to-l', label: '← Esquerda' },
-  { value: 'to-t', label: '↑ Cima' },
-  { value: 'to-b', label: '↓ Baixo' },
-  { value: 'to-tr', label: '↗ Diagonal' },
-  { value: 'to-tl', label: '↖ Diagonal' },
-  { value: 'to-br', label: '↘ Diagonal' },
-  { value: 'to-bl', label: '↙ Diagonal' },
-];
 
 export function ButtonComponentTab({ component, config, updateConfig, onUpdateCustomId }: EditorProps) {
   const [advancedOpen, setAdvancedOpen] = useState(false);
@@ -135,15 +125,16 @@ export function ButtonComponentTab({ component, config, updateConfig, onUpdateCu
             <Label htmlFor="fullWidth" className="text-sm cursor-pointer">Largura total</Label>
           </div>
 
-          {/* Cores */}
+          {/* Cores e Tipografia */}
           <div className="space-y-3">
             <Label className="text-xs text-muted-foreground">Cores</Label>
             
-            {/* Cor de fundo */}
-            <div>
-              <Label className="text-xs text-muted-foreground mb-1 block">Fundo</Label>
-              <div className="flex items-center gap-2">
-                <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.buttonBgColor || '#000000' }}>
+            {/* Grid de cores */}
+            <div className="grid grid-cols-3 gap-3">
+              {/* Cor de fundo */}
+              <div>
+                <Label className="text-xs text-muted-foreground mb-1 block">Fundo</Label>
+                <div className="relative w-full h-10 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.buttonBgColor || '#000000' }}>
                   <input
                     type="color"
                     value={config.buttonBgColor || '#000000'}
@@ -154,16 +145,14 @@ export function ButtonComponentTab({ component, config, updateConfig, onUpdateCu
                 <Input
                   value={config.buttonBgColor || '#000000'}
                   onChange={(e) => updateConfig({ buttonBgColor: e.target.value })}
-                  className="flex-1 font-mono text-sm"
+                  className="mt-1 font-mono text-xs"
                 />
               </div>
-            </div>
 
-            {/* Cor do texto */}
-            <div>
-              <Label className="text-xs text-muted-foreground mb-1 block">Texto</Label>
-              <div className="flex items-center gap-2">
-                <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.buttonTextColor || '#ffffff' }}>
+              {/* Cor do texto */}
+              <div>
+                <Label className="text-xs text-muted-foreground mb-1 block">Texto</Label>
+                <div className="relative w-full h-10 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.buttonTextColor || '#ffffff' }}>
                   <input
                     type="color"
                     value={config.buttonTextColor || '#ffffff'}
@@ -174,16 +163,14 @@ export function ButtonComponentTab({ component, config, updateConfig, onUpdateCu
                 <Input
                   value={config.buttonTextColor || '#ffffff'}
                   onChange={(e) => updateConfig({ buttonTextColor: e.target.value })}
-                  className="flex-1 font-mono text-sm"
+                  className="mt-1 font-mono text-xs"
                 />
               </div>
-            </div>
 
-            {/* Cor da borda */}
-            <div>
-              <Label className="text-xs text-muted-foreground mb-1 block">Borda</Label>
-              <div className="flex items-center gap-2">
-                <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.buttonBorderColor || '#000000' }}>
+              {/* Cor da borda */}
+              <div>
+                <Label className="text-xs text-muted-foreground mb-1 block">Borda</Label>
+                <div className="relative w-full h-10 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.buttonBorderColor || '#000000' }}>
                   <input
                     type="color"
                     value={config.buttonBorderColor || '#000000'}
@@ -194,9 +181,25 @@ export function ButtonComponentTab({ component, config, updateConfig, onUpdateCu
                 <Input
                   value={config.buttonBorderColor || '#000000'}
                   onChange={(e) => updateConfig({ buttonBorderColor: e.target.value })}
-                  className="flex-1 font-mono text-sm"
+                  className="mt-1 font-mono text-xs"
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Tamanho da fonte */}
+          <div>
+            <Label className="text-xs text-muted-foreground">Tamanho da fonte</Label>
+            <div className="flex items-center gap-3 mt-1">
+              <Slider
+                value={[config.buttonFontSize ?? 16]}
+                onValueChange={([v]) => updateConfig({ buttonFontSize: v })}
+                min={10}
+                max={32}
+                step={1}
+                className="flex-1"
+              />
+              <span className="text-sm font-mono w-12 text-right">{config.buttonFontSize ?? 16}px</span>
             </div>
           </div>
 
@@ -259,61 +262,74 @@ export function ButtonComponentTab({ component, config, updateConfig, onUpdateCu
 
             {config.buttonGradient && (
               <div className="space-y-3 pl-5">
-                {/* Direção */}
+                {/* Direção visual */}
                 <div>
-                  <Label className="text-xs text-muted-foreground">Direção</Label>
-                  <Select 
-                    value={config.buttonGradientDirection || 'to-r'} 
-                    onValueChange={(v) => updateConfig({ buttonGradientDirection: v as ComponentConfig['buttonGradientDirection'] })}
-                  >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {GRADIENT_DIRECTIONS.map(opt => (
-                        <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Cor inicial */}
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-1 block">Cor inicial</Label>
-                  <div className="flex items-center gap-2">
-                    <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.buttonGradientFrom || '#000000' }}>
-                      <input
-                        type="color"
-                        value={config.buttonGradientFrom || '#000000'}
-                        onChange={(e) => updateConfig({ buttonGradientFrom: e.target.value })}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                      />
-                    </div>
-                    <Input
-                      value={config.buttonGradientFrom || '#000000'}
-                      onChange={(e) => updateConfig({ buttonGradientFrom: e.target.value })}
-                      className="flex-1 font-mono text-sm"
-                    />
+                  <Label className="text-xs text-muted-foreground mb-2 block">Direção</Label>
+                  <div className="grid grid-cols-4 gap-1">
+                    {[
+                      { value: 'to-tl', icon: '↖' },
+                      { value: 'to-t', icon: '↑' },
+                      { value: 'to-tr', icon: '↗' },
+                      { value: 'to-r', icon: '→' },
+                      { value: 'to-bl', icon: '↙' },
+                      { value: 'to-b', icon: '↓' },
+                      { value: 'to-br', icon: '↘' },
+                      { value: 'to-l', icon: '←' },
+                    ].map(dir => (
+                      <button
+                        key={dir.value}
+                        type="button"
+                        onClick={() => updateConfig({ buttonGradientDirection: dir.value as ComponentConfig['buttonGradientDirection'] })}
+                        className={cn(
+                          "p-2 rounded border text-sm transition-colors",
+                          config.buttonGradientDirection === dir.value 
+                            ? "border-primary bg-primary/10 text-primary" 
+                            : "border-border hover:border-primary/50"
+                        )}
+                      >
+                        {dir.icon}
+                      </button>
+                    ))}
                   </div>
                 </div>
 
-                {/* Cor final */}
-                <div>
-                  <Label className="text-xs text-muted-foreground mb-1 block">Cor final</Label>
-                  <div className="flex items-center gap-2">
-                    <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.buttonGradientTo || '#333333' }}>
-                      <input
-                        type="color"
-                        value={config.buttonGradientTo || '#333333'}
-                        onChange={(e) => updateConfig({ buttonGradientTo: e.target.value })}
-                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                {/* Cores do gradiente */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-1 block">Inicial</Label>
+                    <div className="flex items-center gap-2">
+                      <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.buttonGradientFrom || '#000000' }}>
+                        <input
+                          type="color"
+                          value={config.buttonGradientFrom || '#000000'}
+                          onChange={(e) => updateConfig({ buttonGradientFrom: e.target.value })}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                      </div>
+                      <Input
+                        value={config.buttonGradientFrom || '#000000'}
+                        onChange={(e) => updateConfig({ buttonGradientFrom: e.target.value })}
+                        className="flex-1 font-mono text-xs"
                       />
                     </div>
-                    <Input
-                      value={config.buttonGradientTo || '#333333'}
-                      onChange={(e) => updateConfig({ buttonGradientTo: e.target.value })}
-                      className="flex-1 font-mono text-sm"
-                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground mb-1 block">Final</Label>
+                    <div className="flex items-center gap-2">
+                      <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.buttonGradientTo || '#333333' }}>
+                        <input
+                          type="color"
+                          value={config.buttonGradientTo || '#333333'}
+                          onChange={(e) => updateConfig({ buttonGradientTo: e.target.value })}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                      </div>
+                      <Input
+                        value={config.buttonGradientTo || '#333333'}
+                        onChange={(e) => updateConfig({ buttonGradientTo: e.target.value })}
+                        className="flex-1 font-mono text-xs"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -376,35 +392,22 @@ export function ButtonComponentTab({ component, config, updateConfig, onUpdateCu
           </div>
 
           {/* Tipografia */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-xs text-muted-foreground">Peso da fonte</Label>
-              <Select 
-                value={config.buttonFontWeight || 'medium'} 
-                onValueChange={(v) => updateConfig({ buttonFontWeight: v as ComponentConfig['buttonFontWeight'] })}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="normal">Normal</SelectItem>
-                  <SelectItem value="medium">Médio</SelectItem>
-                  <SelectItem value="semibold">Semi-bold</SelectItem>
-                  <SelectItem value="bold">Bold</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">Tamanho fonte</Label>
-              <Input
-                type="number"
-                min={10}
-                max={32}
-                value={config.buttonFontSize ?? 16}
-                onChange={(e) => updateConfig({ buttonFontSize: parseInt(e.target.value) || 16 })}
-                className="mt-1"
-              />
-            </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Peso da fonte</Label>
+            <Select 
+              value={config.buttonFontWeight || 'medium'} 
+              onValueChange={(v) => updateConfig({ buttonFontWeight: v as ComponentConfig['buttonFontWeight'] })}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="normal">Normal</SelectItem>
+                <SelectItem value="medium">Médio</SelectItem>
+                <SelectItem value="semibold">Semi-bold</SelectItem>
+                <SelectItem value="bold">Bold</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Letter Spacing */}
