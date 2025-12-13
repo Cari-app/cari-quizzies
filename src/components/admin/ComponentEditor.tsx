@@ -4513,16 +4513,23 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     if (isPriceComponent) {
       const priceBgType = config.priceBgType || 'solid';
       
-      // Helper component for full-width color bar picker
-      const ColorBarPicker = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
+      // Helper component for color picker with small square + hex input
+      const ColorPicker = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
         <div>
           <Label className="text-xs text-muted-foreground mb-1 block">{label}</Label>
-          <div className="relative h-8 rounded-md border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: value }}>
-            <input
-              type="color"
+          <div className="flex items-center gap-2">
+            <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: value }}>
+              <input
+                type="color"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
+            <Input
               value={value}
               onChange={(e) => onChange(e.target.value)}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              className="flex-1 font-mono text-sm"
             />
           </div>
         </div>
@@ -4554,7 +4561,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
             {/* Cor de fundo (sólida) */}
             {priceBgType === 'solid' && (
-              <ColorBarPicker 
+              <ColorPicker 
                 label="Cor de fundo" 
                 value={config.priceBgColor || '#ffffff'} 
                 onChange={(v) => updateConfig({ priceBgColor: v })} 
@@ -4564,12 +4571,12 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             {/* Gradiente */}
             {priceBgType === 'gradient' && (
               <div className="space-y-3">
-                <ColorBarPicker 
+                <ColorPicker 
                   label="Cor inicial" 
                   value={config.priceGradientStart || '#ffffff'} 
                   onChange={(v) => updateConfig({ priceGradientStart: v })} 
                 />
-                <ColorBarPicker 
+                <ColorPicker 
                   label="Cor final" 
                   value={config.priceGradientEnd || '#f3f4f6'} 
                   onChange={(v) => updateConfig({ priceGradientEnd: v })} 
@@ -4589,19 +4596,19 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
             {/* Cores de texto em grid */}
             <div className="grid grid-cols-2 gap-3">
-              <ColorBarPicker 
+              <ColorPicker 
                 label="Título" 
                 value={config.priceTitleColor || '#1f2937'} 
                 onChange={(v) => updateConfig({ priceTitleColor: v })} 
               />
-              <ColorBarPicker 
+              <ColorPicker 
                 label="Valor" 
                 value={config.priceValueColor || '#1f2937'} 
                 onChange={(v) => updateConfig({ priceValueColor: v })} 
               />
             </div>
             
-            <ColorBarPicker 
+            <ColorPicker 
               label="Prefixo/Sufixo" 
               value={config.pricePrefixColor || '#6b7280'} 
               onChange={(v) => updateConfig({ pricePrefixColor: v })} 
@@ -4612,7 +4619,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           <div className="border border-border rounded-lg p-3 space-y-3">
             <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Bordas</Label>
             
-            <ColorBarPicker 
+            <ColorPicker 
               label="Cor da borda" 
               value={config.priceBorderColor || '#e5e7eb'} 
               onChange={(v) => updateConfig({ priceBorderColor: v })} 
