@@ -506,6 +506,7 @@ export interface ComponentConfig {
     required?: boolean;
     customId?: string;
     defaultCountry?: string;
+    hideLabel?: boolean;
   }>;
   formTitle?: string;
   formSpacing?: 'compact' | 'normal' | 'relaxed';

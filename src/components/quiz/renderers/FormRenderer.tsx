@@ -18,6 +18,7 @@ interface FormField {
   required?: boolean;
   customId?: string;
   defaultCountry?: string;
+  hideLabel?: boolean;
 }
 
 const COUNTRIES = [
@@ -127,7 +128,7 @@ function FormFieldRenderer({
   if (field.type === 'textarea') {
     return (
       <div>
-        {field.label && (
+        {field.label && !field.hideLabel && (
           <label className="text-sm font-medium mb-1.5 block">
             {field.label}
             {field.required && <span className="text-destructive ml-1">*</span>}
@@ -150,7 +151,7 @@ function FormFieldRenderer({
     
     return (
       <div>
-        {field.label && (
+        {field.label && !field.hideLabel && (
           <label className="text-sm font-medium mb-1.5 block">
             {field.label}
             {field.required && <span className="text-destructive ml-1">*</span>}
@@ -208,7 +209,7 @@ function FormFieldRenderer({
 
     return (
       <div>
-        {field.label && (
+        {field.label && !field.hideLabel && (
           <label className="text-sm font-medium mb-1.5 block">
             {field.label}
             {field.required && <span className="text-destructive ml-1">*</span>}
@@ -267,7 +268,7 @@ function FormFieldRenderer({
 
   return (
     <div>
-      {field.label && (
+      {field.label && !field.hideLabel && (
         <label className="text-sm font-medium mb-1.5 block">
           {field.label}
           {field.required && <span className="text-destructive ml-1">*</span>}
