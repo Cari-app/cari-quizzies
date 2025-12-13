@@ -1670,15 +1670,20 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             : bgColor || undefined;
         
         return (
-          <div className={cn("w-full flex", alignClass)}>
+          <div 
+            className="w-full flex"
+            style={{ 
+              justifyContent: horizontalAlign === 'center' ? 'center' : horizontalAlign === 'end' ? 'flex-end' : 'flex-start' 
+            }}
+          >
             <div 
-              className="p-4 space-y-2"
+              className="flex flex-col gap-2 p-4"
               style={{ width: `${widthValue}%` }}
             >
               {faqItems.map((item, index) => (
                 <div 
                   key={item.id}
-                  className="overflow-hidden"
+                  className="overflow-hidden w-full"
                   style={{
                     background: bgStyle,
                     borderWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
@@ -1689,23 +1694,23 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                 >
                   <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-black/5 transition-colors">
                     <span 
-                      className="font-medium text-sm"
+                      className="font-medium text-sm flex-1"
                       style={{ color: textColor || undefined }}
                       dangerouslySetInnerHTML={{ __html: item.question }}
                     />
                     {detailType === 'arrow' ? (
                       <ChevronUp 
                         className={cn(
-                          "w-4 h-4 transition-transform",
+                          "w-4 h-4 flex-shrink-0 transition-transform ml-2",
                           !(firstOpen && index === 0) && "rotate-180"
                         )}
                         style={{ color: iconColor || undefined }}
                       />
                     ) : (
                       firstOpen && index === 0 ? (
-                        <Minus className="w-4 h-4" style={{ color: iconColor || undefined }} />
+                        <Minus className="w-4 h-4 flex-shrink-0 ml-2" style={{ color: iconColor || undefined }} />
                       ) : (
-                        <Plus className="w-4 h-4" style={{ color: iconColor || undefined }} />
+                        <Plus className="w-4 h-4 flex-shrink-0 ml-2" style={{ color: iconColor || undefined }} />
                       )
                     )}
                   </div>
