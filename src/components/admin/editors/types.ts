@@ -50,6 +50,7 @@ export interface FormFieldItem {
   required?: boolean;
   customId?: string;
   defaultCountry?: string;
+  hideLabel?: boolean;
 }
 
 export interface ComponentConfig {

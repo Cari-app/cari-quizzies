@@ -17,6 +17,7 @@ export interface FormField {
   required?: boolean;
   customId?: string;
   defaultCountry?: string;
+  hideLabel?: boolean;
 }
 
 interface FormEditorProps extends EditorProps {}
@@ -268,6 +269,20 @@ function FormFieldEditor({
               placeholder="Digite aqui..."
               className="mt-1 h-8 text-sm"
             />
+          </div>
+
+          {/* Ocultar título */}
+          <div className="flex items-center gap-2">
+            <input 
+              type="checkbox" 
+              id={`hideLabel-${field.id}`}
+              checked={field.hideLabel || false}
+              onChange={(e) => onUpdate({ hideLabel: e.target.checked })}
+              className="rounded border-border"
+            />
+            <Label htmlFor={`hideLabel-${field.id}`} className="text-sm cursor-pointer">
+              Ocultar título (mostrar só placeholder)
+            </Label>
           </div>
 
           {/* Campo obrigatório */}

@@ -2119,10 +2119,12 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             <div className={spacingClass}>
               {fields.map((field: any) => (
                 <div key={field.id}>
-                  <label className="text-sm font-medium mb-1.5 block">
-                    {field.label}
-                    {field.required && <span className="text-destructive ml-1">*</span>}
-                  </label>
+                  {!field.hideLabel && (
+                    <label className="text-sm font-medium mb-1.5 block">
+                      {field.label}
+                      {field.required && <span className="text-destructive ml-1">*</span>}
+                    </label>
+                  )}
                   {field.type === 'textarea' ? (
                     <textarea className="w-full px-4 py-3 bg-transparent border border-current/30 rounded-lg text-sm resize-none" rows={3} disabled placeholder={field.placeholder} />
                   ) : field.type === 'phone' ? (
