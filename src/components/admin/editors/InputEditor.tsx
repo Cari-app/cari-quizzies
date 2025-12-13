@@ -100,15 +100,18 @@ export function InputComponentTab({
           </div>
           {component.type === 'phone' && (
             <div>
-              <Label className="text-xs text-muted-foreground">Máscara</Label>
-              <Select value={config.mask || 'br'} onValueChange={(v) => updateConfig({ mask: v })}>
+              <Label className="text-xs text-muted-foreground">País padrão</Label>
+              <Select value={config.defaultCountry || 'BR'} onValueChange={(v) => updateConfig({ defaultCountry: v })}>
                 <SelectTrigger className="mt-1">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="br">(00) 00000-0000</SelectItem>
-                  <SelectItem value="us">(000) 000-0000</SelectItem>
-                  <SelectItem value="intl">+00 00 00000-0000</SelectItem>
+                  <SelectItem value="BR">🇧🇷 Brasil (+55)</SelectItem>
+                  <SelectItem value="US">🇺🇸 Estados Unidos (+1)</SelectItem>
+                  <SelectItem value="PT">🇵🇹 Portugal (+351)</SelectItem>
+                  <SelectItem value="AR">🇦🇷 Argentina (+54)</SelectItem>
+                  <SelectItem value="MX">🇲🇽 México (+52)</SelectItem>
+                  <SelectItem value="ES">🇪🇸 Espanha (+34)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
