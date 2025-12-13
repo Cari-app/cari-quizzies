@@ -21,8 +21,9 @@ export interface QuizDesignSettings {
     type: 'image' | 'url' | 'emoji';
     value: string;
   };
-  logoSize: 'small' | 'medium' | 'large';
+  logoSizePixels: number; // Size in pixels (20-200)
   logoPosition: 'left' | 'center' | 'right';
+  logoAboveBar: boolean; // Logo appears above the progress bar
   progressBar: 'hidden' | 'top' | 'bottom';
   
   // HEADER STYLING
@@ -58,8 +59,9 @@ export const defaultDesignSettings: QuizDesignSettings = {
   borderRadius: 'medium',
   headerStyle: 'default',
   logo: { type: 'url', value: '' },
-  logoSize: 'medium',
+  logoSizePixels: 40,
   logoPosition: 'center',
+  logoAboveBar: true,
   progressBar: 'top',
   headerDivider: {
     show: true,
@@ -331,26 +333,25 @@ export function DesignEditor({ settings, onSettingsChange }: DesignEditorProps) 
               />
             )}
 
+            <div className="space-y-1.5">
+              <Label className="text-xs text-muted-foreground">Tamanho da logo ({settings.logoSizePixels || 40}px)</Label>
+              <input
+                type="range"
+                min={20}
+                max={120}
+                value={settings.logoSizePixels || 40}
+                onChange={(e) => updateSettings({ logoSizePixels: Number(e.target.value) })}
+                className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>20px</span>
+                <span>120px</span>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Tamanho</Label>
-                <Select 
-                  value={settings.logoSize} 
-                  onValueChange={(value: 'small' | 'medium' | 'large') => updateSettings({ logoSize: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="small">Pequeno</SelectItem>
-                    <SelectItem value="medium">Normal</SelectItem>
-                    <SelectItem value="large">Grande</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Disposição</Label>
+                <Label className="text-xs text-muted-foreground">Posição da logo</Label>
                 <Select 
                   value={settings.logoPosition} 
                   onValueChange={(value: 'left' | 'center' | 'right') => updateSettings({ logoPosition: value })}
@@ -359,9 +360,25 @@ export function DesignEditor({ settings, onSettingsChange }: DesignEditorProps) 
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="left">Logo esquerda</SelectItem>
-                    <SelectItem value="center">Logo central</SelectItem>
-                    <SelectItem value="right">Logo direita</SelectItem>
+                    <SelectItem value="left">Esquerda</SelectItem>
+                    <SelectItem value="center">Centro</SelectItem>
+                    <SelectItem value="right">Direita</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Layout</Label>
+                <Select 
+                  value={settings.logoAboveBar ? 'above' : 'inline'} 
+                  onValueChange={(value) => updateSettings({ logoAboveBar: value === 'above' })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="above">Acima da barra</SelectItem>
+                    <SelectItem value="inline">Ao lado da barra</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

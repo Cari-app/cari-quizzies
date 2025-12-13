@@ -1,4 +1,4 @@
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ArrowLeftCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DesignSettings {
@@ -7,11 +7,22 @@ interface DesignSettings {
     type: 'image' | 'url' | 'emoji';
     value: string;
   };
-  logoSize: 'small' | 'medium' | 'large';
+  logoSizePixels?: number;
   logoPosition: 'left' | 'center' | 'right';
+  logoAboveBar?: boolean;
   progressBar: 'hidden' | 'top' | 'bottom';
   primaryColor: string;
   textColor: string;
+  headerDivider?: {
+    show: boolean;
+    color: string;
+    thickness: number;
+  };
+  backIcon?: {
+    color: string;
+    size: 'small' | 'medium' | 'large';
+    style: 'arrow' | 'chevron' | 'circle';
+  };
 }
 
 interface PageSettings {
@@ -39,6 +50,26 @@ export function QuizHeaderPreview({
   const isTopProgress = position === 'top' && designSettings.progressBar === 'top';
   const isBottomProgress = position === 'bottom' && designSettings.progressBar === 'bottom';
   const headerStyle = designSettings.headerStyle || 'default';
+  const logoSizePx = designSettings.logoSizePixels || 40;
+  const logoAboveBar = designSettings.logoAboveBar ?? true;
+
+  // Render back icon based on settings
+  const renderBackIcon = () => {
+    const iconStyle = designSettings.backIcon?.style || 'chevron';
+    const iconSize = designSettings.backIcon?.size || 'medium';
+    const sizeMap = { small: 'w-4 h-4', medium: 'w-5 h-5', large: 'w-6 h-6' };
+    const className = sizeMap[iconSize];
+    
+    switch (iconStyle) {
+      case 'arrow':
+        return <ArrowLeft className={className} />;
+      case 'circle':
+        return <ArrowLeftCircle className={className} />;
+      case 'chevron':
+      default:
+        return <ChevronLeft className={className} />;
+    }
+  };
 
   // Don't render if it's a bottom position component and progress isn't bottom
   if (position === 'bottom' && designSettings.progressBar !== 'bottom') {
@@ -125,12 +156,130 @@ export function QuizHeaderPreview({
     return null;
   }
 
+  const dividerStyle = designSettings.headerDivider?.show !== false 
+    ? `${designSettings.headerDivider?.thickness || 1}px solid ${designSettings.headerDivider?.color || designSettings.primaryColor}20`
+    : 'none';
+
+  const backIconColor = designSettings.backIcon?.color || designSettings.textColor;
+
+  // Render Logo component
+  const renderLogo = () => {
+    if (!designSettings.logo.value) return null;
+    
+    if (designSettings.logo.type === 'emoji') {
+      return (
+        <span style={{ fontSize: `${logoSizePx}px`, lineHeight: 1 }}>
+          {designSettings.logo.value}
+        </span>
+      );
+    }
+    
+    return (
+      <img 
+        src={designSettings.logo.value} 
+        alt="Logo" 
+        className="object-contain"
+        style={{ height: `${logoSizePx}px` }}
+      />
+    );
+  };
+
+  // Render progress bar
+  const renderProgressBar = () => {
+    if (!isTopProgress) return null;
+
+    if (headerStyle === 'default') {
+      return (
+        <div className="flex-1">
+          <div 
+            className="h-1.5 rounded-full overflow-hidden"
+            style={{ backgroundColor: `${designSettings.primaryColor}30` }}
+          >
+            <div 
+              className="h-full rounded-full transition-all"
+              style={{ 
+                width: `${progressValue}%`,
+                backgroundColor: designSettings.primaryColor,
+              }}
+            />
+          </div>
+        </div>
+      );
+    }
+
+    if (headerStyle === 'minimal') {
+      return (
+        <span 
+          className="text-sm font-medium"
+          style={{ color: designSettings.textColor }}
+        >
+          {currentStageIndex + 1} / {totalStages}
+        </span>
+      );
+    }
+
+    if (headerStyle === 'steps') {
+      return (
+        <div className="flex-1 flex items-center justify-center gap-2">
+          {Array.from({ length: totalStages }).map((_, index) => (
+            <div
+              key={index}
+              className="h-2 rounded-full transition-all duration-300"
+              style={{
+                width: index === currentStageIndex ? '24px' : '8px',
+                backgroundColor: index <= currentStageIndex 
+                  ? designSettings.primaryColor 
+                  : `${designSettings.primaryColor}30`,
+              }}
+            />
+          ))}
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  // Logo above bar layout
+  if (logoAboveBar && designSettings.logo.value) {
+    return (
+      <div 
+        className="shrink-0"
+        style={{ borderBottom: dividerStyle }}
+      >
+        {/* Logo row */}
+        <div className={cn(
+          "px-4 pt-3 pb-2 flex items-center",
+          designSettings.logoPosition === 'center' && "justify-center",
+          designSettings.logoPosition === 'right' && "justify-end",
+          designSettings.logoPosition === 'left' && "justify-start"
+        )}>
+          {renderLogo()}
+        </div>
+        
+        {/* Progress bar row */}
+        {isTopProgress && (
+          <div className="px-4 pb-3 flex items-center gap-3">
+            {pageSettings.allowBack && (
+              <button 
+                className="p-1 rounded transition-colors hover:opacity-70 pointer-events-none"
+                style={{ color: backIconColor }}
+              >
+                {renderBackIcon()}
+              </button>
+            )}
+            {renderProgressBar()}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Original inline layout (logo beside bar)
   return (
     <div 
       className="shrink-0 p-3"
-      style={{ 
-        borderBottom: `1px solid ${designSettings.textColor}15`,
-      }}
+      style={{ borderBottom: dividerStyle }}
     >
       {/* Default Style - Continuous progress bar */}
       {headerStyle === 'default' && (
@@ -142,51 +291,13 @@ export function QuizHeaderPreview({
           {pageSettings.allowBack && (
             <button 
               className="p-1 rounded transition-colors hover:opacity-70 pointer-events-none"
-              style={{ color: designSettings.textColor }}
+              style={{ color: backIconColor }}
             >
-              <ArrowLeft className="w-4 h-4" />
+              {renderBackIcon()}
             </button>
           )}
-          {designSettings.logo.value && (
-            designSettings.logo.type === 'emoji' ? (
-              <span 
-                className={cn(
-                  designSettings.logoSize === 'small' && 'text-xl',
-                  designSettings.logoSize === 'medium' && 'text-2xl',
-                  designSettings.logoSize === 'large' && 'text-4xl',
-                )}
-              >
-                {designSettings.logo.value}
-              </span>
-            ) : (
-              <img 
-                src={designSettings.logo.value} 
-                alt="Logo" 
-                className={cn(
-                  "object-contain",
-                  designSettings.logoSize === 'small' && 'h-6',
-                  designSettings.logoSize === 'medium' && 'h-8',
-                  designSettings.logoSize === 'large' && 'h-12',
-                )}
-              />
-            )
-          )}
-          {isTopProgress && (
-            <div className="flex-1">
-              <div 
-                className="h-1.5 rounded-full overflow-hidden"
-                style={{ backgroundColor: `${designSettings.primaryColor}30` }}
-              >
-                <div 
-                  className="h-full rounded-full transition-all"
-                  style={{ 
-                    width: `${progressValue}%`,
-                    backgroundColor: designSettings.primaryColor,
-                  }}
-                />
-              </div>
-            </div>
-          )}
+          {renderLogo()}
+          {renderProgressBar()}
         </div>
       )}
 
@@ -196,9 +307,9 @@ export function QuizHeaderPreview({
           {pageSettings.allowBack ? (
             <button 
               className="p-1 rounded transition-colors hover:opacity-70 pointer-events-none"
-              style={{ color: designSettings.textColor }}
+              style={{ color: backIconColor }}
             >
-              <ArrowLeft className="w-4 h-4" />
+              {renderBackIcon()}
             </button>
           ) : (
             <div className="w-6" />
@@ -210,28 +321,7 @@ export function QuizHeaderPreview({
               designSettings.logoPosition === 'right' && "justify-end",
               designSettings.logoPosition === 'left' && "justify-start"
             )}>
-              {designSettings.logo.type === 'emoji' ? (
-                <span 
-                  className={cn(
-                    designSettings.logoSize === 'small' && 'text-xl',
-                    designSettings.logoSize === 'medium' && 'text-2xl',
-                    designSettings.logoSize === 'large' && 'text-4xl',
-                  )}
-                >
-                  {designSettings.logo.value}
-                </span>
-              ) : (
-                <img 
-                  src={designSettings.logo.value} 
-                  alt="Logo" 
-                  className={cn(
-                    "object-contain",
-                    designSettings.logoSize === 'small' && 'h-6',
-                    designSettings.logoSize === 'medium' && 'h-8',
-                    designSettings.logoSize === 'large' && 'h-12',
-                  )}
-                />
-              )}
+              {renderLogo()}
             </div>
           )}
           {isTopProgress ? (
@@ -253,51 +343,13 @@ export function QuizHeaderPreview({
           {pageSettings.allowBack && (
             <button 
               className="p-1 rounded transition-colors hover:opacity-70 pointer-events-none"
-              style={{ color: designSettings.textColor }}
+              style={{ color: backIconColor }}
             >
-              <ArrowLeft className="w-4 h-4" />
+              {renderBackIcon()}
             </button>
           )}
-          {designSettings.logo.value && (
-            designSettings.logo.type === 'emoji' ? (
-              <span 
-                className={cn(
-                  designSettings.logoSize === 'small' && 'text-xl',
-                  designSettings.logoSize === 'medium' && 'text-2xl',
-                  designSettings.logoSize === 'large' && 'text-4xl',
-                )}
-              >
-                {designSettings.logo.value}
-              </span>
-            ) : (
-              <img 
-                src={designSettings.logo.value} 
-                alt="Logo" 
-                className={cn(
-                  "object-contain",
-                  designSettings.logoSize === 'small' && 'h-6',
-                  designSettings.logoSize === 'medium' && 'h-8',
-                  designSettings.logoSize === 'large' && 'h-12',
-                )}
-              />
-            )
-          )}
-          {isTopProgress && (
-            <div className="flex-1 flex items-center justify-center gap-2">
-              {Array.from({ length: totalStages }).map((_, index) => (
-                <div
-                  key={index}
-                  className="h-2 rounded-full transition-all duration-300"
-                  style={{
-                    width: index === currentStageIndex ? '24px' : '8px',
-                    backgroundColor: index <= currentStageIndex 
-                      ? designSettings.primaryColor 
-                      : `${designSettings.primaryColor}30`,
-                  }}
-                />
-              ))}
-            </div>
-          )}
+          {renderLogo()}
+          {renderProgressBar()}
         </div>
       )}
     </div>
