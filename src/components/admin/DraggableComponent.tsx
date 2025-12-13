@@ -29,8 +29,8 @@ export function DraggableComponent({ type, name, icon, isNew, expanded }: Dragga
       draggable
       onDragStart={handleDragStart}
       className={cn(
-        "flex items-center gap-2 px-2 py-2 text-xs rounded-md border border-border hover:bg-accent/50 transition-colors text-left w-full relative cursor-grab active:cursor-grabbing select-none",
-        expanded && "flex-col gap-1 py-3 justify-center"
+        "flex items-center gap-1.5 px-2 py-1.5 text-xs rounded-md border border-border hover:bg-accent/50 transition-colors text-left w-full relative cursor-grab active:cursor-grabbing select-none",
+        expanded && "flex-col gap-1 py-2 justify-center"
       )}
     >
       {LucideIcon ? (
