@@ -433,160 +433,27 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           </div>
         );
       case 'button': {
-        const getSizeClasses = () => {
-          switch (config.buttonSize) {
-            case 'sm': return 'py-2 px-4 text-xs';
-            case 'lg': return 'py-4 px-8 text-base';
-            case 'xl': return 'py-5 px-10 text-lg';
-            default: return 'py-3 px-6 text-sm';
-          }
+        // Simple, direct style application
+        const style: React.CSSProperties = {
+          backgroundColor: config.buttonBgColor || '#000000',
+          color: config.buttonTextColor || '#ffffff',
+          fontSize: config.buttonFontSize ? `${config.buttonFontSize}px` : '16px',
+          borderRadius: `${config.buttonBorderRadius ?? 8}px`,
+          borderWidth: config.buttonBorderWidth ? `${config.buttonBorderWidth}px` : '0',
+          borderStyle: config.buttonBorderWidth ? 'solid' : 'none',
+          borderColor: config.buttonBorderColor || '#000000',
+          width: config.buttonFullWidth !== false ? '100%' : 'auto',
+          padding: '12px 24px',
+          fontWeight: 500,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         };
-
-        const getShadowClass = () => {
-          switch (config.buttonShadow) {
-            case 'sm': return 'shadow-sm';
-            case 'md': return 'shadow-md';
-            case 'lg': return 'shadow-lg';
-            case 'xl': return 'shadow-xl';
-            case 'glow': return 'shadow-[0_0_20px_rgba(var(--primary),0.4)]';
-            default: return '';
-          }
-        };
-
-        const getFontWeight = () => {
-          switch (config.buttonFontWeight) {
-            case 'normal': return 'font-normal';
-            case 'semibold': return 'font-semibold';
-            case 'bold': return 'font-bold';
-            default: return 'font-medium';
-          }
-        };
-
-        const getHoverEffect = () => {
-          switch (config.buttonHoverEffect) {
-            case 'darken': return 'hover:brightness-90';
-            case 'lighten': return 'hover:brightness-110';
-            case 'scale': return 'hover:scale-105';
-            case 'lift': return 'hover:-translate-y-1 hover:shadow-lg';
-            case 'glow': return 'hover:shadow-[0_0_25px_rgba(var(--primary),0.5)]';
-            default: return '';
-          }
-        };
-
-        const getAnimationClass = () => {
-          switch (config.buttonAnimation) {
-            case 'shine': return 'btn-shine';
-            case 'pulse-glow': return 'btn-pulse-glow';
-            case 'float': return 'btn-float';
-            case 'heartbeat': return 'btn-heartbeat';
-            case 'wiggle': return 'btn-wiggle';
-            case 'ripple': return 'btn-ripple';
-            case 'glow-border': return 'btn-glow-border';
-            case 'bounce-subtle': return 'btn-bounce-subtle';
-            case 'attention': return 'btn-attention';
-            default: return '';
-          }
-        };
-
-        const getGradientDirection = () => {
-          switch (config.buttonGradientDirection) {
-            case 'to-l': return 'bg-gradient-to-l';
-            case 'to-t': return 'bg-gradient-to-t';
-            case 'to-b': return 'bg-gradient-to-b';
-            case 'to-tr': return 'bg-gradient-to-tr';
-            case 'to-tl': return 'bg-gradient-to-tl';
-            case 'to-br': return 'bg-gradient-to-br';
-            case 'to-bl': return 'bg-gradient-to-bl';
-            default: return 'bg-gradient-to-r';
-          }
-        };
-
-        const buttonWidth = config.buttonFullWidth !== false ? 'w-full' : 'w-auto';
-
-        // DEBUG: Log config to see what values we're receiving
-        console.log('DropZone button config:', {
-          buttonBgColor: config.buttonBgColor,
-          buttonTextColor: config.buttonTextColor,
-          buttonFontSize: config.buttonFontSize
-        });
-
-        // Build style object - ALWAYS apply custom colors when set
-        const buttonStyle: React.CSSProperties = {};
-        
-        // Background: gradient > custom color > default black
-        if (config.buttonGradient) {
-          const direction = 
-            config.buttonGradientDirection === 'to-r' ? 'to right' :
-            config.buttonGradientDirection === 'to-l' ? 'to left' :
-            config.buttonGradientDirection === 'to-t' ? 'to top' :
-            config.buttonGradientDirection === 'to-b' ? 'to bottom' :
-            config.buttonGradientDirection === 'to-tr' ? 'to top right' :
-            config.buttonGradientDirection === 'to-br' ? 'to bottom right' :
-            config.buttonGradientDirection === 'to-tl' ? 'to top left' :
-            config.buttonGradientDirection === 'to-bl' ? 'to bottom left' : 'to right';
-          buttonStyle.background = `linear-gradient(${direction}, ${config.buttonGradientFrom || '#000000'}, ${config.buttonGradientTo || '#333333'})`;
-        } else {
-          buttonStyle.backgroundColor = config.buttonBgColor || '#000000';
-        }
-        
-        // Text color
-        buttonStyle.color = config.buttonTextColor || '#FFFFFF';
-        
-        // Border
-        const borderWidth = config.buttonBorderWidth ?? 0;
-        if (borderWidth > 0) {
-          buttonStyle.borderWidth = `${borderWidth}px`;
-          buttonStyle.borderStyle = 'solid';
-          buttonStyle.borderColor = config.buttonBorderColor || '#000000';
-        }
-        
-        // Border radius
-        buttonStyle.borderRadius = `${config.buttonBorderRadius ?? 8}px`;
-        
-        // Font size
-        if (config.buttonFontSize) {
-          buttonStyle.fontSize = `${config.buttonFontSize}px`;
-        }
-        
-        // Letter spacing
-        if (config.buttonLetterSpacing) {
-          buttonStyle.letterSpacing = `${config.buttonLetterSpacing}px`;
-        }
-        
-        // Padding
-        if (config.buttonPaddingX !== undefined) {
-          buttonStyle.paddingLeft = `${config.buttonPaddingX}px`;
-          buttonStyle.paddingRight = `${config.buttonPaddingX}px`;
-        }
-        if (config.buttonPaddingY !== undefined) {
-          buttonStyle.paddingTop = `${config.buttonPaddingY}px`;
-          buttonStyle.paddingBottom = `${config.buttonPaddingY}px`;
-        }
-
-        // Button text - plain text
-        const buttonText = config.buttonText || 'Botão';
 
         return (
           <div className="p-4">
-            <button 
-              className={cn(
-                "inline-flex items-center justify-center transition-all duration-200",
-                buttonWidth,
-                getSizeClasses(),
-                getShadowClass(),
-                getFontWeight(),
-                getHoverEffect(),
-                getAnimationClass()
-              )}
-              style={buttonStyle}
-            >
-              {config.buttonIcon && config.buttonIconPosition === 'left' && (
-                <span className="mr-2">{config.buttonIcon}</span>
-              )}
-              <span>{buttonText}</span>
-              {config.buttonIcon && config.buttonIconPosition !== 'left' && (
-                <span className="ml-2">{config.buttonIcon}</span>
-              )}
+            <button style={style}>
+              {config.buttonText || 'Botão'}
             </button>
           </div>
         );
