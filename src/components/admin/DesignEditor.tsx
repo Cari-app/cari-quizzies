@@ -52,8 +52,8 @@ export interface QuizDesignSettings {
   // TIPOGRAFIA
   fontSize: number;
   titleSize: 'small' | 'medium' | 'large' | 'xlarge';
-  primaryFont: string;
-  secondaryFont: string;
+  titleFont: string;
+  bodyFont: string;
 }
 
 export const defaultDesignSettings: QuizDesignSettings = {
@@ -89,8 +89,8 @@ export const defaultDesignSettings: QuizDesignSettings = {
   titleColor: '#A855F7',
   fontSize: 16,
   titleSize: 'medium',
-  primaryFont: 'Inter',
-  secondaryFont: 'Inter',
+  titleFont: 'Montserrat',
+  bodyFont: 'Inter',
 };
 
 interface CollapsibleSectionProps {
@@ -660,10 +660,10 @@ export function DesignEditor({ settings, onSettingsChange }: DesignEditorProps) 
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Fonte principal</Label>
+              <Label className="text-xs text-muted-foreground">Fonte dos títulos</Label>
               <Select 
-                value={settings.primaryFont} 
-                onValueChange={(value) => updateSettings({ primaryFont: value })}
+                value={settings.titleFont || 'Montserrat'} 
+                onValueChange={(value) => updateSettings({ titleFont: value })}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -676,22 +676,20 @@ export function DesignEditor({ settings, onSettingsChange }: DesignEditorProps) 
               </Select>
             </div>
 
-            {/* Preview da fonte principal */}
+            {/* Preview da fonte de títulos */}
             <div 
-              className="p-4 border border-border rounded-lg space-y-1"
-              style={{ fontFamily: settings.primaryFont }}
+              className="p-4 border border-border rounded-lg"
+              style={{ fontFamily: settings.titleFont || 'Montserrat' }}
             >
-              <p className="font-bold">Lorem ipsum vitae</p>
-              <p className="text-sm text-muted-foreground">Lorem ipsum vitae</p>
-              <p className="font-bold text-xs tracking-wide">ABCDEFGHIJKLMNOPQRSTUVWXYZ</p>
-              <p className="text-xs text-muted-foreground">abcdefghijklmnopqrstuvwxyz</p>
+              <p className="font-bold text-lg">Título de exemplo</p>
+              <p className="font-semibold">Subtítulo de exemplo</p>
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Fonte secundária</Label>
+              <Label className="text-xs text-muted-foreground">Fonte dos textos</Label>
               <Select 
-                value={settings.secondaryFont} 
-                onValueChange={(value) => updateSettings({ secondaryFont: value })}
+                value={settings.bodyFont || 'Inter'} 
+                onValueChange={(value) => updateSettings({ bodyFont: value })}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -704,15 +702,13 @@ export function DesignEditor({ settings, onSettingsChange }: DesignEditorProps) 
               </Select>
             </div>
 
-            {/* Preview da fonte secundária */}
+            {/* Preview da fonte de textos */}
             <div 
-              className="p-4 border border-border rounded-lg space-y-1"
-              style={{ fontFamily: settings.secondaryFont }}
+              className="p-4 border border-border rounded-lg"
+              style={{ fontFamily: settings.bodyFont || 'Inter' }}
             >
-              <p className="font-bold">Lorem ipsum vitae</p>
-              <p className="text-sm text-muted-foreground">Lorem ipsum vitae</p>
-              <p className="font-bold text-xs tracking-wide">ABCDEFGHIJKLMNOPQRSTUVWXYZ</p>
-              <p className="text-xs text-muted-foreground">abcdefghijklmnopqrstuvwxyz</p>
+              <p>Texto de parágrafo normal com a fonte selecionada.</p>
+              <p className="text-sm text-muted-foreground">Texto secundário menor para descrições.</p>
             </div>
           </div>
         </CollapsibleSection>

@@ -706,7 +706,7 @@ export function QuizEditor() {
                       height: '667px',
                       backgroundColor: designSettings.backgroundColor,
                       color: designSettings.textColor,
-                      fontFamily: designSettings.primaryFont,
+                      fontFamily: designSettings.bodyFont || 'Inter',
                       fontSize: `${designSettings.fontSize}px`,
                     }}
                   >
@@ -723,7 +723,7 @@ export function QuizEditor() {
                     {/* Stage Components with design settings applied */}
                     <div 
                       className={cn(
-                        "flex-1 min-h-0 overflow-y-auto pointer-events-none design-preview-mode",
+                        "flex-1 min-h-0 overflow-y-auto pointer-events-none design-preview-mode quiz-content",
                         getAlignmentClass(),
                         getSpacingClass()
                       )}
@@ -732,6 +732,8 @@ export function QuizEditor() {
                         '--quiz-text-color': designSettings.textColor,
                         '--quiz-title-color': designSettings.titleColor,
                         '--quiz-bg-color': designSettings.backgroundColor,
+                        '--quiz-title-font': designSettings.titleFont || 'Montserrat',
+                        '--quiz-body-font': designSettings.bodyFont || 'Inter',
                       } as React.CSSProperties}
                     >
                       <DropZone 
@@ -805,7 +807,7 @@ export function QuizEditor() {
                 return (
                   <div 
                     className={cn(
-                      "rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col relative",
+                      "rounded-2xl shadow-lg border border-border overflow-hidden flex flex-col relative quiz-content",
                       previewMode === 'mobile' 
                         ? "w-[375px] h-[667px]" 
                         : "w-full max-w-4xl h-[640px]"
@@ -813,10 +815,14 @@ export function QuizEditor() {
                     style={{
                       backgroundColor: currentStage?.background ? undefined : designSettings.backgroundColor,
                       color: designSettings.textColor,
-                      fontFamily: designSettings.primaryFont,
+                      fontFamily: designSettings.bodyFont || 'Inter',
                       fontSize: `${designSettings.fontSize}px`,
+                      '--quiz-title-font': designSettings.titleFont || 'Montserrat',
+                      '--quiz-body-font': designSettings.bodyFont || 'Inter',
+                      '--quiz-title-color': designSettings.titleColor,
+                      '--quiz-text-color': designSettings.textColor,
                       ...stageBackgroundCSS.backgroundStyle,
-                    }}
+                    } as React.CSSProperties}
                   >
                     {/* Stage background overlay */}
                     {stageBackgroundCSS.overlayStyle && (
