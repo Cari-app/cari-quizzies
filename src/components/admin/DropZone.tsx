@@ -433,16 +433,6 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           </div>
         );
       case 'button': {
-        // DEBUG: Log all button config
-        console.log('🔵 BUTTON CONFIG:', {
-          buttonAnimation: config.buttonAnimation,
-          buttonHoverEffect: config.buttonHoverEffect,
-          buttonShadow: config.buttonShadow,
-          buttonBgColor: config.buttonBgColor,
-          buttonTextColor: config.buttonTextColor,
-          fullConfig: config
-        });
-
         // Helper to convert hex to rgba
         const hexToRgba = (hex: string, opacity: number): string => {
           const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -473,13 +463,13 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           background = hexToRgba(bgColor, opacity);
         }
 
-        // Get shadow
-        const getShadow = (shadow?: string): string => {
+        // Get shadow style
+        const getShadowStyle = (shadow?: string): string => {
           switch (shadow) {
             case 'sm': return '0 1px 2px 0 rgb(0 0 0 / 0.05)';
-            case 'md': return '0 4px 6px -1px rgb(0 0 0 / 0.1)';
-            case 'lg': return '0 10px 15px -3px rgb(0 0 0 / 0.1)';
-            case 'xl': return '0 20px 25px -5px rgb(0 0 0 / 0.1)';
+            case 'md': return '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)';
+            case 'lg': return '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)';
+            case 'xl': return '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)';
             default: return 'none';
           }
         };
@@ -519,14 +509,12 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           display: 'inline-flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: getShadow(config.buttonShadow),
+          boxShadow: getShadowStyle(config.buttonShadow),
           transition: 'all 0.2s ease',
         };
 
         const animClass = getAnimationClass(config.buttonAnimation);
         const hoverClass = getHoverClass(config.buttonHoverEffect);
-        
-        console.log('🔵 BUTTON CLASSES:', { animClass, hoverClass, style });
 
         return (
           <div className="p-4">

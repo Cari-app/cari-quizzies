@@ -25,23 +25,23 @@ function getGradientDirection(dir?: string): string {
   }
 }
 
-// Get shadow CSS
-function getShadow(shadow?: string): string {
+// Get shadow CSS - returns actual CSS value
+function getShadowStyle(shadow?: string): string {
   switch (shadow) {
     case 'sm': return '0 1px 2px 0 rgb(0 0 0 / 0.05)';
-    case 'md': return '0 4px 6px -1px rgb(0 0 0 / 0.1)';
-    case 'lg': return '0 10px 15px -3px rgb(0 0 0 / 0.1)';
-    case 'xl': return '0 20px 25px -5px rgb(0 0 0 / 0.1)';
+    case 'md': return '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)';
+    case 'lg': return '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)';
+    case 'xl': return '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)';
     default: return 'none';
   }
 }
 
-// Get animation class
+// Get animation class - matches editor options
 function getAnimationClass(animation?: string): string {
   switch (animation) {
     case 'pulse': return 'animate-pulse';
     case 'bounce': return 'animate-bounce';
-    case 'shake': return 'animate-[shake_0.5s_ease-in-out_infinite]';
+    case 'shake': return 'btn-attention';
     default: return '';
   }
 }
@@ -91,7 +91,7 @@ export function ButtonRenderer({
     background = hexToRgba(bgColor, opacity);
   }
 
-  // Build styles
+  // Build inline styles
   const style: React.CSSProperties = {
     background,
     color: config.buttonTextColor || '#ffffff',
@@ -104,10 +104,12 @@ export function ButtonRenderer({
     padding: '12px 24px',
     fontWeight: 500,
     cursor: 'pointer',
-    boxShadow: getShadow(config.buttonShadow),
+    boxShadow: getShadowStyle(config.buttonShadow),
     transition: 'all 0.2s ease',
   };
 
+  const animClass = getAnimationClass(config.buttonAnimation);
+  const hoverClass = getHoverClass(config.buttonHoverEffect);
   const text = config.buttonText || 'Continuar';
 
   return (
@@ -117,8 +119,8 @@ export function ButtonRenderer({
         style={style}
         className={cn(
           "inline-flex items-center justify-center",
-          getAnimationClass(config.buttonAnimation),
-          getHoverClass(config.buttonHoverEffect)
+          animClass,
+          hoverClass
         )}
       >
         {processTemplate(text)}
