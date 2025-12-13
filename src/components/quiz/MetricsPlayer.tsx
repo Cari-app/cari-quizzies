@@ -67,7 +67,7 @@ function BarChart({ value, color, valueColor }: { value: number; color: MetricIt
       >
         {value}%
       </span>
-      <div className="w-[15px] h-20 rounded-md overflow-hidden relative" style={{ 
+      <div className="w-[30px] h-20 rounded-md overflow-hidden relative" style={{ 
         background: 'linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.03) 100%)',
         boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
       }}>
