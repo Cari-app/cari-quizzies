@@ -328,7 +328,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         return (
           <div className={cn("p-4", config.textAlign === 'center' && 'text-center', config.textAlign === 'right' && 'text-right')}>
             <div 
-              className="rich-text text-foreground"
+              className="rich-text"
+              style={{ color: 'inherit' }}
               dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.content || 'Bloco de texto') }}
             />
           </div>
@@ -340,11 +341,12 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'textarea':
         return (
           <div className="p-4">
-            {config.label && <div className="rich-text font-medium mb-2" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
+            {config.label && <div className="rich-text font-medium mb-2" style={{ color: 'inherit' }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
             {comp.type === 'textarea' ? (
               <textarea 
                 placeholder={config.placeholder || 'Digite aqui...'}
-                className="w-full px-4 py-3 bg-muted/30 border border-border rounded-lg text-sm resize-none"
+                className="w-full px-4 py-3 bg-transparent border border-current/30 rounded-lg text-sm resize-none"
+                style={{ color: 'inherit' }}
                 rows={3}
                 disabled
               />
@@ -352,11 +354,12 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               <input 
                 type={comp.type === 'email' ? 'email' : comp.type === 'number' ? 'number' : 'text'}
                 placeholder={config.placeholder}
-                className="w-full px-4 py-3 bg-muted/30 border border-border rounded-lg text-sm"
+                className="w-full px-4 py-3 bg-transparent border border-current/30 rounded-lg text-sm"
+                style={{ color: 'inherit' }}
                 disabled
               />
             )}
-            {config.helpText && <p className="text-xs text-muted-foreground mt-1">{config.helpText}</p>}
+            {config.helpText && <p className="text-xs opacity-60 mt-1" style={{ color: 'inherit' }}>{config.helpText}</p>}
           </div>
         );
       case 'height':
@@ -387,24 +390,26 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         
         return (
           <div className="p-4">
-            {config.label && <div className="rich-text font-medium mb-2" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
+            {config.label && <div className="rich-text font-medium mb-2" style={{ color: 'inherit' }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
             <input 
               type="number"
               placeholder={config.placeholder}
-              className="w-full px-4 py-3 bg-muted/30 border border-border rounded-lg text-sm"
+              className="w-full px-4 py-3 bg-transparent border border-current/30 rounded-lg text-sm"
+              style={{ color: 'inherit' }}
               disabled
             />
-            {config.helpText && <p className="text-xs text-muted-foreground mt-1">{config.helpText}</p>}
+            {config.helpText && <p className="text-xs opacity-60 mt-1" style={{ color: 'inherit' }}>{config.helpText}</p>}
           </div>
         );
       case 'date':
         return (
           <div className="p-4">
-            {config.label && <div className="rich-text font-medium mb-2" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
+            {config.label && <div className="rich-text font-medium mb-2" style={{ color: 'inherit' }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
             <Popover>
               <PopoverTrigger asChild>
                 <button
-                  className="w-full px-4 py-3 bg-muted/30 border border-border rounded-lg text-sm flex items-center justify-between text-muted-foreground"
+                  className="w-full px-4 py-3 bg-transparent border border-current/30 rounded-lg text-sm flex items-center justify-between opacity-60"
+                  style={{ color: 'inherit' }}
                 >
                   <span>dd/mm/aaaa</span>
                   <CalendarIcon className="h-4 w-4" />
@@ -418,7 +423,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                 />
               </PopoverContent>
             </Popover>
-            {config.helpText && <p className="text-xs text-muted-foreground mt-1">{config.helpText}</p>}
+            {config.helpText && <p className="text-xs opacity-60 mt-1" style={{ color: 'inherit' }}>{config.helpText}</p>}
           </div>
         );
       case 'button':
