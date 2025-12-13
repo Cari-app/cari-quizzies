@@ -50,6 +50,7 @@ export function RichTextInput({
   const editorRef = React.useRef<HTMLDivElement>(null);
   const toolbarRef = React.useRef<HTMLDivElement>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const savedRangeRef = React.useRef<Range | null>(null);
 
   React.useEffect(() => {
     if (editorRef.current && value !== editorRef.current.innerHTML) {
@@ -63,19 +64,33 @@ export function RichTextInput({
     handleInput();
   };
 
+  // Convert font tags to spans with inline styles (preserves color)
+  const convertFontTagsToSpans = (container: HTMLElement) => {
+    const fonts = container.querySelectorAll("font[color]");
+    fonts.forEach((font) => {
+      const span = document.createElement("span");
+      const color = font.getAttribute("color");
+      if (color) {
+        span.style.color = color;
+      }
+      span.innerHTML = font.innerHTML;
+      font.parentNode?.replaceChild(span, font);
+    });
+  };
+
   const cleanHtml = (html: string): string => {
-    // Remove empty style attributes
+    // Remove empty style attributes but keep color styles
     return html
-      .replace(/style=""/g, '')
-      .replace(/style=''/g, '')
-      .replace(/<div style="">/g, '<div>')
-      .replace(/<span style="">/g, '<span>')
-      .replace(/<font[^>]*>/gi, '') // Remove font tags
-      .replace(/<\/font>/gi, '');
+      .replace(/style=""/g, "")
+      .replace(/style=''/g, "")
+      .replace(/<div style="">/g, "<div>")
+      .replace(/<span style="">/g, "<span>");
   };
 
   const handleInput = () => {
     if (editorRef.current) {
+      // Convert any font tags to spans first
+      convertFontTagsToSpans(editorRef.current);
       const cleanedHtml = cleanHtml(editorRef.current.innerHTML);
       onChange(cleanedHtml);
     }
@@ -230,33 +245,31 @@ export function RichTextInput({
               onChange={(e) => {
                 const color = e.target.value;
                 setSelectedColor(color);
-                // Re-select the text before applying color
-                const selection = window.getSelection();
-                if (selection && selection.rangeCount > 0) {
-                  editorRef.current?.focus();
+                
+                // Restore saved selection before applying color
+                if (savedRangeRef.current && editorRef.current) {
+                  editorRef.current.focus();
+                  const selection = window.getSelection();
+                  if (selection) {
+                    selection.removeAllRanges();
+                    selection.addRange(savedRangeRef.current);
+                  }
                   document.execCommand("foreColor", false, color);
                   handleInput();
                 }
               }}
               onMouseDown={(e) => {
                 e.stopPropagation();
+                e.preventDefault();
                 // Save current selection before color picker opens
                 const selection = window.getSelection();
-                if (selection && selection.rangeCount > 0) {
-                  const range = selection.getRangeAt(0);
-                  (window as any).__savedRange = range.cloneRange();
+                if (selection && selection.rangeCount > 0 && !selection.isCollapsed) {
+                  savedRangeRef.current = selection.getRangeAt(0).cloneRange();
                 }
               }}
-              onFocus={() => {
-                // Restore selection when color picker receives focus
-                const savedRange = (window as any).__savedRange;
-                if (savedRange && editorRef.current) {
-                  const selection = window.getSelection();
-                  if (selection) {
-                    selection.removeAllRanges();
-                    selection.addRange(savedRange);
-                  }
-                }
+              onClick={(e) => {
+                // Trigger the native color picker
+                (e.target as HTMLInputElement).showPicker?.();
               }}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               title="Cor do texto"
