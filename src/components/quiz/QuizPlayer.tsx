@@ -61,7 +61,7 @@ interface ComponentConfig {
   buttonGradientTo?: string;
   buttonGradientDirection?: 'to-r' | 'to-l' | 'to-t' | 'to-b' | 'to-tr' | 'to-tl' | 'to-br' | 'to-bl';
   buttonHoverEffect?: 'none' | 'darken' | 'lighten' | 'scale' | 'lift' | 'glow';
-  buttonAnimation?: 'none' | 'pulse' | 'bounce' | 'shine' | 'shake';
+  buttonAnimation?: 'none' | 'shine' | 'pulse-glow' | 'float' | 'heartbeat' | 'wiggle' | 'ripple' | 'glow-border' | 'bounce-subtle' | 'attention';
   buttonIcon?: string;
   buttonIconPosition?: 'left' | 'right';
   buttonPaddingX?: number;
@@ -848,10 +848,15 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
 
         const getAnimationClass = () => {
           switch (config.buttonAnimation) {
-            case 'pulse': return 'animate-pulse';
-            case 'bounce': return 'animate-bounce';
             case 'shine': return 'btn-shine';
-            case 'shake': return 'btn-shake';
+            case 'pulse-glow': return 'btn-pulse-glow';
+            case 'float': return 'btn-float';
+            case 'heartbeat': return 'btn-heartbeat';
+            case 'wiggle': return 'btn-wiggle';
+            case 'ripple': return 'btn-ripple';
+            case 'glow-border': return 'btn-glow-border';
+            case 'bounce-subtle': return 'btn-bounce-subtle';
+            case 'attention': return 'btn-attention';
             default: return '';
           }
         };

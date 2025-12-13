@@ -215,7 +215,7 @@ export interface ComponentConfig {
   buttonGradientTo?: string;
   buttonGradientDirection?: 'to-r' | 'to-l' | 'to-t' | 'to-b' | 'to-tr' | 'to-tl' | 'to-br' | 'to-bl';
   buttonHoverEffect?: 'none' | 'darken' | 'lighten' | 'scale' | 'lift' | 'glow';
-  buttonAnimation?: 'none' | 'pulse' | 'bounce' | 'shine' | 'shake';
+  buttonAnimation?: 'none' | 'shine' | 'pulse-glow' | 'float' | 'heartbeat' | 'wiggle' | 'ripple' | 'glow-border' | 'bounce-subtle' | 'attention';
   buttonIcon?: string;
   buttonIconPosition?: 'left' | 'right';
   buttonPaddingX?: number;
@@ -1086,10 +1086,15 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">Nenhuma</SelectItem>
-                  <SelectItem value="pulse">Pulsar</SelectItem>
-                  <SelectItem value="bounce">Pular</SelectItem>
-                  <SelectItem value="shine">Brilho deslizante</SelectItem>
-                  <SelectItem value="shake">Tremer</SelectItem>
+                  <SelectItem value="shine">✨ Brilho deslizante</SelectItem>
+                  <SelectItem value="pulse-glow">💫 Pulso luminoso</SelectItem>
+                  <SelectItem value="float">🎈 Flutuação suave</SelectItem>
+                  <SelectItem value="heartbeat">💓 Batida</SelectItem>
+                  <SelectItem value="bounce-subtle">⬆️ Salto suave</SelectItem>
+                  <SelectItem value="wiggle">〰️ Balanço</SelectItem>
+                  <SelectItem value="ripple">🔘 Ondulação</SelectItem>
+                  <SelectItem value="glow-border">🌟 Borda luminosa</SelectItem>
+                  <SelectItem value="attention">👋 Chamada de atenção</SelectItem>
                 </SelectContent>
               </Select>
             </div>
