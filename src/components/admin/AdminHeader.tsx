@@ -27,15 +27,16 @@ export function AdminHeader({ title, subtitle }: AdminHeaderProps) {
 
   const handleSignOut = async () => {
     const { error } = await signOut();
-    if (error) {
+    // Even if there's an error (like session not found), redirect to login
+    // This handles cases where session was already invalidated on server
+    if (error && !error.message?.includes('session_not_found') && error.status !== 403) {
       toast({
         title: 'Erro',
         description: 'Erro ao sair da conta',
         variant: 'destructive',
       });
-    } else {
-      navigate('/login');
     }
+    navigate('/login');
   };
 
   const getInitials = () => {
