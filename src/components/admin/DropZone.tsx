@@ -2078,63 +2078,61 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const marginRight = hAlign === 'center' || hAlign === 'start' ? 'auto' : '0';
         
         return (
-          <div 
-            className="py-4 px-4"
-            style={{
-              width: `${widthValue}%`,
-              marginLeft,
-              marginRight,
-            }}
-          >
+          <div className="w-full flex" style={{ justifyContent: hAlign === 'center' ? 'center' : hAlign === 'end' ? 'flex-end' : 'flex-start' }}>
             <div 
-              style={{ 
-                display: 'grid',
-                gridTemplateColumns: `repeat(${columns}, 1fr)`,
-                gap: '8px',
-                width: '100%',
-              }}
+              className="py-4 px-4"
+              style={{ width: `${widthValue}%` }}
             >
-              {items.map((item: any) => (
-                <div 
-                  key={item.id} 
-                  className="flex flex-col items-center justify-center gap-2 p-3 overflow-hidden"
-                  style={{
-                    background: bgStyle,
-                    borderWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
-                    borderStyle: borderWidth > 0 ? 'solid' : 'none',
-                    borderColor: borderColor || undefined,
-                    borderRadius: `${borderRadius}px`,
-                  }}
-                >
-                  {disposition === 'legend-chart' ? (
-                    <>
-                      <p 
-                        className="text-xs text-center leading-relaxed line-clamp-2 w-full"
-                        style={{ color: textColor || undefined }}
-                      >
-                        {item.label}
-                      </p>
-                      {item.type === 'bar' 
-                        ? renderBarChart(item.value, item.color)
-                        : renderCircularChart(item.value, item.color)
-                      }
-                    </>
-                  ) : (
-                    <>
-                      {item.type === 'bar' 
-                        ? renderBarChart(item.value, item.color)
-                        : renderCircularChart(item.value, item.color)
-                      }
-                      <p 
-                        className="text-xs text-center leading-relaxed line-clamp-2 w-full"
-                        style={{ color: textColor || undefined }}
-                      >
-                        {item.label}
-                      </p>
-                    </>
-                  )}
-                </div>
-              ))}
+              <div 
+                style={{ 
+                  display: 'grid',
+                  gridTemplateColumns: `repeat(${columns}, 1fr)`,
+                  gap: '8px',
+                  width: '100%',
+                }}
+              >
+                {items.map((item: any) => (
+                  <div 
+                    key={item.id} 
+                    className="flex flex-col items-center justify-center gap-2 p-3"
+                    style={{
+                      background: bgStyle,
+                      borderWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
+                      borderStyle: borderWidth > 0 ? 'solid' : 'none',
+                      borderColor: borderColor || undefined,
+                      borderRadius: `${borderRadius}px`,
+                    }}
+                  >
+                    {disposition === 'legend-chart' ? (
+                      <>
+                        <p 
+                          className="text-xs text-center leading-relaxed line-clamp-2"
+                          style={{ color: textColor || undefined }}
+                        >
+                          {item.label}
+                        </p>
+                        {item.type === 'bar' 
+                          ? renderBarChart(item.value, item.color)
+                          : renderCircularChart(item.value, item.color)
+                        }
+                      </>
+                    ) : (
+                      <>
+                        {item.type === 'bar' 
+                          ? renderBarChart(item.value, item.color)
+                          : renderCircularChart(item.value, item.color)
+                        }
+                        <p 
+                          className="text-xs text-center leading-relaxed line-clamp-2"
+                          style={{ color: textColor || undefined }}
+                        >
+                          {item.label}
+                        </p>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         );
