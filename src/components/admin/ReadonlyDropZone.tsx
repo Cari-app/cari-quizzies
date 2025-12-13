@@ -132,47 +132,26 @@ export function ReadonlyDropZone({ components, designSettings }: ReadonlyDropZon
         );
 
       case 'button': {
-        // Build style object - always apply custom colors
-        const buttonStyle: React.CSSProperties = {};
-        
-        if (config.buttonGradient) {
-          const direction = 
-            config.buttonGradientDirection === 'to-r' ? 'to right' :
-            config.buttonGradientDirection === 'to-l' ? 'to left' :
-            config.buttonGradientDirection === 'to-t' ? 'to top' :
-            config.buttonGradientDirection === 'to-b' ? 'to bottom' :
-            config.buttonGradientDirection === 'to-tr' ? 'to top right' :
-            config.buttonGradientDirection === 'to-br' ? 'to bottom right' :
-            config.buttonGradientDirection === 'to-tl' ? 'to top left' :
-            config.buttonGradientDirection === 'to-bl' ? 'to bottom left' : 'to right';
-          buttonStyle.background = `linear-gradient(${direction}, ${config.buttonGradientFrom || '#000000'}, ${config.buttonGradientTo || '#333333'})`;
-        } else {
-          buttonStyle.backgroundColor = config.buttonBgColor || '#000000';
-        }
-        
-        buttonStyle.color = config.buttonTextColor || '#FFFFFF';
-        buttonStyle.borderRadius = `${config.buttonBorderRadius ?? 8}px`;
-        
-        if ((config.buttonBorderWidth ?? 0) > 0) {
-          buttonStyle.borderWidth = `${config.buttonBorderWidth}px`;
-          buttonStyle.borderStyle = 'solid';
-          buttonStyle.borderColor = config.buttonBorderColor || '#000000';
-        }
-        
-        if (config.buttonFontSize) {
-          buttonStyle.fontSize = `${config.buttonFontSize}px`;
-        }
+        const style: React.CSSProperties = {
+          backgroundColor: config.buttonBgColor || '#000000',
+          color: config.buttonTextColor || '#ffffff',
+          fontSize: config.buttonFontSize ? `${config.buttonFontSize}px` : '16px',
+          borderRadius: `${config.buttonBorderRadius ?? 8}px`,
+          borderWidth: config.buttonBorderWidth ? `${config.buttonBorderWidth}px` : '0',
+          borderStyle: config.buttonBorderWidth ? 'solid' : 'none',
+          borderColor: config.buttonBorderColor || '#000000',
+          width: config.buttonFullWidth !== false ? '100%' : 'auto',
+          padding: '12px 24px',
+          fontWeight: 500,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        };
 
         return (
           <div className="p-4">
-            <button 
-              className={cn(
-                "w-full py-3 text-sm font-medium transition-colors inline-flex items-center justify-center",
-                config.buttonFullWidth !== false ? 'w-full' : 'w-auto'
-              )}
-              style={buttonStyle}
-            >
-              <span dangerouslySetInnerHTML={{ __html: config.buttonText || 'Botão' }} />
+            <button style={style}>
+              {config.buttonText || 'Botão'}
             </button>
           </div>
         );
