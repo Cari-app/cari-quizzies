@@ -925,14 +925,17 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
       }
     }
     
-    // Default: go to next stage
+    // Default: go to next stage or complete quiz
     if (currentStageIndex < stages.length - 1) {
       const nextIndex = currentStageIndex + 1;
       setCurrentStageIndex(nextIndex);
       setNavigationHistory(prev => [...prev, nextIndex]);
       setStageStartTime(Date.now());
+    } else {
+      // Last stage - mark session as complete
+      markSessionComplete();
     }
-  }, [stages, currentStageIndex, sessionId, saveStageResponse, getStageInputValues]);
+  }, [stages, currentStageIndex, sessionId, saveStageResponse, getStageInputValues, markSessionComplete]);
 
   // Navigate based on flow connections for a specific option
   const handleNavigateByOption = useCallback((componentId: string, optionId: string, optionText?: string) => {
@@ -978,14 +981,17 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
       }
     }
     
-    // Default: go to next stage
+    // Default: go to next stage or complete quiz
     if (currentStageIndex < stages.length - 1) {
       const nextIndex = currentStageIndex + 1;
       setCurrentStageIndex(nextIndex);
       setNavigationHistory(prev => [...prev, nextIndex]);
       setStageStartTime(Date.now());
+    } else {
+      // Last stage - mark session as complete
+      markSessionComplete();
     }
-  }, [stages, currentStageIndex, sessionId, saveStageResponse]);
+  }, [stages, currentStageIndex, sessionId, saveStageResponse, markSessionComplete]);
 
   // Navigate back following the history (respects flow order)
   const handleBack = () => {
