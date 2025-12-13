@@ -2,7 +2,7 @@ import { ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DesignSettings {
-  headerStyle: 'default' | 'minimal' | 'steps';
+  headerStyle: 'default' | 'minimal' | 'steps' | 'line';
   logo: {
     type: 'image' | 'url' | 'emoji';
     value: string;
@@ -54,7 +54,7 @@ export function QuizHeaderPreview({
   if (isBottomProgress) {
     return (
       <div className="shrink-0 px-4 pb-4">
-        {headerStyle === 'default' && (
+        {(headerStyle === 'default' || headerStyle === 'line') && (
           <div 
             className="h-1.5 rounded-full overflow-hidden"
             style={{ backgroundColor: `${designSettings.primaryColor}30` }}
@@ -94,6 +94,26 @@ export function QuizHeaderPreview({
             ))}
           </div>
         )}
+      </div>
+    );
+  }
+
+  // Line style - just a thin progress bar at the very top
+  if (headerStyle === 'line' && position === 'top' && isTopProgress) {
+    return (
+      <div className="shrink-0">
+        <div 
+          className="h-1 w-full"
+          style={{ backgroundColor: `${designSettings.primaryColor}20` }}
+        >
+          <div 
+            className="h-full transition-all duration-300"
+            style={{ 
+              width: `${progressValue}%`,
+              backgroundColor: designSettings.primaryColor,
+            }}
+          />
+        </div>
       </div>
     );
   }
