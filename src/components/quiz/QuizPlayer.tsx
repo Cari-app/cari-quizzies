@@ -629,6 +629,44 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
     handleNext();
   };
 
+  // Navigate based on flow connections for a specific option
+  const handleNavigateByOption = (componentId: string, optionId: string) => {
+    const currentStage = stages[currentStageIndex];
+    const connections = currentStage?.connections || [];
+    
+    // Find connection for this specific option (format: opt-{componentId}-{optionId})
+    const optionConnection = connections.find(conn => 
+      conn.sourceHandle === `opt-${componentId}-${optionId}`
+    );
+    
+    if (optionConnection) {
+      // Navigate to the connected stage for this option
+      const targetIndex = stages.findIndex(s => s.id === optionConnection.targetId);
+      if (targetIndex !== -1) {
+        setCurrentStageIndex(targetIndex);
+        setNavigationHistory(prev => [...prev, targetIndex]);
+        return;
+      }
+    }
+    
+    // Fallback: try component-level connection
+    const componentConnection = connections.find(conn => 
+      conn.sourceHandle === `comp-${componentId}`
+    );
+    
+    if (componentConnection) {
+      const targetIndex = stages.findIndex(s => s.id === componentConnection.targetId);
+      if (targetIndex !== -1) {
+        setCurrentStageIndex(targetIndex);
+        setNavigationHistory(prev => [...prev, targetIndex]);
+        return;
+      }
+    }
+    
+    // Default: go to next stage
+    handleNext();
+  };
+
   // Navigate back following the history (respects flow order)
   const handleBack = () => {
     if (navigationHistory.length > 1) {
@@ -1021,7 +1059,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           }
         };
         
-        const handleOptionClick = (optValue: string) => {
+        const handleOptionClick = (optValue: string, optionId: string) => {
           if (isMultiple) {
             const newValues = selectedValues!.includes(optValue)
               ? selectedValues!.filter((v: string) => v !== optValue)
@@ -1030,7 +1068,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           } else {
             handleInputChange(comp.id, customId, optValue);
             if (autoAdvance) {
-              setTimeout(() => handleNavigateByComponent(comp.id), 300);
+              setTimeout(() => handleNavigateByOption(comp.id, optionId), 300);
             }
           }
         };
@@ -1090,7 +1128,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                   return (
                     <button
                       key={opt.id}
-                      onClick={() => handleOptionClick(opt.value)}
+                      onClick={() => handleOptionClick(opt.value, opt.id)}
                       className={cn(
                         "border text-sm transition-colors overflow-hidden text-left",
                         getBorderRadius(),
@@ -1137,7 +1175,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                   return (
                     <button
                       key={opt.id}
-                      onClick={() => handleOptionClick(opt.value)}
+                      onClick={() => handleOptionClick(opt.value, opt.id)}
                       className={cn(
                         "p-4 border text-sm transition-colors",
                         isVertical ? "text-center" : "text-left",
@@ -1166,7 +1204,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                 return (
                   <button
                     key={opt.id}
-                    onClick={() => handleOptionClick(opt.value)}
+                    onClick={() => handleOptionClick(opt.value, opt.id)}
                     className={cn(
                       "p-3 border text-sm transition-colors",
                       isVertical ? "text-center" : "text-left",
