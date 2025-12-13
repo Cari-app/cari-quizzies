@@ -1922,19 +1922,19 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         
         const renderBarChart = (value: number, color: string) => {
           return (
-            <div className="flex flex-col items-center gap-2 w-full">
+            <div className="flex flex-col items-center gap-2">
               <span 
                 className="text-xs font-semibold"
                 style={{ color: valueColor || undefined }}
               >
                 {value}%
               </span>
-              <div className="w-full h-16 rounded-lg overflow-hidden relative" style={{ 
+              <div className="w-[15px] h-16 rounded-md overflow-hidden relative" style={{ 
                 background: 'linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.03) 100%)',
                 boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)'
               }}>
                 <div 
-                  className="absolute bottom-0 left-0 w-full rounded-t-lg transition-all duration-700 ease-out"
+                  className="absolute bottom-0 left-0 w-full rounded-t-md transition-all duration-700 ease-out"
                   style={{ 
                     height: `${Math.max(8, value)}%`,
                     background: colorGradients[color] || colorGradients.theme,
