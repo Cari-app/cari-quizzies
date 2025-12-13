@@ -69,15 +69,15 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
     
     switch (type) {
       case 'input':
-        return { label: 'Campo de texto', placeholder: 'Digite aqui...', required: false };
+        return { label: 'Campo de texto', placeholder: 'Digite aqui...', required: false, inputType: 'text' };
       case 'email':
-        return { label: 'E-mail', placeholder: 'seu@email.com', required: true };
+        return { label: 'E-mail', placeholder: 'seu@email.com', required: true, inputType: 'email' };
       case 'phone':
-        return { label: 'Telefone', placeholder: '(00) 00000-0000', required: true, mask: 'br' };
+        return { label: 'Telefone', placeholder: '(00) 00000-0000', required: true, mask: 'br', inputType: 'tel' };
       case 'number':
-        return { label: 'Número', placeholder: '0', required: false };
+        return { label: 'Número', placeholder: '0', required: false, inputType: 'number' };
       case 'date':
-        return { label: 'Data', required: false };
+        return { label: 'Data', required: false, inputType: 'date' };
       case 'textarea':
         return { label: 'Mensagem', placeholder: 'Digite sua mensagem...', required: false };
       case 'height':
