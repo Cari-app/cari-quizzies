@@ -141,6 +141,7 @@ export default function AuthPage() {
           <CardDescription>
             Acesse sua conta para gerenciar seus quizzes
           </CardDescription>
+          <p className="text-xs text-muted-foreground mt-2">Quiz empoderado por IA.</p>
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'login' | 'signup')}>
