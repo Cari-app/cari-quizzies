@@ -1508,6 +1508,19 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const shadow = config.testimonialShadow || 'none';
         const spacing = config.testimonialSpacing || 'simple';
         
+        // Styling options
+        const bgType = config.testimonialBgType || 'solid';
+        const bgColor = config.testimonialBgColor || '#ffffff';
+        const gradientStart = config.testimonialGradientStart || '#ffffff';
+        const gradientEnd = config.testimonialGradientEnd || '#f0f0f0';
+        const gradientAngle = config.testimonialGradientAngle || 180;
+        const starColor = config.testimonialStarColor || '#000000';
+        const nameColor = config.testimonialNameColor || '#000000';
+        const handleColor = config.testimonialHandleColor || '#666666';
+        const textColor = config.testimonialTextColor || '#333333';
+        const borderColor = config.testimonialBorderColor || '#e5e5e5';
+        const borderWidth = config.testimonialBorderWidth ?? 1;
+        
         const borderRadiusClass = {
           'none': 'rounded-none',
           'small': 'rounded-lg',
@@ -1528,20 +1541,41 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           'relaxed': 'p-5 gap-4',
         }[spacing] || 'p-4 gap-3';
 
+        // Build background style
+        const getBackgroundStyle = (): React.CSSProperties => {
+          if (bgType === 'transparent') {
+            return { backgroundColor: 'transparent' };
+          }
+          if (bgType === 'gradient') {
+            return { background: `linear-gradient(${gradientAngle}deg, ${gradientStart}, ${gradientEnd})` };
+          }
+          return { backgroundColor: bgColor };
+        };
+
         const renderTestimonialCard = (item: typeof testimonialItems[0]) => (
           <div 
             key={item.id} 
             className={cn(
-              "border border-border bg-background flex flex-col",
+              "flex flex-col",
               borderRadiusClass,
               shadowClass,
               spacingClass
             )}
+            style={{
+              ...getBackgroundStyle(),
+              borderWidth: `${borderWidth}px`,
+              borderStyle: 'solid',
+              borderColor: borderColor,
+            }}
           >
             {/* Rating stars */}
             <div className="flex gap-0.5 mb-2">
               {Array.from({ length: 5 }).map((_, i) => (
-                <span key={i} className={cn("text-sm", i < item.rating ? "text-amber-400" : "text-muted-foreground/30")}>
+                <span 
+                  key={i} 
+                  className="text-sm"
+                  style={{ color: i < item.rating ? starColor : 'rgba(128,128,128,0.3)' }}
+                >
                   ★
                 </span>
               ))}
@@ -1553,14 +1587,15 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                 <img src={item.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover" />
               )}
               <div>
-                <div className="font-semibold text-sm">{item.name}</div>
-                <div className="text-xs text-muted-foreground">{item.handle}</div>
+                <div className="font-semibold text-sm" style={{ color: nameColor }}>{item.name}</div>
+                <div className="text-xs" style={{ color: handleColor }}>{item.handle}</div>
               </div>
             </div>
             
             {/* Text */}
             <div 
-              className="text-sm text-muted-foreground rich-text flex-1"
+              className="text-sm rich-text flex-1"
+              style={{ color: textColor }}
               dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.text) }}
             />
             

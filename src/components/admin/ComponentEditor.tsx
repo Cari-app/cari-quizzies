@@ -370,6 +370,18 @@ export interface ComponentConfig {
   testimonialBorderRadius?: 'none' | 'small' | 'medium' | 'large';
   testimonialShadow?: 'none' | 'sm' | 'md' | 'lg';
   testimonialSpacing?: 'compact' | 'simple' | 'relaxed';
+  // Testimonials styling
+  testimonialBgType?: 'solid' | 'gradient' | 'transparent';
+  testimonialBgColor?: string;
+  testimonialGradientStart?: string;
+  testimonialGradientEnd?: string;
+  testimonialGradientAngle?: number;
+  testimonialStarColor?: string;
+  testimonialTextColor?: string;
+  testimonialNameColor?: string;
+  testimonialHandleColor?: string;
+  testimonialBorderColor?: string;
+  testimonialBorderWidth?: number;
   // FAQ specific
   faqItems?: FaqItem[];
   faqDetailType?: 'arrow' | 'plus-minus';
@@ -3517,6 +3529,268 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             adicionar depoimento
           </Button>
         </div>
+
+        {/* ===== APARÊNCIA ===== */}
+        <Collapsible className="border border-border rounded-lg">
+          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50">
+            <span className="text-sm font-medium">Aparência</span>
+            <ChevronDown className="w-4 h-4" />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="p-3 pt-0 space-y-4">
+            {/* Background Type */}
+            <div>
+              <Label className="text-xs text-muted-foreground">Tipo de fundo</Label>
+              <Select 
+                value={config.testimonialBgType || 'solid'} 
+                onValueChange={(v) => updateConfig({ testimonialBgType: v as ComponentConfig['testimonialBgType'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="solid">Cor sólida</SelectItem>
+                  <SelectItem value="gradient">Gradiente</SelectItem>
+                  <SelectItem value="transparent">Transparente</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Solid Background Color */}
+            {config.testimonialBgType === 'solid' && (
+              <div>
+                <Label className="text-xs text-muted-foreground">Cor de fundo</Label>
+                <div className="flex gap-2 mt-1">
+                  <div className="relative w-10 h-9 rounded border overflow-hidden cursor-pointer" style={{ backgroundColor: config.testimonialBgColor || '#ffffff' }}>
+                    <input
+                      type="color"
+                      value={config.testimonialBgColor || '#ffffff'}
+                      onChange={(e) => updateConfig({ testimonialBgColor: e.target.value })}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                  <Input
+                    value={config.testimonialBgColor || ''}
+                    onChange={(e) => updateConfig({ testimonialBgColor: e.target.value })}
+                    placeholder="#ffffff"
+                    className="flex-1 font-mono text-xs"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Gradient Colors */}
+            {config.testimonialBgType === 'gradient' && (
+              <>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Cor inicial</Label>
+                    <div className="flex gap-1 mt-1">
+                      <div className="relative w-8 h-8 rounded border overflow-hidden cursor-pointer" style={{ backgroundColor: config.testimonialGradientStart || '#ffffff' }}>
+                        <input
+                          type="color"
+                          value={config.testimonialGradientStart || '#ffffff'}
+                          onChange={(e) => updateConfig({ testimonialGradientStart: e.target.value })}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                      </div>
+                      <Input
+                        value={config.testimonialGradientStart || ''}
+                        onChange={(e) => updateConfig({ testimonialGradientStart: e.target.value })}
+                        placeholder="#ffffff"
+                        className="flex-1 font-mono text-xs"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Cor final</Label>
+                    <div className="flex gap-1 mt-1">
+                      <div className="relative w-8 h-8 rounded border overflow-hidden cursor-pointer" style={{ backgroundColor: config.testimonialGradientEnd || '#f0f0f0' }}>
+                        <input
+                          type="color"
+                          value={config.testimonialGradientEnd || '#f0f0f0'}
+                          onChange={(e) => updateConfig({ testimonialGradientEnd: e.target.value })}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                      </div>
+                      <Input
+                        value={config.testimonialGradientEnd || ''}
+                        onChange={(e) => updateConfig({ testimonialGradientEnd: e.target.value })}
+                        placeholder="#f0f0f0"
+                        className="flex-1 font-mono text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Ângulo do gradiente: {config.testimonialGradientAngle || 180}°</Label>
+                  <Slider
+                    value={[config.testimonialGradientAngle || 180]}
+                    onValueChange={([v]) => updateConfig({ testimonialGradientAngle: v })}
+                    min={0}
+                    max={360}
+                    step={15}
+                    className="mt-1"
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Star Color */}
+            <div>
+              <Label className="text-xs text-muted-foreground">Cor das estrelas</Label>
+              <div className="flex gap-2 mt-1">
+                <div className="relative w-10 h-9 rounded border overflow-hidden cursor-pointer" style={{ backgroundColor: config.testimonialStarColor || '#000000' }}>
+                  <input
+                    type="color"
+                    value={config.testimonialStarColor || '#000000'}
+                    onChange={(e) => updateConfig({ testimonialStarColor: e.target.value })}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </div>
+                <Input
+                  value={config.testimonialStarColor || ''}
+                  onChange={(e) => updateConfig({ testimonialStarColor: e.target.value })}
+                  placeholder="#000000"
+                  className="flex-1 font-mono text-xs"
+                />
+              </div>
+            </div>
+
+            {/* Text Colors */}
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="text-xs text-muted-foreground">Cor do nome</Label>
+                <div className="flex gap-1 mt-1">
+                  <div className="relative w-8 h-8 rounded border overflow-hidden cursor-pointer" style={{ backgroundColor: config.testimonialNameColor || '#000000' }}>
+                    <input
+                      type="color"
+                      value={config.testimonialNameColor || '#000000'}
+                      onChange={(e) => updateConfig({ testimonialNameColor: e.target.value })}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                  <Input
+                    value={config.testimonialNameColor || ''}
+                    onChange={(e) => updateConfig({ testimonialNameColor: e.target.value })}
+                    placeholder="#000000"
+                    className="flex-1 font-mono text-xs"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Cor do @handle</Label>
+                <div className="flex gap-1 mt-1">
+                  <div className="relative w-8 h-8 rounded border overflow-hidden cursor-pointer" style={{ backgroundColor: config.testimonialHandleColor || '#666666' }}>
+                    <input
+                      type="color"
+                      value={config.testimonialHandleColor || '#666666'}
+                      onChange={(e) => updateConfig({ testimonialHandleColor: e.target.value })}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                  <Input
+                    value={config.testimonialHandleColor || ''}
+                    onChange={(e) => updateConfig({ testimonialHandleColor: e.target.value })}
+                    placeholder="#666666"
+                    className="flex-1 font-mono text-xs"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-xs text-muted-foreground">Cor do texto</Label>
+              <div className="flex gap-2 mt-1">
+                <div className="relative w-10 h-9 rounded border overflow-hidden cursor-pointer" style={{ backgroundColor: config.testimonialTextColor || '#333333' }}>
+                  <input
+                    type="color"
+                    value={config.testimonialTextColor || '#333333'}
+                    onChange={(e) => updateConfig({ testimonialTextColor: e.target.value })}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </div>
+                <Input
+                  value={config.testimonialTextColor || ''}
+                  onChange={(e) => updateConfig({ testimonialTextColor: e.target.value })}
+                  placeholder="#333333"
+                  className="flex-1 font-mono text-xs"
+                />
+              </div>
+            </div>
+
+            {/* Border */}
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="text-xs text-muted-foreground">Cor da borda</Label>
+                <div className="flex gap-1 mt-1">
+                  <div className="relative w-8 h-8 rounded border overflow-hidden cursor-pointer" style={{ backgroundColor: config.testimonialBorderColor || '#e5e5e5' }}>
+                    <input
+                      type="color"
+                      value={config.testimonialBorderColor || '#e5e5e5'}
+                      onChange={(e) => updateConfig({ testimonialBorderColor: e.target.value })}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                  <Input
+                    value={config.testimonialBorderColor || ''}
+                    onChange={(e) => updateConfig({ testimonialBorderColor: e.target.value })}
+                    placeholder="#e5e5e5"
+                    className="flex-1 font-mono text-xs"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">Espessura da borda</Label>
+                <Input
+                  type="number"
+                  value={config.testimonialBorderWidth ?? 1}
+                  onChange={(e) => updateConfig({ testimonialBorderWidth: parseInt(e.target.value) || 0 })}
+                  min={0}
+                  max={10}
+                  className="mt-1"
+                />
+              </div>
+            </div>
+
+            {/* Border Radius */}
+            <div>
+              <Label className="text-xs text-muted-foreground">Arredondamento</Label>
+              <Select 
+                value={config.testimonialBorderRadius || 'medium'} 
+                onValueChange={(v) => updateConfig({ testimonialBorderRadius: v as ComponentConfig['testimonialBorderRadius'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhum</SelectItem>
+                  <SelectItem value="small">Pequeno</SelectItem>
+                  <SelectItem value="medium">Médio</SelectItem>
+                  <SelectItem value="large">Grande</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Shadow */}
+            <div>
+              <Label className="text-xs text-muted-foreground">Sombra</Label>
+              <Select 
+                value={config.testimonialShadow || 'sm'} 
+                onValueChange={(v) => updateConfig({ testimonialShadow: v as ComponentConfig['testimonialShadow'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Nenhuma</SelectItem>
+                  <SelectItem value="sm">Leve</SelectItem>
+                  <SelectItem value="md">Média</SelectItem>
+                  <SelectItem value="lg">Forte</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
 
         {/* Avançado */}
         <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
