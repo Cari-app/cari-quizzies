@@ -621,13 +621,15 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const selectedBorderColor = config.optionSelectedBorderColor || '#a855f7';
         
         const getOptionStyle = (isSelected: boolean): React.CSSProperties => {
-          const style: React.CSSProperties = {};
+          const style: React.CSSProperties = {
+            borderStyle: 'solid',
+            borderWidth: `${optionBorderWidth}px`,
+          };
           
           if (isSelected) {
             style.backgroundColor = selectedBgColor;
             style.color = selectedTextColor;
             style.borderColor = selectedBorderColor;
-            style.borderWidth = `${optionBorderWidth}px`;
           } else {
             if (optionBgType === 'transparent') {
               style.backgroundColor = 'transparent';
@@ -635,15 +637,11 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               style.background = `linear-gradient(${optionGradientAngle}deg, ${optionGradientStart}, ${optionGradientEnd})`;
             } else if (optionBgColor) {
               style.backgroundColor = optionBgColor;
+            } else {
+              style.backgroundColor = '#ffffff';
             }
-            if (optionTextColor) {
-              style.color = optionTextColor;
-            }
-            if (optionBorderColor) {
-              style.borderColor = optionBorderColor;
-            }
-            style.borderWidth = `${optionBorderWidth}px`;
-            style.borderStyle = 'solid';
+            style.color = optionTextColor || '#000000';
+            style.borderColor = optionBorderColor || '#e5e5e5';
           }
           
           return style;
