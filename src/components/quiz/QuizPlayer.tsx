@@ -152,6 +152,11 @@ interface ComponentConfig {
   levelBorderColor?: string;
   levelBorderWidth?: number;
   levelBorderRadius?: number;
+  levelNavigation?: 'none' | 'next' | 'submit' | 'link';
+  levelDestination?: 'next' | 'specific';
+  levelDestinationStageId?: string;
+  levelDestinationUrl?: string;
+  levelNavigationDelay?: number;
   // Arguments specific
   argumentItems?: Array<{
     id: string;
@@ -521,6 +526,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
   const pageSettings = currentStage?.pageSettings;
   const notificationComponents = currentStage?.components.filter(c => c.type === 'notification') || [];
   const loadingComponents = currentStage?.components.filter(c => c.type === 'loading') || [];
+  const levelComponents = currentStage?.components.filter(c => c.type === 'level' && c.config?.levelNavigation && c.config.levelNavigation !== 'none') || [];
 
   // Load quiz by slug or id from Supabase
   useEffect(() => {
@@ -2398,6 +2404,64 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       cleanupFns.forEach(fn => fn());
     };
   }, [currentStageIndex, loadingComponents.length]);
+
+  // Effect to handle level component navigation
+  useEffect(() => {
+    if (levelComponents.length === 0) return;
+    
+    const cleanupFns: (() => void)[] = [];
+    
+    levelComponents.forEach(comp => {
+      const config = comp.config || {};
+      const delay = (config.levelNavigationDelay ?? 2) * 1000;
+      const navigation = config.levelNavigation || 'none';
+      
+      if (navigation === 'none') return;
+      
+      const delayTimeout = setTimeout(() => {
+        if (navigation === 'link' && config.levelDestinationUrl) {
+          window.location.href = config.levelDestinationUrl;
+        } else if (navigation === 'submit') {
+          handleSubmit();
+        } else {
+          // Check for flow connection first
+          const currentStageData = stages[currentStageIndex];
+          const connections = currentStageData?.connections || [];
+          const connection = connections.find(conn => 
+            conn.sourceHandle === `comp-${comp.id}`
+          );
+          
+          if (connection) {
+            const targetIndex = stages.findIndex(s => s.id === connection.targetId);
+            if (targetIndex !== -1) {
+              setCurrentStageIndex(targetIndex);
+              return;
+            }
+          }
+          
+          // Check for specific stage destination
+          if (config.levelDestination === 'specific' && config.levelDestinationStageId) {
+            const targetIndex = stages.findIndex(s => s.id === config.levelDestinationStageId);
+            if (targetIndex !== -1) {
+              setCurrentStageIndex(targetIndex);
+              return;
+            }
+          }
+          
+          // Default: go to next stage
+          if (currentStageIndex < stages.length - 1) {
+            setCurrentStageIndex(prev => prev + 1);
+          }
+        }
+      }, delay);
+      
+      cleanupFns.push(() => clearTimeout(delayTimeout));
+    });
+    
+    return () => {
+      cleanupFns.forEach(fn => fn());
+    };
+  }, [currentStageIndex, levelComponents.length]);
 
   // Render notification overlay
   const renderNotificationOverlay = () => {
