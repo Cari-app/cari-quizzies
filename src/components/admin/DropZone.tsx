@@ -556,8 +556,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           buttonStyle.paddingBottom = `${config.buttonPaddingY}px`;
         }
 
-        // Strip inline color styles from text
-        const cleanText = (config.buttonText || 'Botão').replace(/color:\s*[^;]+;?/gi, '');
+        // Button text - plain text
+        const buttonText = config.buttonText || 'Botão';
 
         return (
           <div className="p-4">
@@ -576,7 +576,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               {config.buttonIcon && config.buttonIconPosition === 'left' && (
                 <span className="mr-2">{config.buttonIcon}</span>
               )}
-              <span dangerouslySetInnerHTML={{ __html: sanitizeHtml(cleanText) }} />
+              <span>{buttonText}</span>
               {config.buttonIcon && config.buttonIconPosition !== 'left' && (
                 <span className="ml-2">{config.buttonIcon}</span>
               )}
