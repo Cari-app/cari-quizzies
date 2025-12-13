@@ -1798,6 +1798,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           emoji?: string;
           imageUrl?: string;
           backgroundColor?: string;
+          borderColor?: string;
         }>;
         const layout = config.argumentLayout || 'grid-2';
         const disposition = config.argumentDisposition || 'image-text';
@@ -1830,12 +1831,16 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                 <div 
                   key={item.id} 
                   className={cn(
-                    "border border-primary/30 rounded-lg p-4 flex",
+                    "border rounded-lg p-4 flex",
                     isVertical ? "flex-col" : "flex-row gap-3",
                     !imageFirst && isVertical && "flex-col-reverse",
-                    !imageFirst && !isVertical && "flex-row-reverse"
+                    !imageFirst && !isVertical && "flex-row-reverse",
+                    !item.borderColor && "border-primary/30"
                   )}
-                  style={item.backgroundColor ? { backgroundColor: item.backgroundColor } : undefined}
+                  style={{
+                    backgroundColor: item.backgroundColor || undefined,
+                    borderColor: item.borderColor || undefined
+                  }}
                 >
                   {/* Media area */}
                   {item.mediaType !== 'none' && (
