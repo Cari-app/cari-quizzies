@@ -20,3 +20,4 @@ export { BeforeAfterComponentTab } from './BeforeAfterEditor';
 export { CarouselComponentTab } from './CarouselEditor';
 export { MetricsComponentTab } from './MetricsEditor';
 export { ScriptComponentTab } from './ScriptEditor';
+export { WebhookTriggerComponentTab } from './WebhookTriggerEditor';

@@ -55,6 +55,7 @@ import {
   CarouselComponentTab,
   MetricsComponentTab,
   ScriptComponentTab,
+  WebhookTriggerComponentTab,
   generateSlug 
 } from './editors';
 
@@ -609,6 +610,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         />;
       case 'script':
         return <ScriptComponentTab {...editorProps} />;
+      case 'webhook_trigger':
+        return <WebhookTriggerComponentTab config={config} onConfigChange={updateConfig} />;
       case 'alert':
         return <AlertComponentTab {...editorProps} />;
       case 'notification':

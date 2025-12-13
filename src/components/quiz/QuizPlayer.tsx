@@ -32,7 +32,8 @@ import {
   CarouselRenderer,
   MetricsRenderer,
   ChartsRenderer,
-  MediaRenderer
+  MediaRenderer,
+  WebhookTriggerRenderer
 } from './renderers';
 
 interface QuizPlayerProps {
@@ -1157,6 +1158,16 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
 
       case 'script':
         return <ScriptExecutor scriptCode={config.scriptCode || ''} />;
+
+      case 'webhook_trigger':
+        return (
+          <WebhookTriggerRenderer
+            component={comp}
+            quizId={quiz?.id}
+            sessionId={sessionId}
+            formData={formData}
+          />
+        );
 
       case 'alert':
         return <AlertRenderer {...rendererProps} />;
