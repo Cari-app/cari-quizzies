@@ -1,24 +1,14 @@
 import { useEffect, useState, useMemo, useCallback, forwardRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Loader2, CalendarIcon, ChevronLeft, ChevronRight, ChevronUp, Minus, Plus, ArrowLeftCircle } from 'lucide-react';
+import { ArrowLeft, Loader2, ChevronLeft, ChevronRight, ChevronUp, Minus, Plus, ArrowLeftCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { sanitizeHtml, sanitizeEmbed } from '@/lib/sanitize';
+import { sanitizeHtml } from '@/lib/sanitize';
 import { parseTemplate, templateFunctions, TemplateVariables } from '@/lib/templateParser';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 import useEmblaCarousel from 'embla-carousel-react';
-import { BeforeAfterSlider } from './BeforeAfterSlider';
-import { CarouselPlayer } from './CarouselPlayer';
-import { MetricsPlayer } from './MetricsPlayer';
-import { ChartPlayer } from './ChartPlayer';
-import { SlidingRuler } from './SlidingRuler';
 import { ScriptExecutor } from './ScriptExecutor';
 // Extracted renderers
 import { 
@@ -27,7 +17,19 @@ import {
   ButtonRenderer, 
   MeasurementRenderer,
   SpacerRenderer,
-  SeparatorRenderer
+  SeparatorRenderer,
+  OptionsRenderer,
+  SliderRenderer,
+  AlertRenderer,
+  ArgumentsRenderer,
+  TestimonialsRenderer,
+  FaqRenderer,
+  PriceRenderer,
+  BeforeAfterRenderer,
+  CarouselRenderer,
+  MetricsRenderer,
+  ChartsRenderer,
+  MediaRenderer
 } from './renderers';
 
 interface QuizPlayerProps {
@@ -1060,551 +1062,40 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
 
       case 'options':
       case 'single':
-      case 'multiple': {
-        const isMultiple = comp.type === 'multiple' || config.allowMultiple;
-        const selectedValues = isMultiple ? (Array.isArray(value) ? value : []) : null;
-        
-        const optionStyle = config.optionStyle || 'simple';
-        const optionLayout = config.optionLayout || 'list';
-        const optionOrientation = config.optionOrientation || 'horizontal';
-        const optionBorderRadius = config.optionBorderRadius || 'small';
-        const optionShadow = config.optionShadow || 'none';
-        const optionSpacing = config.optionSpacing || 'simple';
-        const detailType = config.detailType || 'checkbox';
-        const detailPosition = config.detailPosition || 'start';
-        const imagePosition = config.imagePosition || 'top';
-        const imageRatio = config.imageRatio || '1:1';
-        const autoAdvance = config.autoAdvance !== false && !isMultiple;
-        const isVertical = optionOrientation === 'vertical';
-        
-        const getBorderRadius = () => {
-          switch (optionBorderRadius) {
-            case 'none': return 'rounded-none';
-            case 'small': return 'rounded-md';
-            case 'medium': return 'rounded-lg';
-            case 'large': return 'rounded-xl';
-            case 'full': return 'rounded-full';
-            default: return 'rounded-md';
-          }
-        };
-        
-        const getShadow = () => {
-          switch (optionShadow) {
-            case 'sm': return 'shadow-sm';
-            case 'md': return 'shadow-md';
-            case 'lg': return 'shadow-lg';
-            default: return '';
-          }
-        };
-        
-        const getSpacing = () => {
-          switch (optionSpacing) {
-            case 'compact': return 'gap-1';
-            case 'relaxed': return 'gap-4';
-            default: return 'gap-2';
-          }
-        };
-        
-        const getLayoutClass = () => {
-          switch (optionLayout) {
-            case 'grid-2': return 'grid grid-cols-2';
-            case 'grid-3': return 'grid grid-cols-3';
-            case 'grid-4': return 'grid grid-cols-4';
-            default: return 'flex flex-col';
-          }
-        };
-        
-        const getImageRatioClass = () => {
-          switch (imageRatio) {
-            case '16:9': return 'aspect-video';
-            case '4:3': return 'aspect-[4/3]';
-            case '3:2': return 'aspect-[3/2]';
-            default: return 'aspect-square';
-          }
-        };
-        
-        const handleOptionClick = (optValue: string, optionId: string) => {
-          if (isMultiple) {
-            const newValues = selectedValues!.includes(optValue)
-              ? selectedValues!.filter((v: string) => v !== optValue)
-              : [...selectedValues!, optValue];
-            handleInputChange(comp.id, customId, newValues);
-          } else {
-            handleInputChange(comp.id, customId, optValue);
-            if (autoAdvance) {
-              setTimeout(() => handleNavigateByOption(comp.id, optionId), 300);
-            }
-          }
-        };
-        
-        const isOptionSelected = (optValue: string) => {
-          if (isMultiple) {
-            return selectedValues!.includes(optValue);
-          }
-          return value === optValue;
-        };
-        
-        const renderDetail = (isSelected: boolean, index: number) => {
-          if (detailType === 'none') return null;
-          
-          if (detailType === 'number') {
-            return (
-              <div className={cn(
-                "w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-medium shrink-0",
-                isSelected ? "border-primary bg-primary text-primary-foreground" : "border-border"
-              )}>
-                {index + 1}
-              </div>
-            );
-          }
-          
-          return (
-            <div className={cn(
-              "w-5 h-5 border-2 flex items-center justify-center shrink-0",
-              detailType === 'radio' || !isMultiple ? "rounded-full" : "rounded",
-              isSelected ? "border-primary bg-primary" : "border-border"
-            )}>
-              {isSelected && <span className="text-primary-foreground text-xs">✓</span>}
-            </div>
-          );
-        };
-        
-        const renderOptionMedia = (opt: OptionItem, vertical = false) => {
-          if (opt.mediaType === 'icon' && opt.icon) {
-            return <span className={cn("shrink-0", vertical ? "text-2xl" : "text-lg")}>{opt.icon}</span>;
-          }
-          if (opt.mediaType === 'image' && opt.imageUrl) {
-            return <img src={opt.imageUrl} alt="" className={cn("object-cover rounded shrink-0", vertical ? "w-10 h-10" : "w-6 h-6")} />;
-          }
-          return null;
-        };
-        
-        return (
-          <div className="py-4">
-{config.label && config.label.replace(/<[^>]*>/g, '').trim() && <div className="rich-text text-sm font-medium mb-1" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.label) }} />}
-            {config.description && config.description.replace(/<[^>]*>/g, '').trim() && <div className="rich-text text-xs text-muted-foreground mb-3" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.description) }} />}
-            <div className={cn(getLayoutClass(), getSpacing())}>
-              {(config.options || []).map((opt, i) => {
-                const isSelected = isOptionSelected(opt.value);
-                
-                if (optionStyle === 'image') {
-                  const isHorizontal = imagePosition === 'left' || imagePosition === 'right';
-                  return (
-                    <button
-                      key={opt.id}
-                      onClick={() => handleOptionClick(opt.value, opt.id)}
-                      className={cn(
-                        "border text-sm transition-colors overflow-hidden text-left",
-                        getBorderRadius(),
-                        getShadow(),
-                        isSelected ? "border-primary bg-primary/20" : "border-border bg-transparent hover:border-primary/50",
-                        isHorizontal ? "flex" : "flex flex-col"
-                      )}
-                    >
-                      {(imagePosition === 'top' || imagePosition === 'left') && (
-                        <div className={cn(
-                          "bg-muted flex items-center justify-center text-muted-foreground text-2xl",
-                          getImageRatioClass(),
-                          isHorizontal ? "w-20 shrink-0" : "w-full"
-                        )}>
-                          {opt.imageUrl ? (
-                            <img src={opt.imageUrl} alt="" className="w-full h-full object-cover" />
-                          ) : '📷'}
-                        </div>
-                      )}
-                      <div className={cn(
-                        "p-3 flex items-center gap-2 flex-1",
-                        detailPosition === 'end' && "flex-row-reverse"
-                      )}>
-                        {renderDetail(isSelected, i)}
-                        {renderOptionMedia(opt)}
-                        <span className="flex-1">{opt.text}</span>
-                      </div>
-                      {(imagePosition === 'bottom' || imagePosition === 'right') && (
-                        <div className={cn(
-                          "bg-muted flex items-center justify-center text-muted-foreground text-2xl",
-                          getImageRatioClass(),
-                          isHorizontal ? "w-20 shrink-0" : "w-full"
-                        )}>
-                          {opt.imageUrl ? (
-                            <img src={opt.imageUrl} alt="" className="w-full h-full object-cover" />
-                          ) : '📷'}
-                        </div>
-                      )}
-                    </button>
-                  );
-                }
-                
-                if (optionStyle === 'card') {
-                  return (
-                    <button
-                      key={opt.id}
-                      onClick={() => handleOptionClick(opt.value, opt.id)}
-                      className={cn(
-                        "p-4 border text-sm transition-colors",
-                        isVertical ? "text-center" : "text-left",
-                        getBorderRadius(),
-                        getShadow(),
-                        isSelected ? "border-primary bg-primary/20" : "border-border bg-transparent hover:border-primary/50"
-                      )}
-                    >
-                      <div className={cn(
-                        isVertical 
-                          ? "flex flex-col items-center gap-2" 
-                          : "flex items-center gap-3",
-                        !isVertical && detailPosition === 'end' && "flex-row-reverse"
-                      )}>
-                        {isVertical && renderOptionMedia(opt, true)}
-                        {!isVertical && renderDetail(isSelected, i)}
-                        {!isVertical && renderOptionMedia(opt)}
-                        <span className={cn(!isVertical && "flex-1")}>{opt.text}</span>
-                        {isVertical && renderDetail(isSelected, i)}
-                      </div>
-                    </button>
-                  );
-                }
-                
-                // Pill style
-                if (optionStyle === 'pill') {
-                  return (
-                    <button
-                      key={opt.id}
-                      onClick={() => handleOptionClick(opt.value, opt.id)}
-                      className={cn(
-                        "px-6 py-3 text-sm font-medium transition-all duration-200 rounded-full",
-                        getShadow(),
-                        isSelected 
-                          ? "bg-primary text-primary-foreground shadow-lg scale-105" 
-                          : "bg-muted/50 text-foreground hover:bg-primary/20 hover:scale-102"
-                      )}
-                    >
-                      <div className="flex items-center justify-center gap-2">
-                        {renderOptionMedia(opt)}
-                        <span>{opt.text}</span>
-                      </div>
-                    </button>
-                  );
-                }
-
-                // Glass style
-                if (optionStyle === 'glass') {
-                  return (
-                    <button
-                      key={opt.id}
-                      onClick={() => handleOptionClick(opt.value, opt.id)}
-                      className={cn(
-                        "p-4 text-sm transition-all duration-200 backdrop-blur-md",
-                        getBorderRadius(),
-                        isSelected 
-                          ? "bg-primary/30 border-2 border-primary shadow-lg" 
-                          : "bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40"
-                      )}
-                    >
-                      <div className={cn(
-                        isVertical 
-                          ? "flex flex-col items-center gap-2" 
-                          : "flex items-center gap-3"
-                      )}>
-                        {renderOptionMedia(opt)}
-                        <span className="flex-1">{opt.text}</span>
-                        {isSelected && (
-                          <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                            <svg className="w-3 h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                            </svg>
-                          </div>
-                        )}
-                      </div>
-                    </button>
-                  );
-                }
-
-                // Minimal style
-                if (optionStyle === 'minimal') {
-                  return (
-                    <button
-                      key={opt.id}
-                      onClick={() => handleOptionClick(opt.value, opt.id)}
-                      className={cn(
-                        "py-3 px-4 text-sm transition-all duration-200 border-b border-border/50 last:border-b-0",
-                        isSelected 
-                          ? "bg-primary/10 border-l-4 border-l-primary" 
-                          : "hover:bg-muted/30 hover:border-l-4 hover:border-l-primary/30"
-                      )}
-                    >
-                      <div className="flex items-center gap-3">
-                        {renderOptionMedia(opt)}
-                        <span className="flex-1 text-left">{opt.text}</span>
-                        <div className={cn(
-                          "w-2 h-2 rounded-full transition-all",
-                          isSelected ? "bg-primary scale-150" : "bg-muted-foreground/30"
-                        )} />
-                      </div>
-                    </button>
-                  );
-                }
-                
-                // Simple style (default)
-                return (
-                  <button
-                    key={opt.id}
-                    onClick={() => handleOptionClick(opt.value, opt.id)}
-                    className={cn(
-                      "p-3 border text-sm transition-colors",
-                      isVertical ? "text-center" : "text-left",
-                      getBorderRadius(),
-                      getShadow(),
-                        isSelected ? "border-primary bg-primary/20" : "border-border bg-transparent hover:border-primary/50"
-                    )}
-                  >
-                    <div className={cn(
-                      isVertical 
-                        ? "flex flex-col items-center gap-2" 
-                        : "flex items-center gap-3",
-                      !isVertical && detailPosition === 'end' && "flex-row-reverse"
-                    )}>
-                      {isVertical && renderOptionMedia(opt, true)}
-                      {!isVertical && renderDetail(isSelected, i)}
-                      {!isVertical && renderOptionMedia(opt)}
-                      <span className={cn(!isVertical && "flex-1")}>{opt.text}</span>
-                      {isVertical && renderDetail(isSelected, i)}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        );
-      }
+      case 'multiple':
+        return <OptionsRenderer {...rendererProps} type={comp.type as 'options' | 'single_choice' | 'multiple_choice'} />;
 
       case 'yesno':
-        return (
-          <div className="py-4">
-            {config.label && <div className="rich-text text-sm font-medium mb-3" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.label) }} />}
-            <div className="flex gap-3">
-              {(config.options || [{ id: '1', text: 'Sim', value: 'yes' }, { id: '2', text: 'Não', value: 'no' }]).map((opt) => (
-                <button
-                  key={opt.id}
-                  onClick={() => handleInputChange(comp.id, customId, opt.value)}
-                  className={cn(
-                    "flex-1 py-3 rounded-lg text-sm font-medium transition-colors",
-                    value === opt.value
-                      ? "bg-primary text-primary-foreground"
-                      : "border border-border hover:border-primary/50"
-                  )}
-                >
-                  {opt.text}
-                </button>
-              ))}
-            </div>
-          </div>
-        );
+        return <OptionsRenderer {...rendererProps} type="yesno" />;
 
       case 'slider':
-        const sliderValue = typeof value === 'number' ? value : config.sliderMin || 0;
-        return (
-          <div className="py-4">
-            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.label) }} />}
-            <div className="pt-4">
-              <Slider
-                value={[sliderValue]}
-                onValueChange={(vals) => handleInputChange(comp.id, customId, vals[0])}
-                min={config.sliderMin || 0}
-                max={config.sliderMax || 100}
-                step={config.sliderStep || 1}
-              />
-              <div className="flex justify-between mt-2 text-xs text-muted-foreground">
-                <span>{config.sliderMin || 0}</span>
-                <span className="font-medium text-foreground">{sliderValue}</span>
-                <span>{config.sliderMax || 100}</span>
-              </div>
-            </div>
-          </div>
-        );
+        return <SliderRenderer {...rendererProps} />;
 
-      case 'image': {
-        if (!config.mediaUrl) return null;
-        const isEmoji = config.mediaUrl.length <= 4 && !/^https?:\/\//.test(config.mediaUrl);
-        return (
-          <div className="py-4">
-            {isEmoji ? (
-              <div className="flex items-center justify-center py-4">
-                <span className="text-6xl">{config.mediaUrl}</span>
-              </div>
-            ) : (
-              <img src={config.mediaUrl} alt={config.altText || ''} className="w-full rounded-lg" />
-            )}
-          </div>
-        );
-      }
+      case 'image':
+        return <MediaRenderer {...rendererProps} type="image" />;
 
-      case 'video': {
-        // If embed code is provided, use it
-        if (config.videoType === 'embed' && config.embedCode) {
-          return (
-            <div className="py-4">
-              <div 
-                className="w-full aspect-video rounded-lg overflow-hidden"
-                dangerouslySetInnerHTML={{ __html: sanitizeEmbed(config.embedCode) }}
-              />
-            </div>
-          );
-        }
-        
-        // If URL is provided, try to convert to embed
-        if (config.mediaUrl) {
-          const url = config.mediaUrl;
-          
-          // YouTube
-          const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-          if (youtubeMatch) {
-            return (
-              <div className="py-4">
-                <iframe
-                  src={`https://www.youtube.com/embed/${youtubeMatch[1]}`}
-                  className="w-full aspect-video rounded-lg"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            );
-          }
-          
-          // Vimeo
-          const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-          if (vimeoMatch) {
-            return (
-              <div className="py-4">
-                <iframe
-                  src={`https://player.vimeo.com/video/${vimeoMatch[1]}`}
-                  className="w-full aspect-video rounded-lg"
-                  allow="autoplay; fullscreen; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            );
-          }
-          
-          // Panda Video - check for various formats
-          if (url.includes('pandavideo') || url.includes('player-vz')) {
-            // If it's already an embed URL, use it directly
-            const pandaMatch = url.match(/player-vz-[a-z0-9-]+\.tv\.pandavideo\.com\.br\/embed\/\?v=([a-f0-9-]+)/i);
-            if (pandaMatch) {
-              return (
-                <div className="py-4">
-                  <iframe
-                    src={url}
-                    className="w-full aspect-video rounded-lg"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-              );
-            }
-            // Try to extract video ID
-            const pandaIdMatch = url.match(/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i);
-            if (pandaIdMatch) {
-              return (
-                <div className="py-4">
-                  <iframe
-                    src={url}
-                    className="w-full aspect-video rounded-lg"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-              );
-            }
-          }
-          
-          // Vturb
-          if (url.includes('vturb.com')) {
-            return (
-              <div className="py-4">
-                <iframe
-                  src={url}
-                  className="w-full aspect-video rounded-lg"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            );
-          }
-          
-          // Default: try as direct video or iframe
-          if (url.match(/\.(mp4|webm|ogg)(\?.*)?$/i)) {
-            return (
-              <div className="py-4">
-                <video src={url} controls className="w-full rounded-lg" />
-              </div>
-            );
-          }
-          
-          // Fallback: use as iframe source
-          return (
-            <div className="py-4">
-              <iframe
-                src={url}
-                className="w-full aspect-video rounded-lg"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          );
-        }
-        
-        return null;
-      }
+      case 'video':
+        return <MediaRenderer {...rendererProps} type="video" />;
 
       case 'spacer':
-        return <div style={{ height: config.height || 24 }} />;
+        return <SpacerRenderer {...rendererProps} />;
 
       case 'script':
-        // Script component - executes on mount, shows nothing visually
         return <ScriptExecutor scriptCode={config.scriptCode || ''} />;
 
-      case 'alert': {
-        const alertStyles = {
-          red: 'bg-red-50 border-red-200 text-red-700',
-          yellow: 'bg-yellow-50 border-yellow-200 text-yellow-700',
-          green: 'bg-green-50 border-green-200 text-green-700',
-          blue: 'bg-blue-50 border-blue-200 text-blue-700',
-          gray: 'bg-gray-50 border-gray-200 text-gray-700',
-        };
-        const paddingStyles = {
-          compact: 'p-2',
-          default: 'p-4',
-          relaxed: 'p-6',
-        };
-        const style = (config as any).alertStyle || 'red';
-        const padding = (config as any).alertPadding || 'default';
-        
-        return (
-          <div className="w-full">
-            <div 
-              className={cn(
-                "rounded-lg border",
-                alertStyles[style as keyof typeof alertStyles],
-                paddingStyles[padding as keyof typeof paddingStyles],
-                (config as any).alertHighlight && "ring-2 ring-offset-2 ring-current"
-              )}
-            >
-              <div 
-                className="text-sm rich-text"
-                dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.description || 'Texto do alerta') }}
-              />
-            </div>
-          </div>
-        );
-      }
+      case 'alert':
+        return <AlertRenderer {...rendererProps} />;
 
-      case 'notification': {
-        // Notification is rendered as an overlay, not inline
-        // It will be handled by a separate effect
+      case 'notification':
         return null;
-      }
 
       case 'timer': {
+        const timerValue = timerValues[comp.id] ?? (config.timerSeconds || 20);
+        const minutes = Math.floor(timerValue / 60);
+        const remainingSeconds = timerValue % 60;
+        const formattedTime = `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+        const displayText = (config.timerText || 'Resgate agora seu desconto: [time]').replace('[time]', formattedTime);
+        
         const timerStyles = {
           default: 'bg-primary text-primary-foreground',
           red: 'bg-red-100 text-red-700 border border-red-200',
@@ -1613,36 +1104,14 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
           yellow: 'bg-yellow-100 text-yellow-700 border border-yellow-200',
           gray: 'bg-gray-100 text-gray-700 border border-gray-200',
         };
-        
-        const style = config.timerStyle || 'red';
-        const text = config.timerText || 'Resgate agora seu desconto: [time]';
-        
-        // Get timer value from state
-        const timerValue = timerValues[comp.id] ?? (config.timerSeconds || 20);
-        
-        // Format seconds to MM:SS
-        const minutes = Math.floor(timerValue / 60);
-        const remainingSeconds = timerValue % 60;
-        const formattedTime = `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
-        
-        // Replace [time] with formatted time
-        const displayText = text.replace('[time]', formattedTime);
-        
         const widthValue = config.width || 100;
         const horizontalAlign = config.horizontalAlign || 'start';
-        const justifyClass = {
-          start: 'justify-start',
-          center: 'justify-center',
-          end: 'justify-end',
-        }[horizontalAlign];
+        const justifyClass = { start: 'justify-start', center: 'justify-center', end: 'justify-end' }[horizontalAlign];
         
         return (
           <div className={cn("w-full px-4 flex", justifyClass)}>
             <div 
-              className={cn(
-                "rounded-lg px-4 py-3 text-center font-medium",
-                timerStyles[style as keyof typeof timerStyles]
-              )}
+              className={cn("rounded-lg px-4 py-3 text-center font-medium", timerStyles[(config.timerStyle || 'red') as keyof typeof timerStyles])}
               style={{ width: `${widthValue}%` }}
             >
               {displayText}
@@ -1652,26 +1121,10 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
       }
 
       case 'loading': {
-        const widthValue = config.width || 100;
-        const title = processTemplate(config.loadingTitle || 'Carregando...');
-        const description = processTemplate(config.loadingDescription || '');
-        const showTitle = config.showLoadingTitle !== false;
-        const showProgress = config.showLoadingProgress !== false;
-        const horizontalAlign = config.horizontalAlign || 'start';
-        const bgColor = config.loadingBgColor;
-        const textColor = config.loadingTextColor;
-        const barColor = config.loadingBarColor;
-        const borderColor = config.loadingBorderColor;
-        const borderWidth = config.loadingBorderWidth ?? 1;
-        const borderRadius = config.loadingBorderRadius ?? 8;
-        
         const progress = loadingProgress[comp.id] ?? 0;
-        
-        const justifyClass = {
-          start: 'justify-start',
-          center: 'justify-center',
-          end: 'justify-end',
-        }[horizontalAlign];
+        const widthValue = config.width || 100;
+        const horizontalAlign = config.horizontalAlign || 'start';
+        const justifyClass = { start: 'justify-start', center: 'justify-center', end: 'justify-end' }[horizontalAlign];
         
         return (
           <div className={cn("w-full px-4 flex", justifyClass)}>
@@ -1679,671 +1132,58 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
               className="p-4 backdrop-blur-sm"
               style={{ 
                 width: `${widthValue}%`,
-                backgroundColor: bgColor || undefined,
-                borderWidth: borderWidth > 0 ? `${borderWidth}px` : 0,
-                borderStyle: borderWidth > 0 ? 'solid' : 'none',
-                borderColor: borderColor || 'hsl(var(--border))',
-                borderRadius: `${borderRadius}px`
+                backgroundColor: config.loadingBgColor || undefined,
+                borderWidth: (config.loadingBorderWidth ?? 1) > 0 ? `${config.loadingBorderWidth ?? 1}px` : 0,
+                borderStyle: (config.loadingBorderWidth ?? 1) > 0 ? 'solid' : 'none',
+                borderColor: config.loadingBorderColor || 'hsl(var(--border))',
+                borderRadius: `${config.loadingBorderRadius ?? 8}px`
               }}
             >
-              {showTitle && (
+              {config.showLoadingTitle !== false && (
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-sm font-medium" style={{ color: textColor || undefined }}>{title}</span>
-                  <span className="text-xs" style={{ color: textColor ? `${textColor}80` : undefined }}>{Math.round(progress)}%</span>
+                  <span className="text-sm font-medium" style={{ color: config.loadingTextColor || undefined }}>{processTemplate(config.loadingTitle || 'Carregando...')}</span>
+                  <span className="text-xs" style={{ color: config.loadingTextColor ? `${config.loadingTextColor}80` : undefined }}>{Math.round(progress)}%</span>
                 </div>
               )}
-              {showProgress && (
-                <div 
-                  className="h-2 rounded-full mb-3 overflow-hidden bg-muted"
-                >
+              {config.showLoadingProgress !== false && (
+                <div className="h-2 rounded-full mb-3 overflow-hidden bg-muted">
                   <div 
                     className="h-full rounded-full transition-all duration-300"
-                    style={{ 
-                      width: `${progress}%`,
-                      backgroundColor: barColor || 'hsl(var(--foreground))'
-                    }}
+                    style={{ width: `${progress}%`, backgroundColor: config.loadingBarColor || 'hsl(var(--foreground))' }}
                   />
                 </div>
               )}
-              {description && (
-                <p className="text-sm text-center" style={{ color: textColor ? `${textColor}99` : undefined }}>{description}</p>
+              {config.loadingDescription && (
+                <p className="text-sm text-center" style={{ color: config.loadingTextColor ? `${config.loadingTextColor}99` : undefined }}>{processTemplate(config.loadingDescription)}</p>
               )}
             </div>
           </div>
         );
       }
 
-      case 'level': {
-        const title = processTemplate(config.levelTitle || 'Nível');
-        const subtitle = processTemplate(config.levelSubtitle || '');
-        const percentage = config.levelPercentage ?? 75;
-        const indicatorText = processTemplate(config.levelIndicatorText || '');
-        const legendsStr = config.levelLegends || '';
-        const legends = legendsStr ? legendsStr.split(',').map((l: string) => processTemplate(l.trim())).filter(Boolean) : [];
-        const showMeter = config.showLevelMeter !== false;
-        const showProgress = config.showLevelProgress !== false;
-        const levelType = config.levelType || 'line';
-        const levelColor = config.levelColor || 'theme';
-        const widthValue = config.width || 100;
-        const horizontalAlign = config.horizontalAlign || 'start';
-        const bgColor = config.levelBgColor;
-        const textColor = config.levelTextColor;
-        const barColor = config.levelBarColor;
-        const borderColor = config.levelBorderColor;
-        const borderWidth = config.levelBorderWidth ?? 1;
-        const borderRadius = config.levelBorderRadius ?? 8;
-        
-        const justifyClass = {
-          start: 'justify-start',
-          center: 'justify-center',
-          end: 'justify-end',
-        }[horizontalAlign];
-        
-        // Get gradient/color based on levelColor (or custom barColor)
-        const getBarBackground = () => {
-          if (barColor) return barColor;
-          switch (levelColor) {
-            case 'green-red':
-              return 'linear-gradient(to right, #22c55e, #eab308, #f97316, #ef4444)';
-            case 'red-green':
-              return 'linear-gradient(to right, #ef4444, #f97316, #eab308, #22c55e)';
-            case 'opaque':
-              return 'hsl(var(--foreground))';
-            case 'red':
-              return '#ef4444';
-            case 'blue':
-              return '#3b82f6';
-            case 'green':
-              return '#22c55e';
-            case 'yellow':
-              return '#eab308';
-            default:
-              return 'hsl(var(--foreground))';
-          }
-        };
-        
-        const renderLineBar = () => (
-          <div className="relative w-full">
-            {/* Indicator text tooltip */}
-            {indicatorText && (
-              <div 
-                className="absolute -top-8 transform -translate-x-1/2 text-xs px-2 py-1 rounded whitespace-nowrap z-10"
-                style={{ 
-                  left: `${percentage}%`,
-                  backgroundColor: textColor || 'hsl(var(--foreground))',
-                  color: bgColor || 'hsl(var(--background))'
-                }}
-              >
-                {indicatorText}
-                <div 
-                  className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent"
-                  style={{ borderTopColor: textColor || 'hsl(var(--foreground))' }}
-                />
-              </div>
-            )}
-            <div className="h-2 bg-muted rounded-full overflow-hidden relative">
-              <div 
-                className="h-full rounded-full absolute left-0 top-0"
-                style={{ 
-                  width: `${percentage}%`,
-                  background: getBarBackground()
-                }}
-              />
-            </div>
-            {/* Indicator circle - only shown when showMeter is true */}
-            {showMeter && (
-              <div 
-                className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full shadow-md pointer-events-none"
-                style={{ 
-                  left: `calc(${percentage}% - 8px)`,
-                  backgroundColor: bgColor || 'hsl(var(--background))',
-                  borderWidth: '2px',
-                  borderColor: textColor || 'hsl(var(--foreground))'
-                }}
-              />
-            )}
-          </div>
-        );
-        
-        const renderSegmentsBar = () => {
-          const segmentCount = legends.length > 0 ? legends.length : 5;
-          const filledSegments = Math.ceil((percentage / 100) * segmentCount);
-          
-          return (
-            <div className="relative w-full">
-            {/* Indicator text tooltip */}
-              {indicatorText && (
-                <div 
-                  className="absolute -top-8 transform -translate-x-1/2 text-xs px-2 py-1 rounded whitespace-nowrap z-10"
-                  style={{ 
-                    left: `${percentage}%`,
-                    backgroundColor: textColor || 'hsl(var(--foreground))',
-                    color: bgColor || 'hsl(var(--background))'
-                  }}
-                >
-                  {indicatorText}
-                  <div 
-                    className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent"
-                    style={{ borderTopColor: textColor || 'hsl(var(--foreground))' }}
-                  />
-                </div>
-              )}
-              <div className="flex gap-1 w-full relative">
-                {Array.from({ length: segmentCount }, (_, i) => {
-                  const isFilled = i < filledSegments;
-                  
-                  return (
-                    <div 
-                      key={i}
-                      className={cn(
-                        "h-2 flex-1 rounded-full transition-colors",
-                        isFilled ? "" : "bg-muted"
-                      )}
-                      style={isFilled ? { background: getBarBackground() } : undefined}
-                    />
-                  );
-                })}
-                {/* Indicator circle - only shown when showMeter is true */}
-                {showMeter && (
-                  <div 
-                    className="absolute top-1/2 -translate-y-1/2 w-4 h-4 rounded-full shadow-md pointer-events-none"
-                    style={{ 
-                      left: `calc(${percentage}% - 8px)`,
-                      backgroundColor: bgColor || 'hsl(var(--background))',
-                      borderWidth: '2px',
-                      borderColor: textColor || 'hsl(var(--foreground))'
-                    }}
-                  />
-                )}
-              </div>
-            </div>
-          );
-        };
-        
-        return (
-          <div className={cn("w-full px-4 flex", justifyClass)}>
-            <div 
-              className="p-4"
-              style={{ 
-                width: `${widthValue}%`,
-                backgroundColor: bgColor || undefined,
-                borderWidth: borderWidth > 0 ? `${borderWidth}px` : 0,
-                borderStyle: borderWidth > 0 ? 'solid' : 'none',
-                borderColor: borderColor || 'hsl(var(--border))',
-                borderRadius: `${borderRadius}px`
-              }}
-            >
-              {/* Header with title and percentage */}
-              <div className="flex justify-between items-start mb-1">
-                <div className="font-semibold text-sm" style={{ color: textColor || undefined }}>{title}</div>
-                {showProgress && (
-                  <div className="text-sm" style={{ color: textColor ? `${textColor}99` : undefined }}>{percentage}%</div>
-                )}
-              </div>
-              
-              {/* Subtitle */}
-              {subtitle && (
-                <div className="text-sm mb-2" style={{ color: textColor ? `${textColor}99` : undefined }}>{subtitle}</div>
-              )}
-              
-              {/* Level bar - always visible */}
-              <div className={cn("mt-2", indicatorText && showMeter ? "pt-6" : "")}>
-                {levelType === 'segments' ? renderSegmentsBar() : renderLineBar()}
-              </div>
-              
-              {/* Legends */}
-              {legends.length > 0 && (
-                <div className="text-xs mt-2" style={{ color: textColor ? `${textColor}80` : undefined }}>
-                  {legends.join(' · ')}
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      }
+      case 'arguments':
+        return <ArgumentsRenderer {...rendererProps} />;
 
-      case 'arguments': {
-        const argumentItems = (config.argumentItems || []) as Array<{
-          id: string;
-          title: string;
-          description: string;
-          mediaType: 'none' | 'emoji' | 'image';
-          emoji?: string;
-          imageUrl?: string;
-          backgroundColor?: string;
-          borderColor?: string;
-          borderWidth?: number;
-          borderRadius?: number;
-        }>;
-        const layout = config.argumentLayout || 'grid-2';
-        const disposition = config.argumentDisposition || 'image-text';
-        const widthValue = config.width || 100;
-        const horizontalAlign = config.horizontalAlign || 'start';
-        
-        const justifyClass = {
-          start: 'justify-start',
-          center: 'justify-center',
-          end: 'justify-end',
-        }[horizontalAlign];
-        
-        const gridClass = {
-          'list': 'grid-cols-1',
-          'grid-2': 'grid-cols-2',
-          'grid-3': 'grid-cols-3',
-          'grid-4': 'grid-cols-4',
-        }[layout] || 'grid-cols-2';
-        
-        const isVertical = disposition === 'image-text' || disposition === 'text-image';
-        const imageFirst = disposition === 'image-text' || disposition === 'image-left';
-        
-        return (
-          <div className={cn("w-full px-4 flex", justifyClass)}>
-            <div 
-              className={cn("grid gap-3", gridClass)}
-              style={{ width: `${widthValue}%` }}
-            >
-              {argumentItems.map((item) => {
-                const borderWidth = item.borderWidth ?? 1;
-                const borderRadius = item.borderRadius ?? 8;
-                
-                return (
-                  <div 
-                    key={item.id} 
-                    className={cn(
-                      "p-4 flex",
-                      isVertical ? "flex-col" : "flex-row gap-3",
-                      !imageFirst && isVertical && "flex-col-reverse",
-                      !imageFirst && !isVertical && "flex-row-reverse"
-                    )}
-                    style={{
-                      backgroundColor: item.backgroundColor || undefined,
-                      borderColor: item.borderColor || 'hsl(var(--primary) / 0.3)',
-                      borderWidth: `${borderWidth}px`,
-                      borderStyle: borderWidth > 0 ? 'solid' : 'none',
-                      borderRadius: `${borderRadius}px`
-                    }}
-                  >
-                  {/* Media area */}
-                  {item.mediaType !== 'none' && (
-                    <div className={cn(
-                      "flex items-center justify-center bg-muted/30 rounded",
-                      isVertical ? "w-full h-20 mb-3" : "w-16 h-16 flex-shrink-0"
-                    )}>
-                      {item.mediaType === 'image' && item.imageUrl ? (
-                        <img src={item.imageUrl} alt="" className="w-full h-full object-cover rounded" />
-                      ) : item.mediaType === 'emoji' && item.emoji ? (
-                        <span className="text-3xl">{item.emoji}</span>
-                      ) : null}
-                    </div>
-                  )}
-                  
-                  {/* Content */}
-                  <div className={cn("text-center", !isVertical && "text-left flex-1")}>
-                    <div 
-                      className="font-semibold text-sm rich-text"
-                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.title) }}
-                    />
-                    <div 
-                      className="text-xs text-muted-foreground mt-1 rich-text"
-                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.description) }}
-                    />
-                  </div>
-                </div>
-                );
-              })}
-            </div>
-          </div>
-        );
-      }
+      case 'testimonials':
+        return <TestimonialsRenderer {...rendererProps} />;
 
-      case 'testimonials': {
-        const testimonialItems = (config.testimonialItems || []) as Array<{
-          id: string;
-          name: string;
-          handle: string;
-          rating: number;
-          text: string;
-          avatarUrl?: string;
-          photoUrl?: string;
-        }>;
-        const layout = config.testimonialLayout || 'list';
-        const widthValue = config.width || 100;
-        const horizontalAlign = config.horizontalAlign || 'start';
-        const justifyClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
-        const borderRadius = config.testimonialBorderRadius || 'small';
-        const shadow = config.testimonialShadow || 'none';
-        const spacing = config.testimonialSpacing || 'simple';
-        
-        const borderRadiusClass = {
-          'none': 'rounded-none',
-          'small': 'rounded-lg',
-          'medium': 'rounded-xl',
-          'large': 'rounded-2xl',
-        }[borderRadius] || 'rounded-lg';
-        
-        const shadowClass = {
-          'none': '',
-          'sm': 'shadow-sm',
-          'md': 'shadow-md',
-          'lg': 'shadow-lg',
-        }[shadow] || '';
-        
-        const spacingClass = {
-          'compact': 'p-3 gap-2',
-          'simple': 'p-4 gap-3',
-          'relaxed': 'p-5 gap-4',
-        }[spacing] || 'p-4 gap-3';
+      case 'faq':
+        return <FaqRenderer {...rendererProps} />;
 
-        const renderTestimonialCard = (item: typeof testimonialItems[0]) => (
-          <div 
-            key={item.id} 
-            className={cn(
-              "border border-border bg-background flex flex-col h-full",
-              borderRadiusClass,
-              shadowClass,
-              spacingClass
-            )}
-          >
-            {/* Rating stars */}
-            <div className="flex gap-0.5 mb-2">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <span key={i} className={cn("text-sm", i < item.rating ? "text-amber-400" : "text-muted-foreground/30")}>
-                  ★
-                </span>
-              ))}
-            </div>
-            
-            {/* Author info */}
-            <div className="flex items-center gap-2 mb-2">
-              {item.avatarUrl && (
-                <img src={item.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover" />
-              )}
-              <div>
-                <div className="font-semibold text-sm">{item.name}</div>
-                <div className="text-xs text-muted-foreground">{item.handle}</div>
-              </div>
-            </div>
-            
-            {/* Text */}
-            <div 
-              className="text-sm text-muted-foreground rich-text flex-1"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(item.text) }}
-            />
-            
-            {/* Photo */}
-            {item.photoUrl && (
-              <img src={item.photoUrl} alt="" className={cn("w-full h-32 object-cover mt-3", borderRadiusClass)} />
-            )}
-          </div>
-        );
+      case 'price':
+        return <PriceRenderer {...rendererProps} />;
 
-        if (layout === 'carousel') {
-          return (
-            <TestimonialCarousel 
-              items={testimonialItems}
-              widthValue={widthValue}
-              justifyClass={justifyClass}
-              renderCard={renderTestimonialCard}
-            />
-          );
-        }
-        
-        const gridClass = layout === 'grid-2' ? 'grid-cols-2' : 'grid-cols-1';
-        
-        return (
-          <div className={cn("w-full px-4 flex", justifyClass)}>
-            <div 
-              className={cn("grid gap-3", gridClass)}
-              style={{ width: `${widthValue}%` }}
-            >
-              {testimonialItems.map((item) => renderTestimonialCard(item))}
-            </div>
-          </div>
-        );
-      }
+      case 'before-after':
+        return <BeforeAfterRenderer {...rendererProps} />;
 
-      case 'faq': {
-        const faqItems = (config.faqItems || []) as Array<{ id: string; question: string; answer: string }>;
-        const widthValue = config.width || 100;
-        const horizontalAlign = config.horizontalAlign || 'start';
-        const justifyClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
-        const detailType = config.faqDetailType || 'arrow';
-        const firstOpen = config.faqFirstOpen !== false;
-        
-        return (
-          <FaqAccordion
-            faqItems={faqItems}
-            widthValue={widthValue}
-            justifyClass={justifyClass}
-            detailType={detailType}
-            firstOpen={firstOpen}
-            bgType={config.faqBgType}
-            bgColor={config.faqBgColor}
-            gradientStart={config.faqGradientStart}
-            gradientEnd={config.faqGradientEnd}
-            gradientAngle={config.faqGradientAngle}
-            textColor={config.faqTextColor}
-            answerColor={config.faqAnswerColor}
-            borderColor={config.faqBorderColor}
-            borderWidth={config.faqBorderWidth}
-            borderRadius={config.faqBorderRadius}
-            iconColor={config.faqIconColor}
-          />
-        );
-      }
+      case 'carousel':
+        return <CarouselRenderer {...rendererProps} />;
 
-      case 'price': {
-        const widthValue = config.width || 100;
-        const horizontalAlign = config.horizontalAlign || 'start';
-        const justifyClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
-        const layout = config.priceLayout || 'horizontal';
-        const title = config.priceTitle || 'Plano PRO';
-        const prefix = config.pricePrefix || '';
-        const priceVal = config.priceValue || 'R$ 89,90';
-        const suffix = config.priceSuffix || '';
-        const highlight = config.priceHighlight || '';
-        const priceType = config.priceType || 'illustrative';
-        const redirectUrl = config.priceRedirectUrl || '';
-        
-        // Custom styles
-        const bgType = config.priceBgType || 'solid';
-        const bgColor = config.priceBgColor;
-        const gradientStart = config.priceGradientStart || '#667eea';
-        const gradientEnd = config.priceGradientEnd || '#764ba2';
-        const gradientAngle = config.priceGradientAngle ?? 135;
-        const titleColor = config.priceTitleColor;
-        const valueColor = config.priceValueColor;
-        const prefixColor = config.pricePrefixColor;
-        const borderColor = config.priceBorderColor;
-        const borderWidth = config.priceBorderWidth ?? 1;
-        const borderRadius = config.priceBorderRadius ?? 12;
-        
-        const bgStyle = bgType === 'transparent' 
-          ? 'transparent'
-          : bgType === 'gradient' 
-            ? `linear-gradient(${gradientAngle}deg, ${gradientStart}, ${gradientEnd})`
-            : bgColor || undefined;
+      case 'metrics':
+        return <MetricsRenderer {...rendererProps} />;
 
-        const handlePriceClick = () => {
-          if (priceType === 'redirect' && redirectUrl) {
-            window.open(redirectUrl, '_blank');
-          }
-        };
-        
-        return (
-          <div className={cn("w-full px-4 flex", justifyClass)}>
-            <div style={{ width: `${widthValue}%` }}>
-              <div 
-                onClick={handlePriceClick}
-                className={cn(
-                  "relative p-4 transition-all",
-                  layout === 'horizontal' ? 'flex items-center justify-between gap-4' : 'flex flex-col gap-2',
-                  priceType === 'redirect' && redirectUrl && 'cursor-pointer hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]'
-                )}
-                style={{
-                  background: bgStyle,
-                  borderWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
-                  borderStyle: borderWidth > 0 ? 'solid' : 'none',
-                  borderColor: borderColor || undefined,
-                  borderRadius: `${borderRadius}px`,
-                }}
-              >
-                {/* Highlight badge */}
-                {highlight && (
-                  <div className="absolute -top-3 left-4">
-                    <span className="px-3 py-1 bg-primary text-primary-foreground text-xs font-medium rounded-full shadow-sm">
-                      {highlight}
-                    </span>
-                  </div>
-                )}
-                
-                {/* Title */}
-                <div className={cn(layout === 'vertical' && 'text-center', highlight && 'pt-2')}>
-                  <h3 
-                    className="font-semibold text-lg"
-                    style={{ color: titleColor || undefined }}
-                  >
-                    {title}
-                  </h3>
-                </div>
-                
-                {/* Price section */}
-                <div className={cn(
-                  "flex flex-col",
-                  layout === 'vertical' ? 'items-center' : 'items-end'
-                )}>
-                  {prefix && (
-                    <span 
-                      className="text-xs font-medium"
-                      style={{ color: prefixColor || undefined }}
-                    >
-                      {prefix}
-                    </span>
-                  )}
-                  <div className="flex items-baseline gap-1">
-                    <span 
-                      className="text-2xl font-bold"
-                      style={{ color: valueColor || undefined }}
-                    >
-                      {priceVal}
-                    </span>
-                  </div>
-                  {suffix && (
-                    <span 
-                      className="text-xs"
-                      style={{ color: prefixColor || undefined }}
-                    >
-                      {suffix}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      }
-
-      case 'before-after': {
-        const widthValue = config.width || 100;
-        const horizontalAlign = config.horizontalAlign || 'start';
-        const ratio = config.beforeAfterRatio || '1:1';
-        const img1 = config.beforeAfterImage1 || '';
-        const img2 = config.beforeAfterImage2 || '';
-        const initialPosition = config.beforeAfterInitialPosition || 50;
-
-        return (
-          <BeforeAfterSlider
-            key={comp.id}
-            image1={img1}
-            image2={img2}
-            ratio={ratio}
-            initialPosition={initialPosition}
-            width={widthValue}
-            horizontalAlign={horizontalAlign}
-          />
-        );
-      }
-
-      case 'carousel': {
-        const items = config.carouselItems || [];
-        const layout = config.carouselLayout || 'image-text';
-        const pagination = config.carouselPagination !== false;
-        const autoplay = config.carouselAutoplay === true;
-        const autoplayInterval = config.carouselAutoplayInterval || 3;
-        const hasBorder = config.carouselBorder === true;
-        const widthValue = config.width || 100;
-        const horizontalAlign = config.horizontalAlign || 'start';
-        const imageRatio = config.carouselImageRatio || '4:3';
-
-        return (
-          <CarouselPlayer
-            key={comp.id}
-            items={items}
-            layout={layout}
-            pagination={pagination}
-            autoplay={autoplay}
-            autoplayInterval={autoplayInterval}
-            hasBorder={hasBorder}
-            width={widthValue}
-            horizontalAlign={horizontalAlign}
-            imageRatio={imageRatio}
-          />
-        );
-      }
-
-      case 'metrics': {
-        const items = config.metricItems || [];
-        const layout = config.metricsLayout || 'grid-2';
-        const disposition = config.metricsDisposition || 'legend-chart';
-        const widthValue = config.width || 100;
-        const horizontalAlign = config.horizontalAlign || 'start';
-        const verticalAlign = config.verticalAlign || 'auto';
-
-        return (
-          <MetricsPlayer
-            key={comp.id}
-            items={items}
-            layout={layout}
-            disposition={disposition}
-            width={widthValue}
-            horizontalAlign={horizontalAlign}
-            verticalAlign={verticalAlign}
-            bgType={config.metricsBgType}
-            bgColor={config.metricsBgColor}
-            gradientStart={config.metricsGradientStart}
-            gradientEnd={config.metricsGradientEnd}
-            gradientAngle={config.metricsGradientAngle}
-            textColor={config.metricsTextColor}
-            valueColor={config.metricsValueColor}
-            borderColor={config.metricsBorderColor}
-            borderWidth={config.metricsBorderWidth}
-            borderRadius={config.metricsBorderRadius}
-          />
-        );
-      }
-
-      case 'charts': {
-        const chartConfig = config.chartConfig || {
-          chartType: 'cartesian',
-          dataSets: [],
-          selectedDataSetId: '',
-          showArea: true,
-          showXAxis: true,
-          showYAxis: true,
-          showGridX: true,
-          showGridY: true,
-          width: 100,
-          horizontalAlign: 'start',
-          verticalAlign: 'auto',
-        };
-
-        return (
-          <ChartPlayer
-            key={comp.id}
-            config={chartConfig}
-          />
-        );
-      }
+      case 'charts':
+        return <ChartsRenderer {...rendererProps} />;
 
       default:
         return null;
