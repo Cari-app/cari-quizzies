@@ -308,6 +308,8 @@ export function ReadonlyDropZone({ components, designSettings }: ReadonlyDropZon
                 barColor={config.barColor}
                 valueColor={config.valueColor}
                 toggleColor={config.toggleColor}
+                tickColor={config.tickColor}
+                labelColor={config.labelColor}
               />
             </div>
           );

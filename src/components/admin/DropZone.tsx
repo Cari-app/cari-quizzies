@@ -382,6 +382,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                 barColor={config.barColor}
                 valueColor={config.valueColor}
                 toggleColor={config.toggleColor}
+                tickColor={config.tickColor}
+                labelColor={config.labelColor}
               />
             </div>
           );

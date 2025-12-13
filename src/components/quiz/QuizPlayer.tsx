@@ -97,6 +97,8 @@ interface ComponentConfig {
   barColor?: string;
   valueColor?: string;
   toggleColor?: string;
+  tickColor?: string;
+  labelColor?: string;
   // Options appearance
   optionStyle?: 'simple' | 'card' | 'image' | 'pill' | 'glass' | 'minimal';
   optionLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
@@ -778,6 +780,8 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                 barColor={config.barColor}
                 valueColor={config.valueColor}
                 toggleColor={config.toggleColor}
+                tickColor={config.tickColor}
+                labelColor={config.labelColor}
               />
               {config.helpText && <p className="text-xs text-muted-foreground mt-1 text-center">{processTemplate(config.helpText)}</p>}
             </div>
