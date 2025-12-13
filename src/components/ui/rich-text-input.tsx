@@ -230,9 +230,34 @@ export function RichTextInput({
               onChange={(e) => {
                 const color = e.target.value;
                 setSelectedColor(color);
-                execCommand("foreColor", color);
+                // Re-select the text before applying color
+                const selection = window.getSelection();
+                if (selection && selection.rangeCount > 0) {
+                  editorRef.current?.focus();
+                  document.execCommand("foreColor", false, color);
+                  handleInput();
+                }
               }}
-              onMouseDown={(e) => e.stopPropagation()}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                // Save current selection before color picker opens
+                const selection = window.getSelection();
+                if (selection && selection.rangeCount > 0) {
+                  const range = selection.getRangeAt(0);
+                  (window as any).__savedRange = range.cloneRange();
+                }
+              }}
+              onFocus={() => {
+                // Restore selection when color picker receives focus
+                const savedRange = (window as any).__savedRange;
+                if (savedRange && editorRef.current) {
+                  const selection = window.getSelection();
+                  if (selection) {
+                    selection.removeAllRanges();
+                    selection.addRange(savedRange);
+                  }
+                }
+              }}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               title="Cor do texto"
             />
