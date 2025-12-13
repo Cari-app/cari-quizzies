@@ -1306,6 +1306,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           imageUrl?: string;
           backgroundColor?: string;
           borderColor?: string;
+          borderWidth?: number;
+          borderRadius?: number;
         }>;
         const layout = config.argumentLayout || 'grid-2';
         const disposition = config.argumentDisposition || 'image-text';
@@ -1322,21 +1324,27 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         
         return (
           <div className={cn("w-full grid gap-3 p-4", gridClass)}>
-              {argumentItems.map((item) => (
-                <div 
-                  key={item.id} 
-                  className={cn(
-                    "border rounded-lg p-4 flex",
-                    isVertical ? "flex-col" : "flex-row gap-3",
-                    !imageFirst && isVertical && "flex-col-reverse",
-                    !imageFirst && !isVertical && "flex-row-reverse",
-                    !item.borderColor && "border-primary/30"
-                  )}
-                  style={{
-                    backgroundColor: item.backgroundColor || undefined,
-                    borderColor: item.borderColor || undefined
-                  }}
-                >
+              {argumentItems.map((item) => {
+                const borderWidth = item.borderWidth ?? 1;
+                const borderRadius = item.borderRadius ?? 8;
+                
+                return (
+                  <div 
+                    key={item.id} 
+                    className={cn(
+                      "p-4 flex",
+                      isVertical ? "flex-col" : "flex-row gap-3",
+                      !imageFirst && isVertical && "flex-col-reverse",
+                      !imageFirst && !isVertical && "flex-row-reverse"
+                    )}
+                    style={{
+                      backgroundColor: item.backgroundColor || undefined,
+                      borderColor: item.borderColor || 'hsl(var(--primary) / 0.3)',
+                      borderWidth: `${borderWidth}px`,
+                      borderStyle: borderWidth > 0 ? 'solid' : 'none',
+                      borderRadius: `${borderRadius}px`
+                    }}
+                  >
                   {/* Media area */}
                   {item.mediaType !== 'none' && (
                     <div className={cn(
@@ -1365,7 +1373,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                     />
                   </div>
                 </div>
-              ))}
+                );
+              })}
           </div>
         );
       }

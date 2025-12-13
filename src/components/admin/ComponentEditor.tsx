@@ -169,6 +169,8 @@ export interface ArgumentItem {
   imageUrl?: string;
   backgroundColor?: string;
   borderColor?: string;
+  borderWidth?: number;
+  borderRadius?: number;
 }
 
 export interface TestimonialItem {
@@ -2754,6 +2756,36 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                           <X className="w-3 h-3" />
                         </Button>
                       )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Border width and radius */}
+                <div className="px-3 pb-3">
+                  <div className="bg-muted/20 rounded-lg p-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label className="text-xs text-muted-foreground mb-1 block">Espessura</Label>
+                        <Input
+                          type="number"
+                          min={0}
+                          max={10}
+                          value={item.borderWidth ?? 1}
+                          onChange={(e) => updateArgument(item.id, { borderWidth: parseInt(e.target.value) || 0 })}
+                          className="text-xs h-8"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-muted-foreground mb-1 block">Arredondamento</Label>
+                        <Input
+                          type="number"
+                          min={0}
+                          max={50}
+                          value={item.borderRadius ?? 8}
+                          onChange={(e) => updateArgument(item.id, { borderRadius: parseInt(e.target.value) || 0 })}
+                          className="text-xs h-8"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
