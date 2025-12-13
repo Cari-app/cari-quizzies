@@ -95,6 +95,8 @@ interface ComponentConfig {
   maxValue?: number;
   defaultValue?: number;
   barColor?: string;
+  valueColor?: string;
+  toggleColor?: string;
   // Options appearance
   optionStyle?: 'simple' | 'card' | 'image' | 'pill' | 'glass' | 'minimal';
   optionLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
@@ -765,7 +767,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         if (isRulerLayout) {
           return (
             <div className="py-4">
-              <SlidingRuler
+<SlidingRuler
                 value={currentValue}
                 onChange={(val) => handleInputChange(comp.id, customId, val)}
                 min={minVal}
@@ -774,6 +776,8 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                 unit={unit}
                 altUnit={altUnit}
                 barColor={config.barColor}
+                valueColor={config.valueColor}
+                toggleColor={config.toggleColor}
               />
               {config.helpText && <p className="text-xs text-muted-foreground mt-1 text-center">{processTemplate(config.helpText)}</p>}
             </div>

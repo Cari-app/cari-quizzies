@@ -10,6 +10,8 @@ interface SlidingRulerProps {
   unit: string;
   altUnit?: string;
   barColor?: string;
+  valueColor?: string;
+  toggleColor?: string;
   className?: string;
 }
 
@@ -22,6 +24,8 @@ export function SlidingRuler({
   unit,
   altUnit,
   barColor = '#22c55e',
+  valueColor,
+  toggleColor,
   className 
 }: SlidingRulerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -142,27 +146,32 @@ export function SlidingRuler({
       {/* Unit Toggle */}
       {altUnit && (
         <div className="flex justify-center mb-4">
-          <div className="inline-flex bg-foreground/10 backdrop-blur-sm rounded-full p-1">
+          <div 
+            className="inline-flex backdrop-blur-sm rounded-full p-1"
+            style={{ backgroundColor: toggleColor ? `${toggleColor}20` : 'rgba(0,0,0,0.1)' }}
+          >
             <button 
               type="button"
-              className={cn(
-                "px-4 py-1.5 text-sm font-medium rounded-full transition-colors",
-                activeUnit === unit 
-                  ? "bg-foreground text-background" 
-                  : "text-muted-foreground hover:text-foreground"
-              )}
+              className="px-4 py-1.5 text-sm font-medium rounded-full transition-colors"
+              style={activeUnit === unit ? { 
+                backgroundColor: toggleColor || 'currentColor',
+                color: '#fff'
+              } : {
+                color: toggleColor || 'inherit'
+              }}
               onClick={() => setActiveUnit(unit)}
             >
               {unit}
             </button>
             <button 
               type="button"
-              className={cn(
-                "px-4 py-1.5 text-sm font-medium rounded-full transition-colors",
-                activeUnit === altUnit 
-                  ? "bg-foreground text-background" 
-                  : "text-muted-foreground hover:text-foreground"
-              )}
+              className="px-4 py-1.5 text-sm font-medium rounded-full transition-colors"
+              style={activeUnit === altUnit ? { 
+                backgroundColor: toggleColor || 'currentColor',
+                color: '#fff'
+              } : {
+                color: toggleColor || 'inherit'
+              }}
               onClick={() => setActiveUnit(altUnit)}
             >
               {altUnit}
@@ -173,8 +182,18 @@ export function SlidingRuler({
       
       {/* Value Display */}
       <div className="text-center mb-6">
-        <span className="text-5xl font-semibold tabular-nums">{value}</span>
-        <span className="text-xl text-muted-foreground ml-1">{activeUnit}</span>
+        <span 
+          className="text-5xl font-semibold tabular-nums"
+          style={valueColor ? { color: valueColor } : {}}
+        >
+          {value}
+        </span>
+        <span 
+          className="text-xl ml-1"
+          style={valueColor ? { color: valueColor, opacity: 0.7 } : { opacity: 0.7 }}
+        >
+          {activeUnit}
+        </span>
       </div>
       
       {/* Fixed Indicator Arrow */}

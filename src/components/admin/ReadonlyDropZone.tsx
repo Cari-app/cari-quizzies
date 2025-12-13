@@ -297,7 +297,7 @@ export function ReadonlyDropZone({ components, designSettings }: ReadonlyDropZon
           const altUnit = comp.type === 'height' ? 'pol' : 'lb';
           return (
             <div className="p-4">
-              <SlidingRuler
+<SlidingRuler
                 value={defaultVal}
                 onChange={() => {}}
                 min={minVal}
@@ -306,6 +306,8 @@ export function ReadonlyDropZone({ components, designSettings }: ReadonlyDropZon
                 unit={unit}
                 altUnit={altUnit}
                 barColor={config.barColor}
+                valueColor={config.valueColor}
+                toggleColor={config.toggleColor}
               />
             </div>
           );
