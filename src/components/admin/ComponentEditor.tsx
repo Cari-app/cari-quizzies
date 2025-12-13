@@ -287,6 +287,8 @@ export interface ComponentConfig {
   useThemeColor?: boolean; // When true, use global primary color
   valueColor?: string; // Color for the displayed value
   toggleColor?: string; // Color for the unit toggle button
+  tickColor?: string; // Color for ruler ticks
+  labelColor?: string; // Color for min/max labels and helper text
   // Alert specific
   alertStyle?: 'red' | 'yellow' | 'green' | 'blue' | 'gray';
   alertHighlight?: boolean;
@@ -726,6 +728,44 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                 value={config.toggleColor || ''}
                 onChange={(e) => updateConfig({ toggleColor: e.target.value })}
                 placeholder="Padrão"
+                className="flex-1 text-sm"
+              />
+            </div>
+          </div>
+          
+          {/* Tick Color */}
+          <div>
+            <Label className="text-xs text-muted-foreground mb-1 block">Cor das marcações</Label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={config.tickColor || '#808080'}
+                onChange={(e) => updateConfig({ tickColor: e.target.value })}
+                className="w-8 h-8 rounded cursor-pointer border border-border"
+              />
+              <Input
+                value={config.tickColor || ''}
+                onChange={(e) => updateConfig({ tickColor: e.target.value })}
+                placeholder="Padrão"
+                className="flex-1 text-sm"
+              />
+            </div>
+          </div>
+          
+          {/* Label Color */}
+          <div>
+            <Label className="text-xs text-muted-foreground mb-1 block">Cor dos textos</Label>
+            <div className="flex items-center gap-2">
+              <input
+                type="color"
+                value={config.labelColor || '#808080'}
+                onChange={(e) => updateConfig({ labelColor: e.target.value })}
+                className="w-8 h-8 rounded cursor-pointer border border-border"
+              />
+              <Input
+                value={config.labelColor || ''}
+                onChange={(e) => updateConfig({ labelColor: e.target.value })}
+                placeholder="Herdar"
                 className="flex-1 text-sm"
               />
             </div>

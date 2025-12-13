@@ -12,6 +12,8 @@ interface SlidingRulerProps {
   barColor?: string;
   valueColor?: string;
   toggleColor?: string;
+  tickColor?: string;
+  labelColor?: string;
   className?: string;
 }
 
@@ -26,6 +28,8 @@ export function SlidingRuler({
   barColor = '#22c55e',
   valueColor,
   toggleColor,
+  tickColor,
+  labelColor,
   className 
 }: SlidingRulerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -124,13 +128,17 @@ export function SlidingRuler({
         }}
       >
         <div 
-          className={cn(
-            "w-px",
-            isMajor ? "h-6 bg-muted-foreground/50" : "h-3 bg-border"
-          )} 
+          className="w-px"
+          style={{
+            height: isMajor ? '24px' : '12px',
+            backgroundColor: tickColor || (isMajor ? 'rgba(128,128,128,0.5)' : 'rgba(128,128,128,0.3)')
+          }}
         />
         {isLabel && (
-          <span className="text-[10px] text-muted-foreground mt-1 select-none whitespace-nowrap">
+          <span 
+            className="text-[10px] mt-1 select-none whitespace-nowrap"
+            style={{ color: labelColor || 'inherit', opacity: labelColor ? 1 : 0.6 }}
+          >
             {tickValue}
           </span>
         )}
@@ -241,12 +249,20 @@ export function SlidingRuler({
       </div>
       
       {/* Min/Max labels */}
-      <div className="flex justify-between text-xs text-muted-foreground mt-2">
+      <div 
+        className="flex justify-between text-xs mt-2"
+        style={{ color: labelColor || 'inherit', opacity: labelColor ? 1 : 0.6 }}
+      >
         <span>{min}</span>
         <span>{max}</span>
       </div>
       
-      <p className="text-center text-xs text-muted-foreground mt-3">Arraste para ajustar</p>
+      <p 
+        className="text-center text-xs mt-3"
+        style={{ color: labelColor || 'inherit', opacity: labelColor ? 0.8 : 0.5 }}
+      >
+        Arraste para ajustar
+      </p>
     </div>
   );
 }
