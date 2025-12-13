@@ -1,9 +1,10 @@
+import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -11,6 +12,32 @@ import { RendererProps } from './types';
 
 interface InputRendererProps extends RendererProps {
   type: 'input' | 'email' | 'phone' | 'number' | 'textarea' | 'date';
+}
+
+const COUNTRIES = [
+  { code: 'BR', flag: '🇧🇷', dial: '+55', mask: '(00) 0 0000-0000' },
+  { code: 'US', flag: '🇺🇸', dial: '+1', mask: '(000) 000-0000' },
+  { code: 'PT', flag: '🇵🇹', dial: '+351', mask: '000 000 000' },
+  { code: 'AR', flag: '🇦🇷', dial: '+54', mask: '(00) 0000-0000' },
+  { code: 'MX', flag: '🇲🇽', dial: '+52', mask: '(00) 0000-0000' },
+  { code: 'ES', flag: '🇪🇸', dial: '+34', mask: '000 000 000' },
+];
+
+function applyPhoneMask(value: string, mask: string): string {
+  const digits = value.replace(/\D/g, '');
+  let result = '';
+  let digitIndex = 0;
+  
+  for (let i = 0; i < mask.length && digitIndex < digits.length; i++) {
+    if (mask[i] === '0') {
+      result += digits[digitIndex];
+      digitIndex++;
+    } else {
+      result += mask[i];
+    }
+  }
+  
+  return result;
 }
 
 export function InputRenderer({ 
@@ -26,6 +53,12 @@ export function InputRenderer({
 }: InputRendererProps) {
   const customId = component.customId || config.customId;
   const dateValue = selectedDate?.[customId || component.id];
+  
+  const defaultCountryCode = config.defaultCountry || 'BR';
+  const [selectedCountry, setSelectedCountry] = useState(
+    COUNTRIES.find(c => c.code === defaultCountryCode) || COUNTRIES[0]
+  );
+  const [countryOpen, setCountryOpen] = useState(false);
 
   if (type === 'textarea') {
     return (
@@ -98,7 +131,81 @@ export function InputRenderer({
     );
   }
 
-  // Standard input types: input, email, phone, number
+  // Phone input with country selector and mask
+  if (type === 'phone') {
+    const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const rawValue = e.target.value;
+      const maskedValue = applyPhoneMask(rawValue, selectedCountry.mask);
+      const fullValue = `${selectedCountry.dial} ${maskedValue}`;
+      onInputChange(component.id, customId, fullValue);
+    };
+
+    // Extract just the phone number part (without country code) for display
+    const displayValue = value?.replace(selectedCountry.dial, '').trim() || '';
+
+    return (
+      <div className="py-4">
+        {config.label && (
+          <div 
+            className="rich-text text-sm font-medium mb-2" 
+            dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.label) }} 
+          />
+        )}
+        <div className="flex gap-2">
+          <Popover open={countryOpen} onOpenChange={setCountryOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="flex items-center gap-1 px-3 bg-transparent shrink-0"
+              >
+                <span className="text-lg">{selectedCountry.flag}</span>
+                <ChevronDown className="w-3 h-3 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-48 p-1" align="start">
+              {COUNTRIES.map((country) => (
+                <button
+                  key={country.code}
+                  onClick={() => {
+                    setSelectedCountry(country);
+                    setCountryOpen(false);
+                    // Reset the value with new country code
+                    const digits = value?.replace(/\D/g, '') || '';
+                    if (digits) {
+                      const maskedValue = applyPhoneMask(digits, country.mask);
+                      onInputChange(component.id, customId, `${country.dial} ${maskedValue}`);
+                    }
+                  }}
+                  className={cn(
+                    "w-full flex items-center gap-2 px-3 py-2 text-sm rounded hover:bg-accent transition-colors",
+                    selectedCountry.code === country.code && "bg-accent"
+                  )}
+                >
+                  <span className="text-lg">{country.flag}</span>
+                  <span>{country.dial}</span>
+                </button>
+              ))}
+            </PopoverContent>
+          </Popover>
+          <Input
+            type="tel"
+            placeholder={selectedCountry.mask.replace(/0/g, '0')}
+            value={displayValue}
+            onChange={handlePhoneChange}
+            className="flex-1 bg-transparent"
+            required={config.required}
+          />
+        </div>
+        {config.helpText && (
+          <p className="text-xs text-muted-foreground mt-1">
+            {processTemplate(config.helpText)}
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  // Standard input types: input, email, number
   const inputType = type === 'email' ? 'email' : type === 'number' ? 'number' : 'text';
 
   return (

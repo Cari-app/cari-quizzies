@@ -43,6 +43,7 @@ export interface FaqItem {
 }
 
 export interface ComponentConfig {
+  defaultCountry?: string;
   label?: string;
   placeholder?: string;
   required?: boolean;
