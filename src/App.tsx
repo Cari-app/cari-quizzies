@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import QuizPage from "./pages/QuizPage";
@@ -17,41 +18,43 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          {/* Auth routes */}
-          <Route path="/login" element={<AuthPage />} />
-          
-          {/* Protected admin routes */}
-          <Route path="/admin" element={
-            <ProtectedRoute>
-              <AdminLayout />
-            </ProtectedRoute>
-          }>
-            <Route index element={<AdminDashboard />} />
-            <Route path="settings" element={<AdminSettings />} />
-          </Route>
-          
-          {/* Editor em tela cheia, protegido */}
-          <Route path="/admin/quiz/:id" element={
-            <ProtectedRoute>
-              <AdminQuizEditor />
-            </ProtectedRoute>
-          } />
-          
-          {/* Public routes */}
-          <Route path="/" element={<Index />} />
-          
-          {/* Quiz público por slug */}
-          <Route path="/:slug" element={<QuizPage />} />
-          
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            {/* Auth routes */}
+            <Route path="/login" element={<AuthPage />} />
+            
+            {/* Protected admin routes */}
+            <Route path="/admin" element={
+              <ProtectedRoute>
+                <AdminLayout />
+              </ProtectedRoute>
+            }>
+              <Route index element={<AdminDashboard />} />
+              <Route path="settings" element={<AdminSettings />} />
+            </Route>
+            
+            {/* Editor em tela cheia, protegido */}
+            <Route path="/admin/quiz/:id" element={
+              <ProtectedRoute>
+                <AdminQuizEditor />
+              </ProtectedRoute>
+            } />
+            
+            {/* Public routes */}
+            <Route path="/" element={<Index />} />
+            
+            {/* Quiz público por slug */}
+            <Route path="/:slug" element={<QuizPage />} />
+            
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 
