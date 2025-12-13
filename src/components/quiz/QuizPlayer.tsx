@@ -244,6 +244,16 @@ interface ComponentConfig {
   }>;
   metricsLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
   metricsDisposition?: 'chart-legend' | 'legend-chart';
+  metricsBgType?: 'solid' | 'gradient' | 'transparent';
+  metricsBgColor?: string;
+  metricsGradientStart?: string;
+  metricsGradientEnd?: string;
+  metricsGradientAngle?: number;
+  metricsTextColor?: string;
+  metricsValueColor?: string;
+  metricsBorderColor?: string;
+  metricsBorderWidth?: number;
+  metricsBorderRadius?: number;
   // Charts specific
   chartConfig?: {
     chartType: 'cartesian' | 'bar' | 'circular';
@@ -2340,6 +2350,16 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
             width={widthValue}
             horizontalAlign={horizontalAlign}
             verticalAlign={verticalAlign}
+            bgType={config.metricsBgType}
+            bgColor={config.metricsBgColor}
+            gradientStart={config.metricsGradientStart}
+            gradientEnd={config.metricsGradientEnd}
+            gradientAngle={config.metricsGradientAngle}
+            textColor={config.metricsTextColor}
+            valueColor={config.metricsValueColor}
+            borderColor={config.metricsBorderColor}
+            borderWidth={config.metricsBorderWidth}
+            borderRadius={config.metricsBorderRadius}
           />
         );
       }
