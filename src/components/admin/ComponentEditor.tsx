@@ -20,6 +20,7 @@ import { ChartEditorComponentTab, ChartEditorAppearanceTab, getDefaultChartConfi
 import { SpacerComponentEditor } from './SpacerEditor';
 import { AppearanceEditor } from './AppearanceEditor';
 import { ImageInput } from '@/components/ui/image-input';
+import { MediaLibraryPicker } from '@/components/ui/media-library-picker';
 
 // Component ID Display - Shows the unique ID and allows copying
 interface ComponentIdDisplayProps {
@@ -469,6 +470,10 @@ interface ComponentEditorProps {
 export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelete, themeColor = '#000000' }: ComponentEditorProps) {
   const config = component.config || {};
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  
+  // Media library picker state for testimonials
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+  const [mediaPickerTarget, setMediaPickerTarget] = useState<{ itemId: string; type: 'avatar' | 'photo' } | null>(null);
 
   const generateSlug = (text: string) => {
     return text
@@ -3241,8 +3246,18 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
   // =========== TESTIMONIALS COMPONENT TAB ===========
   const renderTestimonialsComponentTab = () => {
     const testimonialItems: TestimonialItem[] = config.testimonialItems || [];
-    const avatarFileInputRefs: Record<string, HTMLInputElement | null> = {};
-    const photoFileInputRefs: Record<string, HTMLInputElement | null> = {};
+
+    const handleMediaSelect = (url: string) => {
+      if (!mediaPickerTarget) return;
+      const { itemId, type } = mediaPickerTarget;
+      const updates = type === 'avatar' ? { avatarUrl: url } : { photoUrl: url };
+      const newItems = testimonialItems.map(item =>
+        item.id === itemId ? { ...item, ...updates } : item
+      );
+      updateConfig({ testimonialItems: newItems });
+      setMediaPickerOpen(false);
+      setMediaPickerTarget(null);
+    };
 
     const addTestimonial = () => {
       const newItem: TestimonialItem = {
@@ -3275,54 +3290,6 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
       const newItems = [...testimonialItems];
       newItems.splice(index + 1, 0, newItem);
       updateConfig({ testimonialItems: newItems });
-    };
-
-    const handleAvatarUpload = async (id: string, file: File) => {
-      try {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const filePath = `testimonials/avatars/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('quiz-images')
-          .upload(filePath, file);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('quiz-images')
-          .getPublicUrl(filePath);
-
-        updateTestimonial(id, { avatarUrl: publicUrl });
-        toast.success('Avatar enviado com sucesso!');
-      } catch (error) {
-        console.error('Error uploading avatar:', error);
-        toast.error('Erro ao enviar avatar');
-      }
-    };
-
-    const handlePhotoUpload = async (id: string, file: File) => {
-      try {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const filePath = `testimonials/photos/${fileName}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('quiz-images')
-          .upload(filePath, file);
-
-        if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('quiz-images')
-          .getPublicUrl(filePath);
-
-        updateTestimonial(id, { photoUrl: publicUrl });
-        toast.success('Foto enviada com sucesso!');
-      } catch (error) {
-        console.error('Error uploading photo:', error);
-        toast.error('Erro ao enviar foto');
-      }
     };
 
     return (
@@ -3391,7 +3358,10 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                             ? "border border-border" 
                             : "border-2 border-dashed border-muted-foreground/30 bg-muted/30"
                         )}
-                        onClick={() => avatarFileInputRefs[item.id]?.click()}
+                        onClick={() => {
+                          setMediaPickerTarget({ itemId: item.id, type: 'avatar' });
+                          setMediaPickerOpen(true);
+                        }}
                       >
                         {item.avatarUrl ? (
                           <img src={item.avatarUrl} alt="" className="w-full h-full object-cover" />
@@ -3399,16 +3369,6 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                           <Smile className="w-4 h-4 text-muted-foreground/50" />
                         )}
                       </div>
-                      <input
-                        ref={(el) => { avatarFileInputRefs[item.id] = el; }}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) handleAvatarUpload(item.id, file);
-                        }}
-                      />
                     </div>
 
                     {/* Name and handle */}
@@ -3440,7 +3400,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
                   {/* Avatar URL input */}
                   <div className="bg-muted/20 rounded-lg p-2 space-y-1">
-                    <Label className="text-xs text-muted-foreground">Avatar (URL ou upload)</Label>
+                    <Label className="text-xs text-muted-foreground">Avatar (URL ou biblioteca)</Label>
                     <div className="flex gap-2">
                       <Input
                         value={item.avatarUrl || ''}
@@ -3451,11 +3411,14 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                       <Button
                         variant="secondary"
                         size="sm"
-                        onClick={() => avatarFileInputRefs[item.id]?.click()}
+                        onClick={() => {
+                          setMediaPickerTarget({ itemId: item.id, type: 'avatar' });
+                          setMediaPickerOpen(true);
+                        }}
                         className="text-xs h-8 px-3"
                       >
-                        <Upload className="w-3 h-3 mr-1" />
-                        Upload
+                        <Image className="w-3 h-3 mr-1" />
+                        Biblioteca
                       </Button>
                     </div>
                   </div>
@@ -3480,24 +3443,17 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                         placeholder="https://exemplo.com/foto.jpg"
                         className="flex-1 text-xs h-8"
                       />
-                      <input
-                        ref={(el) => { photoFileInputRefs[item.id] = el; }}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) handlePhotoUpload(item.id, file);
-                        }}
-                      />
                       <Button
                         variant="secondary"
                         size="sm"
-                        onClick={() => photoFileInputRefs[item.id]?.click()}
+                        onClick={() => {
+                          setMediaPickerTarget({ itemId: item.id, type: 'photo' });
+                          setMediaPickerOpen(true);
+                        }}
                         className="text-xs h-8 px-3"
                       >
-                        <Upload className="w-3 h-3 mr-1" />
-                        Upload
+                        <Image className="w-3 h-3 mr-1" />
+                        Biblioteca
                       </Button>
                     </div>
                     {item.photoUrl && (
@@ -3808,6 +3764,13 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             />
           </CollapsibleContent>
         </Collapsible>
+
+        {/* Media Library Picker */}
+        <MediaLibraryPicker
+          open={mediaPickerOpen}
+          onOpenChange={setMediaPickerOpen}
+          onSelect={handleMediaSelect}
+        />
       </div>
     );
   };
