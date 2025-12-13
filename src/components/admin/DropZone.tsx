@@ -1671,13 +1671,13 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         
         return (
           <div 
-            className="w-full flex p-4"
+            className="w-full flex"
             style={{ 
               justifyContent: horizontalAlign === 'center' ? 'center' : horizontalAlign === 'end' ? 'flex-end' : 'flex-start' 
             }}
           >
             <div 
-              className="flex flex-col gap-2"
+              className="flex flex-col gap-2 p-4"
               style={{ width: `${widthValue}%` }}
             >
               {faqItems.map((item, index) => (
