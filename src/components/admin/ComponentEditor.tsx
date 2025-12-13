@@ -19,6 +19,7 @@ import { MetricItemEditor, MetricItem } from './MetricItemEditor';
 import { ChartEditorComponentTab, ChartEditorAppearanceTab, getDefaultChartConfig, ChartConfig } from './ChartEditor';
 import { SpacerComponentEditor } from './SpacerEditor';
 import { AppearanceEditor } from './AppearanceEditor';
+import { ImageInput } from '@/components/ui/image-input';
 
 // Component ID Display - Shows the unique ID and allows copying
 interface ComponentIdDisplayProps {
@@ -1436,16 +1437,14 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                         </div>
                       )}
                       
-                      {/* Image URL input */}
+                      {/* Image picker with media library */}
                       {opt.mediaType === 'image' && (
                         <div className="space-y-2">
-                          <Input
+                          <ImageInput
                             value={opt.imageUrl || ''}
-                            onChange={(e) => updateOption(opt.id, { imageUrl: e.target.value })}
-                            placeholder="https://exemplo.com/imagem.jpg"
-                            className="text-sm"
+                            onChange={(url) => updateOption(opt.id, { imageUrl: url })}
+                            placeholder="Selecione uma imagem"
                           />
-                          <p className="text-xs text-muted-foreground">Cole a URL de uma imagem da web</p>
                           {opt.imageUrl && (
                             <div className="relative w-full h-20 bg-muted rounded-lg overflow-hidden">
                               <img 
@@ -3068,34 +3067,12 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                 {item.mediaType === 'image' && (
                   <div className="px-3 pb-3">
                     <div className="bg-muted/20 rounded-lg p-2 space-y-2">
-                      <Label className="text-xs text-muted-foreground">URL ou upload</Label>
-                      <div className="flex gap-2">
-                        <Input
-                          value={item.imageUrl || ''}
-                          onChange={(e) => updateArgument(item.id, { imageUrl: e.target.value })}
-                          placeholder="https://exemplo.com/imagem.jpg"
-                          className="flex-1 text-xs h-8"
-                        />
-                        <input
-                          ref={(el) => { fileInputRefs[item.id] = el; }}
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleImageUpload(item.id, file);
-                          }}
-                        />
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => fileInputRefs[item.id]?.click()}
-                          className="text-xs h-8 px-3"
-                        >
-                          <Upload className="w-3 h-3 mr-1" />
-                          Upload
-                        </Button>
-                      </div>
+                      <Label className="text-xs text-muted-foreground">Imagem</Label>
+                      <ImageInput
+                        value={item.imageUrl || ''}
+                        onChange={(url) => updateArgument(item.id, { imageUrl: url })}
+                        placeholder="Selecione uma imagem"
+                      />
                     </div>
                   </div>
                 )}
