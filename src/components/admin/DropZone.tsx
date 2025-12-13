@@ -503,6 +503,13 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
 
         const buttonWidth = config.buttonFullWidth !== false ? 'w-full' : 'w-auto';
 
+        // DEBUG: Log config to see what values we're receiving
+        console.log('DropZone button config:', {
+          buttonBgColor: config.buttonBgColor,
+          buttonTextColor: config.buttonTextColor,
+          buttonFontSize: config.buttonFontSize
+        });
+
         // Build style object - ALWAYS apply custom colors when set
         const buttonStyle: React.CSSProperties = {};
         
