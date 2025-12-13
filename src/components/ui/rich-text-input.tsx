@@ -644,7 +644,7 @@ export function RichTextInput({
         // No selection, hide after a delay
         hideTimeoutRef.current = setTimeout(() => {
           setShowToolbar(false);
-        }, 100);
+        }, 150);
         return;
       }
 
@@ -654,13 +654,22 @@ export function RichTextInput({
         const start = view.coordsAtPos(from);
         const end = view.coordsAtPos(to);
 
-        const toolbarWidth = 520;
-        const left = (start.left + end.left) / 2 - toolbarWidth / 2;
+        const toolbarWidth = 560;
+        const toolbarHeight = 44;
+        const centerX = (start.left + end.left) / 2;
+        let left = centerX - toolbarWidth / 2;
+        
+        // Ensure toolbar stays within viewport
+        left = Math.max(8, Math.min(left, window.innerWidth - toolbarWidth - 8));
+        
+        // Position toolbar above selection, or below if no room above
+        let top = start.top - toolbarHeight - 8;
+        if (top < 8) {
+          // Not enough room above, position below
+          top = end.bottom + 8;
+        }
 
-        setToolbarPosition({
-          top: Math.max(8, start.top - 50),
-          left: Math.max(8, Math.min(left, window.innerWidth - toolbarWidth - 8)),
-        });
+        setToolbarPosition({ top, left });
         setShowToolbar(true);
       } catch {
         // Position calculation failed, hide toolbar
@@ -668,17 +677,20 @@ export function RichTextInput({
       }
     },
     onBlur: ({ event }) => {
-      // Check if we're clicking inside a toolbar dropdown
+      // Check if we're clicking inside a toolbar or dropdown
       const relatedTarget = event?.relatedTarget as HTMLElement | null;
-      if (relatedTarget?.closest('[class*="z-[10000]"]') || 
-          relatedTarget?.closest('[class*="z-[9999]"]')) {
+      if (
+        relatedTarget?.closest('[class*="z-[10001]"]') ||
+        relatedTarget?.closest('[class*="z-[10000]"]') || 
+        relatedTarget?.closest('[class*="z-[9999]"]')
+      ) {
         return;
       }
 
       // Delay hiding to allow toolbar interactions
       hideTimeoutRef.current = setTimeout(() => {
         setShowToolbar(false);
-      }, 200);
+      }, 300);
     },
     editorProps: {
       attributes: {
