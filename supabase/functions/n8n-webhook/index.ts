@@ -76,9 +76,9 @@ serve(async (req) => {
       sessionData = session;
     }
 
-    // Get responses if this is a completion event
+    // Get responses if this is a completion event or trigger point
     let responses = [];
-    if (session_id && (event_type === 'quiz_completed' || event_type === 'first_response')) {
+    if (session_id && (event_type === 'quiz_completed' || event_type === 'first_response' || event_type === 'trigger_point')) {
       const { data: respData } = await supabase
         .from('quiz_responses')
         .select('*')

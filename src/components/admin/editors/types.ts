@@ -282,6 +282,9 @@ export interface ComponentConfig {
   spacerLineColor?: string;
   spacerLineThickness?: number;
   spacerLineStyle?: 'solid' | 'dashed' | 'dotted';
+  // Webhook trigger specific
+  webhookActive?: boolean;
+  webhookDescription?: string;
 }
 
 export interface DroppedComponent {
