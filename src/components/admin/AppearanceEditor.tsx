@@ -182,6 +182,8 @@ function SliderField({
 }
 
 export function AppearanceEditor({ config, onUpdate, componentType, themeColor }: AppearanceEditorProps) {
+  console.log('AppearanceEditor rendering for:', componentType, 'config:', config);
+  
   // Components that support each feature
   const inputComponents = ['input', 'email', 'phone', 'number', 'date', 'textarea', 'height', 'weight'];
   const textComponents = ['text', 'heading', 'button'];
