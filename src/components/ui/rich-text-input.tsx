@@ -112,7 +112,7 @@ const ToolbarButton = React.forwardRef<
 ));
 ToolbarButton.displayName = "ToolbarButton";
 
-// Color Picker Dropdown - saves selection before opening
+// Color Picker Dropdown - uses portal to avoid clipping
 const ColorPickerDropdown: React.FC<{
   colors: string[];
   currentColor: string;
@@ -122,13 +122,24 @@ const ColorPickerDropdown: React.FC<{
   editor: Editor;
 }> = ({ colors, currentColor, applyColor, icon, title, editor }) => {
   const [open, setOpen] = React.useState(false);
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
   const savedSelectionRef = React.useRef<{ from: number; to: number } | null>(null);
+  const [dropdownPosition, setDropdownPosition] = React.useState({ top: 0, left: 0 });
 
   // Save selection when opening dropdown
   const handleOpen = () => {
     const { from, to } = editor.state.selection;
     savedSelectionRef.current = { from, to };
+    
+    // Calculate position based on button
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + 8,
+        left: Math.max(8, rect.left - 80), // Center the dropdown
+      });
+    }
     setOpen(true);
   };
 
@@ -136,7 +147,11 @@ const ColorPickerDropdown: React.FC<{
   React.useEffect(() => {
     if (!open) return;
     const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        buttonRef.current && !buttonRef.current.contains(target) &&
+        dropdownRef.current && !dropdownRef.current.contains(target)
+      ) {
         setOpen(false);
         savedSelectionRef.current = null;
       }
@@ -159,8 +174,9 @@ const ColorPickerDropdown: React.FC<{
   };
 
   return (
-    <div ref={dropdownRef} className="relative">
+    <>
       <button
+        ref={buttonRef}
         type="button"
         onMouseDown={(e) => {
           e.preventDefault();
@@ -190,9 +206,11 @@ const ColorPickerDropdown: React.FC<{
         />
       </button>
 
-      {open && (
+      {open && createPortal(
         <div
-          className="absolute top-full left-0 mt-2 p-3 bg-popover border border-border rounded-lg shadow-xl z-[10000] min-w-[200px]"
+          ref={dropdownRef}
+          className="fixed p-3 bg-popover border border-border rounded-lg shadow-xl z-[10001] min-w-[200px]"
+          style={{ top: dropdownPosition.top, left: dropdownPosition.left }}
           onMouseDown={(e) => e.preventDefault()}
         >
           <div className="grid grid-cols-7 gap-1.5">
@@ -232,9 +250,10 @@ const ColorPickerDropdown: React.FC<{
               />
             </label>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
-    </div>
+    </>
   );
 };
 
