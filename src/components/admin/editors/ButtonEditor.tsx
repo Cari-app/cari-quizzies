@@ -46,6 +46,13 @@ export function ButtonComponentTab({ component, config, updateConfig, onUpdateCu
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [designOpen, setDesignOpen] = useState(false);
 
+  // Debug: log config changes
+  console.log('ButtonEditor config:', { 
+    buttonBgColor: config.buttonBgColor, 
+    buttonTextColor: config.buttonTextColor,
+    buttonBorderRadius: config.buttonBorderRadius
+  });
+
   return (
     <div className="space-y-4">
       <ComponentIdDisplay
