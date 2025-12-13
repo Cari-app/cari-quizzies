@@ -1160,11 +1160,11 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
               placeholder="Título da pergunta"
               className="text-center"
             />
-            <RichTextInput
+<RichTextInput
               value={config.description || ''}
               onChange={(description) => updateConfig({ description })}
-              placeholder="Digite aqui uma descrição de ajuda para introduzir o usuário à questão."
-              className="text-sm"
+              placeholder="Descrição (opcional)"
+              className="text-sm text-muted-foreground"
             />
           </div>
         </div>
