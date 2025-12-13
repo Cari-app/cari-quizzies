@@ -339,8 +339,11 @@ interface DesignSettings {
   // TIPOGRAFIA
   fontSize: number;
   titleSize: 'small' | 'medium' | 'large' | 'xlarge';
-  primaryFont: string;
-  secondaryFont: string;
+  titleFont?: string;
+  bodyFont?: string;
+  // Legacy properties for backwards compatibility
+  primaryFont?: string;
+  secondaryFont?: string;
 }
 
 const defaultDesignSettings: DesignSettings = {
@@ -361,8 +364,8 @@ const defaultDesignSettings: DesignSettings = {
   titleColor: '#A855F7',
   fontSize: 16,
   titleSize: 'medium',
-  primaryFont: 'Inter',
-  secondaryFont: 'Inter',
+  titleFont: 'Montserrat',
+  bodyFont: 'Inter',
 };
 
 interface StageConnection {
@@ -2785,14 +2788,23 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
 
   const bgStyles = getBackgroundStyles();
 
+  // Get fonts with backwards compatibility
+  const titleFont = designSettings.titleFont || designSettings.primaryFont || 'Montserrat';
+  const bodyFont = designSettings.bodyFont || designSettings.secondaryFont || 'Inter';
+
   return (
     <div 
       className="min-h-screen flex flex-col relative"
       style={{ 
         color: designSettings.textColor,
-        fontFamily: designSettings.primaryFont,
+        fontFamily: bodyFont,
+        fontSize: `${designSettings.fontSize}px`,
+        '--quiz-title-font': titleFont,
+        '--quiz-body-font': bodyFont,
+        '--quiz-title-color': designSettings.titleColor,
+        '--quiz-text-color': designSettings.textColor,
         ...bgStyles.main,
-      }}
+      } as React.CSSProperties}
     >
       {/* Background overlay */}
       {bgStyles.overlay && <div style={bgStyles.overlay} />}
@@ -2954,7 +2966,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       )}
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto flex flex-col">
+      <div className="flex-1 overflow-y-auto flex flex-col quiz-content">
         <div className="flex-1 flex flex-col items-center justify-center py-2.5 px-4">
           <div className="w-full max-w-md">
             {/* Stage components */}

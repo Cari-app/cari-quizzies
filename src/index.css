@@ -133,6 +133,26 @@
     @apply font-semibold tracking-tight;
   }
 
+  /* Quiz typography - applies title font to headings */
+  .quiz-content h1,
+  .quiz-content h2,
+  .quiz-content h3,
+  .quiz-content h4,
+  .quiz-content h5,
+  .quiz-content h6,
+  .quiz-content .quiz-title {
+    font-family: var(--quiz-title-font, inherit);
+    color: var(--quiz-title-color, inherit);
+  }
+
+  .quiz-content p,
+  .quiz-content span,
+  .quiz-content label,
+  .quiz-content .quiz-text {
+    font-family: var(--quiz-body-font, inherit);
+    color: var(--quiz-text-color, inherit);
+  }
+
   /* Rich text content typography */
   .rich-text h1,
   [contenteditable] h1,
