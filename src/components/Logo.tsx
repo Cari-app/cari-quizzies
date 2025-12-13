@@ -8,11 +8,13 @@ interface LogoProps {
 
 export function Logo({ className = 'h-8' }: LogoProps) {
   const { theme } = useTheme();
+  const logoSrc = theme === 'dark' ? logoDark : logoLight;
   
   return (
     <img 
-      src={theme === 'dark' ? logoDark : logoLight} 
-      alt="Cari" 
+      key={theme}
+      src={logoSrc} 
+      alt="Quizzies" 
       className={className}
     />
   );
