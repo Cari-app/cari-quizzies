@@ -510,12 +510,11 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         if (isCustomStyle) {
           if (config.buttonGradient) {
             // Gradient will be applied via className
-          } else if (config.buttonBgColor) {
-            customStyle.backgroundColor = config.buttonBgColor;
+          } else {
+            // Default to black background with white text for custom style
+            customStyle.backgroundColor = config.buttonBgColor || '#000000';
           }
-          if (config.buttonTextColor) {
-            customStyle.color = config.buttonTextColor;
-          }
+          customStyle.color = config.buttonTextColor || '#ffffff';
           if (config.buttonBorderColor && (config.buttonBorderWidth ?? 0) > 0) {
             customStyle.borderColor = config.buttonBorderColor;
             customStyle.borderWidth = `${config.buttonBorderWidth}px`;
