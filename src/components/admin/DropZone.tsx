@@ -1547,6 +1547,15 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const detailType = config.faqDetailType || 'arrow';
         const firstOpen = config.faqFirstOpen !== false;
         
+        // Custom styles
+        const bgColor = config.faqBgColor;
+        const textColor = config.faqTextColor;
+        const answerColor = config.faqAnswerColor;
+        const borderColor = config.faqBorderColor;
+        const borderWidth = config.faqBorderWidth ?? 1;
+        const borderRadius = config.faqBorderRadius ?? 8;
+        const iconColor = config.faqIconColor;
+        
         return (
           <div className={cn("w-full flex", alignClass)}>
             <div 
@@ -1556,27 +1565,48 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
               {faqItems.map((item, index) => (
                 <div 
                   key={item.id}
-                  className="border border-border rounded-lg overflow-hidden bg-background"
+                  className="overflow-hidden"
+                  style={{
+                    backgroundColor: bgColor || undefined,
+                    borderWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
+                    borderStyle: borderWidth > 0 ? 'solid' : 'none',
+                    borderColor: borderColor || undefined,
+                    borderRadius: `${borderRadius}px`,
+                  }}
                 >
                   <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors">
-                    <span className="font-medium text-sm">{item.question}</span>
+                    <span 
+                      className="font-medium text-sm"
+                      style={{ color: textColor || undefined }}
+                      dangerouslySetInnerHTML={{ __html: item.question }}
+                    />
                     {detailType === 'arrow' ? (
-                      <ChevronUp className={cn(
-                        "w-4 h-4 text-muted-foreground transition-transform",
-                        !(firstOpen && index === 0) && "rotate-180"
-                      )} />
+                      <ChevronUp 
+                        className={cn(
+                          "w-4 h-4 transition-transform",
+                          !(firstOpen && index === 0) && "rotate-180"
+                        )}
+                        style={{ color: iconColor || undefined }}
+                      />
                     ) : (
                       firstOpen && index === 0 ? (
-                        <Minus className="w-4 h-4 text-muted-foreground" />
+                        <Minus className="w-4 h-4" style={{ color: iconColor || undefined }} />
                       ) : (
-                        <Plus className="w-4 h-4 text-muted-foreground" />
+                        <Plus className="w-4 h-4" style={{ color: iconColor || undefined }} />
                       )
                     )}
                   </div>
                   {(firstOpen && index === 0) && (
-                    <div className="px-4 pb-4 text-sm text-muted-foreground border-t border-border pt-3">
-                      {item.answer}
-                    </div>
+                    <div 
+                      className="px-4 pb-4 text-sm pt-3"
+                      style={{ 
+                        color: answerColor || undefined,
+                        borderTopWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
+                        borderTopStyle: borderWidth > 0 ? 'solid' : 'none',
+                        borderTopColor: borderColor || undefined,
+                      }}
+                      dangerouslySetInnerHTML={{ __html: item.answer }}
+                    />
                   )}
                 </div>
               ))}
