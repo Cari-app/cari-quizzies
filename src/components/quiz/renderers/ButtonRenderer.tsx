@@ -71,9 +71,8 @@ export function ButtonRenderer({
     buttonStyle.paddingBottom = `${config.buttonPaddingY}px`;
   }
 
-  // Get button text - strip inline color styles to let our color work
-  const rawText = config.buttonText || 'Continuar';
-  const cleanText = rawText.replace(/color:\s*[^;]+;?/gi, '');
+  // Button text - now plain text, no inline styles
+  const buttonText = config.buttonText || 'Continuar';
 
   const handleClick = () => {
     if (buttonAction === 'link' && config.buttonLink) {
@@ -103,7 +102,7 @@ export function ButtonRenderer({
         {config.buttonIcon && config.buttonIconPosition === 'left' && (
           <span className="mr-2">{config.buttonIcon}</span>
         )}
-        <span dangerouslySetInnerHTML={{ __html: processTemplate(cleanText) }} />
+        <span>{processTemplate(buttonText)}</span>
         {config.buttonIcon && config.buttonIconPosition !== 'left' && (
           <span className="ml-2">{config.buttonIcon}</span>
         )}
