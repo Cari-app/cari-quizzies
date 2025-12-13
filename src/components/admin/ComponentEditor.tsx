@@ -474,6 +474,9 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
   // Media library picker state for testimonials
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [mediaPickerTarget, setMediaPickerTarget] = useState<{ itemId: string; type: 'avatar' | 'photo' } | null>(null);
+  
+  // Media library picker state for image component
+  const [imageMediaPickerOpen, setImageMediaPickerOpen] = useState(false);
 
   const generateSlug = (text: string) => {
     return text
@@ -1856,24 +1859,20 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             <Button 
               variant="outline" 
               className="w-full" 
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
+              onClick={() => setImageMediaPickerOpen(true)}
             >
-              {isUploading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Enviando...
-                </>
-              ) : (
-                <>
-                  <Upload className="w-4 h-4 mr-2" />
-                  Selecionar imagem
-                </>
-              )}
+              <Upload className="w-4 h-4 mr-2" />
+              Selecionar imagem
             </Button>
             <p className="text-xs text-muted-foreground text-center">
               JPG, PNG, GIF ou WebP. Máximo 5MB.
             </p>
+            <MediaLibraryPicker
+              open={imageMediaPickerOpen}
+              onOpenChange={setImageMediaPickerOpen}
+              onSelect={(url) => updateConfig({ mediaUrl: url })}
+              currentValue={config.mediaUrl}
+            />
             {config.mediaUrl && !config.mediaUrl.match(/^[\u{1F300}-\u{1F9FF}]/u) && (
               <div className="relative w-full h-32 bg-muted rounded-lg overflow-hidden">
                 <img 
