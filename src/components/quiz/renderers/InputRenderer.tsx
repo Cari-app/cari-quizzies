@@ -133,15 +133,24 @@ export function InputRenderer({
 
   // Phone input with country selector and mask
   if (type === 'phone') {
+    // Extract just the local number (digits only, without country code digits)
+    const extractLocalNumber = (fullValue: string | undefined): string => {
+      if (!fullValue) return '';
+      // Remove the dial code prefix and any non-digit characters for clean display
+      const withoutDialCode = fullValue.replace(selectedCountry.dial, '').trim();
+      return applyPhoneMask(withoutDialCode.replace(/\D/g, ''), selectedCountry.mask);
+    };
+
     const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const rawValue = e.target.value;
-      const maskedValue = applyPhoneMask(rawValue, selectedCountry.mask);
+      const digits = rawValue.replace(/\D/g, '');
+      const maskedValue = applyPhoneMask(digits, selectedCountry.mask);
+      // Always save the complete value: dial code + masked number
       const fullValue = `${selectedCountry.dial} ${maskedValue}`;
       onInputChange(component.id, customId, fullValue);
     };
 
-    // Extract just the phone number part (without country code) for display
-    const displayValue = value?.replace(selectedCountry.dial, '').trim() || '';
+    const displayValue = extractLocalNumber(value);
 
     return (
       <div className="py-4">
