@@ -239,6 +239,7 @@ export interface ComponentConfig {
   mask?: string;
   minLength?: number;
   maxLength?: number;
+  defaultCountry?: string;
   // Button specific
   buttonText?: string;
   buttonStyle?: 'primary' | 'secondary' | 'outline' | 'custom';
