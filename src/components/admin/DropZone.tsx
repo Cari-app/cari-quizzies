@@ -1676,7 +1676,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   >
                     <div 
                       className={cn(
-                        "group relative bg-background border rounded-lg cursor-pointer transition-all w-full",
+                        "group relative border rounded-lg cursor-pointer transition-all w-full",
                         selectedComponentId === comp.id 
                           ? "border-primary ring-2 ring-primary/20" 
                           : "border-border hover:border-primary/50"
