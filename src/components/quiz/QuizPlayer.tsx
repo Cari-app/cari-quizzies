@@ -190,7 +190,11 @@ interface ComponentConfig {
   }>;
   faqDetailType?: 'arrow' | 'plus-minus';
   faqFirstOpen?: boolean;
+  faqBgType?: 'solid' | 'gradient';
   faqBgColor?: string;
+  faqGradientStart?: string;
+  faqGradientEnd?: string;
+  faqGradientAngle?: number;
   faqTextColor?: string;
   faqAnswerColor?: string;
   faqBorderColor?: string;
@@ -469,7 +473,11 @@ interface FaqAccordionProps {
   justifyClass: string;
   detailType: string;
   firstOpen: boolean;
+  bgType?: 'solid' | 'gradient';
   bgColor?: string;
+  gradientStart?: string;
+  gradientEnd?: string;
+  gradientAngle?: number;
   textColor?: string;
   answerColor?: string;
   borderColor?: string;
@@ -480,13 +488,18 @@ interface FaqAccordionProps {
 
 function FaqAccordion({ 
   faqItems, widthValue, justifyClass, detailType, firstOpen,
-  bgColor, textColor, answerColor, borderColor, borderWidth = 1, borderRadius = 8, iconColor
+  bgType = 'solid', bgColor, gradientStart = '#667eea', gradientEnd = '#764ba2', gradientAngle = 135,
+  textColor, answerColor, borderColor, borderWidth = 1, borderRadius = 8, iconColor
 }: FaqAccordionProps) {
   const [openItems, setOpenItems] = useState<string[]>(firstOpen && faqItems[0] ? [faqItems[0].id] : []);
   
   const toggleItem = (id: string) => {
     setOpenItems(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
+
+  const bgStyle = bgType === 'gradient' 
+    ? `linear-gradient(${gradientAngle}deg, ${gradientStart}, ${gradientEnd})`
+    : bgColor || undefined;
   
   return (
     <div className={cn("w-full px-4 flex", justifyClass)}>
@@ -498,7 +511,7 @@ function FaqAccordion({
               key={item.id} 
               className="overflow-hidden"
               style={{
-                backgroundColor: bgColor || undefined,
+                background: bgStyle,
                 borderWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
                 borderStyle: borderWidth > 0 ? 'solid' : 'none',
                 borderColor: borderColor || undefined,
@@ -2124,7 +2137,11 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
             justifyClass={justifyClass}
             detailType={detailType}
             firstOpen={firstOpen}
+            bgType={config.faqBgType}
             bgColor={config.faqBgColor}
+            gradientStart={config.faqGradientStart}
+            gradientEnd={config.faqGradientEnd}
+            gradientAngle={config.faqGradientAngle}
             textColor={config.faqTextColor}
             answerColor={config.faqAnswerColor}
             borderColor={config.faqBorderColor}
