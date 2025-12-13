@@ -87,6 +87,13 @@ export function ButtonRenderer({
     }
   };
 
+  // Default button style: black background with white text
+  const defaultStyle: React.CSSProperties = {};
+  if (!isCustomStyle && !config.buttonStyle) {
+    defaultStyle.backgroundColor = '#000000';
+    defaultStyle.color = '#FFFFFF';
+  }
+
   return (
     <div className="py-4">
       <button
@@ -102,10 +109,9 @@ export function ButtonRenderer({
           !isCustomStyle && config.buttonStyle === 'primary' && "bg-primary text-primary-foreground",
           !isCustomStyle && config.buttonStyle === 'secondary' && "bg-secondary text-secondary-foreground",
           !isCustomStyle && config.buttonStyle === 'outline' && "border border-border bg-transparent",
-          !isCustomStyle && !config.buttonStyle && "bg-primary text-primary-foreground",
           config.buttonBorderRadius === undefined && "rounded-lg"
         )}
-        style={buttonCustomStyle}
+        style={{ ...defaultStyle, ...buttonCustomStyle }}
       >
         {buttonContent}
       </button>
