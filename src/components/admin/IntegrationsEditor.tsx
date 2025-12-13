@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Webhook, Loader2, CheckCircle2, XCircle, ExternalLink } from 'lucide-react';
+import { Webhook, Loader2, CheckCircle2, XCircle, ExternalLink, Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -24,7 +24,30 @@ export function IntegrationsEditor({
   onWebhookEnabledChange,
 }: IntegrationsEditorProps) {
   const [isTesting, setIsTesting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [testResult, setTestResult] = useState<'success' | 'error' | null>(null);
+
+  const handleSaveWebhook = async () => {
+    setIsSaving(true);
+    try {
+      const { error } = await supabase
+        .from('quizzes')
+        .update({
+          webhook_url: webhookUrl || null,
+          webhook_enabled: webhookEnabled,
+        })
+        .eq('id', quizId);
+
+      if (error) throw error;
+
+      toast.success('Webhook salvo com sucesso!');
+    } catch (error) {
+      console.error('Error saving webhook:', error);
+      toast.error('Erro ao salvar webhook');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleTestWebhook = async () => {
     if (!webhookUrl) {
@@ -110,7 +133,20 @@ export function IntegrationsEditor({
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 pt-2">
+            <Button
+              size="sm"
+              onClick={handleSaveWebhook}
+              disabled={isSaving}
+              className="gap-2"
+            >
+              {isSaving ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              Salvar Webhook
+            </Button>
             <Button
               variant="outline"
               size="sm"
@@ -133,7 +169,7 @@ export function IntegrationsEditor({
               href="https://n8n.io/integrations"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+              className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 ml-auto"
             >
               <ExternalLink className="w-3 h-3" />
               Documentação N8N
