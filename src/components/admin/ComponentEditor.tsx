@@ -229,7 +229,7 @@ export interface ComponentConfig {
   autoAdvance?: boolean;
   introType?: 'text' | 'image' | 'video';
   // Options appearance
-  optionStyle?: 'simple' | 'card' | 'image';
+  optionStyle?: 'simple' | 'card' | 'image' | 'pill' | 'glass' | 'minimal';
   optionLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
   optionOrientation?: 'vertical' | 'horizontal';
   imageRatio?: '1:1' | '16:9' | '4:3' | '3:2';
@@ -4803,6 +4803,9 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                 <SelectItem value="simple">Simples</SelectItem>
                 <SelectItem value="card">Card</SelectItem>
                 <SelectItem value="image">Com imagem</SelectItem>
+                <SelectItem value="pill">Pílula</SelectItem>
+                <SelectItem value="glass">Vidro (Glass)</SelectItem>
+                <SelectItem value="minimal">Minimalista</SelectItem>
               </SelectContent>
             </Select>
           </div>
