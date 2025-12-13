@@ -26,10 +26,10 @@ export function SlidingRuler({
   unit,
   altUnit,
   barColor = '#000000',
-  valueColor,
-  toggleColor,
-  tickColor,
-  labelColor,
+  valueColor = '#000000',
+  toggleColor = '#000000',
+  tickColor = '#000000',
+  labelColor = '#000000',
   className 
 }: SlidingRulerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -131,13 +131,13 @@ export function SlidingRuler({
           className="w-px"
           style={{
             height: isMajor ? '24px' : '12px',
-            backgroundColor: tickColor || (isMajor ? 'rgba(128,128,128,0.5)' : 'rgba(128,128,128,0.3)')
+            backgroundColor: tickColor
           }}
         />
         {isLabel && (
           <span 
             className="text-[10px] mt-1 select-none whitespace-nowrap"
-            style={{ color: labelColor || 'inherit', opacity: labelColor ? 1 : 0.6 }}
+            style={{ color: labelColor }}
           >
             {tickValue}
           </span>
@@ -156,16 +156,16 @@ export function SlidingRuler({
         <div className="flex justify-center mb-4">
           <div 
             className="inline-flex backdrop-blur-sm rounded-full p-1"
-            style={{ backgroundColor: toggleColor ? `${toggleColor}20` : 'rgba(0,0,0,0.1)' }}
+            style={{ backgroundColor: `${toggleColor}20` }}
           >
             <button 
               type="button"
               className="px-4 py-1.5 text-sm font-medium rounded-full transition-colors"
               style={activeUnit === unit ? { 
-                backgroundColor: toggleColor || 'currentColor',
+                backgroundColor: toggleColor,
                 color: '#fff'
               } : {
-                color: toggleColor || 'inherit'
+                color: toggleColor
               }}
               onClick={() => setActiveUnit(unit)}
             >
@@ -175,10 +175,10 @@ export function SlidingRuler({
               type="button"
               className="px-4 py-1.5 text-sm font-medium rounded-full transition-colors"
               style={activeUnit === altUnit ? { 
-                backgroundColor: toggleColor || 'currentColor',
+                backgroundColor: toggleColor,
                 color: '#fff'
               } : {
-                color: toggleColor || 'inherit'
+                color: toggleColor
               }}
               onClick={() => setActiveUnit(altUnit)}
             >
@@ -192,13 +192,13 @@ export function SlidingRuler({
       <div className="text-center mb-6">
         <span 
           className="text-5xl font-semibold tabular-nums"
-          style={valueColor ? { color: valueColor } : {}}
+          style={{ color: valueColor }}
         >
           {value}
         </span>
         <span 
           className="text-xl ml-1"
-          style={valueColor ? { color: valueColor, opacity: 0.7 } : { opacity: 0.7 }}
+          style={{ color: valueColor, opacity: 0.7 }}
         >
           {activeUnit}
         </span>
@@ -241,8 +241,8 @@ export function SlidingRuler({
       
       {/* Min/Max labels */}
       <div 
-        className="flex justify-between text-xs mt-2"
-        style={{ color: labelColor || 'inherit', opacity: labelColor ? 1 : 0.6 }}
+        className="flex justify-between text-xs mt-2 font-medium"
+        style={{ color: labelColor }}
       >
         <span>{min}</span>
         <span>{max}</span>
@@ -250,7 +250,7 @@ export function SlidingRuler({
       
       <p 
         className="text-center text-xs mt-3"
-        style={{ color: labelColor || 'inherit', opacity: labelColor ? 0.8 : 0.5 }}
+        style={{ color: labelColor, opacity: 0.7 }}
       >
         Arraste para ajustar
       </p>
