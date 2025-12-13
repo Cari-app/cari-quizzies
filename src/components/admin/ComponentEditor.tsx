@@ -4870,6 +4870,28 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
     // Metrics component appearance
     if (isMetricsComponent) {
+      // Helper component for color picker with small square + hex input
+      const ColorPicker = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
+        <div>
+          <Label className="text-xs text-muted-foreground mb-1 block">{label}</Label>
+          <div className="flex items-center gap-2">
+            <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: value }}>
+              <input
+                type="color"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
+            <Input
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              className="flex-1 font-mono text-sm"
+            />
+          </div>
+        </div>
+      );
+      
       return (
         <div className="space-y-4">
           {/* Fundo */}
@@ -4877,12 +4899,12 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Fundo</Label>
             
             <div>
-              <Label className="text-xs text-muted-foreground">Tipo de fundo</Label>
+              <Label className="text-xs text-muted-foreground mb-1 block">Tipo de fundo</Label>
               <Select 
                 value={config.metricsBgType || 'solid'} 
                 onValueChange={(v) => updateConfig({ metricsBgType: v as 'solid' | 'gradient' | 'transparent' })}
               >
-                <SelectTrigger className="mt-1">
+                <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -4895,56 +4917,35 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
             {config.metricsBgType === 'gradient' && (
               <div className="space-y-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Cor inicial</Label>
-                    <Input
-                      type="color"
-                      value={config.metricsGradientStart || '#667eea'}
-                      onChange={(e) => updateConfig({ metricsGradientStart: e.target.value })}
-                      className="mt-1 h-9 w-full cursor-pointer"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-muted-foreground">Cor final</Label>
-                    <Input
-                      type="color"
-                      value={config.metricsGradientEnd || '#764ba2'}
-                      onChange={(e) => updateConfig({ metricsGradientEnd: e.target.value })}
-                      className="mt-1 h-9 w-full cursor-pointer"
-                    />
-                  </div>
-                </div>
+                <ColorPicker 
+                  label="Cor inicial" 
+                  value={config.metricsGradientStart || '#667eea'} 
+                  onChange={(v) => updateConfig({ metricsGradientStart: v })} 
+                />
+                <ColorPicker 
+                  label="Cor final" 
+                  value={config.metricsGradientEnd || '#764ba2'} 
+                  onChange={(v) => updateConfig({ metricsGradientEnd: v })} 
+                />
                 <div>
-                  <Label className="text-xs text-muted-foreground">Ângulo ({config.metricsGradientAngle ?? 135}°)</Label>
+                  <Label className="text-xs text-muted-foreground mb-1 block">Ângulo ({config.metricsGradientAngle ?? 135}°)</Label>
                   <Slider
                     value={[config.metricsGradientAngle ?? 135]}
                     onValueChange={([v]) => updateConfig({ metricsGradientAngle: v })}
                     min={0}
                     max={360}
                     step={15}
-                    className="mt-2"
                   />
                 </div>
-                <div 
-                  className="h-8 rounded-md border border-border"
-                  style={{
-                    background: `linear-gradient(${config.metricsGradientAngle ?? 135}deg, ${config.metricsGradientStart || '#667eea'}, ${config.metricsGradientEnd || '#764ba2'})`
-                  }}
-                />
               </div>
             )}
 
             {(!config.metricsBgType || config.metricsBgType === 'solid') && (
-              <div>
-                <Label className="text-xs text-muted-foreground">Cor de fundo</Label>
-                <Input
-                  type="color"
-                  value={config.metricsBgColor || '#ffffff'}
-                  onChange={(e) => updateConfig({ metricsBgColor: e.target.value })}
-                  className="mt-1 h-9 w-full cursor-pointer"
-                />
-              </div>
+              <ColorPicker 
+                label="Cor de fundo" 
+                value={config.metricsBgColor || '#ffffff'} 
+                onChange={(v) => updateConfig({ metricsBgColor: v })} 
+              />
             )}
           </div>
 
@@ -4953,24 +4954,16 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Cores de texto</Label>
             
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label className="text-xs text-muted-foreground">Legenda</Label>
-                <Input
-                  type="color"
-                  value={config.metricsTextColor || '#6b7280'}
-                  onChange={(e) => updateConfig({ metricsTextColor: e.target.value })}
-                  className="mt-1 h-9 w-full cursor-pointer"
-                />
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Valor</Label>
-                <Input
-                  type="color"
-                  value={config.metricsValueColor || '#6b7280'}
-                  onChange={(e) => updateConfig({ metricsValueColor: e.target.value })}
-                  className="mt-1 h-9 w-full cursor-pointer"
-                />
-              </div>
+              <ColorPicker 
+                label="Legenda" 
+                value={config.metricsTextColor || '#6b7280'} 
+                onChange={(v) => updateConfig({ metricsTextColor: v })} 
+              />
+              <ColorPicker 
+                label="Valor" 
+                value={config.metricsValueColor || '#6b7280'} 
+                onChange={(v) => updateConfig({ metricsValueColor: v })} 
+              />
             </div>
           </div>
 
@@ -4978,15 +4971,11 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           <div className="border border-border rounded-lg p-3 space-y-3">
             <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Bordas</Label>
             
-            <div>
-              <Label className="text-xs text-muted-foreground">Cor da borda</Label>
-              <Input
-                type="color"
-                value={config.metricsBorderColor || '#e5e7eb'}
-                onChange={(e) => updateConfig({ metricsBorderColor: e.target.value })}
-                className="mt-1 h-9 w-full cursor-pointer"
-              />
-            </div>
+            <ColorPicker 
+              label="Cor da borda" 
+              value={config.metricsBorderColor || '#e5e7eb'} 
+              onChange={(v) => updateConfig({ metricsBorderColor: v })} 
+            />
             
             <div className="grid grid-cols-2 gap-3">
               <div>
