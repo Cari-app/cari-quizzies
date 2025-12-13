@@ -454,7 +454,7 @@ interface ComponentEditorProps {
   themeColor?: string; // Global primary color from design settings
 }
 
-export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelete, themeColor = '#A855F7' }: ComponentEditorProps) {
+export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelete, themeColor = '#000000' }: ComponentEditorProps) {
   const config = component.config || {};
   const [advancedOpen, setAdvancedOpen] = useState(false);
 
@@ -6048,10 +6048,10 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                     <div>
                       <Label className="text-xs text-muted-foreground">Cor inicial</Label>
                       <div className="flex gap-1 mt-1">
-                        <div className="relative w-8 h-8 rounded border overflow-hidden cursor-pointer" style={{ backgroundColor: config.optionGradientStart || '#a855f7' }}>
+                        <div className="relative w-8 h-8 rounded border overflow-hidden cursor-pointer" style={{ backgroundColor: config.optionGradientStart || '#000000' }}>
                           <input
                             type="color"
-                            value={config.optionGradientStart || '#a855f7'}
+                            value={config.optionGradientStart || '#000000'}
                             onChange={(e) => updateConfig({ optionGradientStart: e.target.value })}
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                           />
@@ -6059,7 +6059,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                         <Input
                           value={config.optionGradientStart || ''}
                           onChange={(e) => updateConfig({ optionGradientStart: e.target.value })}
-                          placeholder="#a855f7"
+                          placeholder="#000000"
                           className="flex-1 font-mono text-xs"
                         />
                       </div>
@@ -6067,10 +6067,10 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                     <div>
                       <Label className="text-xs text-muted-foreground">Cor final</Label>
                       <div className="flex gap-1 mt-1">
-                        <div className="relative w-8 h-8 rounded border overflow-hidden cursor-pointer" style={{ backgroundColor: config.optionGradientEnd || '#ec4899' }}>
+                        <div className="relative w-8 h-8 rounded border overflow-hidden cursor-pointer" style={{ backgroundColor: config.optionGradientEnd || '#333333' }}>
                           <input
                             type="color"
-                            value={config.optionGradientEnd || '#ec4899'}
+                            value={config.optionGradientEnd || '#333333'}
                             onChange={(e) => updateConfig({ optionGradientEnd: e.target.value })}
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                           />
@@ -6078,7 +6078,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                         <Input
                           value={config.optionGradientEnd || ''}
                           onChange={(e) => updateConfig({ optionGradientEnd: e.target.value })}
-                          placeholder="#ec4899"
+                          placeholder="#333333"
                           className="flex-1 font-mono text-xs"
                         />
                       </div>
@@ -6165,10 +6165,10 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
               <div>
                 <Label className="text-xs text-muted-foreground">Cor de fundo</Label>
                 <div className="flex gap-2 mt-1">
-                  <div className="relative w-10 h-9 rounded border overflow-hidden cursor-pointer" style={{ backgroundColor: config.optionSelectedBgColor || '#a855f7' }}>
+                  <div className="relative w-10 h-9 rounded border overflow-hidden cursor-pointer" style={{ backgroundColor: config.optionSelectedBgColor || '#000000' }}>
                     <input
                       type="color"
-                      value={config.optionSelectedBgColor || '#a855f7'}
+                      value={config.optionSelectedBgColor || '#000000'}
                       onChange={(e) => updateConfig({ optionSelectedBgColor: e.target.value })}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     />
@@ -6176,7 +6176,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                   <Input
                     value={config.optionSelectedBgColor || ''}
                     onChange={(e) => updateConfig({ optionSelectedBgColor: e.target.value })}
-                    placeholder="#a855f7"
+                    placeholder="#000000"
                     className="flex-1 font-mono text-xs"
                   />
                 </div>
@@ -6203,10 +6203,10 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
               <div>
                 <Label className="text-xs text-muted-foreground">Cor da borda</Label>
                 <div className="flex gap-2 mt-1">
-                  <div className="relative w-10 h-9 rounded border overflow-hidden cursor-pointer" style={{ backgroundColor: config.optionSelectedBorderColor || '#a855f7' }}>
+                  <div className="relative w-10 h-9 rounded border overflow-hidden cursor-pointer" style={{ backgroundColor: config.optionSelectedBorderColor || '#000000' }}>
                     <input
                       type="color"
-                      value={config.optionSelectedBorderColor || '#a855f7'}
+                      value={config.optionSelectedBorderColor || '#000000'}
                       onChange={(e) => updateConfig({ optionSelectedBorderColor: e.target.value })}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     />
@@ -6214,7 +6214,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                   <Input
                     value={config.optionSelectedBorderColor || ''}
                     onChange={(e) => updateConfig({ optionSelectedBorderColor: e.target.value })}
-                    placeholder="#a855f7"
+                    placeholder="#000000"
                     className="flex-1 font-mono text-xs"
                   />
                 </div>

@@ -607,18 +607,18 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const imageRatio = config.imageRatio || '1:1';
         const isVertical = optionOrientation === 'vertical';
         
-        // Custom colors
+        // Custom colors - default to black/white system
         const optionBgType = config.optionBgType || 'solid';
         const optionBgColor = config.optionBgColor;
-        const optionGradientStart = config.optionGradientStart || '#a855f7';
-        const optionGradientEnd = config.optionGradientEnd || '#ec4899';
+        const optionGradientStart = config.optionGradientStart || '#000000';
+        const optionGradientEnd = config.optionGradientEnd || '#333333';
         const optionGradientAngle = config.optionGradientAngle || 90;
         const optionTextColor = config.optionTextColor;
         const optionBorderColor = config.optionBorderColor;
         const optionBorderWidth = config.optionBorderWidth ?? 1;
-        const selectedBgColor = config.optionSelectedBgColor || '#a855f7';
+        const selectedBgColor = config.optionSelectedBgColor || '#000000';
         const selectedTextColor = config.optionSelectedTextColor || '#ffffff';
-        const selectedBorderColor = config.optionSelectedBorderColor || '#a855f7';
+        const selectedBorderColor = config.optionSelectedBorderColor || '#000000';
         
         const getOptionStyle = (isSelected: boolean): React.CSSProperties => {
           const style: React.CSSProperties = {
