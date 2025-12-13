@@ -146,6 +146,7 @@ export type Database = {
           phone: string | null
           quiz_id: string
           referrer: string | null
+          session_token: string | null
           started_at: string
           user_agent: string | null
         }
@@ -161,6 +162,7 @@ export type Database = {
           phone?: string | null
           quiz_id: string
           referrer?: string | null
+          session_token?: string | null
           started_at?: string
           user_agent?: string | null
         }
@@ -176,6 +178,7 @@ export type Database = {
           phone?: string | null
           quiz_id?: string
           referrer?: string | null
+          session_token?: string | null
           started_at?: string
           user_agent?: string | null
         }
