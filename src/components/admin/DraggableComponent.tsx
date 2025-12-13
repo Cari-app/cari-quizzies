@@ -29,16 +29,16 @@ export function DraggableComponent({ type, name, icon, isNew, expanded }: Dragga
       draggable
       onDragStart={handleDragStart}
       className={cn(
-        "flex items-center gap-1.5 px-2 py-1.5 text-xs rounded-md border border-border hover:bg-accent/50 transition-colors text-left w-full relative cursor-grab active:cursor-grabbing select-none",
-        expanded && "flex-col gap-1 py-2 justify-center"
+        "flex items-center gap-3 px-3 py-2.5 text-sm rounded-lg border border-border hover:bg-accent/50 transition-colors text-left w-full relative cursor-grab active:cursor-grabbing select-none",
+        expanded && "flex-col gap-2 py-3 justify-center"
       )}
     >
       {LucideIcon ? (
-        <LucideIcon className={cn("h-4 w-4 text-muted-foreground", expanded && "h-5 w-5")} />
+        <LucideIcon className={cn("h-4 w-4 text-muted-foreground shrink-0", expanded && "h-5 w-5")} />
       ) : (
-        <span className={cn("text-base", expanded && "text-xl")}>{icon}</span>
+        <span className={cn("text-base shrink-0", expanded && "text-xl")}>{icon}</span>
       )}
-      <span className={cn("truncate", expanded && "text-center text-[10px]")}>{name}</span>
+      <span className={cn("truncate", expanded && "text-center text-xs")}>{name}</span>
       {isNew && (
         <span className={cn(
           "text-[8px] bg-primary/20 text-primary px-1 py-0.5 rounded font-medium",
