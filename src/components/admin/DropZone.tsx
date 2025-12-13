@@ -607,6 +607,48 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const imageRatio = config.imageRatio || '1:1';
         const isVertical = optionOrientation === 'vertical';
         
+        // Custom colors
+        const optionBgType = config.optionBgType || 'solid';
+        const optionBgColor = config.optionBgColor;
+        const optionGradientStart = config.optionGradientStart || '#a855f7';
+        const optionGradientEnd = config.optionGradientEnd || '#ec4899';
+        const optionGradientAngle = config.optionGradientAngle || 90;
+        const optionTextColor = config.optionTextColor;
+        const optionBorderColor = config.optionBorderColor;
+        const optionBorderWidth = config.optionBorderWidth ?? 1;
+        const selectedBgColor = config.optionSelectedBgColor || '#a855f7';
+        const selectedTextColor = config.optionSelectedTextColor || '#ffffff';
+        const selectedBorderColor = config.optionSelectedBorderColor || '#a855f7';
+        
+        const getOptionStyle = (isSelected: boolean): React.CSSProperties => {
+          const style: React.CSSProperties = {};
+          
+          if (isSelected) {
+            style.backgroundColor = selectedBgColor;
+            style.color = selectedTextColor;
+            style.borderColor = selectedBorderColor;
+            style.borderWidth = `${optionBorderWidth}px`;
+          } else {
+            if (optionBgType === 'transparent') {
+              style.backgroundColor = 'transparent';
+            } else if (optionBgType === 'gradient') {
+              style.background = `linear-gradient(${optionGradientAngle}deg, ${optionGradientStart}, ${optionGradientEnd})`;
+            } else if (optionBgColor) {
+              style.backgroundColor = optionBgColor;
+            }
+            if (optionTextColor) {
+              style.color = optionTextColor;
+            }
+            if (optionBorderColor) {
+              style.borderColor = optionBorderColor;
+            }
+            style.borderWidth = `${optionBorderWidth}px`;
+            style.borderStyle = 'solid';
+          }
+          
+          return style;
+        };
+        
         const getBorderRadius = () => {
           switch (optionBorderRadius) {
             case 'none': return 'rounded-none';
@@ -748,11 +790,11 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                     <div 
                       key={opt.id} 
                       className={cn(
-                        "p-4 border text-sm transition-colors",
+                        "p-4 text-sm transition-colors",
                         getBorderRadius(),
-                        getShadow(),
-                        isSelected ? "border-foreground bg-accent" : "border-border"
+                        getShadow()
                       )}
+                      style={getOptionStyle(isSelected)}
                     >
                       <div className={cn(
                         isVertical 
@@ -777,11 +819,9 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                       key={opt.id} 
                       className={cn(
                         "px-6 py-3 text-sm font-medium transition-all duration-200 rounded-full text-center",
-                        getShadow(),
-                        isSelected 
-                          ? "bg-primary text-primary-foreground shadow-lg" 
-                          : "bg-muted/50 text-foreground"
+                        getShadow()
                       )}
+                      style={getOptionStyle(isSelected)}
                     >
                       <div className="flex items-center justify-center gap-2">
                         {renderOptionMedia(opt)}
@@ -793,23 +833,25 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
 
                 // Glass style
                 if (optionStyle === 'glass') {
+                  const glassStyle = getOptionStyle(isSelected);
+                  if (!isSelected && optionBgType !== 'solid' && !optionBgColor) {
+                    glassStyle.backgroundColor = 'rgba(255,255,255,0.1)';
+                  }
                   return (
                     <div 
                       key={opt.id} 
                       className={cn(
                         "p-4 text-sm transition-all duration-200 backdrop-blur-md",
-                        getBorderRadius(),
-                        isSelected 
-                          ? "bg-primary/30 border-2 border-primary" 
-                          : "bg-background/20 border border-border/50"
+                        getBorderRadius()
                       )}
+                      style={glassStyle}
                     >
                       <div className="flex items-center gap-3">
                         {renderOptionMedia(opt)}
                         <span className="flex-1">{opt.text}</span>
                         {isSelected && (
-                          <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                            <svg className="w-3 h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ backgroundColor: selectedBgColor }}>
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: selectedTextColor }}>
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                             </svg>
                           </div>
@@ -821,38 +863,37 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
 
                 // Minimal style
                 if (optionStyle === 'minimal') {
+                  const minimalStyle: React.CSSProperties = isSelected 
+                    ? { backgroundColor: `${selectedBgColor}20`, borderLeftColor: selectedBgColor, color: optionTextColor }
+                    : { borderLeftColor: 'transparent', color: optionTextColor };
                   return (
                     <div 
                       key={opt.id} 
-                      className={cn(
-                        "py-3 px-4 text-sm transition-all duration-200 border-b border-border/50 last:border-b-0",
-                        isSelected 
-                          ? "bg-primary/10 border-l-4 border-l-primary" 
-                          : "border-l-4 border-l-transparent"
-                      )}
+                      className="py-3 px-4 text-sm transition-all duration-200 border-b border-border/50 last:border-b-0 border-l-4"
+                      style={minimalStyle}
                     >
                       <div className="flex items-center gap-3">
                         {renderOptionMedia(opt)}
                         <span className="flex-1 text-left">{opt.text}</span>
-                        <div className={cn(
-                          "w-2 h-2 rounded-full transition-all",
-                          isSelected ? "bg-primary" : "bg-muted-foreground/30"
-                        )} />
+                        <div 
+                          className="w-2 h-2 rounded-full transition-all"
+                          style={{ backgroundColor: isSelected ? selectedBgColor : 'rgba(0,0,0,0.2)' }}
+                        />
                       </div>
                     </div>
                   );
                 }
                 
-                // Simple style (default)
+                // Simple style (default) - with custom colors
                 return (
                   <div 
                     key={opt.id} 
                     className={cn(
-                      "p-3 border text-sm transition-colors",
+                      "p-3 text-sm transition-colors",
                       getBorderRadius(),
-                      getShadow(),
-                      isSelected ? "border-foreground bg-accent" : "border-border"
+                      getShadow()
                     )}
+                    style={getOptionStyle(isSelected)}
                   >
                     <div className={cn(
                       isVertical 
