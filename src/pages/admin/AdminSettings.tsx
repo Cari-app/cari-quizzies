@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
-import { Loader2, Save, Palette, Type } from 'lucide-react';
+import { Loader2, Save, Type } from 'lucide-react';
 
 export default function AdminSettings() {
   const { settings, isLoading, updateSettings, isUpdating } = useSiteSettings();
@@ -12,11 +12,6 @@ export default function AdminSettings() {
   const [formData, setFormData] = useState({
     site_name: 'Meu Site',
     logo_url: '',
-    primary_color: '#84cc16',
-    secondary_color: '#65a30d',
-    accent_color: '#a3e635',
-    background_color: '#ffffff',
-    text_color: '#0a0a0a',
   });
 
   useEffect(() => {
@@ -24,11 +19,6 @@ export default function AdminSettings() {
       setFormData({
         site_name: settings.site_name || 'Meu Site',
         logo_url: settings.logo_url || '',
-        primary_color: settings.primary_color || '#84cc16',
-        secondary_color: settings.secondary_color || '#65a30d',
-        accent_color: settings.accent_color || '#a3e635',
-        background_color: settings.background_color || '#ffffff',
-        text_color: settings.text_color || '#0a0a0a',
       });
     }
   }, [settings]);
@@ -108,117 +98,6 @@ export default function AdminSettings() {
           </CardContent>
         </Card>
 
-        {/* Cores */}
-        <Card className="rounded-2xl border-border">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-3 text-xl">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                <Palette className="w-5 h-5 text-primary-foreground" />
-              </div>
-              Cores
-            </CardTitle>
-            <CardDescription className="text-base">Personalize as cores do seu site</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="primary_color" className="text-sm font-medium">Cor Primária</Label>
-                <div className="flex gap-3">
-                  <Input
-                    id="primary_color"
-                    type="color"
-                    value={formData.primary_color}
-                    onChange={(e) => handleChange('primary_color', e.target.value)}
-                    className="w-14 h-11 p-1.5 cursor-pointer rounded-lg"
-                  />
-                  <Input
-                    value={formData.primary_color}
-                    onChange={(e) => handleChange('primary_color', e.target.value)}
-                    placeholder="#84cc16"
-                    className="flex-1 h-11 rounded-lg font-mono text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="secondary_color" className="text-sm font-medium">Cor Secundária</Label>
-                <div className="flex gap-3">
-                  <Input
-                    id="secondary_color"
-                    type="color"
-                    value={formData.secondary_color}
-                    onChange={(e) => handleChange('secondary_color', e.target.value)}
-                    className="w-14 h-11 p-1.5 cursor-pointer rounded-lg"
-                  />
-                  <Input
-                    value={formData.secondary_color}
-                    onChange={(e) => handleChange('secondary_color', e.target.value)}
-                    placeholder="#65a30d"
-                    className="flex-1 h-11 rounded-lg font-mono text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="accent_color" className="text-sm font-medium">Cor de Destaque</Label>
-                <div className="flex gap-3">
-                  <Input
-                    id="accent_color"
-                    type="color"
-                    value={formData.accent_color}
-                    onChange={(e) => handleChange('accent_color', e.target.value)}
-                    className="w-14 h-11 p-1.5 cursor-pointer rounded-lg"
-                  />
-                  <Input
-                    value={formData.accent_color}
-                    onChange={(e) => handleChange('accent_color', e.target.value)}
-                    placeholder="#a3e635"
-                    className="flex-1 h-11 rounded-lg font-mono text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="background_color" className="text-sm font-medium">Cor de Fundo</Label>
-                <div className="flex gap-3">
-                  <Input
-                    id="background_color"
-                    type="color"
-                    value={formData.background_color}
-                    onChange={(e) => handleChange('background_color', e.target.value)}
-                    className="w-14 h-11 p-1.5 cursor-pointer rounded-lg"
-                  />
-                  <Input
-                    value={formData.background_color}
-                    onChange={(e) => handleChange('background_color', e.target.value)}
-                    placeholder="#ffffff"
-                    className="flex-1 h-11 rounded-lg font-mono text-sm"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="text_color" className="text-sm font-medium">Cor do Texto</Label>
-                <div className="flex gap-3">
-                  <Input
-                    id="text_color"
-                    type="color"
-                    value={formData.text_color}
-                    onChange={(e) => handleChange('text_color', e.target.value)}
-                    className="w-14 h-11 p-1.5 cursor-pointer rounded-lg"
-                  />
-                  <Input
-                    value={formData.text_color}
-                    onChange={(e) => handleChange('text_color', e.target.value)}
-                    placeholder="#0a0a0a"
-                    className="flex-1 h-11 rounded-lg font-mono text-sm"
-                  />
-                </div>
-              </div>
-            </div>
-
-          </CardContent>
-        </Card>
 
         <div className="flex justify-end pt-4">
           <Button type="submit" size="lg" disabled={isUpdating} className="gap-2 shadow-lime-md">
