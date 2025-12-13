@@ -12,14 +12,22 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
+interface DesignSettings {
+  textColor: string;
+  primaryColor: string;
+  backgroundColor: string;
+  [key: string]: any;
+}
+
 interface DropZoneProps {
   components: DroppedComponent[];
   onComponentsChange: (components: DroppedComponent[]) => void;
   selectedComponentId?: string | null;
   onSelectComponent: (component: DroppedComponent | null) => void;
+  designSettings?: DesignSettings;
 }
 
-export function DropZone({ components, onComponentsChange, selectedComponentId, onSelectComponent }: DropZoneProps) {
+export function DropZone({ components, onComponentsChange, selectedComponentId, onSelectComponent, designSettings }: DropZoneProps) {
   const [isDragOver, setIsDragOver] = useState(false);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -1682,6 +1690,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                           : "border-border hover:border-primary/50"
                       )}
                       onClick={() => onSelectComponent(comp)}
+                      style={{ color: designSettings?.textColor }}
                     >
                       {/* Inline toolbar at top - visible on hover */}
                       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-all z-20 flex items-center gap-0.5 bg-primary rounded-md p-1 shadow-lg">
