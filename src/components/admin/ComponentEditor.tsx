@@ -361,7 +361,11 @@ export interface ComponentConfig {
   faqItems?: FaqItem[];
   faqDetailType?: 'arrow' | 'plus-minus';
   faqFirstOpen?: boolean;
+  faqBgType?: 'solid' | 'gradient';
   faqBgColor?: string;
+  faqGradientStart?: string;
+  faqGradientEnd?: string;
+  faqGradientAngle?: number;
   faqTextColor?: string;
   faqAnswerColor?: string;
   faqBorderColor?: string;
@@ -4677,9 +4681,67 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           <div className="border border-border rounded-lg p-3 space-y-3">
             <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Cores</Label>
             
-            <div className="grid grid-cols-2 gap-3">
+            {/* Fundo */}
+            <div>
+              <Label className="text-xs text-muted-foreground">Tipo de fundo</Label>
+              <Select 
+                value={config.faqBgType || 'solid'} 
+                onValueChange={(v) => updateConfig({ faqBgType: v as 'solid' | 'gradient' })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="solid">Cor sólida</SelectItem>
+                  <SelectItem value="gradient">Gradiente</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {config.faqBgType === 'gradient' ? (
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Cor inicial</Label>
+                    <Input
+                      type="color"
+                      value={config.faqGradientStart || '#667eea'}
+                      onChange={(e) => updateConfig({ faqGradientStart: e.target.value })}
+                      className="mt-1 h-9 w-full cursor-pointer"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Cor final</Label>
+                    <Input
+                      type="color"
+                      value={config.faqGradientEnd || '#764ba2'}
+                      onChange={(e) => updateConfig({ faqGradientEnd: e.target.value })}
+                      className="mt-1 h-9 w-full cursor-pointer"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">Ângulo ({config.faqGradientAngle ?? 135}°)</Label>
+                  <Slider
+                    value={[config.faqGradientAngle ?? 135]}
+                    onValueChange={([v]) => updateConfig({ faqGradientAngle: v })}
+                    min={0}
+                    max={360}
+                    step={15}
+                    className="mt-2"
+                  />
+                </div>
+                {/* Preview */}
+                <div 
+                  className="h-8 rounded-md border border-border"
+                  style={{
+                    background: `linear-gradient(${config.faqGradientAngle ?? 135}deg, ${config.faqGradientStart || '#667eea'}, ${config.faqGradientEnd || '#764ba2'})`
+                  }}
+                />
+              </div>
+            ) : (
               <div>
-                <Label className="text-xs text-muted-foreground">Fundo</Label>
+                <Label className="text-xs text-muted-foreground">Cor de fundo</Label>
                 <Input
                   type="color"
                   value={config.faqBgColor || '#ffffff'}
@@ -4687,6 +4749,9 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                   className="mt-1 h-9 w-full cursor-pointer"
                 />
               </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-xs text-muted-foreground">Título</Label>
                 <Input

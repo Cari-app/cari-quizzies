@@ -1548,13 +1548,21 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const firstOpen = config.faqFirstOpen !== false;
         
         // Custom styles
+        const bgType = config.faqBgType || 'solid';
         const bgColor = config.faqBgColor;
+        const gradientStart = config.faqGradientStart || '#667eea';
+        const gradientEnd = config.faqGradientEnd || '#764ba2';
+        const gradientAngle = config.faqGradientAngle ?? 135;
         const textColor = config.faqTextColor;
         const answerColor = config.faqAnswerColor;
         const borderColor = config.faqBorderColor;
         const borderWidth = config.faqBorderWidth ?? 1;
         const borderRadius = config.faqBorderRadius ?? 8;
         const iconColor = config.faqIconColor;
+        
+        const bgStyle = bgType === 'gradient' 
+          ? `linear-gradient(${gradientAngle}deg, ${gradientStart}, ${gradientEnd})`
+          : bgColor || undefined;
         
         return (
           <div className={cn("w-full flex", alignClass)}>
@@ -1567,14 +1575,14 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   key={item.id}
                   className="overflow-hidden"
                   style={{
-                    backgroundColor: bgColor || undefined,
+                    background: bgStyle,
                     borderWidth: borderWidth > 0 ? `${borderWidth}px` : undefined,
                     borderStyle: borderWidth > 0 ? 'solid' : 'none',
                     borderColor: borderColor || undefined,
                     borderRadius: `${borderRadius}px`,
                   }}
                 >
-                  <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50 transition-colors">
+                  <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-black/5 transition-colors">
                     <span 
                       className="font-medium text-sm"
                       style={{ color: textColor || undefined }}
