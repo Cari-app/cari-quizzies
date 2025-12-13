@@ -168,15 +168,9 @@ export const getHoverEffect = (effect?: string) => {
 
 export const getAnimationClass = (animation?: string) => {
   switch (animation) {
-    case 'shine': return 'btn-shine';
-    case 'pulse-glow': return 'btn-pulse-glow';
-    case 'float': return 'btn-float';
-    case 'heartbeat': return 'btn-heartbeat';
-    case 'wiggle': return 'btn-wiggle';
-    case 'ripple': return 'btn-ripple';
-    case 'glow-border': return 'btn-glow-border';
-    case 'bounce-subtle': return 'btn-bounce-subtle';
-    case 'attention': return 'btn-attention';
+    case 'pulse': return 'animate-pulse';
+    case 'bounce': return 'animate-bounce';
+    case 'shake': return 'btn-attention';
     default: return '';
   }
 };
