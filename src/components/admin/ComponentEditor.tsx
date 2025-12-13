@@ -57,6 +57,7 @@ import {
   ScriptComponentTab,
   WebhookTriggerComponentTab,
   FormEditor,
+  ProgressEditor,
   generateSlug 
 } from './editors';
 
@@ -510,6 +511,16 @@ export interface ComponentConfig {
   }>;
   formTitle?: string;
   formSpacing?: 'compact' | 'normal' | 'relaxed';
+  // Progress component specific
+  progressStyle?: 'bar' | 'segments' | 'steps' | 'dots';
+  progressShowText?: 'none' | 'percent' | 'steps' | 'both';
+  progressTextPosition?: 'left' | 'right' | 'center' | 'above' | 'below';
+  progressHeight?: number;
+  progressBarColor?: string;
+  progressBgColor?: string;
+  progressTextColor?: string;
+  progressBorderRadius?: number;
+  progressAnimated?: boolean;
 }
 
 interface ComponentEditorProps {
@@ -655,6 +666,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         return renderChartsComponentTab();
       case 'form':
         return <FormEditor {...editorProps} />;
+      case 'progress':
+        return <ProgressEditor {...editorProps} />;
       default:
         return (
           <div className="text-center py-8">

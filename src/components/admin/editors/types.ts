@@ -301,6 +301,16 @@ export interface ComponentConfig {
   formFields?: FormFieldItem[];
   formTitle?: string;
   formSpacing?: 'compact' | 'normal' | 'relaxed';
+  // Progress component specific
+  progressStyle?: 'bar' | 'segments' | 'steps' | 'dots';
+  progressShowText?: 'none' | 'percent' | 'steps' | 'both';
+  progressTextPosition?: 'left' | 'right' | 'center' | 'above' | 'below';
+  progressHeight?: number;
+  progressBarColor?: string;
+  progressBgColor?: string;
+  progressTextColor?: string;
+  progressBorderRadius?: number;
+  progressAnimated?: boolean;
 }
 
 export interface DroppedComponent {

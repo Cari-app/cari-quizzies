@@ -34,7 +34,8 @@ import {
   ChartsRenderer,
   MediaRenderer,
   WebhookTriggerRenderer,
-  FormRenderer
+  FormRenderer,
+  ProgressRenderer
 } from './renderers';
 
 interface QuizPlayerProps {
@@ -1216,6 +1217,15 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
 
       case 'form':
         return <FormRenderer {...rendererProps} />;
+
+      case 'progress':
+        return (
+          <ProgressRenderer 
+            currentStep={currentStageIndex + 1} 
+            totalSteps={stages.length} 
+            config={config as any} 
+          />
+        );
 
       default:
         return null;
