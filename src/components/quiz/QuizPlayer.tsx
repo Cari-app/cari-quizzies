@@ -303,6 +303,7 @@ interface DesignSettings {
   borderRadius: 'none' | 'small' | 'medium' | 'large' | 'full';
   
   // HEADER
+  headerStyle: 'default' | 'minimal' | 'steps';
   logo: {
     type: 'image' | 'url' | 'emoji';
     value: string;
@@ -330,6 +331,7 @@ const defaultDesignSettings: DesignSettings = {
   elementSize: 'medium',
   spacing: 'normal',
   borderRadius: 'medium',
+  headerStyle: 'default',
   logo: { type: 'url', value: '' },
   logoSize: 'medium',
   logoPosition: 'center',
@@ -2759,31 +2761,99 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       {bgStyles.overlay && <div style={bgStyles.overlay} />}
       {/* Header */}
       {showHeader && (
-        <div 
-          className="p-4 flex items-center gap-4 shrink-0"
-          style={{ borderBottom: `1px solid ${designSettings.primaryColor}20` }}
-        >
-          {pageSettings?.allowBack && currentStageIndex > 0 && (
-            <button 
-              onClick={handleBack} 
-              className="p-1 rounded transition-colors"
-              style={{ color: designSettings.textColor }}
+        <>
+          {/* Default Style - Continuous progress bar */}
+          {(designSettings.headerStyle === 'default' || !designSettings.headerStyle) && (
+            <div 
+              className="p-4 flex items-center gap-4 shrink-0"
+              style={{ borderBottom: `1px solid ${designSettings.primaryColor}20` }}
             >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-          )}
-          {pageSettings?.showProgress && (
-            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: `${designSettings.primaryColor}20` }}>
-              <div 
-                className="h-full transition-all duration-300"
-                style={{ 
-                  width: `${progressValue}%`,
-                  backgroundColor: designSettings.primaryColor,
-                }}
-              />
+              {pageSettings?.allowBack && currentStageIndex > 0 && (
+                <button 
+                  onClick={handleBack} 
+                  className="p-1 rounded transition-colors"
+                  style={{ color: designSettings.textColor }}
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+              )}
+              {pageSettings?.showProgress && (
+                <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: `${designSettings.primaryColor}20` }}>
+                  <div 
+                    className="h-full transition-all duration-300"
+                    style={{ 
+                      width: `${progressValue}%`,
+                      backgroundColor: designSettings.primaryColor,
+                    }}
+                  />
+                </div>
+              )}
             </div>
           )}
-        </div>
+
+          {/* Minimal Style - Step counter */}
+          {designSettings.headerStyle === 'minimal' && (
+            <div 
+              className="p-4 flex items-center justify-between shrink-0"
+              style={{ borderBottom: `1px solid ${designSettings.primaryColor}10` }}
+            >
+              {pageSettings?.allowBack && currentStageIndex > 0 ? (
+                <button 
+                  onClick={handleBack} 
+                  className="p-1 rounded transition-colors"
+                  style={{ color: designSettings.textColor }}
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+              ) : (
+                <div className="w-7" />
+              )}
+              {pageSettings?.showProgress && (
+                <span 
+                  className="text-sm font-medium"
+                  style={{ color: designSettings.textColor }}
+                >
+                  {currentStageIndex + 1} / {stages.length}
+                </span>
+              )}
+              <div className="w-7" />
+            </div>
+          )}
+
+          {/* Steps Style - Segmented dots */}
+          {designSettings.headerStyle === 'steps' && (
+            <div 
+              className="p-4 flex items-center gap-3 shrink-0"
+              style={{ borderBottom: `1px solid ${designSettings.primaryColor}10` }}
+            >
+              {pageSettings?.allowBack && currentStageIndex > 0 && (
+                <button 
+                  onClick={handleBack} 
+                  className="p-1 rounded transition-colors"
+                  style={{ color: designSettings.textColor }}
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+              )}
+              {pageSettings?.showProgress && (
+                <div className="flex-1 flex items-center justify-center gap-2">
+                  {stages.map((_, index) => (
+                    <div
+                      key={index}
+                      className="h-2 rounded-full transition-all duration-300"
+                      style={{
+                        width: index === currentStageIndex ? '24px' : '8px',
+                        backgroundColor: index <= currentStageIndex 
+                          ? designSettings.primaryColor 
+                          : `${designSettings.primaryColor}30`,
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </>
       )}
 
       {/* Content */}

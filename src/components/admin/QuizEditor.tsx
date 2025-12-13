@@ -25,6 +25,7 @@ import { screenTemplates } from '@/data/screenTemplates';
 import { supabase } from '@/integrations/supabase/client';
 import { FlowCanvas } from './flow';
 import { StageBackgroundEditor, StageBackground, defaultStageBackground, getStageBackgroundCSS } from './StageBackgroundEditor';
+import { QuizHeaderPreview } from './QuizHeaderPreview';
 
 // Stage type - cada etapa contém seus próprios componentes
 interface Stage {
@@ -710,69 +711,14 @@ export function QuizEditor() {
                     }}
                   >
                     {/* Quiz Header with design settings */}
-                    <div 
-                      className="shrink-0 p-3"
-                      style={{ 
-                        display: designSettings.progressBar === 'hidden' && !designSettings.logo.value ? 'none' : 'flex',
-                        flexDirection: 'column',
-                        gap: '8px',
-                      }}
-                    >
-                      <div className={cn(
-                        "flex items-center gap-3",
-                        designSettings.logoPosition === 'center' && "justify-center",
-                        designSettings.logoPosition === 'right' && "justify-end"
-                      )}>
-                        {pageSettings.allowBack && (
-                          <button 
-                            className="p-1 rounded transition-colors pointer-events-none"
-                            style={{ color: designSettings.textColor }}
-                          >
-                            <ArrowLeft className="w-4 h-4" />
-                          </button>
-                        )}
-                        {designSettings.logo.value && (
-                          designSettings.logo.type === 'emoji' ? (
-                            <span 
-                              className={cn(
-                                designSettings.logoSize === 'small' && 'text-xl',
-                                designSettings.logoSize === 'medium' && 'text-2xl',
-                                designSettings.logoSize === 'large' && 'text-4xl',
-                              )}
-                            >
-                              {designSettings.logo.value}
-                            </span>
-                          ) : (
-                            <img 
-                              src={designSettings.logo.value} 
-                              alt="Logo" 
-                              className={cn(
-                                "object-contain",
-                                designSettings.logoSize === 'small' && 'h-6',
-                                designSettings.logoSize === 'medium' && 'h-8',
-                                designSettings.logoSize === 'large' && 'h-12',
-                              )}
-                            />
-                          )
-                        )}
-                        {designSettings.progressBar === 'top' && (
-                          <div className="flex-1">
-                            <div 
-                              className="h-1.5 rounded-full overflow-hidden"
-                              style={{ backgroundColor: `${designSettings.primaryColor}30` }}
-                            >
-                              <div 
-                                className="h-full rounded-full transition-all"
-                                style={{ 
-                                  width: `${((index + 1) / stages.length) * 100}%`,
-                                  backgroundColor: designSettings.primaryColor,
-                                }}
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    <QuizHeaderPreview
+                      designSettings={designSettings}
+                      pageSettings={pageSettings}
+                      progressValue={((index + 1) / stages.length) * 100}
+                      currentStageIndex={index}
+                      totalStages={stages.length}
+                      position="top"
+                    />
                     
                     {/* Stage Components with design settings applied */}
                     <div 
@@ -797,22 +743,14 @@ export function QuizEditor() {
                     </div>
 
                     {/* Bottom progress bar */}
-                    {designSettings.progressBar === 'bottom' && (
-                      <div className="shrink-0 px-4 pb-4">
-                        <div 
-                          className="h-1.5 rounded-full overflow-hidden"
-                          style={{ backgroundColor: `${designSettings.primaryColor}30` }}
-                        >
-                          <div 
-                            className="h-full rounded-full transition-all"
-                            style={{ 
-                              width: `${((index + 1) / stages.length) * 100}%`,
-                              backgroundColor: designSettings.primaryColor,
-                            }}
-                          />
-                        </div>
-                      </div>
-                    )}
+                    <QuizHeaderPreview
+                      designSettings={designSettings}
+                      pageSettings={pageSettings}
+                      progressValue={((index + 1) / stages.length) * 100}
+                      currentStageIndex={index}
+                      totalStages={stages.length}
+                      position="bottom"
+                    />
                   </div>
                 );
               })
@@ -885,70 +823,14 @@ export function QuizEditor() {
                       <div style={stageBackgroundCSS.overlayStyle} />
                     )}
                 {/* Quiz Header Preview - using design settings */}
-                <div 
-                  className="shrink-0 p-3"
-                  style={{ 
-                    display: designSettings.progressBar === 'hidden' && !designSettings.logo.value ? 'none' : 'flex',
-                    flexDirection: 'column',
-                    gap: '8px',
-                    borderBottom: `1px solid ${designSettings.textColor}15`,
-                  }}
-                >
-                  <div className={cn(
-                    "flex items-center gap-3",
-                    designSettings.logoPosition === 'center' && "justify-center",
-                    designSettings.logoPosition === 'right' && "justify-end"
-                  )}>
-                    {pageSettings.allowBack && (
-                      <button 
-                        className="p-1 rounded transition-colors hover:opacity-70"
-                        style={{ color: designSettings.textColor }}
-                      >
-                        <ArrowLeft className="w-4 h-4" />
-                      </button>
-                    )}
-                    {designSettings.logo.value && (
-                      designSettings.logo.type === 'emoji' ? (
-                        <span 
-                          className={cn(
-                            designSettings.logoSize === 'small' && 'text-xl',
-                            designSettings.logoSize === 'medium' && 'text-2xl',
-                            designSettings.logoSize === 'large' && 'text-4xl',
-                          )}
-                        >
-                          {designSettings.logo.value}
-                        </span>
-                      ) : (
-                        <img 
-                          src={designSettings.logo.value} 
-                          alt="Logo" 
-                          className={cn(
-                            "object-contain",
-                            designSettings.logoSize === 'small' && 'h-6',
-                            designSettings.logoSize === 'medium' && 'h-8',
-                            designSettings.logoSize === 'large' && 'h-12',
-                          )}
-                        />
-                      )
-                    )}
-                    {designSettings.progressBar === 'top' && (
-                      <div className="flex-1">
-                        <div 
-                          className="h-1.5 rounded-full overflow-hidden"
-                          style={{ backgroundColor: `${designSettings.primaryColor}30` }}
-                        >
-                          <div 
-                            className="h-full rounded-full transition-all"
-                            style={{ 
-                              width: `${progressValue}%`,
-                              backgroundColor: designSettings.primaryColor,
-                            }}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <QuizHeaderPreview
+                  designSettings={designSettings}
+                  pageSettings={pageSettings}
+                  progressValue={progressValue}
+                  currentStageIndex={selectedStageId ? stages.findIndex(s => s.id === selectedStageId) : 0}
+                  totalStages={stages.length}
+                  position="top"
+                />
                 
                 {/* Drop Zone - shows components for current stage */}
                 {selectedStageId ? (
@@ -968,22 +850,14 @@ export function QuizEditor() {
                 )}
 
                 {/* Bottom progress bar */}
-                {designSettings.progressBar === 'bottom' && (
-                  <div className="shrink-0 px-4 pb-4">
-                    <div 
-                      className="h-1.5 rounded-full overflow-hidden"
-                      style={{ backgroundColor: `${designSettings.primaryColor}30` }}
-                    >
-                      <div 
-                        className="h-full rounded-full transition-all"
-                        style={{ 
-                          width: `${progressValue}%`,
-                          backgroundColor: designSettings.primaryColor,
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
+                <QuizHeaderPreview
+                  designSettings={designSettings}
+                  pageSettings={pageSettings}
+                  progressValue={progressValue}
+                  currentStageIndex={selectedStageId ? stages.findIndex(s => s.id === selectedStageId) : 0}
+                  totalStages={stages.length}
+                  position="bottom"
+                />
                   </div>
                 );
               })()}
