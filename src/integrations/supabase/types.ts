@@ -202,6 +202,8 @@ export type Database = {
           is_active: boolean | null
           slug: string | null
           titulo: string
+          webhook_enabled: boolean | null
+          webhook_url: string | null
         }
         Insert: {
           atualizado_em?: string | null
@@ -212,6 +214,8 @@ export type Database = {
           is_active?: boolean | null
           slug?: string | null
           titulo: string
+          webhook_enabled?: boolean | null
+          webhook_url?: string | null
         }
         Update: {
           atualizado_em?: string | null
@@ -222,6 +226,8 @@ export type Database = {
           is_active?: boolean | null
           slug?: string | null
           titulo?: string
+          webhook_enabled?: boolean | null
+          webhook_url?: string | null
         }
         Relationships: []
       }
