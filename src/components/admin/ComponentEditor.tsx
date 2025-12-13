@@ -677,17 +677,15 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           </Select>
         </div>
 
-        {/* Bar Color - only for ruler layout */}
-        {config.layoutType === 'ruler' && (
-          <ThemeColorPicker
-            label="Cor da barra"
-            value={config.barColor || themeColor}
-            useTheme={config.useThemeColor !== false} // Default to true
-            themeColor={themeColor}
-            onChange={(color) => updateConfig({ barColor: color })}
-            onUseThemeChange={(useTheme) => updateConfig({ useThemeColor: useTheme, barColor: useTheme ? themeColor : config.barColor })}
-          />
-        )}
+        {/* Bar Color */}
+        <ThemeColorPicker
+          label="Cor da barra"
+          value={config.barColor || themeColor}
+          useTheme={config.useThemeColor !== false}
+          themeColor={themeColor}
+          onChange={(color) => updateConfig({ barColor: color })}
+          onUseThemeChange={(useTheme) => updateConfig({ useThemeColor: useTheme, barColor: useTheme ? themeColor : config.barColor })}
+        />
 
         {/* Campo obrigatório */}
         <div className="flex items-center gap-2">
