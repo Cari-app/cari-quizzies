@@ -311,6 +311,11 @@ interface DesignSettings {
   logoSizePixels?: number;
   logoPosition: 'left' | 'center' | 'right';
   logoLayout?: 'above' | 'inline' | 'below';
+  logoSpacing?: {
+    marginTop: number;
+    marginBottom: number;
+    paddingX: number;
+  };
   progressBar: 'hidden' | 'top' | 'bottom';
   
   // HEADER STYLING
@@ -2813,136 +2818,138 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           )}
 
           {/* Other header styles */}
-          {designSettings.headerStyle !== 'line' && (
-            <div 
-              className="shrink-0"
-              style={{ 
-                borderBottom: designSettings.headerDivider?.show !== false 
-                  ? `${designSettings.headerDivider?.thickness || 1}px solid ${designSettings.headerDivider?.color || designSettings.primaryColor}20`
-                  : 'none'
-              }}
-            >
-              {/* Logo above bar layout */}
-              {(designSettings.logoLayout === 'above' || (!designSettings.logoLayout && designSettings.logo?.value)) && designSettings.logo?.value && (
-                <div className={cn(
-                  "px-4 pt-3 pb-2 flex items-center",
-                  designSettings.logoPosition === 'center' && "justify-center",
-                  designSettings.logoPosition === 'right' && "justify-end",
-                  designSettings.logoPosition === 'left' && "justify-start"
-                )}>
-                  {designSettings.logo.type === 'emoji' ? (
-                    <span style={{ fontSize: `${designSettings.logoSizePixels || 40}px`, lineHeight: 1 }}>
-                      {designSettings.logo.value}
-                    </span>
-                  ) : (
-                    <img 
-                      src={designSettings.logo.value} 
-                      alt="Logo" 
-                      className="object-contain"
-                      style={{ height: `${designSettings.logoSizePixels || 40}px` }}
-                    />
-                  )}
-                </div>
-              )}
+          {designSettings.headerStyle !== 'line' && (() => {
+            const logoSpacing = designSettings.logoSpacing || { marginTop: 16, marginBottom: 8, paddingX: 16 };
+            const logoLayout = designSettings.logoLayout || 'above';
+            
+            const renderLogoElement = () => {
+              if (!designSettings.logo?.value) return null;
+              return designSettings.logo.type === 'emoji' ? (
+                <span style={{ fontSize: `${designSettings.logoSizePixels || 40}px`, lineHeight: 1 }}>
+                  {designSettings.logo.value}
+                </span>
+              ) : (
+                <img 
+                  src={designSettings.logo.value} 
+                  alt="Logo" 
+                  className="object-contain"
+                  style={{ height: `${designSettings.logoSizePixels || 40}px` }}
+                />
+              );
+            };
 
-              {/* Progress bar row */}
-              <div className="px-4 pb-3 flex items-center gap-3">
-                {pageSettings?.allowBack && currentStageIndex > 0 && (
-                  <button 
-                    onClick={handleBack} 
-                    className="p-1 rounded transition-colors"
-                    style={{ color: designSettings.backIcon?.color || designSettings.textColor }}
+            return (
+              <div 
+                className="shrink-0"
+                style={{ 
+                  borderBottom: designSettings.headerDivider?.show !== false 
+                    ? `${designSettings.headerDivider?.thickness || 1}px solid ${designSettings.headerDivider?.color || designSettings.primaryColor}20`
+                    : 'none'
+                }}
+              >
+                {/* Logo above bar layout */}
+                {logoLayout === 'above' && designSettings.logo?.value && (
+                  <div 
+                    className={cn(
+                      "flex items-center",
+                      designSettings.logoPosition === 'center' && "justify-center",
+                      designSettings.logoPosition === 'right' && "justify-end",
+                      designSettings.logoPosition === 'left' && "justify-start"
+                    )}
+                    style={{
+                      marginTop: `${logoSpacing.marginTop}px`,
+                      marginBottom: `${logoSpacing.marginBottom}px`,
+                      paddingLeft: `${logoSpacing.paddingX}px`,
+                      paddingRight: `${logoSpacing.paddingX}px`,
+                    }}
                   >
-                    {renderBackIcon(designSettings)}
-                  </button>
+                    {renderLogoElement()}
+                  </div>
                 )}
 
-                {/* Logo inline (when layout is inline) */}
-                {designSettings.logoLayout === 'inline' && designSettings.logo?.value && (
-                  designSettings.logo.type === 'emoji' ? (
-                    <span style={{ fontSize: `${designSettings.logoSizePixels || 40}px`, lineHeight: 1 }}>
-                      {designSettings.logo.value}
-                    </span>
-                  ) : (
-                    <img 
-                      src={designSettings.logo.value} 
-                      alt="Logo" 
-                      className="object-contain"
-                      style={{ height: `${designSettings.logoSizePixels || 40}px` }}
-                    />
-                  )
-                )}
+                {/* Progress bar row */}
+                <div className="px-4 pb-3 flex items-center gap-3">
+                  {pageSettings?.allowBack && currentStageIndex > 0 && (
+                    <button 
+                      onClick={handleBack} 
+                      className="p-1 rounded transition-colors"
+                      style={{ color: designSettings.backIcon?.color || designSettings.textColor }}
+                    >
+                      {renderBackIcon(designSettings)}
+                    </button>
+                  )}
 
-                {/* Progress indicators */}
-                {pageSettings?.showProgress && (
-                  <>
-                    {(designSettings.headerStyle === 'default' || !designSettings.headerStyle) && (
-                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: `${designSettings.primaryColor}20` }}>
-                        <div 
-                          className="h-full transition-all duration-300"
-                          style={{ 
-                            width: `${progressValue}%`,
-                            backgroundColor: designSettings.primaryColor,
-                          }}
-                        />
-                      </div>
-                    )}
+                  {/* Logo inline (when layout is inline) */}
+                  {logoLayout === 'inline' && designSettings.logo?.value && renderLogoElement()}
 
-                    {designSettings.headerStyle === 'minimal' && (
-                      <div className="flex-1 flex justify-center">
-                        <span 
-                          className="text-sm font-medium"
-                          style={{ color: designSettings.textColor }}
-                        >
-                          {currentStageIndex + 1} / {stages.length}
-                        </span>
-                      </div>
-                    )}
-
-                    {designSettings.headerStyle === 'steps' && (
-                      <div className="flex-1 flex items-center justify-center gap-2">
-                        {stages.map((_, index) => (
-                          <div
-                            key={index}
-                            className="h-2 rounded-full transition-all duration-300"
-                            style={{
-                              width: index === currentStageIndex ? '24px' : '8px',
-                              backgroundColor: index <= currentStageIndex 
-                                ? designSettings.primaryColor 
-                                : `${designSettings.primaryColor}30`,
+                  {/* Progress indicators */}
+                  {pageSettings?.showProgress && (
+                    <>
+                      {(designSettings.headerStyle === 'default' || !designSettings.headerStyle) && (
+                        <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: `${designSettings.primaryColor}20` }}>
+                          <div 
+                            className="h-full transition-all duration-300"
+                            style={{ 
+                              width: `${progressValue}%`,
+                              backgroundColor: designSettings.primaryColor,
                             }}
                           />
-                        ))}
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
+                        </div>
+                      )}
 
-              {/* Logo below bar layout */}
-              {designSettings.logoLayout === 'below' && designSettings.logo?.value && (
-                <div className={cn(
-                  "px-4 pb-3 flex items-center",
-                  designSettings.logoPosition === 'center' && "justify-center",
-                  designSettings.logoPosition === 'right' && "justify-end",
-                  designSettings.logoPosition === 'left' && "justify-start"
-                )}>
-                  {designSettings.logo.type === 'emoji' ? (
-                    <span style={{ fontSize: `${designSettings.logoSizePixels || 40}px`, lineHeight: 1 }}>
-                      {designSettings.logo.value}
-                    </span>
-                  ) : (
-                    <img 
-                      src={designSettings.logo.value} 
-                      alt="Logo" 
-                      className="object-contain"
-                      style={{ height: `${designSettings.logoSizePixels || 40}px` }}
-                    />
+                      {designSettings.headerStyle === 'minimal' && (
+                        <div className="flex-1 flex justify-center">
+                          <span 
+                            className="text-sm font-medium"
+                            style={{ color: designSettings.textColor }}
+                          >
+                            {currentStageIndex + 1} / {stages.length}
+                          </span>
+                        </div>
+                      )}
+
+                      {designSettings.headerStyle === 'steps' && (
+                        <div className="flex-1 flex items-center justify-center gap-2">
+                          {stages.map((_, index) => (
+                            <div
+                              key={index}
+                              className="h-2 rounded-full transition-all duration-300"
+                              style={{
+                                width: index === currentStageIndex ? '24px' : '8px',
+                                backgroundColor: index <= currentStageIndex 
+                                  ? designSettings.primaryColor 
+                                  : `${designSettings.primaryColor}30`,
+                              }}
+                            />
+                          ))}
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
-              )}
-            </div>
-          )}
+
+                {/* Logo below bar layout */}
+                {logoLayout === 'below' && designSettings.logo?.value && (
+                  <div 
+                    className={cn(
+                      "flex items-center",
+                      designSettings.logoPosition === 'center' && "justify-center",
+                      designSettings.logoPosition === 'right' && "justify-end",
+                      designSettings.logoPosition === 'left' && "justify-start"
+                    )}
+                    style={{
+                      marginTop: `${logoSpacing.marginTop}px`,
+                      marginBottom: `${logoSpacing.marginBottom}px`,
+                      paddingLeft: `${logoSpacing.paddingX}px`,
+                      paddingRight: `${logoSpacing.paddingX}px`,
+                    }}
+                  >
+                    {renderLogoElement()}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </>
       )}
 

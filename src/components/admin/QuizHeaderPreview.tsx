@@ -10,6 +10,11 @@ interface DesignSettings {
   logoSizePixels?: number;
   logoPosition: 'left' | 'center' | 'right';
   logoLayout?: 'above' | 'inline' | 'below';
+  logoSpacing?: {
+    marginTop: number;
+    marginBottom: number;
+    paddingX: number;
+  };
   progressBar: 'hidden' | 'top' | 'bottom';
   primaryColor: string;
   textColor: string;
@@ -52,6 +57,7 @@ export function QuizHeaderPreview({
   const headerStyle = designSettings.headerStyle || 'default';
   const logoSizePx = designSettings.logoSizePixels || 40;
   const logoLayout = designSettings.logoLayout || 'above';
+  const logoSpacing = designSettings.logoSpacing || { marginTop: 16, marginBottom: 8, paddingX: 16 };
 
   // Render back icon based on settings
   const renderBackIcon = () => {
@@ -248,12 +254,20 @@ export function QuizHeaderPreview({
         style={{ borderBottom: dividerStyle }}
       >
         {/* Logo row */}
-        <div className={cn(
-          "px-4 pt-3 pb-2 flex items-center",
-          designSettings.logoPosition === 'center' && "justify-center",
-          designSettings.logoPosition === 'right' && "justify-end",
-          designSettings.logoPosition === 'left' && "justify-start"
-        )}>
+        <div 
+          className={cn(
+            "flex items-center",
+            designSettings.logoPosition === 'center' && "justify-center",
+            designSettings.logoPosition === 'right' && "justify-end",
+            designSettings.logoPosition === 'left' && "justify-start"
+          )}
+          style={{
+            marginTop: `${logoSpacing.marginTop}px`,
+            marginBottom: `${logoSpacing.marginBottom}px`,
+            paddingLeft: `${logoSpacing.paddingX}px`,
+            paddingRight: `${logoSpacing.paddingX}px`,
+          }}
+        >
           {renderLogo()}
         </div>
         
@@ -298,12 +312,20 @@ export function QuizHeaderPreview({
         )}
         
         {/* Logo row */}
-        <div className={cn(
-          "px-4 pb-3 flex items-center",
-          designSettings.logoPosition === 'center' && "justify-center",
-          designSettings.logoPosition === 'right' && "justify-end",
-          designSettings.logoPosition === 'left' && "justify-start"
-        )}>
+        <div 
+          className={cn(
+            "flex items-center",
+            designSettings.logoPosition === 'center' && "justify-center",
+            designSettings.logoPosition === 'right' && "justify-end",
+            designSettings.logoPosition === 'left' && "justify-start"
+          )}
+          style={{
+            marginTop: `${logoSpacing.marginTop}px`,
+            marginBottom: `${logoSpacing.marginBottom}px`,
+            paddingLeft: `${logoSpacing.paddingX}px`,
+            paddingRight: `${logoSpacing.paddingX}px`,
+          }}
+        >
           {renderLogo()}
         </div>
       </div>
