@@ -38,14 +38,14 @@ const colorClasses: Record<MetricItem['color'], string> = {
   black: 'text-foreground',
 };
 
-const colorBgClasses: Record<MetricItem['color'], string> = {
-  theme: 'bg-primary',
-  green: 'bg-green-500',
-  blue: 'bg-blue-500',
-  yellow: 'bg-yellow-500',
-  orange: 'bg-orange-500',
-  red: 'bg-red-500',
-  black: 'bg-foreground',
+const colorGradients: Record<MetricItem['color'], string> = {
+  theme: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.7) 100%)',
+  green: 'linear-gradient(180deg, #22c55e 0%, #16a34a 100%)',
+  blue: 'linear-gradient(180deg, #3b82f6 0%, #2563eb 100%)',
+  yellow: 'linear-gradient(180deg, #eab308 0%, #ca8a04 100%)',
+  orange: 'linear-gradient(180deg, #f97316 0%, #ea580c 100%)',
+  red: 'linear-gradient(180deg, #ef4444 0%, #dc2626 100%)',
+  black: 'linear-gradient(180deg, hsl(var(--foreground)) 0%, hsl(var(--foreground) / 0.7) 100%)',
 };
 
 const colorStrokeClasses: Record<MetricItem['color'], string> = {
@@ -67,15 +67,16 @@ function BarChart({ value, color, valueColor }: { value: number; color: MetricIt
       >
         {value}%
       </span>
-      <div className="w-full h-24 bg-muted/20 rounded-lg flex items-end overflow-hidden shadow-inner">
+      <div className="w-full h-24 rounded-xl overflow-hidden relative" style={{ 
+        background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.05) 100%)',
+        boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.15)'
+      }}>
         <div 
-          className={cn(
-            "w-full rounded-lg transition-all duration-700 ease-out",
-            colorBgClasses[color]
-          )}
+          className="absolute bottom-0 left-0 w-full rounded-xl transition-all duration-700 ease-out"
           style={{ 
             height: `${Math.max(8, value)}%`,
-            boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.2)'
+            background: colorGradients[color],
+            boxShadow: '0 -2px 10px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.3)'
           }}
         />
       </div>
