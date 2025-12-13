@@ -54,6 +54,13 @@ export function QuizEditor() {
   // Webhook settings
   const [webhookUrl, setWebhookUrl] = useState('');
   const [webhookEnabled, setWebhookEnabled] = useState(false);
+  const [webhookSettings, setWebhookSettings] = useState<{
+    sendName?: boolean;
+    sendEmail?: boolean;
+    sendPhone?: boolean;
+    customFieldIds?: string;
+    triggerOnFirstResponse?: boolean;
+  }>({});
   
   // Design settings
   const [designSettings, setDesignSettings] = useState<QuizDesignSettings>(defaultDesignSettings);
@@ -146,6 +153,7 @@ export function QuizEditor() {
           // Load webhook settings
           setWebhookUrl((quizData as any).webhook_url || '');
           setWebhookEnabled((quizData as any).webhook_enabled || false);
+          setWebhookSettings((quizData as any).webhook_settings || {});
 
           // Load etapas (stages)
           const { data: etapasData } = await supabase
@@ -812,12 +820,17 @@ export function QuizEditor() {
             quizId={currentQuiz.id}
             webhookUrl={webhookUrl}
             webhookEnabled={webhookEnabled}
+            webhookSettings={webhookSettings}
             onWebhookUrlChange={(url) => {
               setWebhookUrl(url);
               setHasUnsavedChanges(true);
             }}
             onWebhookEnabledChange={(enabled) => {
               setWebhookEnabled(enabled);
+              setHasUnsavedChanges(true);
+            }}
+            onWebhookSettingsChange={(settings) => {
+              setWebhookSettings(settings);
               setHasUnsavedChanges(true);
             }}
           />

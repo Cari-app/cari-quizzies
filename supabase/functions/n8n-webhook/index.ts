@@ -7,6 +7,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+interface WebhookSettings {
+  sendName?: boolean;
+  sendEmail?: boolean;
+  sendPhone?: boolean;
+  customFieldIds?: string;
+  triggerOnFirstResponse?: boolean;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -26,7 +34,7 @@ serve(async (req) => {
     // Get quiz webhook configuration
     const { data: quiz, error: quizError } = await supabase
       .from('quizzes')
-      .select('webhook_url, webhook_enabled, titulo, slug')
+      .select('webhook_url, webhook_enabled, webhook_settings, titulo, slug')
       .eq('id', quiz_id)
       .maybeSingle();
 
@@ -46,6 +54,17 @@ serve(async (req) => {
       );
     }
 
+    const webhookSettings: WebhookSettings = quiz.webhook_settings || {};
+
+    // Check if this event should trigger based on settings
+    if (event_type === 'first_response' && !webhookSettings.triggerOnFirstResponse) {
+      console.log('[n8n-webhook] First response trigger is disabled');
+      return new Response(
+        JSON.stringify({ message: 'First response trigger is disabled' }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Get session data if provided
     let sessionData = null;
     if (session_id) {
@@ -59,13 +78,41 @@ serve(async (req) => {
 
     // Get responses if this is a completion event
     let responses = [];
-    if (session_id && event_type === 'quiz_completed') {
+    if (session_id && (event_type === 'quiz_completed' || event_type === 'first_response')) {
       const { data: respData } = await supabase
         .from('quiz_responses')
         .select('*')
         .eq('session_id', session_id)
         .order('stage_order');
       responses = respData || [];
+    }
+
+    // Build filtered data based on settings
+    const formData = data?.formData || {};
+    const filteredData: Record<string, any> = {};
+
+    // Add standard fields based on settings
+    if (webhookSettings.sendName !== false) {
+      const name = formData.name || formData.nome || sessionData?.name;
+      if (name) filteredData.name = name;
+    }
+    if (webhookSettings.sendEmail !== false) {
+      const email = formData.email || formData.e_mail || sessionData?.email;
+      if (email) filteredData.email = email;
+    }
+    if (webhookSettings.sendPhone !== false) {
+      const phone = formData.phone || formData.telefone || formData.celular || sessionData?.phone;
+      if (phone) filteredData.phone = phone;
+    }
+
+    // Add custom fields based on IDs
+    if (webhookSettings.customFieldIds) {
+      const customIds = webhookSettings.customFieldIds.split(',').map(id => id.trim()).filter(Boolean);
+      for (const customId of customIds) {
+        if (formData[customId] !== undefined) {
+          filteredData[customId] = formData[customId];
+        }
+      }
     }
 
     // Prepare payload for N8N
@@ -77,12 +124,19 @@ serve(async (req) => {
         title: quiz.titulo,
         slug: quiz.slug,
       },
-      session: sessionData,
+      session: sessionData ? {
+        id: sessionData.id,
+        started_at: sessionData.started_at,
+        completed_at: sessionData.completed_at,
+        device_type: sessionData.device_type,
+        referrer: sessionData.referrer,
+      } : null,
+      data: filteredData,
       responses: responses,
-      custom_data: data || {},
     };
 
     console.log('[n8n-webhook] Sending to N8N:', quiz.webhook_url);
+    console.log('[n8n-webhook] Payload:', JSON.stringify(webhookPayload));
 
     // Call N8N webhook
     const webhookResponse = await fetch(quiz.webhook_url, {

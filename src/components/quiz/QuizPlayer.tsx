@@ -644,6 +644,7 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
   // Session tracking for leads
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [stageStartTime, setStageStartTime] = useState<number>(Date.now());
+  const [hasTriggeredFirstResponse, setHasTriggeredFirstResponse] = useState(false);
 
   const currentStage = stages[currentStageIndex];
   const pageSettings = currentStage?.pageSettings;
@@ -808,6 +809,27 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
     }
   }, [sessionId, stageStartTime]);
 
+  // Trigger webhook on first response
+  const triggerFirstResponseWebhook = useCallback(async () => {
+    if (hasTriggeredFirstResponse || !quiz?.id || !sessionId) return;
+    
+    setHasTriggeredFirstResponse(true);
+    
+    try {
+      await supabase.functions.invoke('n8n-webhook', {
+        body: {
+          quiz_id: quiz.id,
+          session_id: sessionId,
+          event_type: 'first_response',
+          data: { formData },
+        },
+      });
+      console.log('[QuizPlayer] First response webhook triggered');
+    } catch (webhookError) {
+      console.error('Error triggering first response webhook:', webhookError);
+    }
+  }, [hasTriggeredFirstResponse, quiz?.id, sessionId, formData]);
+
   // Mark session as completed
   const markSessionComplete = useCallback(async () => {
     if (!sessionId) return;
@@ -907,6 +929,11 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
         : (responseValue || { action: 'clicked' });
       
       saveStageResponse(currentStage.id, currentStageIndex, valueToSave, hasInputValues ? 'input' : 'component_click');
+      
+      // Trigger first response webhook if this is the first navigation
+      if (currentStageIndex === 0) {
+        triggerFirstResponseWebhook();
+      }
     }
     
     // Find connection for this specific component
@@ -935,7 +962,7 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
       // Last stage - mark session as complete
       markSessionComplete();
     }
-  }, [stages, currentStageIndex, sessionId, saveStageResponse, getStageInputValues, markSessionComplete]);
+  }, [stages, currentStageIndex, sessionId, saveStageResponse, getStageInputValues, markSessionComplete, triggerFirstResponseWebhook]);
 
   // Navigate based on flow connections for a specific option
   const handleNavigateByOption = useCallback((componentId: string, optionId: string, optionText?: string) => {
@@ -948,6 +975,11 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
         selected: optionText || optionId, 
         optionId 
       }, 'option_selected');
+      
+      // Trigger first response webhook if this is the first navigation
+      if (currentStageIndex === 0) {
+        triggerFirstResponseWebhook();
+      }
     }
     
     // Find connection for this specific option (format: opt-{componentId}-{optionId})
@@ -991,7 +1023,7 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
       // Last stage - mark session as complete
       markSessionComplete();
     }
-  }, [stages, currentStageIndex, sessionId, saveStageResponse, markSessionComplete]);
+  }, [stages, currentStageIndex, sessionId, saveStageResponse, markSessionComplete, triggerFirstResponseWebhook]);
 
   // Navigate back following the history (respects flow order)
   const handleBack = () => {

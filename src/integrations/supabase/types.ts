@@ -203,6 +203,7 @@ export type Database = {
           slug: string | null
           titulo: string
           webhook_enabled: boolean | null
+          webhook_settings: Json | null
           webhook_url: string | null
         }
         Insert: {
@@ -215,6 +216,7 @@ export type Database = {
           slug?: string | null
           titulo: string
           webhook_enabled?: boolean | null
+          webhook_settings?: Json | null
           webhook_url?: string | null
         }
         Update: {
@@ -227,6 +229,7 @@ export type Database = {
           slug?: string | null
           titulo?: string
           webhook_enabled?: boolean | null
+          webhook_settings?: Json | null
           webhook_url?: string | null
         }
         Relationships: []
