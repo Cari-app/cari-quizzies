@@ -65,10 +65,11 @@ export function ButtonRenderer({
     buttonCustomStyle.paddingBottom = `${config.buttonPaddingY}px`;
   }
 
-  // Determine text color for button content
+  // Determine text color for button content - force white for primary/default styles
+  const isPrimaryOrDefault = !isCustomStyle && (!config.buttonStyle || config.buttonStyle === 'primary');
   const textColor = isCustomStyle && config.buttonTextColor 
     ? config.buttonTextColor 
-    : (!isCustomStyle && !config.buttonStyle ? '#FFFFFF' : undefined);
+    : (isPrimaryOrDefault ? '#FFFFFF' : undefined);
 
   // Strip ALL inline color/style from buttonText HTML to allow our color to work
   const cleanButtonText = (config.buttonText || 'Continuar')
@@ -100,11 +101,11 @@ export function ButtonRenderer({
     }
   };
 
-  // Default button style: black background with white text
-  const defaultStyle: React.CSSProperties = {};
-  if (!isCustomStyle && !config.buttonStyle) {
-    defaultStyle.backgroundColor = '#000000';
-    defaultStyle.color = '#FFFFFF';
+  // Default/primary button style: black background with white text (inline to override CSS)
+  const buttonStyles: React.CSSProperties = {};
+  if (isPrimaryOrDefault) {
+    buttonStyles.backgroundColor = '#000000';
+    buttonStyles.color = '#FFFFFF';
   }
 
   return (
@@ -119,12 +120,11 @@ export function ButtonRenderer({
           getFontWeight(config.buttonFontWeight),
           getHoverEffect(config.buttonHoverEffect),
           getAnimationClass(config.buttonAnimation),
-          !isCustomStyle && config.buttonStyle === 'primary' && "bg-primary text-primary-foreground",
           !isCustomStyle && config.buttonStyle === 'secondary' && "bg-secondary text-secondary-foreground",
           !isCustomStyle && config.buttonStyle === 'outline' && "border border-border bg-transparent",
           config.buttonBorderRadius === undefined && "rounded-lg"
         )}
-        style={{ ...defaultStyle, ...buttonCustomStyle }}
+        style={{ ...buttonStyles, ...buttonCustomStyle }}
       >
         {buttonContent}
       </button>
