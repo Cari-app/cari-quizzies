@@ -7,8 +7,13 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import AuthPage from "./pages/AuthPage";
 import QuizPage from "./pages/QuizPage";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminQuizzes from "./pages/admin/AdminQuizzes";
 import AdminQuizEditor from "./pages/admin/AdminQuizEditor";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminLeads from "./pages/admin/AdminLeads";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminMedia from "./pages/admin/AdminMedia";
+import AdminHelp from "./pages/admin/AdminHelp";
 import { AdminLayout } from "./components/admin/AdminLayout";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import NotFound from "./pages/NotFound";
@@ -33,7 +38,12 @@ const App = () => (
               </ProtectedRoute>
             }>
               <Route index element={<AdminDashboard />} />
+              <Route path="quizzes" element={<AdminQuizzes />} />
+              <Route path="leads" element={<AdminLeads />} />
+              <Route path="analytics" element={<AdminAnalytics />} />
+              <Route path="media" element={<AdminMedia />} />
               <Route path="settings" element={<AdminSettings />} />
+              <Route path="help" element={<AdminHelp />} />
             </Route>
             
             {/* Editor em tela cheia, protegido */}
