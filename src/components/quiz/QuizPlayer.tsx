@@ -828,10 +828,27 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
           name,
         })
         .eq('id', sessionId);
+
+      // Trigger N8N webhook if configured
+      if (quiz?.id) {
+        try {
+          await supabase.functions.invoke('n8n-webhook', {
+            body: {
+              quiz_id: quiz.id,
+              session_id: sessionId,
+              event_type: 'quiz_completed',
+              data: { formData },
+            },
+          });
+        } catch (webhookError) {
+          console.error('Error triggering webhook:', webhookError);
+          // Don't fail the completion if webhook fails
+        }
+      }
     } catch (error) {
       console.error('Error marking session complete:', error);
     }
-  }, [sessionId, formData]);
+  }, [sessionId, formData, quiz?.id]);
 
   const handleInputChange = (componentId: string, customId: string | undefined, value: any) => {
     const key = customId || componentId;

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check, Save, Upload, Loader2, ArrowLeft, Image, GitBranch, Layers, Palette, Users } from 'lucide-react';
+import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check, Save, Upload, Loader2, ArrowLeft, Image, GitBranch, Layers, Palette, Users, Webhook } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
@@ -27,6 +27,7 @@ import { FlowCanvas } from './flow';
 import { StageBackgroundEditor, StageBackground, defaultStageBackground, getStageBackgroundCSS } from './StageBackgroundEditor';
 import { QuizHeaderPreview } from './QuizHeaderPreview';
 import { LeadsView } from './LeadsView';
+import { IntegrationsEditor } from './IntegrationsEditor';
 
 // Stage type - cada etapa contém seus próprios componentes
 interface Stage {
@@ -48,7 +49,11 @@ export function QuizEditor() {
   const [rightTab, setRightTab] = useState<'stage' | 'appearance'>('stage');
   const [widgetsExpanded, setWidgetsExpanded] = useState(false);
   const [slugCopied, setSlugCopied] = useState(false);
-  const [editorView, setEditorView] = useState<'editor' | 'flow' | 'design' | 'leads'>('editor');
+  const [editorView, setEditorView] = useState<'editor' | 'flow' | 'design' | 'leads' | 'integrations'>('editor');
+  
+  // Webhook settings
+  const [webhookUrl, setWebhookUrl] = useState('');
+  const [webhookEnabled, setWebhookEnabled] = useState(false);
   
   // Design settings
   const [designSettings, setDesignSettings] = useState<QuizDesignSettings>(defaultDesignSettings);
@@ -137,6 +142,10 @@ export function QuizEditor() {
             isPublished: quizData.is_active || false,
           };
           setCurrentQuiz(quiz);
+          
+          // Load webhook settings
+          setWebhookUrl((quizData as any).webhook_url || '');
+          setWebhookEnabled((quizData as any).webhook_enabled || false);
 
           // Load etapas (stages)
           const { data: etapasData } = await supabase
@@ -267,6 +276,8 @@ export function QuizEditor() {
             descricao: currentQuiz.description || null,
             slug: currentQuiz.slug || null,
             atualizado_em: new Date().toISOString(),
+            webhook_url: webhookUrl || null,
+            webhook_enabled: webhookEnabled,
           })
           .eq('id', currentQuiz.id);
       } else {
@@ -463,6 +474,21 @@ export function QuizEditor() {
             <Users className="w-4 h-4" />
             Leads
             {editorView === 'leads' && (
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
+            )}
+          </button>
+          <button
+            onClick={() => setEditorView('integrations')}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors relative",
+              editorView === 'integrations' 
+                ? "text-foreground" 
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            <Webhook className="w-4 h-4" />
+            Integrações
+            {editorView === 'integrations' && (
               <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
             )}
           </button>
@@ -779,6 +805,21 @@ export function QuizEditor() {
           <LeadsView 
             quizId={currentQuiz.id} 
             stages={stages.map(s => ({ id: s.id, name: s.name }))}
+          />
+        ) : editorView === 'integrations' ? (
+          /* Integrations View */
+          <IntegrationsEditor
+            quizId={currentQuiz.id}
+            webhookUrl={webhookUrl}
+            webhookEnabled={webhookEnabled}
+            onWebhookUrlChange={(url) => {
+              setWebhookUrl(url);
+              setHasUnsavedChanges(true);
+            }}
+            onWebhookEnabledChange={(enabled) => {
+              setWebhookEnabled(enabled);
+              setHasUnsavedChanges(true);
+            }}
           />
         ) : (
           <div className="flex-1 flex flex-col overflow-hidden">
