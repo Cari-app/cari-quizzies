@@ -361,7 +361,7 @@ export interface ComponentConfig {
   faqItems?: FaqItem[];
   faqDetailType?: 'arrow' | 'plus-minus';
   faqFirstOpen?: boolean;
-  faqBgType?: 'solid' | 'gradient';
+  faqBgType?: 'solid' | 'gradient' | 'transparent';
   faqBgColor?: string;
   faqGradientStart?: string;
   faqGradientEnd?: string;
@@ -4686,7 +4686,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
               <Label className="text-xs text-muted-foreground">Tipo de fundo</Label>
               <Select 
                 value={config.faqBgType || 'solid'} 
-                onValueChange={(v) => updateConfig({ faqBgType: v as 'solid' | 'gradient' })}
+                onValueChange={(v) => updateConfig({ faqBgType: v as 'solid' | 'gradient' | 'transparent' })}
               >
                 <SelectTrigger className="mt-1">
                   <SelectValue />
@@ -4694,11 +4694,12 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                 <SelectContent>
                   <SelectItem value="solid">Cor sólida</SelectItem>
                   <SelectItem value="gradient">Gradiente</SelectItem>
+                  <SelectItem value="transparent">Transparente</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
-            {config.faqBgType === 'gradient' ? (
+            {config.faqBgType === 'gradient' && (
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
@@ -4739,7 +4740,9 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                   }}
                 />
               </div>
-            ) : (
+            )}
+
+            {(!config.faqBgType || config.faqBgType === 'solid') && (
               <div>
                 <Label className="text-xs text-muted-foreground">Cor de fundo</Label>
                 <Input

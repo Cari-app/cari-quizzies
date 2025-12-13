@@ -190,7 +190,7 @@ interface ComponentConfig {
   }>;
   faqDetailType?: 'arrow' | 'plus-minus';
   faqFirstOpen?: boolean;
-  faqBgType?: 'solid' | 'gradient';
+  faqBgType?: 'solid' | 'gradient' | 'transparent';
   faqBgColor?: string;
   faqGradientStart?: string;
   faqGradientEnd?: string;
@@ -473,7 +473,7 @@ interface FaqAccordionProps {
   justifyClass: string;
   detailType: string;
   firstOpen: boolean;
-  bgType?: 'solid' | 'gradient';
+  bgType?: 'solid' | 'gradient' | 'transparent';
   bgColor?: string;
   gradientStart?: string;
   gradientEnd?: string;
@@ -497,9 +497,11 @@ function FaqAccordion({
     setOpenItems(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
 
-  const bgStyle = bgType === 'gradient' 
-    ? `linear-gradient(${gradientAngle}deg, ${gradientStart}, ${gradientEnd})`
-    : bgColor || undefined;
+  const bgStyle = bgType === 'transparent' 
+    ? 'transparent'
+    : bgType === 'gradient' 
+      ? `linear-gradient(${gradientAngle}deg, ${gradientStart}, ${gradientEnd})`
+      : bgColor || undefined;
   
   return (
     <div className={cn("w-full px-4 flex", justifyClass)}>

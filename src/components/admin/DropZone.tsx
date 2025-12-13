@@ -1560,9 +1560,11 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const borderRadius = config.faqBorderRadius ?? 8;
         const iconColor = config.faqIconColor;
         
-        const bgStyle = bgType === 'gradient' 
-          ? `linear-gradient(${gradientAngle}deg, ${gradientStart}, ${gradientEnd})`
-          : bgColor || undefined;
+        const bgStyle = bgType === 'transparent' 
+          ? 'transparent'
+          : bgType === 'gradient' 
+            ? `linear-gradient(${gradientAngle}deg, ${gradientStart}, ${gradientEnd})`
+            : bgColor || undefined;
         
         return (
           <div className={cn("w-full flex", alignClass)}>
