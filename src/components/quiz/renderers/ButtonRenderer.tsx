@@ -70,8 +70,10 @@ export function ButtonRenderer({
     ? config.buttonTextColor 
     : (!isCustomStyle && !config.buttonStyle ? '#FFFFFF' : undefined);
 
-  // Strip inline color styles from buttonText HTML to allow our color to work
-  const cleanButtonText = (config.buttonText || 'Continuar').replace(/color:\s*[^;]+;?/gi, '');
+  // Strip ALL inline color/style from buttonText HTML to allow our color to work
+  const cleanButtonText = (config.buttonText || 'Continuar')
+    .replace(/style="[^"]*"/gi, '') // Remove all inline styles
+    .replace(/style='[^']*'/gi, ''); // Also single quotes
 
   const buttonContent = (
     <>
@@ -80,7 +82,6 @@ export function ButtonRenderer({
       )}
       <span 
         style={{ color: textColor }}
-        className="[&_*]:!text-inherit"
         dangerouslySetInnerHTML={{ __html: processTemplate(cleanButtonText) }} 
       />
       {config.buttonIcon && config.buttonIconPosition !== 'left' && (
