@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, Loader2, CalendarIcon, ChevronLeft, ChevronRight, ChevronUp, Minus, Plus } from 'lucide-react';
+import { ArrowLeft, Loader2, CalendarIcon, ChevronLeft, ChevronRight, ChevronUp, Minus, Plus, ArrowLeftCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
@@ -311,6 +311,18 @@ interface DesignSettings {
   logoSize: 'small' | 'medium' | 'large';
   logoPosition: 'left' | 'center' | 'right';
   progressBar: 'hidden' | 'top' | 'bottom';
+  
+  // HEADER STYLING
+  headerDivider?: {
+    show: boolean;
+    color: string;
+    thickness: number;
+  };
+  backIcon?: {
+    color: string;
+    size: 'small' | 'medium' | 'large';
+    style: 'arrow' | 'chevron' | 'circle';
+  };
   
   // CORES
   primaryColor: string;
@@ -2710,6 +2722,24 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
   const progressValue = stages.length > 1 ? ((currentStageIndex + 1) / stages.length) * 100 : 100;
   const showHeader = pageSettings?.showProgress || (pageSettings?.allowBack && currentStageIndex > 0);
 
+  // Render back icon based on settings
+  const renderBackIcon = (settings: typeof designSettings) => {
+    const iconStyle = settings.backIcon?.style || 'chevron';
+    const iconSize = settings.backIcon?.size || 'medium';
+    const sizeMap = { small: 'w-4 h-4', medium: 'w-5 h-5', large: 'w-6 h-6' };
+    const className = sizeMap[iconSize];
+    
+    switch (iconStyle) {
+      case 'arrow':
+        return <ArrowLeft className={className} />;
+      case 'circle':
+        return <ArrowLeftCircle className={className} />;
+      case 'chevron':
+      default:
+        return <ChevronLeft className={className} />;
+    }
+  };
+
   // Get background styles for current stage
   const getBackgroundStyles = () => {
     const bg = currentStage?.background;
@@ -2784,15 +2814,19 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           {(designSettings.headerStyle === 'default' || !designSettings.headerStyle) && (
             <div 
               className="p-4 flex items-center gap-4 shrink-0"
-              style={{ borderBottom: `1px solid ${designSettings.primaryColor}20` }}
+              style={{ 
+                borderBottom: designSettings.headerDivider?.show !== false 
+                  ? `${designSettings.headerDivider?.thickness || 1}px solid ${designSettings.headerDivider?.color || designSettings.primaryColor}20`
+                  : 'none'
+              }}
             >
               {pageSettings?.allowBack && currentStageIndex > 0 && (
                 <button 
                   onClick={handleBack} 
                   className="p-1 rounded transition-colors"
-                  style={{ color: designSettings.textColor }}
+                  style={{ color: designSettings.backIcon?.color || designSettings.textColor }}
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  {renderBackIcon(designSettings)}
                 </button>
               )}
               {pageSettings?.showProgress && (
@@ -2813,15 +2847,19 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           {designSettings.headerStyle === 'minimal' && (
             <div 
               className="p-4 flex items-center justify-between shrink-0"
-              style={{ borderBottom: `1px solid ${designSettings.primaryColor}10` }}
+              style={{ 
+                borderBottom: designSettings.headerDivider?.show !== false 
+                  ? `${designSettings.headerDivider?.thickness || 1}px solid ${designSettings.headerDivider?.color || designSettings.primaryColor}10`
+                  : 'none'
+              }}
             >
               {pageSettings?.allowBack && currentStageIndex > 0 ? (
                 <button 
                   onClick={handleBack} 
                   className="p-1 rounded transition-colors"
-                  style={{ color: designSettings.textColor }}
+                  style={{ color: designSettings.backIcon?.color || designSettings.textColor }}
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  {renderBackIcon(designSettings)}
                 </button>
               ) : (
                 <div className="w-7" />
@@ -2842,15 +2880,19 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
           {designSettings.headerStyle === 'steps' && (
             <div 
               className="p-4 flex items-center gap-3 shrink-0"
-              style={{ borderBottom: `1px solid ${designSettings.primaryColor}10` }}
+              style={{ 
+                borderBottom: designSettings.headerDivider?.show !== false 
+                  ? `${designSettings.headerDivider?.thickness || 1}px solid ${designSettings.headerDivider?.color || designSettings.primaryColor}10`
+                  : 'none'
+              }}
             >
               {pageSettings?.allowBack && currentStageIndex > 0 && (
                 <button 
                   onClick={handleBack} 
                   className="p-1 rounded transition-colors"
-                  style={{ color: designSettings.textColor }}
+                  style={{ color: designSettings.backIcon?.color || designSettings.textColor }}
                 >
-                  <ChevronLeft className="w-5 h-5" />
+                  {renderBackIcon(designSettings)}
                 </button>
               )}
               {pageSettings?.showProgress && (

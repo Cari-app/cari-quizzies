@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, ArrowLeft, ChevronLeft, ArrowLeftCircle } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 
 // Design settings type
@@ -23,6 +24,18 @@ export interface QuizDesignSettings {
   logoSize: 'small' | 'medium' | 'large';
   logoPosition: 'left' | 'center' | 'right';
   progressBar: 'hidden' | 'top' | 'bottom';
+  
+  // HEADER STYLING
+  headerDivider: {
+    show: boolean;
+    color: string;
+    thickness: number;
+  };
+  backIcon: {
+    color: string;
+    size: 'small' | 'medium' | 'large';
+    style: 'arrow' | 'chevron' | 'circle';
+  };
   
   // CORES
   primaryColor: string;
@@ -48,6 +61,16 @@ export const defaultDesignSettings: QuizDesignSettings = {
   logoSize: 'medium',
   logoPosition: 'center',
   progressBar: 'top',
+  headerDivider: {
+    show: true,
+    color: '#A855F7',
+    thickness: 1,
+  },
+  backIcon: {
+    color: '#1F2937',
+    size: 'medium',
+    style: 'chevron',
+  },
   primaryColor: '#A855F7',
   backgroundColor: '#FFFFFF',
   textColor: '#1F2937',
@@ -377,6 +400,129 @@ export function DesignEditor({ settings, onSettingsChange }: DesignEditorProps) 
                   <SelectItem value="bottom">Fixado embaixo</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Divider Settings */}
+            <div className="border-t border-border pt-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs text-muted-foreground">Mostrar divisória</Label>
+                <Switch
+                  checked={settings.headerDivider?.show ?? true}
+                  onCheckedChange={(checked) => updateSettings({ 
+                    headerDivider: { ...settings.headerDivider, show: checked } 
+                  })}
+                />
+              </div>
+              
+              {settings.headerDivider?.show !== false && (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">Cor da divisória</Label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={settings.headerDivider?.color || settings.primaryColor}
+                        onChange={(e) => updateSettings({ 
+                          headerDivider: { ...settings.headerDivider, color: e.target.value } 
+                        })}
+                        className="w-8 h-8 rounded cursor-pointer border border-border"
+                      />
+                      <Input
+                        value={settings.headerDivider?.color || settings.primaryColor}
+                        onChange={(e) => updateSettings({ 
+                          headerDivider: { ...settings.headerDivider, color: e.target.value } 
+                        })}
+                        className="flex-1"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-muted-foreground">Espessura</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={5}
+                      value={settings.headerDivider?.thickness ?? 1}
+                      onChange={(e) => updateSettings({ 
+                        headerDivider: { ...settings.headerDivider, thickness: Number(e.target.value) } 
+                      })}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Back Icon Settings */}
+            <div className="border-t border-border pt-4 space-y-3">
+              <Label className="text-xs font-semibold uppercase tracking-wider">Ícone de voltar</Label>
+              
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Estilo</Label>
+                <div className="flex gap-2">
+                  {[
+                    { value: 'chevron', icon: ChevronLeft, label: 'Chevron' },
+                    { value: 'arrow', icon: ArrowLeft, label: 'Seta' },
+                    { value: 'circle', icon: ArrowLeftCircle, label: 'Círculo' },
+                  ].map(({ value, icon: Icon, label }) => (
+                    <button
+                      key={value}
+                      onClick={() => updateSettings({ 
+                        backIcon: { ...settings.backIcon, style: value as 'chevron' | 'arrow' | 'circle' } 
+                      })}
+                      className={cn(
+                        "flex-1 flex flex-col items-center gap-1.5 p-3 rounded-lg border transition-all",
+                        (settings.backIcon?.style || 'chevron') === value
+                          ? "border-primary bg-primary/10"
+                          : "border-border hover:border-primary/50"
+                      )}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span className="text-xs">{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Cor</Label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={settings.backIcon?.color || settings.textColor}
+                      onChange={(e) => updateSettings({ 
+                        backIcon: { ...settings.backIcon, color: e.target.value } 
+                      })}
+                      className="w-8 h-8 rounded cursor-pointer border border-border"
+                    />
+                    <Input
+                      value={settings.backIcon?.color || settings.textColor}
+                      onChange={(e) => updateSettings({ 
+                        backIcon: { ...settings.backIcon, color: e.target.value } 
+                      })}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Tamanho</Label>
+                  <Select 
+                    value={settings.backIcon?.size || 'medium'} 
+                    onValueChange={(value: 'small' | 'medium' | 'large') => updateSettings({ 
+                      backIcon: { ...settings.backIcon, size: value } 
+                    })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="small">Pequeno</SelectItem>
+                      <SelectItem value="medium">Normal</SelectItem>
+                      <SelectItem value="large">Grande</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
           </div>
         </CollapsibleSection>
