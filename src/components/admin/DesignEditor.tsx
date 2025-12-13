@@ -15,7 +15,7 @@ export interface QuizDesignSettings {
   borderRadius: 'none' | 'small' | 'medium' | 'large' | 'full';
   
   // HEADER
-  headerStyle: 'default' | 'minimal' | 'steps';
+  headerStyle: 'default' | 'minimal' | 'steps' | 'line';
   logo: {
     type: 'image' | 'url' | 'emoji';
     value: string;
@@ -348,7 +348,7 @@ export function DesignEditor({ settings, onSettingsChange }: DesignEditorProps) 
               <Label className="text-xs text-muted-foreground">Estilo do header</Label>
               <Select 
                 value={settings.headerStyle || 'default'} 
-                onValueChange={(value: 'default' | 'minimal' | 'steps') => updateSettings({ headerStyle: value })}
+                onValueChange={(value: 'default' | 'minimal' | 'steps' | 'line') => updateSettings({ headerStyle: value })}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -357,6 +357,7 @@ export function DesignEditor({ settings, onSettingsChange }: DesignEditorProps) 
                   <SelectItem value="default">Barra contínua</SelectItem>
                   <SelectItem value="minimal">Contador de passos</SelectItem>
                   <SelectItem value="steps">Passos segmentados</SelectItem>
+                  <SelectItem value="line">Linha no topo</SelectItem>
                 </SelectContent>
               </Select>
             </div>

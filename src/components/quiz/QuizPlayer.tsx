@@ -303,7 +303,7 @@ interface DesignSettings {
   borderRadius: 'none' | 'small' | 'medium' | 'large' | 'full';
   
   // HEADER
-  headerStyle: 'default' | 'minimal' | 'steps';
+  headerStyle: 'default' | 'minimal' | 'steps' | 'line';
   logo: {
     type: 'image' | 'url' | 'emoji';
     value: string;
@@ -2762,6 +2762,24 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
       {/* Header */}
       {showHeader && (
         <>
+          {/* Line Style - Thin progress bar at the very top */}
+          {designSettings.headerStyle === 'line' && pageSettings?.showProgress && (
+            <div className="shrink-0">
+              <div 
+                className="h-1 w-full"
+                style={{ backgroundColor: `${designSettings.primaryColor}20` }}
+              >
+                <div 
+                  className="h-full transition-all duration-300"
+                  style={{ 
+                    width: `${progressValue}%`,
+                    backgroundColor: designSettings.primaryColor,
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Default Style - Continuous progress bar */}
           {(designSettings.headerStyle === 'default' || !designSettings.headerStyle) && (
             <div 
