@@ -1141,15 +1141,18 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const textColor = config.loadingTextColor;
         const barColor = config.loadingBarColor;
         const borderColor = config.loadingBorderColor;
+        const borderWidth = config.loadingBorderWidth ?? 1;
+        const borderRadius = config.loadingBorderRadius ?? 8;
         
         return (
           <div 
-            className="w-full rounded-lg p-4"
+            className="w-full p-4"
             style={{
               backgroundColor: bgColor || undefined,
-              borderWidth: '1px',
-              borderStyle: 'solid',
-              borderColor: borderColor || 'hsl(var(--border))'
+              borderWidth: borderWidth > 0 ? `${borderWidth}px` : 0,
+              borderStyle: borderWidth > 0 ? 'solid' : 'none',
+              borderColor: borderColor || 'hsl(var(--border))',
+              borderRadius: `${borderRadius}px`
             }}
           >
             {showTitle && (
@@ -1185,6 +1188,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const textColor = config.levelTextColor;
         const barColor = config.levelBarColor;
         const borderColor = config.levelBorderColor;
+        const borderWidth = config.levelBorderWidth ?? 1;
+        const borderRadius = config.levelBorderRadius ?? 8;
         
         // Get gradient/color based on levelColor (or custom barColor)
         const getBarBackground = () => {
@@ -1309,12 +1314,13 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         
         return (
           <div 
-            className="w-full rounded-lg p-4"
+            className="w-full p-4"
             style={{
               backgroundColor: bgColor || undefined,
-              borderWidth: '1px',
-              borderStyle: 'solid',
-              borderColor: borderColor || 'hsl(var(--border))'
+              borderWidth: borderWidth > 0 ? `${borderWidth}px` : 0,
+              borderStyle: borderWidth > 0 ? 'solid' : 'none',
+              borderColor: borderColor || 'hsl(var(--border))',
+              borderRadius: `${borderRadius}px`
             }}
           >
             {/* Header with title and percentage */}
