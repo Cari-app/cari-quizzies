@@ -310,7 +310,7 @@ interface DesignSettings {
   };
   logoSizePixels?: number;
   logoPosition: 'left' | 'center' | 'right';
-  logoAboveBar?: boolean;
+  logoLayout?: 'above' | 'inline' | 'below';
   progressBar: 'hidden' | 'top' | 'bottom';
   
   // HEADER STYLING
@@ -348,7 +348,7 @@ const defaultDesignSettings: DesignSettings = {
   logo: { type: 'url', value: '' },
   logoSizePixels: 40,
   logoPosition: 'center',
-  logoAboveBar: true,
+  logoLayout: 'above',
   progressBar: 'top',
   primaryColor: '#A855F7',
   backgroundColor: '#FFFFFF',
@@ -2823,7 +2823,7 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
               }}
             >
               {/* Logo above bar layout */}
-              {designSettings.logoAboveBar !== false && designSettings.logo?.value && (
+              {(designSettings.logoLayout === 'above' || (!designSettings.logoLayout && designSettings.logo?.value)) && designSettings.logo?.value && (
                 <div className={cn(
                   "px-4 pt-3 pb-2 flex items-center",
                   designSettings.logoPosition === 'center' && "justify-center",
@@ -2857,8 +2857,8 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                   </button>
                 )}
 
-                {/* Logo inline (when not above bar) */}
-                {designSettings.logoAboveBar === false && designSettings.logo?.value && (
+                {/* Logo inline (when layout is inline) */}
+                {designSettings.logoLayout === 'inline' && designSettings.logo?.value && (
                   designSettings.logo.type === 'emoji' ? (
                     <span style={{ fontSize: `${designSettings.logoSizePixels || 40}px`, lineHeight: 1 }}>
                       {designSettings.logo.value}
@@ -2918,6 +2918,29 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
                   </>
                 )}
               </div>
+
+              {/* Logo below bar layout */}
+              {designSettings.logoLayout === 'below' && designSettings.logo?.value && (
+                <div className={cn(
+                  "px-4 pb-3 flex items-center",
+                  designSettings.logoPosition === 'center' && "justify-center",
+                  designSettings.logoPosition === 'right' && "justify-end",
+                  designSettings.logoPosition === 'left' && "justify-start"
+                )}>
+                  {designSettings.logo.type === 'emoji' ? (
+                    <span style={{ fontSize: `${designSettings.logoSizePixels || 40}px`, lineHeight: 1 }}>
+                      {designSettings.logo.value}
+                    </span>
+                  ) : (
+                    <img 
+                      src={designSettings.logo.value} 
+                      alt="Logo" 
+                      className="object-contain"
+                      style={{ height: `${designSettings.logoSizePixels || 40}px` }}
+                    />
+                  )}
+                </div>
+              )}
             </div>
           )}
         </>

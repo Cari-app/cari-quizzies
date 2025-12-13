@@ -23,7 +23,7 @@ export interface QuizDesignSettings {
   };
   logoSizePixels: number; // Size in pixels (20-200)
   logoPosition: 'left' | 'center' | 'right';
-  logoAboveBar: boolean; // Logo appears above the progress bar
+  logoLayout: 'above' | 'inline' | 'below'; // Logo position relative to progress bar
   progressBar: 'hidden' | 'top' | 'bottom';
   
   // HEADER STYLING
@@ -61,7 +61,7 @@ export const defaultDesignSettings: QuizDesignSettings = {
   logo: { type: 'url', value: '' },
   logoSizePixels: 40,
   logoPosition: 'center',
-  logoAboveBar: true,
+  logoLayout: 'above',
   progressBar: 'top',
   headerDivider: {
     show: true,
@@ -370,8 +370,8 @@ export function DesignEditor({ settings, onSettingsChange }: DesignEditorProps) 
               <div className="space-y-1.5">
                 <Label className="text-xs text-muted-foreground">Layout</Label>
                 <Select 
-                  value={settings.logoAboveBar ? 'above' : 'inline'} 
-                  onValueChange={(value) => updateSettings({ logoAboveBar: value === 'above' })}
+                  value={settings.logoLayout || 'above'} 
+                  onValueChange={(value: 'above' | 'inline' | 'below') => updateSettings({ logoLayout: value })}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -379,6 +379,7 @@ export function DesignEditor({ settings, onSettingsChange }: DesignEditorProps) 
                   <SelectContent>
                     <SelectItem value="above">Acima da barra</SelectItem>
                     <SelectItem value="inline">Ao lado da barra</SelectItem>
+                    <SelectItem value="below">Abaixo da barra</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

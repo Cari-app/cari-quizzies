@@ -9,7 +9,7 @@ interface DesignSettings {
   };
   logoSizePixels?: number;
   logoPosition: 'left' | 'center' | 'right';
-  logoAboveBar?: boolean;
+  logoLayout?: 'above' | 'inline' | 'below';
   progressBar: 'hidden' | 'top' | 'bottom';
   primaryColor: string;
   textColor: string;
@@ -51,7 +51,7 @@ export function QuizHeaderPreview({
   const isBottomProgress = position === 'bottom' && designSettings.progressBar === 'bottom';
   const headerStyle = designSettings.headerStyle || 'default';
   const logoSizePx = designSettings.logoSizePixels || 40;
-  const logoAboveBar = designSettings.logoAboveBar ?? true;
+  const logoLayout = designSettings.logoLayout || 'above';
 
   // Render back icon based on settings
   const renderBackIcon = () => {
@@ -241,7 +241,7 @@ export function QuizHeaderPreview({
   };
 
   // Logo above bar layout
-  if (logoAboveBar && designSettings.logo.value) {
+  if (logoLayout === 'above' && designSettings.logo.value) {
     return (
       <div 
         className="shrink-0"
@@ -275,7 +275,42 @@ export function QuizHeaderPreview({
     );
   }
 
-  // Original inline layout (logo beside bar)
+  // Logo below bar layout
+  if (logoLayout === 'below' && designSettings.logo.value) {
+    return (
+      <div 
+        className="shrink-0"
+        style={{ borderBottom: dividerStyle }}
+      >
+        {/* Progress bar row */}
+        {isTopProgress && (
+          <div className="px-4 pt-3 pb-2 flex items-center gap-3">
+            {pageSettings.allowBack && (
+              <button 
+                className="p-1 rounded transition-colors hover:opacity-70 pointer-events-none"
+                style={{ color: backIconColor }}
+              >
+                {renderBackIcon()}
+              </button>
+            )}
+            {renderProgressBar()}
+          </div>
+        )}
+        
+        {/* Logo row */}
+        <div className={cn(
+          "px-4 pb-3 flex items-center",
+          designSettings.logoPosition === 'center' && "justify-center",
+          designSettings.logoPosition === 'right' && "justify-end",
+          designSettings.logoPosition === 'left' && "justify-start"
+        )}>
+          {renderLogo()}
+        </div>
+      </div>
+    );
+  }
+
+  // Inline layout (logo beside bar)
   return (
     <div 
       className="shrink-0 p-3"
