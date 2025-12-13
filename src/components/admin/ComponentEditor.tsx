@@ -324,6 +324,8 @@ export interface ComponentConfig {
   loadingTextColor?: string;
   loadingBarColor?: string;
   loadingBorderColor?: string;
+  loadingBorderWidth?: number;
+  loadingBorderRadius?: number;
   // Level specific
   levelTitle?: string;
   levelSubtitle?: string;
@@ -338,6 +340,8 @@ export interface ComponentConfig {
   levelTextColor?: string;
   levelBarColor?: string;
   levelBorderColor?: string;
+  levelBorderWidth?: number;
+  levelBorderRadius?: number;
   // Arguments specific
   argumentItems?: ArgumentItem[];
   argumentLayout?: 'list' | 'grid-2' | 'grid-3' | 'grid-4';
@@ -2438,6 +2442,32 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             )}
           </div>
         </div>
+
+        {/* Espessura e arredondamento da borda */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs text-muted-foreground">Espessura</Label>
+            <Input
+              type="number"
+              min={0}
+              max={10}
+              value={config.loadingBorderWidth ?? 1}
+              onChange={(e) => updateConfig({ loadingBorderWidth: parseInt(e.target.value) || 0 })}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Arredondamento</Label>
+            <Input
+              type="number"
+              min={0}
+              max={50}
+              value={config.loadingBorderRadius ?? 8}
+              onChange={(e) => updateConfig({ loadingBorderRadius: parseInt(e.target.value) || 0 })}
+              className="mt-1"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Avançado */}
@@ -2655,6 +2685,32 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                 <X className="w-3 h-3" />
               </Button>
             )}
+          </div>
+        </div>
+
+        {/* Espessura e arredondamento da borda */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs text-muted-foreground">Espessura</Label>
+            <Input
+              type="number"
+              min={0}
+              max={10}
+              value={config.levelBorderWidth ?? 1}
+              onChange={(e) => updateConfig({ levelBorderWidth: parseInt(e.target.value) || 0 })}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Arredondamento</Label>
+            <Input
+              type="number"
+              min={0}
+              max={50}
+              value={config.levelBorderRadius ?? 8}
+              onChange={(e) => updateConfig({ levelBorderRadius: parseInt(e.target.value) || 0 })}
+              className="mt-1"
+            />
           </div>
         </div>
       </div>

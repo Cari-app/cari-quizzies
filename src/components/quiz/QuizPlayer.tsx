@@ -134,6 +134,8 @@ interface ComponentConfig {
   loadingTextColor?: string;
   loadingBarColor?: string;
   loadingBorderColor?: string;
+  loadingBorderWidth?: number;
+  loadingBorderRadius?: number;
   // Level specific
   levelTitle?: string;
   levelSubtitle?: string;
@@ -148,6 +150,8 @@ interface ComponentConfig {
   levelTextColor?: string;
   levelBarColor?: string;
   levelBorderColor?: string;
+  levelBorderWidth?: number;
+  levelBorderRadius?: number;
   // Arguments specific
   argumentItems?: Array<{
     id: string;
@@ -1614,6 +1618,8 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         const textColor = config.loadingTextColor;
         const barColor = config.loadingBarColor;
         const borderColor = config.loadingBorderColor;
+        const borderWidth = config.loadingBorderWidth ?? 1;
+        const borderRadius = config.loadingBorderRadius ?? 8;
         
         const progress = loadingProgress[comp.id] ?? 0;
         
@@ -1626,13 +1632,14 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         return (
           <div className={cn("w-full px-4 flex", justifyClass)}>
             <div 
-              className="rounded-lg p-4 backdrop-blur-sm"
+              className="p-4 backdrop-blur-sm"
               style={{ 
                 width: `${widthValue}%`,
                 backgroundColor: bgColor || undefined,
-                borderWidth: '1px',
-                borderStyle: 'solid',
-                borderColor: borderColor || 'hsl(var(--border))'
+                borderWidth: borderWidth > 0 ? `${borderWidth}px` : 0,
+                borderStyle: borderWidth > 0 ? 'solid' : 'none',
+                borderColor: borderColor || 'hsl(var(--border))',
+                borderRadius: `${borderRadius}px`
               }}
             >
               {showTitle && (
@@ -1679,6 +1686,8 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         const textColor = config.levelTextColor;
         const barColor = config.levelBarColor;
         const borderColor = config.levelBorderColor;
+        const borderWidth = config.levelBorderWidth ?? 1;
+        const borderRadius = config.levelBorderRadius ?? 8;
         
         const justifyClass = {
           start: 'justify-start',
@@ -1810,13 +1819,14 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         return (
           <div className={cn("w-full px-4 flex", justifyClass)}>
             <div 
-              className="rounded-lg p-4"
+              className="p-4"
               style={{ 
                 width: `${widthValue}%`,
                 backgroundColor: bgColor || undefined,
-                borderWidth: '1px',
-                borderStyle: 'solid',
-                borderColor: borderColor || 'hsl(var(--border))'
+                borderWidth: borderWidth > 0 ? `${borderWidth}px` : 0,
+                borderStyle: borderWidth > 0 ? 'solid' : 'none',
+                borderColor: borderColor || 'hsl(var(--border))',
+                borderRadius: `${borderRadius}px`
               }}
             >
               {/* Header with title and percentage */}
