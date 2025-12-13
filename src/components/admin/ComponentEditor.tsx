@@ -5083,16 +5083,23 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
     // FAQ component appearance
     if (isFaqComponent) {
-      // Helper component for full-width color bar picker
-      const ColorBarPicker = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
+      // Helper component for color picker with small square + hex input
+      const ColorPicker = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
         <div>
           <Label className="text-xs text-muted-foreground mb-1 block">{label}</Label>
-          <div className="relative h-8 rounded-md border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: value }}>
-            <input
-              type="color"
+          <div className="flex items-center gap-2">
+            <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: value }}>
+              <input
+                type="color"
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              />
+            </div>
+            <Input
               value={value}
               onChange={(e) => onChange(e.target.value)}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              className="flex-1 font-mono text-sm"
             />
           </div>
         </div>
@@ -5141,7 +5148,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
             {/* Cor de fundo (sólida) */}
             {(!config.faqBgType || config.faqBgType === 'solid') && (
-              <ColorBarPicker 
+              <ColorPicker 
                 label="Cor de fundo" 
                 value={config.faqBgColor || '#ffffff'} 
                 onChange={(v) => updateConfig({ faqBgColor: v })} 
@@ -5151,12 +5158,12 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
             {/* Gradiente */}
             {config.faqBgType === 'gradient' && (
               <div className="space-y-3">
-                <ColorBarPicker 
+                <ColorPicker 
                   label="Cor inicial" 
                   value={config.faqGradientStart || '#667eea'} 
                   onChange={(v) => updateConfig({ faqGradientStart: v })} 
                 />
-                <ColorBarPicker 
+                <ColorPicker 
                   label="Cor final" 
                   value={config.faqGradientEnd || '#764ba2'} 
                   onChange={(v) => updateConfig({ faqGradientEnd: v })} 
@@ -5176,19 +5183,19 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
 
             {/* Cores de texto em grid */}
             <div className="grid grid-cols-2 gap-3">
-              <ColorBarPicker 
+              <ColorPicker 
                 label="Título" 
                 value={config.faqTextColor || '#1f2937'} 
                 onChange={(v) => updateConfig({ faqTextColor: v })} 
               />
-              <ColorBarPicker 
+              <ColorPicker 
                 label="Resposta" 
                 value={config.faqAnswerColor || '#6b7280'} 
                 onChange={(v) => updateConfig({ faqAnswerColor: v })} 
               />
             </div>
             
-            <ColorBarPicker 
+            <ColorPicker 
               label="Ícone" 
               value={config.faqIconColor || '#6b7280'} 
               onChange={(v) => updateConfig({ faqIconColor: v })} 
@@ -5199,7 +5206,7 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           <div className="border border-border rounded-lg p-3 space-y-3">
             <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Bordas</Label>
             
-            <ColorBarPicker 
+            <ColorPicker 
               label="Cor da borda" 
               value={config.faqBorderColor || '#e5e7eb'} 
               onChange={(v) => updateConfig({ faqBorderColor: v })} 
