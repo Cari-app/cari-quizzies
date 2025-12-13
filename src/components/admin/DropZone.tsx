@@ -1884,14 +1884,14 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           'grid-4': 'grid grid-cols-4',
         };
 
-        const colorBgClasses: Record<string, string> = {
-          theme: 'bg-primary',
-          green: 'bg-green-500',
-          blue: 'bg-blue-500',
-          yellow: 'bg-yellow-500',
-          orange: 'bg-orange-500',
-          red: 'bg-red-500',
-          black: 'bg-foreground',
+        const colorGradients: Record<string, string> = {
+          theme: 'linear-gradient(180deg, hsl(var(--primary)) 0%, hsl(var(--primary) / 0.7) 100%)',
+          green: 'linear-gradient(180deg, #22c55e 0%, #16a34a 100%)',
+          blue: 'linear-gradient(180deg, #3b82f6 0%, #2563eb 100%)',
+          yellow: 'linear-gradient(180deg, #eab308 0%, #ca8a04 100%)',
+          orange: 'linear-gradient(180deg, #f97316 0%, #ea580c 100%)',
+          red: 'linear-gradient(180deg, #ef4444 0%, #dc2626 100%)',
+          black: 'linear-gradient(180deg, hsl(var(--foreground)) 0%, hsl(var(--foreground) / 0.7) 100%)',
         };
 
         const colorStrokeClasses: Record<string, string> = {
@@ -1921,19 +1921,25 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             : bgColor || undefined;
         
         const renderBarChart = (value: number, color: string) => {
-          const height = Math.max(10, (value / 100) * 80);
           return (
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-2 w-full">
               <span 
-                className="text-xs"
+                className="text-xs font-semibold"
                 style={{ color: valueColor || undefined }}
               >
                 {value}%
               </span>
-              <div className="w-8 h-14 bg-muted/30 rounded-sm flex items-end justify-center overflow-hidden">
+              <div className="w-full h-16 rounded-xl overflow-hidden relative" style={{ 
+                background: 'linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.05) 100%)',
+                boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.15)'
+              }}>
                 <div 
-                  className={cn("w-6 rounded-t-sm", colorBgClasses[color] || 'bg-primary')}
-                  style={{ height: `${height}%` }}
+                  className="absolute bottom-0 left-0 w-full rounded-xl transition-all duration-700 ease-out"
+                  style={{ 
+                    height: `${Math.max(8, value)}%`,
+                    background: colorGradients[color] || colorGradients.theme,
+                    boxShadow: '0 -2px 10px rgba(0,0,0,0.1), inset 0 1px 2px rgba(255,255,255,0.3)'
+                  }}
                 />
               </div>
             </div>
