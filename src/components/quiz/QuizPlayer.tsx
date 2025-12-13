@@ -665,20 +665,30 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
 
       try {
         // Try to find by slug first (without is_active filter to check if it exists but inactive)
-        let { data: quizData } = await supabase
+        let { data: quizData, error: quizError } = await supabase
           .from('quizzes')
           .select('*')
           .eq('slug', slug)
           .maybeSingle();
 
-        // If not found by slug, try by id
-        if (!quizData) {
-          const { data } = await supabase
-            .from('quizzes')
-            .select('*')
-            .eq('id', slug)
-            .maybeSingle();
-          quizData = data;
+        if (quizError) {
+          console.error('Error loading quiz by slug:', quizError);
+        }
+
+        // If not found by slug, try by id (only if slug looks like a UUID)
+        if (!quizData && !quizError) {
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          if (uuidRegex.test(slug)) {
+            const { data, error: idError } = await supabase
+              .from('quizzes')
+              .select('*')
+              .eq('id', slug)
+              .maybeSingle();
+            if (idError) {
+              console.error('Error loading quiz by id:', idError);
+            }
+            quizData = data;
+          }
         }
 
         if (!quizData) {
