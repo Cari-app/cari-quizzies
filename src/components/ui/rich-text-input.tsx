@@ -4,7 +4,7 @@ import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextAlign from "@tiptap/extension-text-align";
-import { Color, TextStyle, FontSize } from "@tiptap/extension-text-style";
+import { TextStyle, FontSize, Color } from "@tiptap/extension-text-style";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
 import Highlight from "@tiptap/extension-highlight";
@@ -112,17 +112,25 @@ const ToolbarButton = React.forwardRef<
 ));
 ToolbarButton.displayName = "ToolbarButton";
 
-// Color Picker Dropdown
+// Color Picker Dropdown - saves selection before opening
 const ColorPickerDropdown: React.FC<{
   colors: string[];
-  value: string;
-  onChange: (color: string) => void;
+  currentColor: string;
+  applyColor: (color: string) => void;
   icon: React.ReactNode;
   title: string;
   editor: Editor;
-}> = ({ colors, value, onChange, icon, title, editor }) => {
+}> = ({ colors, currentColor, applyColor, icon, title, editor }) => {
   const [open, setOpen] = React.useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
+  const savedSelectionRef = React.useRef<{ from: number; to: number } | null>(null);
+
+  // Save selection when opening dropdown
+  const handleOpen = () => {
+    const { from, to } = editor.state.selection;
+    savedSelectionRef.current = { from, to };
+    setOpen(true);
+  };
 
   // Close on outside click
   React.useEffect(() => {
@@ -130,6 +138,7 @@ const ColorPickerDropdown: React.FC<{
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setOpen(false);
+        savedSelectionRef.current = null;
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -137,9 +146,16 @@ const ColorPickerDropdown: React.FC<{
   }, [open]);
 
   const handleColorSelect = (color: string) => {
-    editor.chain().focus();
-    onChange(color);
+    // Restore selection and apply color in one operation
+    if (savedSelectionRef.current) {
+      const { from, to } = savedSelectionRef.current;
+      // First restore selection, then apply color
+      editor.commands.setTextSelection({ from, to });
+      // Now apply color with focus
+      applyColor(color);
+    }
     setOpen(false);
+    savedSelectionRef.current = null;
   };
 
   return (
@@ -153,7 +169,12 @@ const ColorPickerDropdown: React.FC<{
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          setOpen(!open);
+          if (open) {
+            setOpen(false);
+            savedSelectionRef.current = null;
+          } else {
+            handleOpen();
+          }
         }}
         className={cn(
           "p-1.5 rounded-md transition-all duration-150 ease-out",
@@ -165,7 +186,7 @@ const ColorPickerDropdown: React.FC<{
         {icon}
         <div
           className="w-4 h-1 rounded-full"
-          style={{ backgroundColor: value || "#000000" }}
+          style={{ backgroundColor: currentColor || "#000000" }}
         />
       </button>
 
@@ -191,7 +212,7 @@ const ColorPickerDropdown: React.FC<{
                 className={cn(
                   "w-6 h-6 rounded-md border border-border transition-all",
                   "hover:scale-110 hover:shadow-md",
-                  value === color && "ring-2 ring-primary ring-offset-1"
+                  currentColor === color && "ring-2 ring-primary ring-offset-1"
                 )}
                 style={{ backgroundColor: color }}
               />
@@ -202,7 +223,7 @@ const ColorPickerDropdown: React.FC<{
               <span className="text-muted-foreground text-xs">Custom:</span>
               <input
                 type="color"
-                value={value || "#000000"}
+                value={currentColor || "#000000"}
                 onMouseDown={(e) => e.stopPropagation()}
                 onChange={(e) => {
                   handleColorSelect(e.target.value);
@@ -494,8 +515,8 @@ const FloatingToolbar: React.FC<{
       {/* Text Color */}
       <ColorPickerDropdown
         colors={colorPresets}
-        value={currentColor}
-        onChange={(color) => {
+        currentColor={currentColor}
+        applyColor={(color) => {
           editor.chain().focus().setColor(color).run();
         }}
         icon={<Type className="w-3.5 h-3.5" />}
@@ -506,8 +527,8 @@ const FloatingToolbar: React.FC<{
       {/* Highlight Color */}
       <ColorPickerDropdown
         colors={highlightColors}
-        value={currentHighlight}
-        onChange={(color) => {
+        currentColor={currentHighlight}
+        applyColor={(color) => {
           editor.chain().focus().toggleHighlight({ color }).run();
         }}
         icon={<Highlighter className="w-3.5 h-3.5" />}
