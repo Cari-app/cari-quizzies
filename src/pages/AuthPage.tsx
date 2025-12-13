@@ -137,7 +137,7 @@ export default function AuthPage() {
           <div className="flex justify-center mb-4">
             <Logo className="h-10" />
           </div>
-          <CardTitle className="text-2xl">Cari</CardTitle>
+          <CardTitle className="text-2xl">Bem-vindo</CardTitle>
           <CardDescription>
             Acesse sua conta para gerenciar seus quizzes
           </CardDescription>
