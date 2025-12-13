@@ -1117,8 +1117,8 @@ export function QuizPlayer({ slug }: QuizPlayerProps) {
         
         return (
           <div className="py-4">
-            {config.label && <div className="rich-text text-sm font-medium mb-1" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.label) }} />}
-            {config.description && <div className="rich-text text-xs text-muted-foreground mb-3" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.description) }} />}
+{config.label && config.label.replace(/<[^>]*>/g, '').trim() && <div className="rich-text text-sm font-medium mb-1" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.label) }} />}
+            {config.description && config.description.replace(/<[^>]*>/g, '').trim() && <div className="rich-text text-xs text-muted-foreground mb-3" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.description) }} />}
             <div className={cn(getLayoutClass(), getSpacing())}>
               {(config.options || []).map((opt, i) => {
                 const isSelected = isOptionSelected(opt.value);
