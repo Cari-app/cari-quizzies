@@ -342,7 +342,6 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         );
       case 'input':
       case 'email':
-      case 'phone':
       case 'number':
       case 'textarea':
         return (
@@ -363,6 +362,33 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                 disabled
               />
             )}
+            {config.helpText && <p className="text-xs opacity-60 mt-1">{config.helpText}</p>}
+          </div>
+        );
+      case 'phone':
+        const phoneCountries = [
+          { code: 'BR', flag: '🇧🇷', dial: '+55', mask: '(00) 0 0000-0000' },
+          { code: 'US', flag: '🇺🇸', dial: '+1', mask: '(000) 000-0000' },
+          { code: 'PT', flag: '🇵🇹', dial: '+351', mask: '000 000 000' },
+        ];
+        const defaultCountry = phoneCountries.find(c => c.code === (config.defaultCountry || 'BR')) || phoneCountries[0];
+        return (
+          <div className="p-4">
+            {config.label && <div className="rich-text font-medium mb-2" dangerouslySetInnerHTML={{ __html: sanitizeHtml(config.label) }} />}
+            <div className="flex gap-2">
+              <div className="flex items-center gap-1 px-3 py-2 bg-transparent border border-current/30 rounded-lg shrink-0">
+                <span className="text-lg">{defaultCountry.flag}</span>
+                <svg className="w-3 h-3 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+              <input 
+                type="tel"
+                placeholder={defaultCountry.mask.replace(/0/g, '0')}
+                className="flex-1 px-4 py-3 bg-transparent border border-current/30 rounded-lg text-sm"
+                disabled
+              />
+            </div>
             {config.helpText && <p className="text-xs opacity-60 mt-1">{config.helpText}</p>}
           </div>
         );
