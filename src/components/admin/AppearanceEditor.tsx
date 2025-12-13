@@ -198,26 +198,6 @@ export function AppearanceEditor({ config, onUpdate, componentType, themeColor }
     <div className="space-y-4">
       {/* Basic Layout */}
       <Section title="Layout" defaultOpen={true}>
-        {/* Label Style */}
-        {showLabelStyle && (
-          <div>
-            <Label className="text-xs text-muted-foreground">Label</Label>
-            <Select 
-              value={config.labelStyle || 'default'} 
-              onValueChange={(v) => onUpdate({ labelStyle: v as AppearanceConfig['labelStyle'] })}
-            >
-              <SelectTrigger className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="default">Padrão</SelectItem>
-                <SelectItem value="floating">Flutuante</SelectItem>
-                <SelectItem value="hidden">Oculto</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
         {/* Width */}
         <SliderField
           label="Largura"
