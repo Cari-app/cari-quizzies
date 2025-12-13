@@ -218,26 +218,6 @@ export function AppearanceEditor({ config, onUpdate, componentType, themeColor }
           </div>
         )}
 
-        {/* Text Align */}
-        {showTextAlign && (
-          <div>
-            <Label className="text-xs text-muted-foreground">Alinhamento do texto</Label>
-            <Select 
-              value={config.textAlign || 'left'} 
-              onValueChange={(v) => onUpdate({ textAlign: v as AppearanceConfig['textAlign'] })}
-            >
-              <SelectTrigger className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="left">Esquerda</SelectItem>
-                <SelectItem value="center">Centro</SelectItem>
-                <SelectItem value="right">Direita</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-
         {/* Width */}
         <SliderField
           label="Largura"
