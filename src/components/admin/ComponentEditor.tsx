@@ -168,6 +168,7 @@ export interface ArgumentItem {
   emoji?: string;
   imageUrl?: string;
   backgroundColor?: string;
+  borderColor?: string;
 }
 
 export interface TestimonialItem {
@@ -2713,6 +2714,42 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                           size="sm"
                           className="h-8 px-2"
                           onClick={() => updateArgument(item.id, { backgroundColor: undefined })}
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Border color picker */}
+                <div className="px-3 pb-3">
+                  <div className="bg-muted/20 rounded-lg p-2">
+                    <Label className="text-xs text-muted-foreground mb-2 block">Cor da borda</Label>
+                    <div className="flex gap-2">
+                      <div 
+                        className="relative w-10 h-8 rounded border overflow-hidden cursor-pointer"
+                        style={{ backgroundColor: item.borderColor || 'hsl(var(--primary) / 0.3)' }}
+                      >
+                        <input
+                          type="color"
+                          value={item.borderColor || '#8b5cf6'}
+                          onChange={(e) => updateArgument(item.id, { borderColor: e.target.value })}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                      </div>
+                      <Input
+                        value={item.borderColor || ''}
+                        onChange={(e) => updateArgument(item.id, { borderColor: e.target.value })}
+                        placeholder="Padrão do tema"
+                        className="flex-1 text-xs h-8 font-mono"
+                      />
+                      {item.borderColor && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-2"
+                          onClick={() => updateArgument(item.id, { borderColor: undefined })}
                         >
                           <X className="w-3 h-3" />
                         </Button>
