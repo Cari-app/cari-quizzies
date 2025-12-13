@@ -433,6 +433,16 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           </div>
         );
       case 'button': {
+        // DEBUG: Log all button config
+        console.log('🔵 BUTTON CONFIG:', {
+          buttonAnimation: config.buttonAnimation,
+          buttonHoverEffect: config.buttonHoverEffect,
+          buttonShadow: config.buttonShadow,
+          buttonBgColor: config.buttonBgColor,
+          buttonTextColor: config.buttonTextColor,
+          fullConfig: config
+        });
+
         // Helper to convert hex to rgba
         const hexToRgba = (hex: string, opacity: number): string => {
           const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -515,6 +525,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
 
         const animClass = getAnimationClass(config.buttonAnimation);
         const hoverClass = getHoverClass(config.buttonHoverEffect);
+        
+        console.log('🔵 BUTTON CLASSES:', { animClass, hoverClass, style });
 
         return (
           <div className="p-4">
