@@ -31,9 +31,8 @@ export function AdminHeader({ title, subtitle }: AdminHeaderProps) {
     } catch (e) {
       // Ignore errors - we want to logout anyway
     }
-    // Always navigate to login, even if signOut fails
-    // (e.g., session already expired on server)
-    navigate('/login');
+    // Force a full page reload to clear all state
+    window.location.href = '/login';
   };
 
   const getInitials = () => {
