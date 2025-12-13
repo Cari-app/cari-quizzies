@@ -8,7 +8,7 @@
     --background: 0 0% 100%;
     --foreground: 0 0% 4%;
 
-    /* Card surfaces - Neutral, minimal */
+    /* Card surfaces */
     --card: 0 0% 100%;
     --card-foreground: 0 0% 4%;
 
@@ -16,19 +16,19 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 4%;
 
-    /* Primary - Purple 500 */
-    --primary: 271 91% 65%;
+    /* Primary - Pure black */
+    --primary: 0 0% 9%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Very subtle gray */
+    /* Secondary */
     --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 15%;
+    --secondary-foreground: 0 0% 9%;
 
-    /* Muted - Subtle gray */
+    /* Muted */
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
 
-    /* Accent - Subtle hover */
+    /* Accent */
     --accent: 0 0% 96%;
     --accent-foreground: 0 0% 9%;
 
@@ -36,36 +36,23 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Border & Input - Very subtle */
+    /* Border & Input */
     --border: 0 0% 90%;
     --input: 0 0% 90%;
-    --ring: 271 91% 65%;
+    --ring: 0 0% 9%;
 
     /* Radius */
     --radius: 0.5rem;
 
-    /* Sidebar - Minimal */
+    /* Sidebar */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 0 0% 4%;
-    --sidebar-primary: 271 91% 65%;
+    --sidebar-primary: 0 0% 9%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 96%;
     --sidebar-accent-foreground: 0 0% 9%;
     --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 271 91% 65%;
-
-    /* Purple tokens for accents */
-    --purple-50: 270 100% 98%;
-    --purple-100: 269 100% 95%;
-    --purple-200: 269 100% 92%;
-    --purple-300: 269 97% 85%;
-    --purple-400: 270 95% 75%;
-    --purple-500: 271 91% 65%;
-    --purple-600: 271 81% 56%;
-    --purple-700: 272 72% 47%;
-    --purple-800: 273 67% 39%;
-    --purple-900: 274 66% 32%;
-    --purple-950: 274 87% 21%;
+    --sidebar-ring: 0 0% 9%;
   }
 
   .dark {
@@ -73,7 +60,7 @@
     --background: 0 0% 0%;
     --foreground: 0 0% 98%;
 
-    /* Card surfaces - Very dark, neutral */
+    /* Card surfaces */
     --card: 0 0% 6%;
     --card-foreground: 0 0% 98%;
 
@@ -81,11 +68,11 @@
     --popover: 0 0% 6%;
     --popover-foreground: 0 0% 98%;
 
-    /* Primary - Purple 500 */
-    --primary: 271 91% 65%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary - Pure white */
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 4%;
 
-    /* Secondary - Dark neutral */
+    /* Secondary */
     --secondary: 0 0% 12%;
     --secondary-foreground: 0 0% 90%;
 
@@ -93,7 +80,7 @@
     --muted: 0 0% 12%;
     --muted-foreground: 0 0% 55%;
 
-    /* Accent - Subtle dark hover */
+    /* Accent */
     --accent: 0 0% 12%;
     --accent-foreground: 0 0% 98%;
 
@@ -104,17 +91,17 @@
     /* Border & Input */
     --border: 0 0% 15%;
     --input: 0 0% 15%;
-    --ring: 271 91% 65%;
+    --ring: 0 0% 98%;
 
     /* Sidebar */
     --sidebar-background: 0 0% 4%;
     --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 271 91% 65%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 0 0% 4%;
     --sidebar-accent: 0 0% 12%;
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 0 0% 15%;
-    --sidebar-ring: 271 91% 65%;
+    --sidebar-ring: 0 0% 98%;
   }
 }
 
