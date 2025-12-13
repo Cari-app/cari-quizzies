@@ -217,41 +217,6 @@ export default function AdminSettings() {
               </div>
             </div>
 
-            {/* Preview */}
-            <div 
-              className="mt-8 p-8 rounded-2xl border-2 border-dashed" 
-              style={{ 
-                backgroundColor: formData.background_color,
-                color: formData.text_color,
-                borderColor: formData.accent_color
-              }}
-            >
-              <h3 className="text-xl font-semibold mb-3">Preview</h3>
-              <p className="text-sm opacity-80 mb-6">Assim ficará a aparência do seu site.</p>
-              <div className="flex flex-wrap gap-3">
-                <button 
-                  type="button"
-                  className="px-5 py-2.5 rounded-lg text-white text-sm font-semibold transition-transform hover:scale-105"
-                  style={{ backgroundColor: formData.primary_color }}
-                >
-                  Botão Primário
-                </button>
-                <button 
-                  type="button"
-                  className="px-5 py-2.5 rounded-lg text-white text-sm font-semibold transition-transform hover:scale-105"
-                  style={{ backgroundColor: formData.secondary_color }}
-                >
-                  Secundário
-                </button>
-                <button 
-                  type="button"
-                  className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-transform hover:scale-105"
-                  style={{ backgroundColor: formData.accent_color, color: formData.text_color }}
-                >
-                  Destaque
-                </button>
-              </div>
-            </div>
           </CardContent>
         </Card>
 
