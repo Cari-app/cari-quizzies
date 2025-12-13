@@ -18,3 +18,4 @@ export { FaqRenderer } from './FaqRenderer';
 export { PriceRenderer } from './PriceRenderer';
 export { BeforeAfterRenderer, CarouselRenderer, MetricsRenderer, ChartsRenderer } from './AdvancedRenderers';
 export { WebhookTriggerRenderer } from './WebhookTriggerRenderer';
+export { FormRenderer } from './FormRenderer';

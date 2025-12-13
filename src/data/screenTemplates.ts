@@ -166,6 +166,7 @@ export const screenTemplates: ScreenTemplate[] = [
 
 export const componentPalette = {
   form: [
+    { type: 'form', name: 'Formulário', icon: 'file-text', isNew: true },
     { type: 'input', name: 'Campo', icon: 'type' },
     { type: 'email', name: 'E-mail', icon: 'mail' },
     { type: 'phone', name: 'Telefone', icon: 'phone' },

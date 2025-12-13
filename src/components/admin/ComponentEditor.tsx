@@ -56,6 +56,7 @@ import {
   MetricsComponentTab,
   ScriptComponentTab,
   WebhookTriggerComponentTab,
+  FormEditor,
   generateSlug 
 } from './editors';
 
@@ -496,6 +497,18 @@ export interface ComponentConfig {
   metricsBorderRadius?: number;
   // Charts specific
   chartConfig?: ChartConfig;
+  // Form component specific
+  formFields?: Array<{
+    id: string;
+    type: 'text' | 'email' | 'phone' | 'number' | 'date' | 'textarea';
+    label: string;
+    placeholder?: string;
+    required?: boolean;
+    customId?: string;
+    defaultCountry?: string;
+  }>;
+  formTitle?: string;
+  formSpacing?: 'compact' | 'normal' | 'relaxed';
 }
 
 interface ComponentEditorProps {
@@ -639,6 +652,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         return <MetricsComponentTab {...editorProps} />;
       case 'charts':
         return renderChartsComponentTab();
+      case 'form':
+        return <FormEditor {...editorProps} />;
       default:
         return (
           <div className="text-center py-8">

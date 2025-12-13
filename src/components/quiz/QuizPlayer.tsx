@@ -33,7 +33,8 @@ import {
   MetricsRenderer,
   ChartsRenderer,
   MediaRenderer,
-  WebhookTriggerRenderer
+  WebhookTriggerRenderer,
+  FormRenderer
 } from './renderers';
 
 interface QuizPlayerProps {
@@ -1212,6 +1213,9 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
 
       case 'charts':
         return <ChartsRenderer {...rendererProps} />;
+
+      case 'form':
+        return <FormRenderer {...rendererProps} />;
 
       default:
         return null;
