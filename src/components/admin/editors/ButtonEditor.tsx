@@ -36,6 +36,18 @@ export function ButtonComponentTab({ component, config, updateConfig, onUpdateCu
   const [advancedOpen, setAdvancedOpen] = useState(false);
   const [designOpen, setDesignOpen] = useState(false);
 
+  // Debug: log when config or colors change
+  console.log('ButtonEditor render - config:', JSON.stringify({
+    buttonBgColor: config.buttonBgColor,
+    buttonTextColor: config.buttonTextColor,
+    buttonFontSize: config.buttonFontSize
+  }));
+
+  const handleUpdateConfig = (updates: Partial<typeof config>) => {
+    console.log('ButtonEditor updateConfig called with:', JSON.stringify(updates));
+    updateConfig(updates);
+  };
+
   return (
     <div className="space-y-4">
       <ComponentIdDisplay
@@ -156,13 +168,13 @@ export function ButtonComponentTab({ component, config, updateConfig, onUpdateCu
                   <input
                     type="color"
                     value={config.buttonTextColor || '#ffffff'}
-                    onChange={(e) => updateConfig({ buttonTextColor: e.target.value })}
+                    onChange={(e) => handleUpdateConfig({ buttonTextColor: e.target.value })}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
                 </div>
                 <Input
                   value={config.buttonTextColor || '#ffffff'}
-                  onChange={(e) => updateConfig({ buttonTextColor: e.target.value })}
+                  onChange={(e) => handleUpdateConfig({ buttonTextColor: e.target.value })}
                   className="mt-1 font-mono text-xs"
                 />
               </div>
