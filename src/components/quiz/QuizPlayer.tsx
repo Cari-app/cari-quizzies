@@ -20,6 +20,15 @@ import { MetricsPlayer } from './MetricsPlayer';
 import { ChartPlayer } from './ChartPlayer';
 import { SlidingRuler } from './SlidingRuler';
 import { ScriptExecutor } from './ScriptExecutor';
+// Extracted renderers
+import { 
+  TextRenderer, 
+  InputRenderer, 
+  ButtonRenderer, 
+  MeasurementRenderer,
+  SpacerRenderer,
+  SeparatorRenderer
+} from './renderers';
 
 interface QuizPlayerProps {
   slug?: string;
@@ -989,292 +998,65 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
     return sanitizeHtml(processed);
   }, [templateVariables]);
 
+  // Common renderer props
+  const getRendererProps = (comp: DroppedComponent) => {
+    const config = comp.config || {};
+    const customId = comp.customId || config.customId;
+    const key = customId || comp.id;
+    const value = formData[key] || '';
+    
+    return {
+      component: comp,
+      config,
+      value,
+      formData,
+      onInputChange: handleInputChange,
+      onNavigate: handleNavigateByComponent,
+      onNavigateByOption: handleNavigateByOption,
+      onSubmit: handleSubmit,
+      processTemplate,
+      processTemplateHtml,
+      designSettings,
+      selectedDate,
+      onDateChange: (key: string, date: Date | undefined) => {
+        setSelectedDate(prev => ({ ...prev, [key]: date }));
+        if (date) {
+          setFormData(prev => ({ ...prev, [key]: format(date, 'yyyy-MM-dd') }));
+        }
+      },
+    };
+  };
+
   const renderComponent = (comp: DroppedComponent) => {
     const config = comp.config || {};
     const customId = comp.customId || config.customId;
     const key = customId || comp.id;
     const value = formData[key] || '';
     const dateValue = selectedDate[key];
+    const rendererProps = getRendererProps(comp);
 
     switch (comp.type) {
       case 'text':
-        return (
-          <div className={cn(
-            "py-4",
-            config.textAlign === 'center' && 'text-center',
-            config.textAlign === 'right' && 'text-right'
-          )}>
-            <div 
-              className="rich-text text-foreground"
-              dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.content || '') }}
-            />
-          </div>
-        );
+        return <TextRenderer {...rendererProps} />;
 
       case 'input':
       case 'email':
       case 'phone':
       case 'number':
-        return (
-          <div className="py-4">
-            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.label) }} />}
-            <Input
-              type={comp.type === 'email' ? 'email' : comp.type === 'number' ? 'number' : 'text'}
-              placeholder={processTemplate(config.placeholder || '')}
-              value={value}
-              onChange={(e) => handleInputChange(comp.id, customId, e.target.value)}
-              className="w-full bg-transparent"
-              required={config.required}
-            />
-            {config.helpText && <p className="text-xs text-muted-foreground mt-1">{processTemplate(config.helpText)}</p>}
-          </div>
-        );
+        return <InputRenderer {...rendererProps} type={comp.type as 'input' | 'email' | 'phone' | 'number'} />;
 
       case 'height':
-      case 'weight': {
-        const isRulerLayout = config.layoutType === 'ruler';
-        const unit = config.unit || (comp.type === 'height' ? 'cm' : 'kg');
-        const altUnit = comp.type === 'height' ? 'pol' : 'lb';
-        const minVal = config.minValue || (comp.type === 'height' ? 100 : 30);
-        const maxVal = config.maxValue || (comp.type === 'height' ? 220 : 200);
-        const defaultVal = config.defaultValue || (comp.type === 'height' ? 170 : 70);
-        const currentValue = typeof value === 'number' ? value : defaultVal;
-        
-        if (isRulerLayout) {
-          return (
-            <div className="py-4">
-<SlidingRuler
-                value={currentValue}
-                onChange={(val) => handleInputChange(comp.id, customId, val)}
-                min={minVal}
-                max={maxVal}
-                step={1}
-                unit={unit}
-                altUnit={altUnit}
-                barColor={config.barColor}
-                valueColor={config.valueColor}
-                toggleColor={config.toggleColor}
-                tickColor={config.tickColor}
-                labelColor={config.labelColor}
-              />
-              {config.helpText && <p className="text-xs text-muted-foreground mt-1 text-center">{processTemplate(config.helpText)}</p>}
-            </div>
-          );
-        }
-        
-        return (
-          <div className="py-4">
-            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.label) }} />}
-            <Input
-              type="number"
-              placeholder={processTemplate(config.placeholder || '')}
-              value={value}
-              onChange={(e) => handleInputChange(comp.id, customId, e.target.value)}
-              className="w-full bg-transparent"
-              required={config.required}
-            />
-            {config.helpText && <p className="text-xs text-muted-foreground mt-1">{processTemplate(config.helpText)}</p>}
-          </div>
-        );
-      }
+      case 'weight':
+        return <MeasurementRenderer {...rendererProps} type={comp.type as 'height' | 'weight'} />;
 
       case 'textarea':
-        return (
-          <div className="py-4">
-            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.label) }} />}
-            <textarea
-              placeholder={processTemplate(config.placeholder || '')}
-              value={value}
-              onChange={(e) => handleInputChange(comp.id, customId, e.target.value)}
-              className="w-full px-4 py-3 bg-transparent border border-border rounded-lg text-sm resize-none min-h-[100px]"
-              required={config.required}
-            />
-            {config.helpText && <p className="text-xs text-muted-foreground mt-1">{processTemplate(config.helpText)}</p>}
-          </div>
-        );
+        return <InputRenderer {...rendererProps} type="textarea" />;
 
       case 'date':
-        return (
-          <div className="py-4">
-            {config.label && <div className="rich-text text-sm font-medium mb-2" dangerouslySetInnerHTML={{ __html: processTemplateHtml(config.label) }} />}
-            <Popover>
-              <PopoverTrigger asChild>
-                <button
-                  className={cn(
-                    "w-full px-4 py-3 bg-transparent border border-border rounded-lg text-sm flex items-center justify-between transition-colors hover:border-primary/50",
-                    !dateValue && "text-muted-foreground"
-                  )}
-                >
-                  <span>{dateValue ? format(dateValue, 'dd/MM/yyyy', { locale: ptBR }) : 'dd/mm/aaaa'}</span>
-                  <CalendarIcon className="h-4 w-4" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={dateValue}
-                  onSelect={(date) => handleDateChange(comp.id, customId, date)}
-                  locale={ptBR}
-                  className="pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
-            {config.helpText && <p className="text-xs text-muted-foreground mt-1">{processTemplate(config.helpText)}</p>}
-          </div>
-        );
+        return <InputRenderer {...rendererProps} type="date" />;
 
-      case 'button': {
-        const buttonAction = config.buttonAction || 'next';
-        
-        const getSizeClasses = () => {
-          switch (config.buttonSize) {
-            case 'sm': return 'py-2 px-4 text-xs';
-            case 'lg': return 'py-4 px-8 text-base';
-            case 'xl': return 'py-5 px-10 text-lg';
-            default: return 'py-3 px-6 text-sm';
-          }
-        };
-
-        const getShadowClass = () => {
-          switch (config.buttonShadow) {
-            case 'sm': return 'shadow-sm';
-            case 'md': return 'shadow-md';
-            case 'lg': return 'shadow-lg';
-            case 'xl': return 'shadow-xl';
-            case 'glow': return 'shadow-[0_0_20px_rgba(var(--primary),0.4)]';
-            default: return '';
-          }
-        };
-
-        const getFontWeight = () => {
-          switch (config.buttonFontWeight) {
-            case 'normal': return 'font-normal';
-            case 'semibold': return 'font-semibold';
-            case 'bold': return 'font-bold';
-            default: return 'font-medium';
-          }
-        };
-
-        const getHoverEffect = () => {
-          switch (config.buttonHoverEffect) {
-            case 'darken': return 'hover:brightness-90';
-            case 'lighten': return 'hover:brightness-110';
-            case 'scale': return 'hover:scale-105';
-            case 'lift': return 'hover:-translate-y-1 hover:shadow-lg';
-            case 'glow': return 'hover:shadow-[0_0_25px_rgba(var(--primary),0.5)]';
-            default: return '';
-          }
-        };
-
-        const getAnimationClass = () => {
-          switch (config.buttonAnimation) {
-            case 'shine': return 'btn-shine';
-            case 'pulse-glow': return 'btn-pulse-glow';
-            case 'float': return 'btn-float';
-            case 'heartbeat': return 'btn-heartbeat';
-            case 'wiggle': return 'btn-wiggle';
-            case 'ripple': return 'btn-ripple';
-            case 'glow-border': return 'btn-glow-border';
-            case 'bounce-subtle': return 'btn-bounce-subtle';
-            case 'attention': return 'btn-attention';
-            default: return '';
-          }
-        };
-
-        const isCustomStyle = config.buttonStyle === 'custom';
-        const buttonWidth = config.buttonFullWidth !== false ? 'w-full' : 'w-auto';
-
-        // Build custom style object
-        const buttonCustomStyle: React.CSSProperties = {};
-        
-        if (isCustomStyle) {
-          if (config.buttonGradient) {
-            buttonCustomStyle.background = `linear-gradient(${
-              config.buttonGradientDirection === 'to-r' ? 'to right' :
-              config.buttonGradientDirection === 'to-l' ? 'to left' :
-              config.buttonGradientDirection === 'to-t' ? 'to top' :
-              config.buttonGradientDirection === 'to-b' ? 'to bottom' :
-              config.buttonGradientDirection === 'to-tr' ? 'to top right' :
-              config.buttonGradientDirection === 'to-br' ? 'to bottom right' :
-              config.buttonGradientDirection === 'to-tl' ? 'to top left' :
-              config.buttonGradientDirection === 'to-bl' ? 'to bottom left' : 'to right'
-            }, ${config.buttonGradientFrom || '#3b82f6'}, ${config.buttonGradientTo || '#8b5cf6'})`;
-          } else if (config.buttonBgColor) {
-            buttonCustomStyle.backgroundColor = config.buttonBgColor;
-          }
-          if (config.buttonTextColor) {
-            buttonCustomStyle.color = config.buttonTextColor;
-          }
-          if (config.buttonBorderColor && (config.buttonBorderWidth ?? 0) > 0) {
-            buttonCustomStyle.borderColor = config.buttonBorderColor;
-            buttonCustomStyle.borderWidth = `${config.buttonBorderWidth}px`;
-            buttonCustomStyle.borderStyle = 'solid';
-          }
-        }
-        
-        if (config.buttonBorderRadius !== undefined) {
-          buttonCustomStyle.borderRadius = `${config.buttonBorderRadius}px`;
-        }
-        if (config.buttonFontSize) {
-          buttonCustomStyle.fontSize = `${config.buttonFontSize}px`;
-        }
-        if (config.buttonLetterSpacing) {
-          buttonCustomStyle.letterSpacing = `${config.buttonLetterSpacing}px`;
-        }
-        if (config.buttonPaddingX) {
-          buttonCustomStyle.paddingLeft = `${config.buttonPaddingX}px`;
-          buttonCustomStyle.paddingRight = `${config.buttonPaddingX}px`;
-        }
-        if (config.buttonPaddingY) {
-          buttonCustomStyle.paddingTop = `${config.buttonPaddingY}px`;
-          buttonCustomStyle.paddingBottom = `${config.buttonPaddingY}px`;
-        }
-
-        const buttonContent = (
-          <>
-            {config.buttonIcon && config.buttonIconPosition === 'left' && (
-              <span className="mr-2">{config.buttonIcon}</span>
-            )}
-            <span dangerouslySetInnerHTML={{ __html: processTemplate(config.buttonText || 'Continuar') }} />
-            {config.buttonIcon && config.buttonIconPosition !== 'left' && (
-              <span className="ml-2">{config.buttonIcon}</span>
-            )}
-          </>
-        );
-
-        return (
-          <div className="py-4">
-            <button
-              onClick={() => {
-                if (buttonAction === 'link' && config.buttonLink) {
-                  window.open(config.buttonLink, '_blank');
-                } else if (buttonAction === 'submit') {
-                  handleSubmit();
-                } else {
-                  handleNavigateByComponent(comp.id);
-                }
-              }}
-              className={cn(
-                "inline-flex items-center justify-center transition-all duration-200",
-                buttonWidth,
-                getSizeClasses(),
-                getShadowClass(),
-                getFontWeight(),
-                getHoverEffect(),
-                getAnimationClass(),
-                !isCustomStyle && config.buttonStyle === 'primary' && "bg-primary text-primary-foreground",
-                !isCustomStyle && config.buttonStyle === 'secondary' && "bg-secondary text-secondary-foreground",
-                !isCustomStyle && config.buttonStyle === 'outline' && "border border-border bg-transparent",
-                !isCustomStyle && !config.buttonStyle && "bg-primary text-primary-foreground",
-                config.buttonBorderRadius === undefined && "rounded-lg"
-              )}
-              style={buttonCustomStyle}
-            >
-              {buttonContent}
-            </button>
-          </div>
-        );
-      }
+      case 'button':
+        return <ButtonRenderer {...rendererProps} />;
 
       case 'options':
       case 'single':
