@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check, Save, Upload, Loader2, ArrowLeft, Image, GitBranch, Layers, Palette, Users, Webhook, BarChart3 } from 'lucide-react';
+import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check, Save, Upload, Loader2, ArrowLeft, Image, GitBranch, Layers, Palette, Users, Webhook, BarChart3, Bell, Sun, Moon, LogOut, Settings, Sparkles, MessageSquare, Megaphone } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
@@ -28,6 +28,37 @@ import { StageBackgroundEditor, StageBackground, defaultStageBackground, getStag
 import { QuizHeaderPreview } from './QuizHeaderPreview';
 import { LeadsView } from './LeadsView';
 import { IntegrationsEditor } from './IntegrationsEditor';
+import { useAuth } from '@/hooks/useAuth';
+import { useTheme } from '@/hooks/useTheme';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+
+const editorNotifications = [
+  {
+    id: 1,
+    type: 'update',
+    title: 'Nova atualização disponível',
+    description: 'Adicionamos novos templates de quiz e melhorias de performance.',
+    time: 'Agora',
+    unread: true,
+  },
+  {
+    id: 2,
+    type: 'response',
+    title: '3 novas respostas',
+    description: 'Seu quiz recebeu novas respostas.',
+    time: '5 min atrás',
+    unread: true,
+  },
+];
 
 // Stage type - cada etapa contém seus próprios componentes
 interface Stage {
@@ -43,6 +74,8 @@ export function QuizEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { currentQuiz, setCurrentQuiz, addQuiz, updateQuiz } = useQuizStore();
+  const { user, profile, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   const [showTemplates, setShowTemplates] = useState(false);
   const [previewMode, setPreviewMode] = useState<'mobile' | 'desktop'>('mobile');
@@ -101,6 +134,22 @@ export function QuizEditor() {
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)/g, '');
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (e) {
+      // Ignore errors
+    }
+    window.location.href = '/login';
+  };
+
+  const getInitials = () => {
+    if (profile?.full_name) {
+      return profile.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+    return user?.email?.charAt(0).toUpperCase() || '?';
   };
 
   const handleCopyUrl = () => {
@@ -652,6 +701,105 @@ export function QuizEditor() {
                 ))}
               </Reorder.Group>
             )}
+          </div>
+
+          {/* User section at bottom */}
+          <div className="px-3 py-3 border-t border-border flex items-center gap-2 shrink-0">
+            {/* Notifications */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9 relative shrink-0">
+                  <Bell className="h-4 w-4" />
+                  {editorNotifications.some(n => n.unread) && (
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" side="top" className="w-80">
+                <DropdownMenuLabel className="flex items-center gap-2">
+                  <Megaphone className="h-4 w-4" />
+                  Notificações
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {editorNotifications.map((notification) => (
+                  <DropdownMenuItem 
+                    key={notification.id} 
+                    className="flex flex-col items-start gap-1 p-3 cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2 w-full">
+                      {notification.type === 'update' && <Sparkles className="h-4 w-4 text-primary" />}
+                      {notification.type === 'response' && <MessageSquare className="h-4 w-4 text-primary" />}
+                      <span className="font-medium text-sm flex-1">{notification.title}</span>
+                      {notification.unread && (
+                        <span className="w-2 h-2 bg-primary rounded-full" />
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground pl-6">{notification.description}</p>
+                    <span className="text-xs text-muted-foreground/70 pl-6">{notification.time}</span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Theme toggle */}
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={toggleTheme} 
+                  className="h-9 w-9 shrink-0"
+                >
+                  {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                {theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
+              </TooltipContent>
+            </Tooltip>
+
+            {/* User menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-9 w-9 shrink-0"
+                >
+                  <Avatar className="w-7 h-7">
+                    <AvatarImage src={profile?.avatar_url || undefined} />
+                    <AvatarFallback className="text-xs bg-foreground text-background font-medium">
+                      {getInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" side="top" className="w-56">
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      {profile?.full_name || 'Usuário'}
+                    </p>
+                    <p className="text-xs text-muted-foreground leading-none">
+                      {user?.email}
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/admin/settings')}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Configurações
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={handleSignOut}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
         </div>
