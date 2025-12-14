@@ -39,28 +39,63 @@ export function OptionsRenderer({
   const optionStyle = config.optionStyle || 'simple';
   const optionLayout = config.optionLayout || 'list';
   const optionOrientation = config.optionOrientation || 'vertical';
-  const optionBorderRadius = config.optionBorderRadius || 'small'; // Match DropZone
+  const optionBorderRadius = config.optionBorderRadius || 'small';
   const optionShadow = config.optionShadow || 'none';
-  const optionSpacing = config.optionSpacing || 'simple'; // Add missing
-  const detailType = config.detailType || 'checkbox'; // Match DropZone default
+  const optionSpacing = config.optionSpacing || 'simple';
+  const detailType = config.detailType || 'checkbox';
   const detailPosition = config.detailPosition || 'start';
-  const imagePosition = config.imagePosition || 'top'; // Match DropZone - was 'left'
-  const imageRatio = config.imageRatio || '1:1'; // Add missing
+  const imagePosition = config.imagePosition || 'top';
+  const imageRatio = config.imageRatio || '1:1';
+  const isVertical = optionOrientation === 'vertical';
   const widthValue = config.width || 100;
   const horizontalAlign = config.horizontalAlign || 'start';
+
+  // Custom colors - EXACT same as DropZone
+  const optionBgType = config.optionBgType || 'solid';
+  const optionBgColor = config.optionBgColor;
+  const optionGradientStart = config.optionGradientStart || '#000000';
+  const optionGradientEnd = config.optionGradientEnd || '#333333';
+  const optionGradientAngle = config.optionGradientAngle || 90;
+  const optionTextColor = config.optionTextColor;
+  const optionBorderColor = config.optionBorderColor;
+  const optionBorderWidth = config.optionBorderWidth ?? 1;
+  const selectedBgColor = config.optionSelectedBgColor || '#000000';
+  const selectedTextColor = config.optionSelectedTextColor || '#ffffff';
+  const selectedBorderColor = config.optionSelectedBorderColor || '#000000';
   
   const justifyClass = {
     start: 'justify-start',
     center: 'justify-center',
     end: 'justify-end',
   }[horizontalAlign];
-
-  const getGridClass = () => ({
-    'list': 'grid-cols-1',
-    'grid-2': 'grid-cols-2',
-    'grid-3': 'grid-cols-3',
-    'grid-4': 'grid-cols-4',
-  }[optionLayout] || 'grid-cols-1');
+  
+  // EXACT same as DropZone
+  const getOptionStyle = (isSelected: boolean): React.CSSProperties => {
+    const style: React.CSSProperties = {
+      borderStyle: 'solid',
+      borderWidth: `${optionBorderWidth}px`,
+    };
+    
+    if (isSelected) {
+      style.backgroundColor = selectedBgColor;
+      style.color = selectedTextColor;
+      style.borderColor = selectedBorderColor;
+    } else {
+      if (optionBgType === 'transparent') {
+        style.backgroundColor = 'transparent';
+      } else if (optionBgType === 'gradient') {
+        style.background = `linear-gradient(${optionGradientAngle}deg, ${optionGradientStart}, ${optionGradientEnd})`;
+      } else if (optionBgColor) {
+        style.backgroundColor = optionBgColor;
+      } else {
+        style.backgroundColor = '#ffffff';
+      }
+      style.color = optionTextColor || '#000000';
+      style.borderColor = optionBorderColor || '#000000';
+    }
+    
+    return style;
+  };
   
   const getLayoutClass = () => {
     switch (optionLayout) {
@@ -78,8 +113,6 @@ export function OptionsRenderer({
       default: return 'gap-2';
     }
   };
-  
-  const isVertical = optionOrientation === 'vertical';
   
   const getBorderRadius = () => {
     switch (optionBorderRadius) {
@@ -127,61 +160,46 @@ export function OptionsRenderer({
     }
   };
 
+  // EXACT same as DropZone
   const renderDetail = (isSelected: boolean, index: number) => {
     if (detailType === 'none') return null;
-    if (detailType === 'checkbox') {
-      return (
-        <div className={cn(
-          "w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
-          isSelected ? "bg-primary border-primary" : "border-muted-foreground/30"
-        )}>
-          {isSelected && (
-            <svg className="w-3 h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-            </svg>
-          )}
-        </div>
-      );
-    }
-    if (detailType === 'radio') {
-      return (
-        <div className={cn(
-          "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors",
-          isSelected ? "border-primary" : "border-muted-foreground/30"
-        )}>
-          {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-primary" />}
-        </div>
-      );
-    }
+    
+    // Use matching colors based on selected state
+    const detailStyle: React.CSSProperties = isSelected 
+      ? { borderColor: selectedTextColor, backgroundColor: selectedTextColor, color: selectedBgColor }
+      : { borderColor: optionBorderColor || '#000000', backgroundColor: 'transparent', color: optionTextColor || '#000000' };
+    
     if (detailType === 'number') {
       return (
-        <div className={cn(
-          "w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium",
-          isSelected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-        )}>
+        <div 
+          className="w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-medium shrink-0"
+          style={detailStyle}
+        >
           {index + 1}
         </div>
       );
     }
-    return null;
+    
+    return (
+      <div 
+        className={cn(
+          "w-5 h-5 border-2 flex items-center justify-center shrink-0",
+          detailType === 'radio' || !config.allowMultiple ? "rounded-full" : "rounded"
+        )}
+        style={detailStyle}
+      >
+        {isSelected && <span className="text-xs">✓</span>}
+      </div>
+    );
   };
 
-  const renderOptionMedia = (opt: typeof options[0], large = false) => {
+  // EXACT same as DropZone
+  const renderOptionMedia = (opt: typeof options[0], vertical = false) => {
     if (opt.mediaType === 'icon' && opt.icon) {
-      return <span className={large ? "text-4xl" : "text-xl"}>{opt.icon}</span>;
+      return <span className={cn("shrink-0", vertical ? "text-2xl" : "text-lg")}>{opt.icon}</span>;
     }
     if (opt.mediaType === 'image' && opt.imageUrl) {
-      return (
-        <img 
-          src={opt.imageUrl} 
-          alt="" 
-          className={cn(
-            "object-cover rounded",
-            large ? "w-16 h-16" : "w-8 h-8",
-            config.transparentImageBg && "bg-transparent"
-          )} 
-        />
-      );
+      return <img src={opt.imageUrl} alt="" className={cn("object-cover rounded shrink-0", vertical ? "w-10 h-10" : "w-6 h-6")} />;
     }
     return null;
   };
@@ -206,11 +224,9 @@ export function OptionsRenderer({
             <button
               key={opt.id}
               onClick={() => handleInputChange(opt.value)}
+              style={getOptionStyle(value === opt.value)}
               className={cn(
-                "flex-1 py-3 rounded-lg text-sm font-medium transition-colors",
-                value === opt.value
-                  ? "bg-primary text-primary-foreground"
-                  : "border border-border hover:border-primary/50"
+                "flex-1 py-3 rounded-lg text-sm font-medium transition-colors"
               )}
             >
               {opt.text}
@@ -221,23 +237,29 @@ export function OptionsRenderer({
     );
   }
 
-  // Standard options rendering
+  // Standard options rendering - MATCHES DropZone exactly
   return (
     <div className={cn("py-4 flex", justifyClass)}>
       <div style={{ width: `${widthValue}%` }}>
-        {config.label && (
+        {config.label && config.label.replace(/<[^>]*>/g, '').trim() && (
           <div 
-            className="rich-text text-sm font-medium mb-3" 
+            className="rich-text font-medium mb-1" 
             dangerouslySetInnerHTML={{ __html: processTemplateHtml ? processTemplateHtml(config.label) : config.label }} 
+          />
+        )}
+        {config.description && config.description.replace(/<[^>]*>/g, '').trim() && (
+          <div 
+            className="rich-text text-muted-foreground mb-3" 
+            dangerouslySetInnerHTML={{ __html: processTemplateHtml ? processTemplateHtml(config.description) : config.description }} 
           />
         )}
         <div className={cn(getLayoutClass(), getSpacing())}>
           {options.map((opt, i) => {
             const isSelected = selectedValues.includes(opt.value);
-            const isHorizontal = imagePosition === 'left' || imagePosition === 'right';
-
-            // Image style
+            
+            // Image style - EXACT same as DropZone
             if (optionStyle === 'image') {
+              const isHorizontal = imagePosition === 'left' || imagePosition === 'right';
               return (
                 <button
                   key={opt.id}
@@ -246,7 +268,7 @@ export function OptionsRenderer({
                     "border text-sm transition-colors overflow-hidden",
                     getBorderRadius(),
                     getShadow(),
-                    isSelected ? "border-primary bg-primary/20" : "border-border bg-transparent hover:border-primary/50",
+                    isSelected ? "border-foreground bg-accent" : "border-border",
                     isHorizontal ? "flex" : "flex flex-col"
                   )}
                 >
@@ -282,8 +304,8 @@ export function OptionsRenderer({
                 </button>
               );
             }
-
-            // Card style
+            
+            // Card style - EXACT same as DropZone
             if (optionStyle === 'card') {
               return (
                 <button
@@ -292,9 +314,9 @@ export function OptionsRenderer({
                   className={cn(
                     "p-4 text-sm transition-colors",
                     getBorderRadius(),
-                    getShadow(),
-                    isSelected ? "border-primary bg-primary/20" : "border-border bg-transparent hover:border-primary/50"
+                    getShadow()
                   )}
+                  style={getOptionStyle(isSelected)}
                 >
                   <div className={cn(
                     isVertical 
@@ -305,26 +327,28 @@ export function OptionsRenderer({
                     {isVertical && renderOptionMedia(opt, true)}
                     {!isVertical && renderDetail(isSelected, i)}
                     {!isVertical && renderOptionMedia(opt)}
-                    <span className={cn(!isVertical && "flex-1", "rich-text")} dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
+                    <span 
+                      className={cn(!isVertical && "flex-1", "rich-text")} 
+                      style={{ color: isSelected ? selectedTextColor : (optionTextColor || '#000000') }} 
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} 
+                    />
                     {isVertical && renderDetail(isSelected, i)}
                   </div>
                 </button>
               );
             }
-
-            // Pill style
+            
+            // Pill style - EXACT same as DropZone
             if (optionStyle === 'pill') {
               return (
                 <button
                   key={opt.id}
                   onClick={() => handleOptionClick(opt.value, opt.id)}
                   className={cn(
-                    "px-6 py-3 text-sm font-medium transition-all duration-200 rounded-full",
-                    getShadow(),
-                    isSelected 
-                      ? "bg-primary text-primary-foreground shadow-lg scale-105" 
-                      : "bg-muted/50 text-foreground hover:bg-primary/20 hover:scale-102"
+                    "px-6 py-3 text-sm font-medium transition-all duration-200 rounded-full text-center",
+                    getShadow()
                   )}
+                  style={getOptionStyle(isSelected)}
                 >
                   <div className={cn(
                     isVertical 
@@ -332,25 +356,31 @@ export function OptionsRenderer({
                       : "flex items-center justify-center gap-2"
                   )}>
                     {renderOptionMedia(opt)}
-                    <span className="rich-text" dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
+                    <span 
+                      className="rich-text" 
+                      style={{ color: isSelected ? selectedTextColor : (optionTextColor || '#000000') }} 
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} 
+                    />
                   </div>
                 </button>
               );
             }
 
-            // Glass style
+            // Glass style - EXACT same as DropZone
             if (optionStyle === 'glass') {
+              const glassStyle = getOptionStyle(isSelected);
+              if (!isSelected && optionBgType !== 'solid' && !optionBgColor) {
+                glassStyle.backgroundColor = 'rgba(255,255,255,0.1)';
+              }
               return (
                 <button
                   key={opt.id}
                   onClick={() => handleOptionClick(opt.value, opt.id)}
                   className={cn(
                     "p-4 text-sm transition-all duration-200 backdrop-blur-md",
-                    getBorderRadius(),
-                    isSelected 
-                      ? "bg-primary/30 border-2 border-primary shadow-lg" 
-                      : "bg-white/10 border border-white/20 hover:bg-white/20 hover:border-white/40"
+                    getBorderRadius()
                   )}
+                  style={glassStyle}
                 >
                   <div className={cn(
                     isVertical 
@@ -358,10 +388,14 @@ export function OptionsRenderer({
                       : "flex items-center gap-3"
                   )}>
                     {renderOptionMedia(opt)}
-                    <span className={cn(!isVertical && "flex-1", "rich-text")} dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
+                    <span 
+                      className={cn(!isVertical && "flex-1", "rich-text")} 
+                      style={{ color: isSelected ? selectedTextColor : (optionTextColor || '#000000') }} 
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} 
+                    />
                     {isSelected && (
-                      <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                        <svg className="w-3 h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ backgroundColor: selectedBgColor }}>
+                        <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ color: selectedTextColor }}>
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
@@ -371,18 +405,17 @@ export function OptionsRenderer({
               );
             }
 
-            // Minimal style
+            // Minimal style - EXACT same as DropZone
             if (optionStyle === 'minimal') {
+              const minimalStyle: React.CSSProperties = isSelected 
+                ? { backgroundColor: `${selectedBgColor}20`, borderLeftColor: selectedBgColor, color: optionTextColor }
+                : { borderLeftColor: 'transparent', color: optionTextColor };
               return (
                 <button
                   key={opt.id}
                   onClick={() => handleOptionClick(opt.value, opt.id)}
-                  className={cn(
-                    "py-3 px-4 text-sm transition-all duration-200 border-b border-border/50 last:border-b-0",
-                    isSelected 
-                      ? "bg-primary/10 border-l-4 border-l-primary" 
-                      : "hover:bg-muted/30 hover:border-l-4 hover:border-l-primary/30"
-                  )}
+                  className="py-3 px-4 text-sm transition-all duration-200 border-b border-border/50 last:border-b-0 border-l-4"
+                  style={minimalStyle}
                 >
                   <div className={cn(
                     isVertical 
@@ -390,17 +423,20 @@ export function OptionsRenderer({
                       : "flex items-center gap-3"
                   )}>
                     {renderOptionMedia(opt)}
-                    <span className={cn(!isVertical && "flex-1 text-left", "rich-text")} dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
-                    <div className={cn(
-                      "w-2 h-2 rounded-full transition-all",
-                      isSelected ? "bg-primary scale-150" : "bg-muted-foreground/30"
-                    )} />
+                    <span 
+                      className={cn(!isVertical && "flex-1 text-left", "rich-text")} 
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} 
+                    />
+                    <div 
+                      className="w-2 h-2 rounded-full transition-all"
+                      style={{ backgroundColor: isSelected ? selectedBgColor : 'rgba(0,0,0,0.2)' }}
+                    />
                   </div>
                 </button>
               );
             }
-
-            // Simple style (default)
+            
+            // Simple style (default) - EXACT same as DropZone with custom colors
             return (
               <button
                 key={opt.id}
@@ -408,9 +444,9 @@ export function OptionsRenderer({
                 className={cn(
                   "p-3 text-sm transition-colors",
                   getBorderRadius(),
-                  getShadow(),
-                  isSelected ? "border-primary bg-primary/20" : "border-border bg-transparent hover:border-primary/50"
+                  getShadow()
                 )}
+                style={getOptionStyle(isSelected)}
               >
                 <div className={cn(
                   isVertical 
@@ -421,7 +457,11 @@ export function OptionsRenderer({
                   {isVertical && renderOptionMedia(opt, true)}
                   {!isVertical && renderDetail(isSelected, i)}
                   {!isVertical && renderOptionMedia(opt)}
-                  <span className={cn(!isVertical && "flex-1", "rich-text")} dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
+                  <span 
+                    className={cn(!isVertical && "flex-1", "rich-text")} 
+                    style={{ color: isSelected ? selectedTextColor : (optionTextColor || '#000000') }} 
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} 
+                  />
                   {isVertical && renderDetail(isSelected, i)}
                 </div>
               </button>
