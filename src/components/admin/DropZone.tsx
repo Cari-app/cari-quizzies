@@ -919,7 +919,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         );
       case 'image': {
         const isEmoji = config.mediaUrl && config.mediaUrl.length <= 4 && !/^https?:\/\//.test(config.mediaUrl);
-        const imageWidth = config.width ?? 100;
+        const imageSize = config.imageSize || 200;
         const imageAlign = config.horizontalAlign || 'center';
         
         return (
@@ -941,7 +941,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   src={config.mediaUrl} 
                   alt={config.altText || ''} 
                   style={{ 
-                    width: `${imageWidth}%`,
+                    width: `${imageSize}px`,
+                    maxWidth: '100%',
                     height: 'auto',
                     display: 'block',
                     borderRadius: config.borderRadius ? `${config.borderRadius}px` : undefined

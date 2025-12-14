@@ -128,6 +128,7 @@ export interface ComponentConfig {
   scriptDescription?: string;
   labelStyle?: 'default' | 'floating' | 'hidden';
   width?: number;
+  imageSize?: number;
   horizontalAlign?: 'start' | 'center' | 'end';
   verticalAlign?: 'auto' | 'start' | 'center' | 'end';
   showAfterSeconds?: number;

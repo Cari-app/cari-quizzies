@@ -81,6 +81,7 @@ export interface ComponentConfig {
   height?: number;
   // Width/Alignment
   width?: number;
+  imageSize?: number;
   horizontalAlign?: 'start' | 'center' | 'end';
   verticalAlign?: string;
   customId?: string;
