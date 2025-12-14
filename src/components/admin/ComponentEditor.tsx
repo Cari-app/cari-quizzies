@@ -58,6 +58,8 @@ import {
   WebhookTriggerComponentTab,
   FormEditor,
   ProgressEditor,
+  ImageButtonComponentTab,
+  ImageButtonAppearance,
   generateSlug 
 } from './editors';
 
@@ -520,6 +522,27 @@ export interface ComponentConfig {
   progressBgColor?: string;
   progressBorderRadius?: number;
   progressAnimated?: boolean;
+  // Image-Button component specific
+  imageButtonItems?: Array<{
+    id: string;
+    imageUrl: string;
+    buttonText: string;
+    value: string;
+    destination?: 'next' | 'submit' | 'specific';
+    destinationStageId?: string;
+  }>;
+  imageButtonOrientation?: 'vertical' | 'horizontal';
+  imageButtonLayout?: 'list' | 'grid-2' | 'grid-3';
+  imageButtonPosition?: 'overlay' | 'below';
+  imageButtonStyle?: 'rounded' | 'pill' | 'square';
+  imageButtonBgColor?: string;
+  imageButtonTextColor?: string;
+  imageButtonIconColor?: string;
+  imageButtonIconBgColor?: string;
+  imageButtonContainerBgColor?: string;
+  imageButtonImageRadius?: number;
+  imageButtonContainerRadius?: number;
+  imageButtonGap?: number;
 }
 
 interface ComponentEditorProps {
@@ -667,6 +690,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         return <FormEditor {...editorProps} />;
       case 'progress':
         return <ProgressEditor {...editorProps} />;
+      case 'image-button':
+        return <ImageButtonComponentTab {...editorProps} />;
       default:
         return (
           <div className="text-center py-8">
@@ -760,6 +785,11 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     // Alert component
     if (component.type === 'alert') {
       return <AlertAppearance {...appearanceProps} />;
+    }
+
+    // Image-Button component
+    if (component.type === 'image-button') {
+      return <ImageButtonAppearance {...appearanceProps} />;
     }
     
     // Options component - kept inline due to complexity

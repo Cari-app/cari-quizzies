@@ -181,6 +181,7 @@ export const componentPalette = {
     { type: 'options', name: 'Opções', icon: 'list' },
     { type: 'multiple', name: 'Múltipla Escolha', icon: 'square-check' },
     { type: 'single', name: 'Escolha Única', icon: 'circle-dot' },
+    { type: 'image-button', name: 'Imagem e Botão', icon: 'layout-list', isNew: true },
   ],
   media: [
     { type: 'text', name: 'Texto', icon: 'text' },

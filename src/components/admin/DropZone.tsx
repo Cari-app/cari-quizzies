@@ -331,6 +331,27 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
           horizontalAlign: 'start',
           verticalAlign: 'auto'
         };
+      case 'image-button':
+        return {
+          imageButtonItems: [
+            { id: uuid(), imageUrl: '', buttonText: 'Opção 1', value: 'opt1', destination: 'next' },
+          ],
+          imageButtonOrientation: 'vertical',
+          imageButtonLayout: 'list',
+          imageButtonPosition: 'overlay',
+          imageButtonStyle: 'rounded',
+          imageButtonBgColor: '#3f3f46',
+          imageButtonTextColor: '#ffffff',
+          imageButtonIconColor: '#ffffff',
+          imageButtonIconBgColor: '#000000',
+          imageButtonContainerBgColor: 'transparent',
+          imageButtonImageRadius: 16,
+          imageButtonContainerRadius: 24,
+          imageButtonGap: 16,
+          width: 100,
+          horizontalAlign: 'start',
+          verticalAlign: 'auto'
+        };
       default:
         return {};
     }
@@ -2260,6 +2281,78 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                 ))}
               </div>
             )}
+          </div>
+        );
+      }
+      case 'image-button': {
+        const items = config.imageButtonItems || [];
+        const orientation = config.imageButtonOrientation || 'vertical';
+        const layout = config.imageButtonLayout || 'list';
+        const position = config.imageButtonPosition || 'overlay';
+        const style = config.imageButtonStyle || 'rounded';
+        const bgColor = config.imageButtonBgColor || '#3f3f46';
+        const textColor = config.imageButtonTextColor || '#ffffff';
+        const iconColor = config.imageButtonIconColor || '#ffffff';
+        const iconBgColor = config.imageButtonIconBgColor || '#000000';
+        const containerBgColor = config.imageButtonContainerBgColor || 'transparent';
+        const imageRadius = config.imageButtonImageRadius ?? 16;
+        const containerRadius = config.imageButtonContainerRadius ?? 24;
+        const gap = config.imageButtonGap ?? 16;
+
+        const getLayoutClass = () => {
+          switch (layout) {
+            case 'grid-2': return 'grid grid-cols-2';
+            case 'grid-3': return 'grid grid-cols-3';
+            default: return orientation === 'horizontal' ? 'flex flex-row flex-wrap' : 'flex flex-col';
+          }
+        };
+
+        const getButtonRadius = () => {
+          switch (style) {
+            case 'pill': return 9999;
+            case 'square': return 4;
+            default: return 12;
+          }
+        };
+
+        if (items.length === 0) {
+          return <div className="p-4 text-center text-muted-foreground">Nenhum item configurado</div>;
+        }
+
+        return (
+          <div className={cn("p-4", getLayoutClass())} style={{ gap: `${gap}px` }}>
+            {items.map((item: any) => (
+              <div
+                key={item.id}
+                className="relative overflow-hidden group"
+                style={{ backgroundColor: containerBgColor, borderRadius: `${containerRadius}px` }}
+              >
+                <div style={{ borderRadius: position === 'overlay' ? `${imageRadius}px` : `${imageRadius}px ${imageRadius}px 0 0` }}>
+                  {item.imageUrl ? (
+                    <img src={item.imageUrl} alt={item.buttonText} className="w-full h-auto object-cover aspect-square" />
+                  ) : (
+                    <div className="w-full aspect-square bg-muted flex items-center justify-center">
+                      <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+                {position === 'overlay' ? (
+                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between px-4 py-2.5" style={{ backgroundColor: bgColor, borderRadius: `${getButtonRadius()}px` }}>
+                    <span className="font-medium text-sm" style={{ color: textColor }}>{item.buttonText}</span>
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ backgroundColor: iconBgColor }}>
+                      <ChevronRight className="w-4 h-4" style={{ color: iconColor }} />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between px-4 py-3" style={{ backgroundColor: bgColor, borderRadius: `0 0 ${getButtonRadius()}px ${getButtonRadius()}px` }}>
+                    <span className="font-medium text-sm" style={{ color: textColor }}>{item.buttonText}</span>
+                    <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ backgroundColor: iconBgColor }}>
+                      <ChevronRight className="w-4 h-4" style={{ color: iconColor }} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         );
       }

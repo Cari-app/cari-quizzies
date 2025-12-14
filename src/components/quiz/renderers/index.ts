@@ -20,3 +20,4 @@ export { BeforeAfterRenderer, CarouselRenderer, MetricsRenderer, ChartsRenderer 
 export { WebhookTriggerRenderer } from './WebhookTriggerRenderer';
 export { FormRenderer } from './FormRenderer';
 export { ProgressRenderer } from './ProgressRenderer';
+export { ImageButtonRenderer } from './ImageButtonRenderer';
