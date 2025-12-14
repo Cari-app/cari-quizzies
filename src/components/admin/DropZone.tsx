@@ -922,9 +922,6 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const imageWidth = config.width ?? 100;
         const imageAlign = config.horizontalAlign || 'center';
         
-        // Debug log
-        console.log('[DropZone Image]', { imageWidth, imageAlign, mediaUrl: config.mediaUrl?.substring(0, 50) });
-        
         return (
           <div 
             style={{
@@ -2289,7 +2286,9 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             <Reorder.Group axis="y" values={components} onReorder={onComponentsChange} className="flex flex-wrap gap-2">
               {components.map((comp) => {
                 const config = comp.config || {};
-                const widthValue = config.width || 100;
+                // For image components, width controls the image itself, not the container
+                const isImageComponent = comp.type === 'image';
+                const widthValue = isImageComponent ? 100 : (config.width || 100);
                 const horizontalAlign = config.horizontalAlign || 'start';
                 const verticalAlign = config.verticalAlign || 'auto';
                 
@@ -2307,7 +2306,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                     }}
                     className={cn(
                       "flex transition-[width] duration-300 ease-out",
-                      justifyClass,
+                      isImageComponent ? '' : justifyClass,
                       alignClass
                     )}
                   >
