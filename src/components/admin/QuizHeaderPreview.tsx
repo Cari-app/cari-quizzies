@@ -225,11 +225,12 @@ export function QuizHeaderPreview({
         {pageSettings.allowBack && (
           <div 
             className={cn(
-              "px-4 pb-3 flex items-center",
+              "flex items-center",
               backIconPosition === 'center' && "justify-center",
               backIconPosition === 'right' && "justify-end",
               backIconPosition === 'left' && "justify-start"
             )}
+            style={{ padding: '15px' }}
           >
             <button 
               className="p-1 rounded transition-colors hover:opacity-70 pointer-events-none"
