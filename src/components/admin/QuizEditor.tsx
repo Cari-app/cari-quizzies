@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check, Save, Upload, Loader2, ArrowLeft, Image, GitBranch, Layers, Palette, Users, Webhook } from 'lucide-react';
+import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check, Save, Upload, Loader2, ArrowLeft, Image, GitBranch, Layers, Palette, Users, Webhook, BarChart3 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
@@ -23,7 +23,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { cn } from '@/lib/utils';
 import { screenTemplates } from '@/data/screenTemplates';
 import { supabase } from '@/integrations/supabase/client';
-import { FlowCanvas } from './flow';
+import { FlowCanvas, FlowAnalyticsCanvas } from './flow';
 import { StageBackgroundEditor, StageBackground, defaultStageBackground, getStageBackgroundCSS } from './StageBackgroundEditor';
 import { QuizHeaderPreview } from './QuizHeaderPreview';
 import { LeadsView } from './LeadsView';
@@ -50,6 +50,7 @@ export function QuizEditor() {
   const [widgetsExpanded, setWidgetsExpanded] = useState(false);
   const [slugCopied, setSlugCopied] = useState(false);
   const [editorView, setEditorView] = useState<'editor' | 'flow' | 'design' | 'leads' | 'integrations'>('editor');
+  const [flowMode, setFlowMode] = useState<'edit' | 'analytics'>('edit');
   
   // Webhook settings
   const [webhookUrl, setWebhookUrl] = useState('');
@@ -682,20 +683,59 @@ export function QuizEditor() {
       <div className="flex-1 flex flex-col bg-muted/30 overflow-hidden">
         {/* Preview Content */}
         {editorView === 'flow' ? (
-          <div className="flex-1 overflow-hidden">
-            <FlowCanvas
-              stages={stages}
-              selectedStageId={selectedStageId}
-              onSelectStage={(stageId) => {
-                setSelectedStageId(stageId);
-                setSelectedComponent(null);
-                setEditorView('editor');
-              }}
-              onStagesChange={(updatedStages) => {
-                setStages(updatedStages);
-                setHasUnsavedChanges(true);
-              }}
-            />
+          <div className="flex-1 overflow-hidden relative">
+            {/* Flow Mode Toggle */}
+            <div className="absolute top-4 right-4 z-10 flex items-center gap-2 bg-background/95 backdrop-blur-sm border border-border rounded-lg p-1 shadow-sm">
+              <button
+                onClick={() => setFlowMode('edit')}
+                className={cn(
+                  "px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
+                  flowMode === 'edit' 
+                    ? "bg-primary text-primary-foreground" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                Editar
+              </button>
+              <button
+                onClick={() => setFlowMode('analytics')}
+                className={cn(
+                  "px-3 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center gap-1.5",
+                  flowMode === 'analytics' 
+                    ? "bg-primary text-primary-foreground" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                <BarChart3 className="w-3 h-3" />
+                Analytics
+              </button>
+            </div>
+            
+            {flowMode === 'edit' ? (
+              <FlowCanvas
+                stages={stages}
+                selectedStageId={selectedStageId}
+                onSelectStage={(stageId) => {
+                  setSelectedStageId(stageId);
+                  setSelectedComponent(null);
+                  setEditorView('editor');
+                }}
+                onStagesChange={(updatedStages) => {
+                  setStages(updatedStages);
+                  setHasUnsavedChanges(true);
+                }}
+              />
+            ) : (
+              <FlowAnalyticsCanvas
+                quizId={currentQuiz.id}
+                stages={stages}
+                selectedStageId={selectedStageId}
+                onSelectStage={(stageId) => {
+                  setSelectedStageId(stageId);
+                  setSelectedComponent(null);
+                }}
+              />
+            )}
           </div>
         ) : editorView === 'design' ? (
           /* Design View - Exact same structure as constructor for each stage */
