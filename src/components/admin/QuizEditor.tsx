@@ -65,7 +65,7 @@ export function QuizEditor() {
   
   // Design settings
   const [designSettings, setDesignSettings] = useState<QuizDesignSettings>(defaultDesignSettings);
-  
+  const [thumbnailUrl, setThumbnailUrl] = useState<string>('');
   // Stages management
   const [stages, setStages] = useState<Stage[]>([]);
   const [selectedStageId, setSelectedStageId] = useState<string | null>(null);
@@ -155,6 +155,9 @@ export function QuizEditor() {
           setWebhookUrl((quizData as any).webhook_url || '');
           setWebhookEnabled((quizData as any).webhook_enabled || false);
           setWebhookSettings((quizData as any).webhook_settings || {});
+          
+          // Load thumbnail
+          setThumbnailUrl((quizData as any).thumbnail_url || '');
 
           // Load etapas (stages)
           const { data: etapasData } = await supabase
@@ -287,6 +290,7 @@ export function QuizEditor() {
             atualizado_em: new Date().toISOString(),
             webhook_url: webhookUrl || null,
             webhook_enabled: webhookEnabled,
+            thumbnail_url: thumbnailUrl || null,
           })
           .eq('id', currentQuiz.id);
       } else {
@@ -1148,6 +1152,11 @@ export function QuizEditor() {
             settings={designSettings}
             onSettingsChange={(newSettings) => {
               setDesignSettings(newSettings);
+              setHasUnsavedChanges(true);
+            }}
+            thumbnailUrl={thumbnailUrl}
+            onThumbnailChange={(url) => {
+              setThumbnailUrl(url);
               setHasUnsavedChanges(true);
             }}
           />
