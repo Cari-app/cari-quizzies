@@ -764,6 +764,8 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
     
     // Options component - kept inline due to complexity
     if (['options', 'single', 'multiple', 'yesno'].includes(component.type)) {
+      const optionBgType = config.optionBgType || 'solid';
+      
       return (
         <div className="space-y-4">
           {/* Estilo */}
@@ -837,42 +839,23 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
           </div>
 
           {config.optionStyle === 'image' && (
-            <>
-              <div>
-                <Label className="text-xs text-muted-foreground">Proporção de imagens</Label>
-                <Select 
-                  value={config.imageRatio || '1:1'} 
-                  onValueChange={(v) => updateConfig({ imageRatio: v as ComponentConfig['imageRatio'] })}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1:1">1:1 (Quadrado)</SelectItem>
-                    <SelectItem value="16:9">16:9 (Widescreen)</SelectItem>
-                    <SelectItem value="4:3">4:3 (Clássico)</SelectItem>
-                    <SelectItem value="3:2">3:2 (Foto)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-xs text-muted-foreground">Disposição</Label>
-                <Select 
-                  value={config.imagePosition || 'top'} 
-                  onValueChange={(v) => updateConfig({ imagePosition: v as ComponentConfig['imagePosition'] })}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="top">Imagem | Texto</SelectItem>
-                    <SelectItem value="bottom">Texto | Imagem</SelectItem>
-                    <SelectItem value="left">Imagem à esquerda</SelectItem>
-                    <SelectItem value="right">Imagem à direita</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </>
+            <div>
+              <Label className="text-xs text-muted-foreground">Proporção de imagens</Label>
+              <Select 
+                value={config.imageRatio || '1:1'} 
+                onValueChange={(v) => updateConfig({ imageRatio: v as ComponentConfig['imageRatio'] })}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1:1">1:1 (Quadrado)</SelectItem>
+                  <SelectItem value="16:9">16:9 (Widescreen)</SelectItem>
+                  <SelectItem value="4:3">4:3 (Clássico)</SelectItem>
+                  <SelectItem value="3:2">3:2 (Foto)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           )}
 
           {/* Detalhe & Posição */}
@@ -966,6 +949,218 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
                 <SelectItem value="relaxed">Relaxado</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+
+          {/* CORES - Estado Normal */}
+          <div className="border border-border rounded-lg p-3 space-y-3">
+            <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Cores - Estado Normal</Label>
+            
+            {/* Tipo de fundo */}
+            <div>
+              <Label className="text-xs text-muted-foreground mb-1 block">Tipo de fundo</Label>
+              <Select
+                value={optionBgType}
+                onValueChange={(v) => updateConfig({ optionBgType: v as 'solid' | 'gradient' | 'transparent' })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="solid">Cor sólida</SelectItem>
+                  <SelectItem value="gradient">Gradiente</SelectItem>
+                  <SelectItem value="transparent">Transparente</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {optionBgType === 'solid' && (
+              <div>
+                <Label className="text-xs text-muted-foreground mb-1 block">Cor de fundo</Label>
+                <div className="flex items-center gap-2">
+                  <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.optionBgColor || '#ffffff' }}>
+                    <input
+                      type="color"
+                      value={config.optionBgColor || '#ffffff'}
+                      onChange={(e) => updateConfig({ optionBgColor: e.target.value })}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                  <Input
+                    value={config.optionBgColor || '#ffffff'}
+                    onChange={(e) => updateConfig({ optionBgColor: e.target.value })}
+                    className="flex-1 font-mono text-sm"
+                  />
+                </div>
+              </div>
+            )}
+
+            {optionBgType === 'gradient' && (
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-1 block">Cor inicial</Label>
+                  <div className="flex items-center gap-2">
+                    <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.optionGradientStart || '#000000' }}>
+                      <input
+                        type="color"
+                        value={config.optionGradientStart || '#000000'}
+                        onChange={(e) => updateConfig({ optionGradientStart: e.target.value })}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                    </div>
+                    <Input
+                      value={config.optionGradientStart || '#000000'}
+                      onChange={(e) => updateConfig({ optionGradientStart: e.target.value })}
+                      className="flex-1 font-mono text-sm"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-1 block">Cor final</Label>
+                  <div className="flex items-center gap-2">
+                    <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.optionGradientEnd || '#333333' }}>
+                      <input
+                        type="color"
+                        value={config.optionGradientEnd || '#333333'}
+                        onChange={(e) => updateConfig({ optionGradientEnd: e.target.value })}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                    </div>
+                    <Input
+                      value={config.optionGradientEnd || '#333333'}
+                      onChange={(e) => updateConfig({ optionGradientEnd: e.target.value })}
+                      className="flex-1 font-mono text-sm"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground mb-1 block">Ângulo ({config.optionGradientAngle ?? 90}°)</Label>
+                  <Slider
+                    value={[config.optionGradientAngle ?? 90]}
+                    onValueChange={([v]) => updateConfig({ optionGradientAngle: v })}
+                    min={0}
+                    max={360}
+                    step={15}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Cor do texto */}
+            <div>
+              <Label className="text-xs text-muted-foreground mb-1 block">Cor do texto</Label>
+              <div className="flex items-center gap-2">
+                <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.optionTextColor || '#000000' }}>
+                  <input
+                    type="color"
+                    value={config.optionTextColor || '#000000'}
+                    onChange={(e) => updateConfig({ optionTextColor: e.target.value })}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </div>
+                <Input
+                  value={config.optionTextColor || '#000000'}
+                  onChange={(e) => updateConfig({ optionTextColor: e.target.value })}
+                  className="flex-1 font-mono text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Cor da borda */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label className="text-xs text-muted-foreground mb-1 block">Cor da borda</Label>
+                <div className="flex items-center gap-2">
+                  <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.optionBorderColor || '#000000' }}>
+                    <input
+                      type="color"
+                      value={config.optionBorderColor || '#000000'}
+                      onChange={(e) => updateConfig({ optionBorderColor: e.target.value })}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </div>
+                  <Input
+                    value={config.optionBorderColor || '#000000'}
+                    onChange={(e) => updateConfig({ optionBorderColor: e.target.value })}
+                    className="flex-1 font-mono text-sm"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground mb-1 block">Espessura da borda</Label>
+                <Input
+                  type="number"
+                  value={config.optionBorderWidth ?? 1}
+                  onChange={(e) => updateConfig({ optionBorderWidth: parseInt(e.target.value) || 0 })}
+                  min={0}
+                  max={10}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* CORES - Estado Selecionado */}
+          <div className="border border-border rounded-lg p-3 space-y-3">
+            <Label className="text-xs text-muted-foreground uppercase tracking-wide block">Cores - Estado Selecionado</Label>
+            
+            {/* Fundo selecionado */}
+            <div>
+              <Label className="text-xs text-muted-foreground mb-1 block">Cor de fundo</Label>
+              <div className="flex items-center gap-2">
+                <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.optionSelectedBgColor || '#000000' }}>
+                  <input
+                    type="color"
+                    value={config.optionSelectedBgColor || '#000000'}
+                    onChange={(e) => updateConfig({ optionSelectedBgColor: e.target.value })}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </div>
+                <Input
+                  value={config.optionSelectedBgColor || '#000000'}
+                  onChange={(e) => updateConfig({ optionSelectedBgColor: e.target.value })}
+                  className="flex-1 font-mono text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Texto selecionado */}
+            <div>
+              <Label className="text-xs text-muted-foreground mb-1 block">Cor do texto</Label>
+              <div className="flex items-center gap-2">
+                <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.optionSelectedTextColor || '#ffffff' }}>
+                  <input
+                    type="color"
+                    value={config.optionSelectedTextColor || '#ffffff'}
+                    onChange={(e) => updateConfig({ optionSelectedTextColor: e.target.value })}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </div>
+                <Input
+                  value={config.optionSelectedTextColor || '#ffffff'}
+                  onChange={(e) => updateConfig({ optionSelectedTextColor: e.target.value })}
+                  className="flex-1 font-mono text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Borda selecionada */}
+            <div>
+              <Label className="text-xs text-muted-foreground mb-1 block">Cor da borda</Label>
+              <div className="flex items-center gap-2">
+                <div className="relative w-8 h-8 rounded border border-border overflow-hidden cursor-pointer" style={{ backgroundColor: config.optionSelectedBorderColor || '#000000' }}>
+                  <input
+                    type="color"
+                    value={config.optionSelectedBorderColor || '#000000'}
+                    onChange={(e) => updateConfig({ optionSelectedBorderColor: e.target.value })}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </div>
+                <Input
+                  value={config.optionSelectedBorderColor || '#000000'}
+                  onChange={(e) => updateConfig({ optionSelectedBorderColor: e.target.value })}
+                  className="flex-1 font-mono text-sm"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Width */}
