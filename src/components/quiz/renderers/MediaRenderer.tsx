@@ -15,6 +15,9 @@ export function MediaRenderer({ component, config, type }: MediaRendererProps) {
   const justifyClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
 
   if (type === 'image') {
+    // Check if mediaUrl is an emoji (short text that doesn't start with http)
+    const isEmoji = config.mediaUrl && config.mediaUrl.length <= 4 && !/^https?:\/\//.test(config.mediaUrl);
+    
     if (!config.mediaUrl) {
       return (
         <div 
@@ -39,6 +42,25 @@ export function MediaRenderer({ component, config, type }: MediaRendererProps) {
       );
     }
 
+    // Render emoji
+    if (isEmoji) {
+      return (
+        <div 
+          style={{
+            padding: '16px 0',
+            width: '100%',
+            display: 'flex',
+            justifyContent: horizontalAlign === 'center' ? 'center' : horizontalAlign === 'end' ? 'flex-end' : 'flex-start'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 0' }}>
+            <span style={{ fontSize: '3.75rem' }}>{config.mediaUrl}</span>
+          </div>
+        </div>
+      );
+    }
+
+    // Render image URL
     return (
       <div 
         style={{
