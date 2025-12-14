@@ -444,6 +444,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_active_domain_for_routing: {
+        Args: { _domain: string }
+        Returns: {
+          domain: string
+          quiz_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
