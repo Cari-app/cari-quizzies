@@ -160,58 +160,58 @@ export function QuizList() {
   }
 
   return (
-    <div className="space-y-4 animate-fade-in">
+    <div className="space-y-3 animate-fade-in">
       {/* Action Bar */}
       <div className="flex items-center justify-end">
         <Link to="/admin/quiz/new">
-          <Button size="sm" className="gap-1.5 h-8">
-            <Plus className="w-3.5 h-3.5" />
+          <Button size="sm" className="gap-1 h-7 text-xs">
+            <Plus className="w-3 h-3" />
             Novo Quiz
           </Button>
         </Link>
       </div>
 
       {quizzes.length === 0 ? (
-        <div className="border border-dashed border-border rounded-lg p-8 text-center">
-          <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center mx-auto mb-3">
-            <FileQuestion className="w-5 h-5 text-muted-foreground" />
+        <div className="border border-dashed border-border rounded-lg p-6 text-center">
+          <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center mx-auto mb-2">
+            <FileQuestion className="w-4 h-4 text-muted-foreground" />
           </div>
-          <h3 className="text-sm font-medium mb-1">Nenhum quiz criado</h3>
-          <p className="text-xs text-muted-foreground mb-3">
+          <h3 className="text-xs font-medium mb-0.5">Nenhum quiz criado</h3>
+          <p className="text-[11px] text-muted-foreground mb-2">
             Comece criando seu primeiro quiz
           </p>
           <Link to="/admin/quiz/new">
-            <Button variant="outline" size="sm" className="gap-1.5 h-7 text-xs">
+            <Button variant="outline" size="sm" className="gap-1 h-6 text-[11px] px-2">
               <Plus className="w-3 h-3" />
               Criar primeiro quiz
             </Button>
           </Link>
         </div>
       ) : (
-        <div className="grid gap-3">
+        <div className="grid gap-1.5">
           {quizzes.map((quiz) => {
             const quizMetrics = metrics[quiz.id] || { totalSessions: 0, completedSessions: 0, conversionRate: 0 };
             
             return (
               <div
                 key={quiz.id}
-                className="group border border-border rounded-lg p-3 hover:border-foreground/20 hover:shadow-sm transition-all bg-card"
+                className="group border border-border rounded-md px-2.5 py-2 hover:border-foreground/20 hover:bg-muted/30 transition-all"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   {/* Color indicator */}
                   <div 
-                    className={`w-1 h-10 rounded-full shrink-0 ${
+                    className={`w-0.5 h-8 rounded-full shrink-0 ${
                       quiz.isPublished ? 'bg-green-500' : 'bg-muted-foreground/30'
                     }`}
                   />
                   
                   {/* Main content */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-sm font-medium truncate">{quiz.name}</h3>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="text-xs font-medium truncate">{quiz.name}</h3>
                       <Badge 
                         variant="outline"
-                        className={`text-[10px] px-1.5 py-0 h-4 font-normal ${
+                        className={`text-[9px] px-1 py-0 h-3.5 font-normal ${
                           quiz.isPublished 
                             ? 'border-green-500/50 text-green-600 bg-green-500/10' 
                             : 'border-muted-foreground/30 text-muted-foreground'
@@ -221,68 +221,68 @@ export function QuizList() {
                       </Badge>
                     </div>
                     
-                    <div className="flex items-center gap-3 mt-1">
+                    <div className="flex items-center gap-2 mt-0.5">
                       {quiz.slug && (
-                        <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-                          <Link2 className="w-3 h-3" />
+                        <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                          <Link2 className="w-2.5 h-2.5" />
                           <span className="text-foreground/70">/{quiz.slug}</span>
                         </span>
                       )}
-                      <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-                        <Calendar className="w-3 h-3" />
+                      <span className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                        <Calendar className="w-2.5 h-2.5" />
                         {quiz.updatedAt.toLocaleDateString('pt-BR')}
                       </span>
                     </div>
                   </div>
 
                   {/* Metrics */}
-                  <div className="hidden sm:flex items-center gap-4 text-[11px] text-muted-foreground">
-                    <div className="flex items-center gap-1.5" title="Total de leads">
-                      <Users className="w-3.5 h-3.5" />
+                  <div className="hidden sm:flex items-center gap-3 text-[10px] text-muted-foreground">
+                    <div className="flex items-center gap-1" title="Total de leads">
+                      <Users className="w-3 h-3" />
                       <span className="font-medium text-foreground">{quizMetrics.totalSessions}</span>
                     </div>
-                    <div className="flex items-center gap-1.5" title="Taxa de conclusão">
-                      <TrendingUp className="w-3.5 h-3.5" />
+                    <div className="flex items-center gap-1" title="Taxa de conclusão">
+                      <TrendingUp className="w-3 h-3" />
                       <span className="font-medium text-foreground">{quizMetrics.conversionRate}%</span>
                     </div>
                   </div>
 
                   {/* Actions */}
-                  <div className="flex items-center gap-1 shrink-0">
+                  <div className="flex items-center gap-0.5 shrink-0">
                     <Switch
                       checked={quiz.isPublished}
                       onCheckedChange={() => handleToggleActive(quiz)}
                       aria-label="Ativar/Desativar quiz"
-                      className="scale-90"
+                      className="scale-75"
                     />
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleEdit(quiz)}
-                      className="gap-1 h-7 text-xs px-2"
+                      className="gap-0.5 h-6 text-[11px] px-1.5"
                     >
-                      <Pencil className="w-3 h-3" />
+                      <Pencil className="w-2.5 h-2.5" />
                       Editar
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-7 w-7">
-                          <MoreHorizontal className="w-3.5 h-3.5" />
+                        <Button variant="ghost" size="icon" className="h-6 w-6">
+                          <MoreHorizontal className="w-3 h-3" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-36">
+                      <DropdownMenuContent align="end" className="w-32">
                         <DropdownMenuItem 
                           onClick={() => handlePreview(quiz)}
-                          className="text-xs"
+                          className="text-[11px] h-7"
                         >
-                          <Eye className="w-3.5 h-3.5 mr-2" />
+                          <Eye className="w-3 h-3 mr-1.5" />
                           Visualizar
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={() => handleDeleteClick(quiz.id)}
-                          className="text-xs text-destructive focus:text-destructive"
+                          className="text-[11px] h-7 text-destructive focus:text-destructive"
                         >
-                          <Trash2 className="w-3.5 h-3.5 mr-2" />
+                          <Trash2 className="w-3 h-3 mr-1.5" />
                           Excluir
                         </DropdownMenuItem>
                       </DropdownMenuContent>
