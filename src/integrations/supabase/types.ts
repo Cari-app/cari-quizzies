@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      custom_domains: {
+        Row: {
+          cloudflare_hostname_id: string | null
+          created_at: string
+          domain: string
+          id: string
+          quiz_id: string | null
+          ssl_status: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          verification_txt: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          cloudflare_hostname_id?: string | null
+          created_at?: string
+          domain: string
+          id?: string
+          quiz_id?: string | null
+          ssl_status?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          verification_txt?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          cloudflare_hostname_id?: string | null
+          created_at?: string
+          domain?: string
+          id?: string
+          quiz_id?: string | null
+          ssl_status?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          verification_txt?: string | null
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_domains_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       etapas: {
         Row: {
           configuracoes: Json | null
