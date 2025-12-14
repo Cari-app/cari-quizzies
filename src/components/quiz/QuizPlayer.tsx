@@ -35,7 +35,8 @@ import {
   MediaRenderer,
   WebhookTriggerRenderer,
   FormRenderer,
-  ProgressRenderer
+  ProgressRenderer,
+  ImageButtonRenderer
 } from './renderers';
 
 interface QuizPlayerProps {
@@ -1240,6 +1241,33 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
             currentStep={currentStageIndex + 1} 
             totalSteps={stages.length} 
             config={config as any} 
+          />
+        );
+
+      case 'image-button':
+        return (
+          <ImageButtonRenderer 
+            config={config}
+            onSelect={(value, destination, destinationStageId) => {
+              const key = customId || comp.id;
+              setFormData(prev => ({ ...prev, [key]: value }));
+              
+              // Handle navigation based on destination
+              if (destination === 'specific' && destinationStageId) {
+                const targetIndex = stages.findIndex((s: any) => s.id === destinationStageId);
+                if (targetIndex !== -1) {
+                  setCurrentStageIndex(targetIndex);
+                }
+              } else if (destination === 'submit') {
+                // Handle submit logic
+              } else {
+                // Default: go to next stage
+                if (currentStageIndex < stages.length - 1) {
+                  setCurrentStageIndex(currentStageIndex + 1);
+                }
+              }
+            }}
+            selectedValues={formData[customId || comp.id] ? [formData[customId || comp.id]] : []}
           />
         );
 
