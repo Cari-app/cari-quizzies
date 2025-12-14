@@ -88,7 +88,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
         className={cn(
           "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
           active
-            ? "bg-primary text-primary-foreground shadow-sm"
+            ? "bg-lime-900 text-white dark:bg-primary dark:text-primary-foreground shadow-sm"
             : "text-muted-foreground hover:text-foreground hover:bg-accent"
         )}
       >
