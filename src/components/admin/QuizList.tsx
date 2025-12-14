@@ -313,7 +313,7 @@ export function QuizList() {
                   <Eye className="w-3.5 h-3.5 mr-2" />
                   Visualizar
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleOpenCoverDialog(quiz)} className="text-xs">
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleOpenCoverDialog(quiz); }} className="text-xs">
                   <ImageIcon className="w-3.5 h-3.5 mr-2" />
                   Capa
                 </DropdownMenuItem>
@@ -453,7 +453,7 @@ export function QuizList() {
                 <Eye className="w-3.5 h-3.5 mr-2" />
                 Visualizar
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleOpenCoverDialog(quiz)} className="text-xs">
+              <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleOpenCoverDialog(quiz); }} className="text-xs">
                 <ImageIcon className="w-3.5 h-3.5 mr-2" />
                 Capa
               </DropdownMenuItem>
