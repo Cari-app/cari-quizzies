@@ -937,13 +937,12 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   <span style={{ fontSize: '3.75rem' }}>{config.mediaUrl}</span>
                 </div>
               ) : (
-                <img 
+              <img 
                   src={config.mediaUrl} 
                   alt={config.altText || ''} 
                   style={{ 
                     width: `${imageWidth}%`,
                     height: 'auto',
-                    borderRadius: '8px',
                     display: 'block'
                   }}
                 />
