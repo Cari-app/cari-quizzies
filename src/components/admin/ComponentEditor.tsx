@@ -317,6 +317,7 @@ export interface ComponentConfig {
   // Appearance
   labelStyle?: 'default' | 'floating' | 'hidden';
   width?: number;
+  imageSize?: number;
   horizontalAlign?: 'start' | 'center' | 'end';
   verticalAlign?: 'auto' | 'start' | 'center' | 'end';
   // Display/Visibility

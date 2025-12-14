@@ -305,34 +305,34 @@ export function MediaComponentTab({
       {/* Image Size and Alignment Controls */}
       {config.mediaUrl && !config.mediaUrl.match(/^[\u{1F300}-\u{1F9FF}]/u) && (
         <div className="space-y-4">
-          {/* Size Slider */}
+          {/* Size Slider - in pixels */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label className="text-xs text-muted-foreground">Tamanho da imagem</Label>
-              <span className="text-xs text-muted-foreground">{config.width || 100}%</span>
+              <span className="text-xs text-muted-foreground">{config.imageSize || 200}px</span>
             </div>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="icon"
                 className="h-8 w-8 shrink-0"
-                onClick={() => updateConfig({ width: Math.max(10, (config.width || 100) - 10) })}
+                onClick={() => updateConfig({ imageSize: Math.max(20, (config.imageSize || 200) - 20) })}
               >
                 <Minus className="h-3 w-3" />
               </Button>
               <Slider
-                value={[config.width || 100]}
-                onValueChange={([value]) => updateConfig({ width: value })}
-                min={10}
-                max={100}
-                step={5}
+                value={[config.imageSize || 200]}
+                onValueChange={([value]) => updateConfig({ imageSize: value })}
+                min={20}
+                max={500}
+                step={10}
                 className="flex-1"
               />
               <Button
                 variant="outline"
                 size="icon"
                 className="h-8 w-8 shrink-0"
-                onClick={() => updateConfig({ width: Math.min(100, (config.width || 100) + 10) })}
+                onClick={() => updateConfig({ imageSize: Math.min(500, (config.imageSize || 200) + 20) })}
               >
                 <Plus className="h-3 w-3" />
               </Button>

@@ -130,6 +130,7 @@ interface ComponentConfig {
   transparentImageBg?: boolean;
   // Appearance
   width?: number;
+  imageSize?: number;
   horizontalAlign?: 'start' | 'center' | 'end';
   verticalAlign?: 'auto' | 'start' | 'center' | 'end';
   // Timer specific

@@ -10,6 +10,7 @@ interface MediaRendererProps extends RendererProps {
 
 export function MediaRenderer({ component, config, type }: MediaRendererProps) {
   const widthValue = config.width || 100;
+  const imageSize = config.imageSize || 200;
   const horizontalAlign = config.horizontalAlign || 'center';
   const justifyClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
 
@@ -39,7 +40,7 @@ export function MediaRenderer({ component, config, type }: MediaRendererProps) {
               imageRatioClass || "h-48",
               imageStyleClass
             )}
-            style={{ width: `${widthValue}%` }}
+            style={{ width: `${imageSize}px`, maxWidth: '100%' }}
           >
             <span className="text-4xl">🖼️</span>
           </div>
@@ -65,7 +66,8 @@ export function MediaRenderer({ component, config, type }: MediaRendererProps) {
             imageStyleClass
           )}
           style={{ 
-            width: `${widthValue}%`,
+            width: `${imageSize}px`,
+            maxWidth: '100%',
             height: 'auto',
             display: 'block',
             borderRadius: config.borderRadius ? `${config.borderRadius}px` : undefined
