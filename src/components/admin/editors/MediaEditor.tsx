@@ -302,38 +302,78 @@ export function MediaComponentTab({
         </div>
       )}
 
-      {/* Image Size Slider */}
+      {/* Image Size and Alignment Controls */}
       {config.mediaUrl && !config.mediaUrl.match(/^[\u{1F300}-\u{1F9FF}]/u) && (
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label className="text-xs text-muted-foreground">Tamanho da imagem</Label>
-            <span className="text-xs text-muted-foreground">{config.width || 100}%</span>
+        <div className="space-y-4">
+          {/* Size Slider */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs text-muted-foreground">Tamanho da imagem</Label>
+              <span className="text-xs text-muted-foreground">{config.width || 100}%</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 shrink-0"
+                onClick={() => updateConfig({ width: Math.max(10, (config.width || 100) - 10) })}
+              >
+                <Minus className="h-3 w-3" />
+              </Button>
+              <Slider
+                value={[config.width || 100]}
+                onValueChange={([value]) => updateConfig({ width: value })}
+                min={10}
+                max={100}
+                step={5}
+                className="flex-1"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 shrink-0"
+                onClick={() => updateConfig({ width: Math.min(100, (config.width || 100) + 10) })}
+              >
+                <Plus className="h-3 w-3" />
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 shrink-0"
-              onClick={() => updateConfig({ width: Math.max(10, (config.width || 100) - 10) })}
-            >
-              <Minus className="h-3 w-3" />
-            </Button>
-            <Slider
-              value={[config.width || 100]}
-              onValueChange={([value]) => updateConfig({ width: value })}
-              min={10}
-              max={100}
-              step={5}
-              className="flex-1"
-            />
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8 shrink-0"
-              onClick={() => updateConfig({ width: Math.min(100, (config.width || 100) + 10) })}
-            >
-              <Plus className="h-3 w-3" />
-            </Button>
+
+          {/* Horizontal Alignment */}
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Alinhamento</Label>
+            <div className="flex p-1 bg-muted rounded-lg">
+              <button
+                type="button"
+                onClick={() => updateConfig({ horizontalAlign: 'start' })}
+                className={cn(
+                  "flex-1 py-2 text-sm font-medium rounded-md transition-colors",
+                  (config.horizontalAlign || 'start') === 'start' ? "bg-background shadow-sm" : "hover:bg-background/50"
+                )}
+              >
+                Esquerda
+              </button>
+              <button
+                type="button"
+                onClick={() => updateConfig({ horizontalAlign: 'center' })}
+                className={cn(
+                  "flex-1 py-2 text-sm font-medium rounded-md transition-colors",
+                  config.horizontalAlign === 'center' ? "bg-background shadow-sm" : "hover:bg-background/50"
+                )}
+              >
+                Centro
+              </button>
+              <button
+                type="button"
+                onClick={() => updateConfig({ horizontalAlign: 'end' })}
+                className={cn(
+                  "flex-1 py-2 text-sm font-medium rounded-md transition-colors",
+                  config.horizontalAlign === 'end' ? "bg-background shadow-sm" : "hover:bg-background/50"
+                )}
+              >
+                Direita
+              </button>
+            </div>
           </div>
         </div>
       )}
