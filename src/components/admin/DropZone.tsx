@@ -25,9 +25,10 @@ interface DropZoneProps {
   selectedComponentId?: string | null;
   onSelectComponent: (component: DroppedComponent | null) => void;
   designSettings?: DesignSettings;
+  previewDevice?: 'mobile' | 'desktop';
 }
 
-export function DropZone({ components, onComponentsChange, selectedComponentId, onSelectComponent, designSettings }: DropZoneProps) {
+export function DropZone({ components, onComponentsChange, selectedComponentId, onSelectComponent, designSettings, previewDevice = 'mobile' }: DropZoneProps) {
   const [isDragOver, setIsDragOver] = useState(false);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -2286,8 +2287,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       }
       case 'image-button': {
         const items = config.imageButtonItems || [];
-        const orientation = config.imageButtonOrientation || 'vertical';
         const layout = config.imageButtonLayout || 'list';
+        const layoutMobile = config.imageButtonLayoutMobile;
         const position = config.imageButtonPosition || 'overlay';
         const style = config.imageButtonStyle || 'rounded';
         const bgColor = config.imageButtonBgColor || '#3f3f46';
@@ -2299,11 +2300,17 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const containerRadius = config.imageButtonContainerRadius ?? 24;
         const gap = config.imageButtonGap ?? 16;
 
+        // Use the correct layout based on preview device
+        const activeLayout = previewDevice === 'mobile' && layoutMobile 
+          ? layoutMobile 
+          : layout;
+
         const getLayoutClass = () => {
-          switch (layout) {
+          switch (activeLayout) {
             case 'grid-2': return 'grid grid-cols-2';
             case 'grid-3': return 'grid grid-cols-3';
-            default: return orientation === 'horizontal' ? 'flex flex-row flex-wrap' : 'flex flex-col';
+            case 'horizontal': return 'flex flex-row';
+            default: return 'flex flex-col';
           }
         };
 
