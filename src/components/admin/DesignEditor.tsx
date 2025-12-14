@@ -160,6 +160,8 @@ function ColorPickerField({ label, value, onChange }: ColorPickerFieldProps) {
 interface DesignEditorProps {
   settings: QuizDesignSettings;
   onSettingsChange: (settings: QuizDesignSettings) => void;
+  thumbnailUrl?: string;
+  onThumbnailChange?: (url: string) => void;
 }
 
 const FONT_OPTIONS = [
@@ -177,7 +179,7 @@ const FONT_OPTIONS = [
   'Work Sans',
 ];
 
-export function DesignEditor({ settings, onSettingsChange }: DesignEditorProps) {
+export function DesignEditor({ settings, onSettingsChange, thumbnailUrl, onThumbnailChange }: DesignEditorProps) {
   const updateSettings = (updates: Partial<QuizDesignSettings>) => {
     onSettingsChange({ ...settings, ...updates });
   };
@@ -185,8 +187,33 @@ export function DesignEditor({ settings, onSettingsChange }: DesignEditorProps) 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-background">
       <div className="flex-1 overflow-y-auto">
+        {/* CAPA DO QUIZ */}
+        {onThumbnailChange && (
+          <CollapsibleSection title="Capa do Quiz" defaultOpen={true}>
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground">
+                Imagem de capa (exibida na lista de quizzes)
+              </Label>
+              <ImageInput
+                value={thumbnailUrl || ''}
+                onChange={onThumbnailChange}
+                placeholder="URL da imagem de capa"
+              />
+              {thumbnailUrl && (
+                <div className="mt-2 rounded-lg overflow-hidden border border-border">
+                  <img 
+                    src={thumbnailUrl} 
+                    alt="Capa do quiz" 
+                    className="w-full h-24 object-cover"
+                  />
+                </div>
+              )}
+            </div>
+          </CollapsibleSection>
+        )}
+
         {/* GERAL */}
-        <CollapsibleSection title="Geral" defaultOpen={true}>
+        <CollapsibleSection title="Geral" defaultOpen={!onThumbnailChange}>
           <div className="space-y-4">
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">Alinhamento</Label>
