@@ -48,16 +48,26 @@ export function MediaRenderer({ component, config, type }: MediaRendererProps) {
     }
 
     return (
-      <div className={cn("py-4 w-full flex", justifyClass)}>
+      <div 
+        className="py-4 w-full"
+        style={{
+          display: 'flex',
+          justifyContent: horizontalAlign === 'center' ? 'center' : horizontalAlign === 'end' ? 'flex-end' : 'flex-start'
+        }}
+      >
         <img 
           src={config.mediaUrl} 
           alt={config.altText || ''} 
           className={cn(
             imageRatioClass ? "object-cover" : "",
             imageRatioClass,
-            imageStyleClass
+            imageStyleClass,
+            "h-auto"
           )}
-          style={{ width: `${widthValue}%`, maxWidth: '100%' }}
+          style={{ 
+            maxWidth: `${widthValue}%`,
+            width: 'auto'
+          }}
         />
       </div>
     );
