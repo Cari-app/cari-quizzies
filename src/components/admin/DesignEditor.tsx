@@ -31,6 +31,7 @@ export interface QuizDesignSettings {
     paddingX: number;
   };
   progressBar: 'hidden' | 'top' | 'bottom';
+  progressBarThickness: number;
   hideProgressBar: boolean;
   
   // HEADER STYLING
@@ -76,6 +77,7 @@ export const defaultDesignSettings: QuizDesignSettings = {
     paddingX: 16,
   },
   progressBar: 'top',
+  progressBarThickness: 6,
   hideProgressBar: false,
   headerDivider: {
     show: true,
@@ -444,21 +446,39 @@ export function DesignEditor({ settings, onSettingsChange }: DesignEditorProps) 
             </div>
 
             {!settings.hideProgressBar && (
-              <div className="space-y-1.5">
-                <Label className="text-xs text-muted-foreground">Posição da barra</Label>
-                <Select 
-                  value={settings.progressBar} 
-                  onValueChange={(value: 'hidden' | 'top' | 'bottom') => updateSettings({ progressBar: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="top">Fixado ao topo</SelectItem>
-                    <SelectItem value="bottom">Fixado embaixo</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Posição da barra</Label>
+                  <Select 
+                    value={settings.progressBar} 
+                    onValueChange={(value: 'hidden' | 'top' | 'bottom') => updateSettings({ progressBar: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="top">Fixado ao topo</SelectItem>
+                      <SelectItem value="bottom">Fixado embaixo</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Espessura da barra ({settings.progressBarThickness || 6}px)</Label>
+                  <input
+                    type="range"
+                    min={2}
+                    max={16}
+                    value={settings.progressBarThickness || 6}
+                    onChange={(e) => updateSettings({ progressBarThickness: Number(e.target.value) })}
+                    className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-primary"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    <span>2px</span>
+                    <span>16px</span>
+                  </div>
+                </div>
+              </>
             )}
 
             {/* Divider Settings */}
