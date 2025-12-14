@@ -920,26 +920,26 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'image': {
         const isEmoji = config.mediaUrl && config.mediaUrl.length <= 4 && !/^https?:\/\//.test(config.mediaUrl);
         const imageWidth = config.width || 100;
-        const imageAlign = config.horizontalAlign || 'start';
+        const imageAlign = config.horizontalAlign || 'center';
         const justifyClass = imageAlign === 'center' ? 'justify-center' : imageAlign === 'end' ? 'justify-end' : 'justify-start';
         
         return (
-          <div className={cn("p-4 flex", justifyClass)}>
+          <div className={cn("p-4 w-full flex", justifyClass)}>
             {config.mediaUrl ? (
               isEmoji ? (
-                <div className="flex items-center justify-center py-8" style={{ width: `${imageWidth}%` }}>
+                <div className="flex items-center justify-center py-8">
                   <span className="text-6xl">{config.mediaUrl}</span>
                 </div>
               ) : (
                 <img 
                   src={config.mediaUrl} 
                   alt={config.altText || ''} 
-                  className="rounded-lg object-contain" 
-                  style={{ width: `${imageWidth}%` }}
+                  className="rounded-lg" 
+                  style={{ width: `${imageWidth}%`, maxWidth: '100%' }}
                 />
               )
             ) : (
-              <div className="p-8 bg-muted/30 rounded-lg flex items-center justify-center border-2 border-dashed border-border" style={{ width: `${imageWidth}%` }}>
+              <div className="p-8 bg-muted/30 rounded-lg flex items-center justify-center border-2 border-dashed border-border w-full">
                 <span className="text-2xl">🖼️</span>
                 <span className="text-sm text-muted-foreground ml-2">Adicionar imagem</span>
               </div>

@@ -10,7 +10,7 @@ interface MediaRendererProps extends RendererProps {
 
 export function MediaRenderer({ component, config, type }: MediaRendererProps) {
   const widthValue = config.width || 100;
-  const horizontalAlign = config.horizontalAlign || 'start';
+  const horizontalAlign = config.horizontalAlign || 'center';
   const justifyClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
 
   if (type === 'image') {
@@ -48,16 +48,16 @@ export function MediaRenderer({ component, config, type }: MediaRendererProps) {
     }
 
     return (
-      <div className={cn("py-4 flex", justifyClass)}>
+      <div className={cn("py-4 w-full flex", justifyClass)}>
         <img 
           src={config.mediaUrl} 
           alt={config.altText || ''} 
           className={cn(
-            imageRatioClass ? "object-cover" : "object-contain",
+            imageRatioClass ? "object-cover" : "",
             imageRatioClass,
             imageStyleClass
           )}
-          style={{ width: `${widthValue}%` }}
+          style={{ width: `${widthValue}%`, maxWidth: '100%' }}
         />
       </div>
     );
