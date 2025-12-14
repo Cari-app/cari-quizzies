@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, createContext, useContext } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
 import { Trash2, Plus, ChevronDown, GripVertical, Image, Smile, X, Upload, Loader2, Copy } from 'lucide-react';
+import { DeviceToggle, DeviceType } from './editors/shared';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
@@ -553,9 +554,15 @@ interface ComponentEditorProps {
   themeColor?: string; // Global primary color from design settings
 }
 
+// Device context for responsive configurations
+export type { DeviceType } from './editors/shared';
+export const DeviceContext = createContext<DeviceType>('all');
+export const useDeviceContext = () => useContext(DeviceContext);
+
 export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelete, themeColor = '#000000' }: ComponentEditorProps) {
   const config = component.config || {};
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState<DeviceType>('all');
   
   // Media library picker state for testimonials
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
@@ -1350,38 +1357,50 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
   );
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="flex items-center gap-3 p-4 shrink-0">
-        <div className="flex-1">
-          <h3 className="font-medium text-sm">{component.name}</h3>
-          <p className="text-xs text-muted-foreground capitalize">{component.type}</p>
+    <DeviceContext.Provider value={selectedDevice}>
+      <div className="flex flex-col h-full">
+        {/* Header */}
+        <div className="flex items-center gap-3 p-4 pb-2 shrink-0">
+          <div className="flex-1">
+            <h3 className="font-medium text-sm">{component.name}</h3>
+            <p className="text-xs text-muted-foreground capitalize">{component.type}</p>
+          </div>
+          <Button variant="ghost" size="icon" onClick={onDelete} className="text-destructive hover:text-destructive">
+            <Trash2 className="w-4 h-4" />
+          </Button>
         </div>
-        <Button variant="ghost" size="icon" onClick={onDelete} className="text-destructive hover:text-destructive">
-          <Trash2 className="w-4 h-4" />
-        </Button>
-      </div>
+        
+        {/* Device Toggle */}
+        <div className="flex items-center justify-between px-4 py-2 border-b border-border/50">
+          <span className="text-xs text-muted-foreground">Configurar para:</span>
+          <DeviceToggle 
+            value={selectedDevice} 
+            onChange={setSelectedDevice}
+            showAll={true}
+          />
+        </div>
 
-      {/* Tabs */}
-      <Tabs defaultValue="component" className="flex-1 flex flex-col overflow-hidden">
-        <TabsList className="grid grid-cols-3 m-4 mb-0 shrink-0">
-          <TabsTrigger value="component">Componente</TabsTrigger>
-          <TabsTrigger value="appearance">Aparência</TabsTrigger>
-          <TabsTrigger value="display">Exibição</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="component" className="flex-1 overflow-y-auto p-4 mt-0">
-          {renderComponentTab()}
-        </TabsContent>
-        
-        <TabsContent value="appearance" className="flex-1 overflow-y-auto p-4 mt-0">
-          {renderAppearanceTab()}
-        </TabsContent>
-        
-        <TabsContent value="display" className="flex-1 overflow-y-auto p-4 mt-0">
-          {renderDisplayTab()}
-        </TabsContent>
-      </Tabs>
-    </div>
+        {/* Tabs */}
+        <Tabs defaultValue="component" className="flex-1 flex flex-col overflow-hidden">
+          <TabsList className="grid grid-cols-3 m-4 mb-0 shrink-0">
+            <TabsTrigger value="component">Componente</TabsTrigger>
+            <TabsTrigger value="appearance">Aparência</TabsTrigger>
+            <TabsTrigger value="display">Exibição</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="component" className="flex-1 overflow-y-auto p-4 mt-0">
+            {renderComponentTab()}
+          </TabsContent>
+          
+          <TabsContent value="appearance" className="flex-1 overflow-y-auto p-4 mt-0">
+            {renderAppearanceTab()}
+          </TabsContent>
+          
+          <TabsContent value="display" className="flex-1 overflow-y-auto p-4 mt-0">
+            {renderDisplayTab()}
+          </TabsContent>
+        </Tabs>
+      </div>
+    </DeviceContext.Provider>
   );
 }
