@@ -581,7 +581,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'multiple': {
         const optionStyle = config.optionStyle || 'simple';
         const optionLayout = config.optionLayout || 'list';
-        const optionOrientation = config.optionOrientation || 'horizontal';
+        const optionOrientation = config.optionOrientation || 'vertical';
         const optionBorderRadius = config.optionBorderRadius || 'small';
         const optionShadow = config.optionShadow || 'none';
         const optionSpacing = config.optionSpacing || 'simple';
