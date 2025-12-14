@@ -921,10 +921,15 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const isEmoji = config.mediaUrl && config.mediaUrl.length <= 4 && !/^https?:\/\//.test(config.mediaUrl);
         const imageWidth = config.width || 100;
         const imageAlign = config.horizontalAlign || 'center';
-        const justifyClass = imageAlign === 'center' ? 'justify-center' : imageAlign === 'end' ? 'justify-end' : 'justify-start';
         
         return (
-          <div className={cn("p-4 w-full flex", justifyClass)}>
+          <div 
+            className="p-4 w-full"
+            style={{
+              display: 'flex',
+              justifyContent: imageAlign === 'center' ? 'center' : imageAlign === 'end' ? 'flex-end' : 'flex-start'
+            }}
+          >
             {config.mediaUrl ? (
               isEmoji ? (
                 <div className="flex items-center justify-center py-8">
@@ -934,8 +939,11 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                 <img 
                   src={config.mediaUrl} 
                   alt={config.altText || ''} 
-                  className="rounded-lg" 
-                  style={{ width: `${imageWidth}%`, maxWidth: '100%' }}
+                  className="rounded-lg h-auto"
+                  style={{ 
+                    maxWidth: `${imageWidth}%`,
+                    width: 'auto'
+                  }}
                 />
               )
             ) : (
