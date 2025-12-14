@@ -212,7 +212,7 @@ export function FlowAnalyticsCanvas({
         </Panel>
         
         {/* Legend */}
-        <Panel position="bottom-left" className="bg-background/95 backdrop-blur-sm border border-border rounded-lg p-3 shadow-sm">
+        <Panel position="bottom-left" className="bg-background/95 backdrop-blur-sm border border-border rounded-lg p-3 shadow-sm ml-2 mb-2">
           <div className="text-[10px] text-muted-foreground space-y-1">
             <div className="font-medium mb-2">Legenda</div>
             <div className="flex items-center gap-2">
