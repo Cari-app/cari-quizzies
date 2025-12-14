@@ -5,11 +5,12 @@ import { Slider } from '@/components/ui/slider';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, Trash2, Plus, GripVertical, Image as ImageIcon, X } from 'lucide-react';
+import { ChevronDown, Trash2, Plus, GripVertical, Image as ImageIcon, X, Monitor, Smartphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { MediaLibraryPicker } from '@/components/ui/media-library-picker';
 import { ColorPicker } from './shared/ColorPicker';
-import { ComponentIdDisplay } from './shared';
+import { ComponentIdDisplay, DeviceToggle } from './shared';
+import type { DeviceType } from './shared';
 
 export interface ImageButtonItem {
   id: string;
@@ -74,39 +75,93 @@ export function ImageButtonComponentTab({
 
   return (
     <div className="space-y-4">
-      {/* Orientação */}
-      <div>
-        <Label className="text-xs text-muted-foreground">Orientação</Label>
-        <Select 
-          value={config.imageButtonOrientation || 'vertical'} 
-          onValueChange={(v) => updateConfig({ imageButtonOrientation: v })}
-        >
-          <SelectTrigger className="mt-1">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="vertical">Vertical</SelectItem>
-            <SelectItem value="horizontal">Horizontal</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Layout */}
-      <div>
-        <Label className="text-xs text-muted-foreground">Layout</Label>
-        <Select 
-          value={config.imageButtonLayout || 'list'} 
-          onValueChange={(v) => updateConfig({ imageButtonLayout: v })}
-        >
-          <SelectTrigger className="mt-1">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="list">Lista</SelectItem>
-            <SelectItem value="grid-2">Grid 2 colunas</SelectItem>
-            <SelectItem value="grid-3">Grid 3 colunas</SelectItem>
-          </SelectContent>
-        </Select>
+      {/* Layout com toggle de dispositivo */}
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between gap-2">
+          <Label className="text-xs text-muted-foreground">Layout</Label>
+          <div className="inline-flex items-center rounded-lg border border-border p-0.5 bg-muted/30">
+            <button
+              type="button"
+              onClick={() => updateConfig({ imageButtonLayoutMobile: undefined })}
+              className={cn(
+                "px-2 py-1 text-[10px] font-medium rounded-md transition-colors",
+                !config.imageButtonLayoutMobile 
+                  ? "bg-background text-foreground shadow-sm" 
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Igual
+            </button>
+            <button
+              type="button"
+              onClick={() => updateConfig({ imageButtonLayoutMobile: config.imageButtonLayout || 'list' })}
+              className={cn(
+                "p-1.5 rounded-md transition-colors flex items-center gap-1",
+                config.imageButtonLayoutMobile 
+                  ? "bg-background text-foreground shadow-sm" 
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+              title="Configurar separadamente"
+            >
+              <Monitor className="w-3 h-3" />
+              <span className="text-[10px]">/</span>
+              <Smartphone className="w-3 h-3" />
+            </button>
+          </div>
+        </div>
+        
+        {config.imageButtonLayoutMobile ? (
+          <div className="space-y-2">
+            {/* Desktop Layout */}
+            <div className="flex items-center gap-2">
+              <Monitor className="w-4 h-4 text-muted-foreground shrink-0" />
+              <Select 
+                value={config.imageButtonLayout || 'list'} 
+                onValueChange={(v) => updateConfig({ imageButtonLayout: v })}
+              >
+                <SelectTrigger className="flex-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="list">Lista</SelectItem>
+                  <SelectItem value="grid-2">Grid 2 colunas</SelectItem>
+                  <SelectItem value="grid-3">Grid 3 colunas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {/* Mobile Layout */}
+            <div className="flex items-center gap-2">
+              <Smartphone className="w-4 h-4 text-muted-foreground shrink-0" />
+              <Select 
+                value={config.imageButtonLayoutMobile} 
+                onValueChange={(v) => updateConfig({ imageButtonLayoutMobile: v })}
+              >
+                <SelectTrigger className="flex-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="list">Lista</SelectItem>
+                  <SelectItem value="grid-2">Grid 2 colunas</SelectItem>
+                  <SelectItem value="grid-3">Grid 3 colunas</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        ) : (
+          <Select 
+            value={config.imageButtonLayout || 'list'} 
+            onValueChange={(v) => updateConfig({ imageButtonLayout: v })}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="list">Lista</SelectItem>
+              <SelectItem value="grid-2">Grid 2 colunas</SelectItem>
+              <SelectItem value="grid-3">Grid 3 colunas</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       {/* Items */}
