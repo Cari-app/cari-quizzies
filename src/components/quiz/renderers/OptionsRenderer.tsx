@@ -304,7 +304,11 @@ export function OptionsRenderer({
                       : "bg-muted/50 text-foreground hover:bg-primary/20 hover:scale-102"
                   )}
                 >
-                  <div className="flex items-center justify-center gap-2">
+                  <div className={cn(
+                    isVertical 
+                      ? "flex flex-col items-center gap-2" 
+                      : "flex items-center justify-center gap-2"
+                  )}>
                     {renderOptionMedia(opt)}
                     <span className="rich-text" dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
                   </div>
@@ -358,9 +362,13 @@ export function OptionsRenderer({
                       : "hover:bg-muted/30 hover:border-l-4 hover:border-l-primary/30"
                   )}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className={cn(
+                    isVertical 
+                      ? "flex flex-col items-center gap-2" 
+                      : "flex items-center gap-3"
+                  )}>
                     {renderOptionMedia(opt)}
-                    <span className="flex-1 text-left rich-text" dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
+                    <span className={cn(!isVertical && "flex-1 text-left", "rich-text")} dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
                     <div className={cn(
                       "w-2 h-2 rounded-full transition-all",
                       isSelected ? "bg-primary scale-150" : "bg-muted-foreground/30"
