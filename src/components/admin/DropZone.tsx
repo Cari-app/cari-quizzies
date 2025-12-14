@@ -919,30 +919,35 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         );
       case 'image': {
         const isEmoji = config.mediaUrl && config.mediaUrl.length <= 4 && !/^https?:\/\//.test(config.mediaUrl);
-        const imageWidth = config.width || 100;
+        const imageWidth = config.width ?? 100;
         const imageAlign = config.horizontalAlign || 'center';
+        
+        // Debug log
+        console.log('[DropZone Image]', { imageWidth, imageAlign, mediaUrl: config.mediaUrl?.substring(0, 50) });
         
         return (
           <div 
-            className="p-4 w-full"
             style={{
+              padding: '16px',
+              width: '100%',
               display: 'flex',
               justifyContent: imageAlign === 'center' ? 'center' : imageAlign === 'end' ? 'flex-end' : 'flex-start'
             }}
           >
             {config.mediaUrl ? (
               isEmoji ? (
-                <div className="flex items-center justify-center py-8">
-                  <span className="text-6xl">{config.mediaUrl}</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 0' }}>
+                  <span style={{ fontSize: '3.75rem' }}>{config.mediaUrl}</span>
                 </div>
               ) : (
                 <img 
                   src={config.mediaUrl} 
                   alt={config.altText || ''} 
-                  className="rounded-lg h-auto"
                   style={{ 
-                    maxWidth: `${imageWidth}%`,
-                    width: 'auto'
+                    width: `${imageWidth}%`,
+                    height: 'auto',
+                    borderRadius: '8px',
+                    display: 'block'
                   }}
                 />
               )
