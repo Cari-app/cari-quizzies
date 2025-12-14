@@ -61,32 +61,32 @@
   }
 
   .dark {
-    /* Background & Foreground - Zinc 900 */
-    --background: 240 5.9% 10%;
+    /* Background & Foreground - Zinc 950 */
+    --background: 240 5.9% 4%;
     --foreground: 0 0% 98%;
 
     /* Card surfaces - slightly lighter than background */
-    --card: 240 5.2% 12%;
+    --card: 240 5.2% 8%;
     --card-foreground: 0 0% 98%;
 
     /* Popover */
-    --popover: 240 5.2% 12%;
+    --popover: 240 5.2% 8%;
     --popover-foreground: 0 0% 98%;
 
     /* Primary - Pure white (buttons, main actions) */
     --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
+    --primary-foreground: 240 5.9% 4%;
 
     /* Secondary */
-    --secondary: 240 4.8% 15%;
+    --secondary: 240 4.8% 12%;
     --secondary-foreground: 0 0% 90%;
 
     /* Muted */
-    --muted: 240 4.8% 15%;
+    --muted: 240 4.8% 12%;
     --muted-foreground: 240 5% 55%;
 
     /* Accent */
-    --accent: 240 4.8% 15%;
+    --accent: 240 4.8% 12%;
     --accent-foreground: 0 0% 98%;
 
     /* Destructive */
@@ -94,18 +94,18 @@
     --destructive-foreground: 0 0% 98%;
 
     /* Border & Input */
-    --border: 240 4.9% 20%;
-    --input: 240 4.9% 20%;
+    --border: 240 4.9% 16%;
+    --input: 240 4.9% 16%;
     --ring: 0 0% 98%;
 
     /* Sidebar */
-    --sidebar-background: 240 5.9% 10%;
+    --sidebar-background: 240 5.9% 4%;
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 0 0% 98%;
-    --sidebar-primary-foreground: 240 5.9% 10%;
-    --sidebar-accent: 240 4.8% 15%;
+    --sidebar-primary-foreground: 240 5.9% 4%;
+    --sidebar-accent: 240 4.8% 12%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 4.9% 20%;
+    --sidebar-border: 240 4.9% 16%;
     --sidebar-ring: 0 0% 98%;
 
     /* Purple tokens - ONLY for toggles and links */
