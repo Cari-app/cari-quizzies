@@ -32,7 +32,7 @@ interface StageNodeData {
 
 // Types that can trigger navigation
 const CONNECTABLE_TYPES = ['button', 'loading'];
-const OPTIONS_TYPES = ['options', 'single', 'multiple', 'single_choice', 'multiple_choice'];
+const OPTIONS_TYPES = ['options', 'single', 'multiple', 'single_choice', 'multiple_choice', 'image-button'];
 
 const canConnect = (comp: ComponentData): boolean => {
   if (CONNECTABLE_TYPES.includes(comp.type)) {
@@ -107,7 +107,14 @@ export const StageNode = memo(({ data, selected }: NodeProps & { data: StageNode
             {allComponents.map((comp, idx) => {
               const isConnectable = canConnect(comp);
               const hasOptions = isOptionsComponent(comp);
-              const options = comp.config?.options || [];
+              const isImageButton = comp.type === 'image-button';
+              const options = isImageButton 
+                ? (comp.config?.imageButtonItems || []).map((item: any) => ({
+                    id: item.id,
+                    text: item.buttonText,
+                    destination: item.destination
+                  }))
+                : (comp.config?.options || []);
               
               // For options components, show each option with its own handle
               if (hasOptions && options.length > 0) {
