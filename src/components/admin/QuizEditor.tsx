@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check, Save, Upload, Loader2, ArrowLeft, Image, GitBranch, Layers, Palette, Users, Webhook, BarChart3, Bell, Sun, Moon, LogOut, Settings, Sparkles, MessageSquare, Megaphone } from 'lucide-react';
+import { ChevronLeft, Plus, Eye, Trash2, GripVertical, Undo, Redo, Smartphone, Monitor, PanelLeftClose, PanelLeftOpen, Globe, Copy, Check, Save, Upload, Loader2, ArrowLeft, Image, GitBranch, Layers, Palette, Users, Webhook, BarChart3, Bell, Sun, Moon, LogOut, Settings, Sparkles, MessageSquare, Megaphone, CopyPlus } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
@@ -288,6 +288,40 @@ export function QuizEditor() {
     setHasUnsavedChanges(true);
     setDeleteStageDialogOpen(false);
     setStageToDelete(null);
+  };
+
+  // Duplicate stage
+  const handleDuplicateStage = (stageId: string) => {
+    const stageToDuplicate = stages.find(s => s.id === stageId);
+    if (!stageToDuplicate) return;
+
+    const stageIndex = stages.findIndex(s => s.id === stageId);
+    const newStageId = crypto.randomUUID();
+    
+    // Deep clone components with new IDs
+    const clonedComponents = stageToDuplicate.components.map(comp => ({
+      ...comp,
+      id: crypto.randomUUID(),
+      config: { ...comp.config }
+    }));
+
+    const newStage: Stage = {
+      id: newStageId,
+      name: `${stageToDuplicate.name} (cópia)`,
+      components: clonedComponents,
+      position: stageToDuplicate.position 
+        ? { x: stageToDuplicate.position.x + 50, y: stageToDuplicate.position.y + 50 }
+        : undefined,
+      background: stageToDuplicate.background ? { ...stageToDuplicate.background } : undefined,
+    };
+
+    // Insert after the original stage
+    const newStages = [...stages];
+    newStages.splice(stageIndex + 1, 0, newStage);
+    setStages(newStages);
+    setSelectedStageId(newStageId);
+    setHasUnsavedChanges(true);
+    toast.success('Etapa duplicada com sucesso');
   };
 
   // Reorder stages
@@ -693,11 +727,22 @@ export function QuizEditor() {
                         placeholder="Nome da etapa"
                       />
                       <button
+                        className="opacity-0 group-hover:opacity-100 p-1.5 hover:text-primary transition-opacity shrink-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDuplicateStage(stage.id);
+                        }}
+                        title="Duplicar etapa"
+                      >
+                        <CopyPlus className="w-4 h-4" />
+                      </button>
+                      <button
                         className="opacity-0 group-hover:opacity-100 p-1.5 hover:text-destructive transition-opacity shrink-0"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDeleteStageClick(stage.id);
                         }}
+                        title="Excluir etapa"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
