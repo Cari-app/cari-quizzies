@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { Logo } from '@/components/Logo';
+import cariLogoLight from '@/assets/cari-logo-light.svg';
+import cariLogoDark from '@/assets/cari-logo-dark.svg';
 import { useQuizStore } from '@/store/quizStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -459,7 +460,11 @@ export function QuizEditor() {
             to="/admin"
             className="flex items-center gap-2 group shrink-0"
           >
-            <Logo className="h-6" />
+            <img 
+              src={theme === 'dark' ? cariLogoDark : cariLogoLight} 
+              alt="Cari" 
+              className="h-6"
+            />
           </Link>
           <span className="text-muted-foreground/50">/</span>
           <Input
