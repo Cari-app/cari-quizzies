@@ -43,9 +43,14 @@ export function ScriptExecutor({ scriptCode }: ScriptExecutorProps) {
       }
       
       // Handle non-script content (like noscript, img pixels, etc.)
+      // Sanitize with DOMPurify to prevent XSS from non-script HTML content
       if (scriptContent.otherContent) {
         const temp = document.createElement('div');
-        temp.innerHTML = scriptContent.otherContent;
+        temp.innerHTML = DOMPurify.sanitize(scriptContent.otherContent, {
+          ALLOWED_TAGS: ['noscript', 'img', 'div', 'span', 'iframe'],
+          ALLOWED_ATTR: ['src', 'alt', 'width', 'height', 'style', 'class', 'id', 'loading', 'referrerpolicy'],
+          ALLOW_DATA_ATTR: false,
+        });
         // Move children to container
         while (temp.firstChild) {
           containerRef.current?.appendChild(temp.firstChild);
