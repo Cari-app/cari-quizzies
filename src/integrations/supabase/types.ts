@@ -433,6 +433,19 @@ export type Database = {
         }
         Returns: boolean
       }
+      update_quiz_session: {
+        Args: {
+          _completed_at?: string
+          _email?: string
+          _is_completed?: boolean
+          _last_stage_index?: number
+          _name?: string
+          _phone?: string
+          _session_id: string
+          _session_token: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "editor" | "viewer"
