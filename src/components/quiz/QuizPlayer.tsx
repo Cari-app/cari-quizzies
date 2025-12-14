@@ -335,6 +335,7 @@ interface DesignSettings {
     paddingX: number;
   };
   progressBar: 'hidden' | 'top' | 'bottom';
+  progressBarThickness?: number;
   hideProgressBar?: boolean;
   
   // HEADER STYLING
@@ -378,6 +379,7 @@ const defaultDesignSettings: DesignSettings = {
   logoPosition: 'center',
   logoLayout: 'above',
   progressBar: 'top',
+  progressBarThickness: 6,
   primaryColor: '#A855F7',
   backgroundColor: '#FFFFFF',
   textColor: '#1F2937',
@@ -1661,8 +1663,11 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
           {!hideProgressBar && designSettings.headerStyle === 'line' && pageSettings?.showProgress && (
             <div className="shrink-0">
               <div 
-                className="h-1 w-full"
-                style={{ backgroundColor: `${designSettings.primaryColor}20` }}
+                className="w-full"
+                style={{ 
+                  height: `${designSettings.progressBarThickness || 6}px`,
+                  backgroundColor: `${designSettings.primaryColor}20` 
+                }}
               >
                 <div 
                   className="h-full transition-all duration-300"
@@ -1813,7 +1818,13 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
                   {pageSettings?.showProgress && (
                     <>
                       {(designSettings.headerStyle === 'default' || !designSettings.headerStyle) && (
-                        <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: `${designSettings.primaryColor}20` }}>
+                        <div 
+                          className="flex-1 rounded-full overflow-hidden" 
+                          style={{ 
+                            height: `${designSettings.progressBarThickness || 6}px`,
+                            backgroundColor: `${designSettings.primaryColor}20` 
+                          }}
+                        >
                           <div 
                             className="h-full transition-all duration-300"
                             style={{ 
