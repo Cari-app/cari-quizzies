@@ -705,59 +705,6 @@ export function QuizEditor() {
 
           {/* User section at bottom */}
           <div className="px-3 py-3 border-t border-border flex items-center gap-2 shrink-0">
-            {/* Notifications */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9 relative shrink-0">
-                  <Bell className="h-4 w-4" />
-                  {editorNotifications.some(n => n.unread) && (
-                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" side="top" className="w-80">
-                <DropdownMenuLabel className="flex items-center gap-2">
-                  <Megaphone className="h-4 w-4" />
-                  Notificações
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {editorNotifications.map((notification) => (
-                  <DropdownMenuItem 
-                    key={notification.id} 
-                    className="flex flex-col items-start gap-1 p-3 cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2 w-full">
-                      {notification.type === 'update' && <Sparkles className="h-4 w-4 text-primary" />}
-                      {notification.type === 'response' && <MessageSquare className="h-4 w-4 text-primary" />}
-                      <span className="font-medium text-sm flex-1">{notification.title}</span>
-                      {notification.unread && (
-                        <span className="w-2 h-2 bg-primary rounded-full" />
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground pl-6">{notification.description}</p>
-                    <span className="text-xs text-muted-foreground/70 pl-6">{notification.time}</span>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Theme toggle */}
-            <Tooltip delayDuration={0}>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={toggleTheme} 
-                  className="h-9 w-9 shrink-0"
-                >
-                  {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="top">
-                {theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
-              </TooltipContent>
-            </Tooltip>
-
             {/* User menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -798,6 +745,59 @@ export function QuizEditor() {
                   <LogOut className="mr-2 h-4 w-4" />
                   Sair
                 </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Theme toggle */}
+            <Tooltip delayDuration={0}>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={toggleTheme} 
+                  className="h-9 w-9 shrink-0"
+                >
+                  {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                {theme === 'dark' ? 'Modo claro' : 'Modo escuro'}
+              </TooltipContent>
+            </Tooltip>
+
+            {/* Notifications */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-9 w-9 relative shrink-0">
+                  <Bell className="h-4 w-4" />
+                  {editorNotifications.some(n => n.unread) && (
+                    <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" side="top" className="w-80">
+                <DropdownMenuLabel className="flex items-center gap-2">
+                  <Megaphone className="h-4 w-4" />
+                  Notificações
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {editorNotifications.map((notification) => (
+                  <DropdownMenuItem 
+                    key={notification.id} 
+                    className="flex flex-col items-start gap-1 p-3 cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2 w-full">
+                      {notification.type === 'update' && <Sparkles className="h-4 w-4 text-primary" />}
+                      {notification.type === 'response' && <MessageSquare className="h-4 w-4 text-primary" />}
+                      <span className="font-medium text-sm flex-1">{notification.title}</span>
+                      {notification.unread && (
+                        <span className="w-2 h-2 bg-primary rounded-full" />
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground pl-6">{notification.description}</p>
+                    <span className="text-xs text-muted-foreground/70 pl-6">{notification.time}</span>
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
