@@ -533,7 +533,8 @@ export interface ComponentConfig {
     destinationStageId?: string;
   }>;
   imageButtonOrientation?: 'vertical' | 'horizontal';
-  imageButtonLayout?: 'list' | 'grid-2' | 'grid-3';
+  imageButtonLayout?: 'list' | 'grid-2' | 'grid-3' | 'horizontal';
+  imageButtonLayoutMobile?: 'list' | 'grid-2' | 'grid-3' | 'horizontal';
   imageButtonPosition?: 'overlay' | 'below';
   imageButtonStyle?: 'rounded' | 'pill' | 'square';
   imageButtonBgColor?: string;

@@ -1102,6 +1102,7 @@ export function QuizEditor() {
                     selectedComponentId={selectedComponent?.id}
                     onSelectComponent={setSelectedComponent}
                     designSettings={designSettings}
+                    previewDevice={previewMode}
                   />
                 ) : (
                   <div className="flex-1 flex items-center justify-center">
