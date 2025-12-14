@@ -11,7 +11,7 @@
 CREATE TYPE public.app_role AS ENUM ('admin', 'editor', 'viewer');
 
 -- ============================================
--- PARTE 2: FUNÇÕES UTILITÁRIAS
+-- PARTE 2: FUNÇÕES UTILITÁRIAS (sem dependência de tabelas)
 -- ============================================
 
 -- Função para atualizar updated_at automaticamente
@@ -40,22 +40,6 @@ BEGIN
 END;
 $$;
 
--- Função para verificar se usuário tem role (evita recursão RLS)
-CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role app_role)
-RETURNS boolean
-LANGUAGE sql
-STABLE
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT EXISTS (
-    SELECT 1
-    FROM public.user_roles
-    WHERE user_id = _user_id
-      AND role = _role
-  )
-$$;
-
 -- ============================================
 -- PARTE 3: TABELAS
 -- ============================================
@@ -76,6 +60,26 @@ CREATE TABLE public.user_roles (
   role public.app_role NOT NULL DEFAULT 'editor',
   UNIQUE (user_id, role)
 );
+
+-- ============================================
+-- PARTE 3.1: FUNÇÃO has_role (após criar user_roles)
+-- ============================================
+
+-- Função para verificar se usuário tem role (evita recursão RLS)
+CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role app_role)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.user_roles
+    WHERE user_id = _user_id
+      AND role = _role
+  )
+$$;
 
 -- Tabela de quizzes
 CREATE TABLE public.quizzes (
