@@ -67,7 +67,8 @@ export function MediaRenderer({ component, config, type }: MediaRendererProps) {
           style={{ 
             width: `${widthValue}%`,
             height: 'auto',
-            display: 'block'
+            display: 'block',
+            borderRadius: config.borderRadius ? `${config.borderRadius}px` : undefined
           }}
         />
       </div>

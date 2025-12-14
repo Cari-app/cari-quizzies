@@ -943,7 +943,8 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                   style={{ 
                     width: `${imageWidth}%`,
                     height: 'auto',
-                    display: 'block'
+                    display: 'block',
+                    borderRadius: config.borderRadius ? `${config.borderRadius}px` : undefined
                   }}
                 />
               )
