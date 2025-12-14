@@ -31,6 +31,7 @@ export interface QuizDesignSettings {
     paddingX: number;
   };
   progressBar: 'hidden' | 'top' | 'bottom';
+  hideProgressBar: boolean;
   
   // HEADER STYLING
   headerDivider: {
@@ -74,6 +75,7 @@ export const defaultDesignSettings: QuizDesignSettings = {
     paddingX: 16,
   },
   progressBar: 'top',
+  hideProgressBar: false,
   headerDivider: {
     show: true,
     color: '#000000',
@@ -431,22 +433,31 @@ export function DesignEditor({ settings, onSettingsChange }: DesignEditorProps) 
               </Select>
             </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Barra de progresso</Label>
-              <Select 
-                value={settings.progressBar} 
-                onValueChange={(value: 'hidden' | 'top' | 'bottom') => updateSettings({ progressBar: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="hidden">Oculta</SelectItem>
-                  <SelectItem value="top">Fixado ao topo</SelectItem>
-                  <SelectItem value="bottom">Fixado embaixo</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="flex items-center justify-between">
+              <Label className="text-xs text-muted-foreground">Esconder barra</Label>
+              <Switch
+                checked={settings.hideProgressBar ?? false}
+                onCheckedChange={(checked) => updateSettings({ hideProgressBar: checked })}
+              />
             </div>
+
+            {!settings.hideProgressBar && (
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Posição da barra</Label>
+                <Select 
+                  value={settings.progressBar} 
+                  onValueChange={(value: 'hidden' | 'top' | 'bottom') => updateSettings({ progressBar: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="top">Fixado ao topo</SelectItem>
+                    <SelectItem value="bottom">Fixado embaixo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Divider Settings */}
             <div className="border-t border-border pt-4 space-y-3">
