@@ -1,7 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Logo } from '@/components/Logo';
-import { useTheme } from '@/hooks/useTheme';
+import { Logo, LogoIcon } from '@/components/Logo';
 import {
   LayoutDashboard,
   Badge,
@@ -15,8 +14,6 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import iconLight from '@/assets/icon-light.png';
-import iconDark from '@/assets/icon-dark.png';
 
 interface AdminSidebarProps {
   collapsed: boolean;
@@ -67,7 +64,6 @@ const bottomNavItems = [
 
 export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   const location = useLocation();
-  const { theme } = useTheme();
 
   const isActive = (path: string, exact?: boolean) => {
     if (exact) {
@@ -125,11 +121,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
       )}>
         <Link to="/admin" className="flex items-center">
           {collapsed ? (
-            <img 
-              src={theme === 'dark' ? iconDark : iconLight} 
-              alt="Icon" 
-              className="w-8 h-8"
-            />
+            <LogoIcon className="h-8 w-8" />
           ) : (
             <Logo className="h-6" />
           )}
