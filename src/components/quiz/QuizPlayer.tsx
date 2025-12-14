@@ -648,6 +648,7 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
   
   // Session tracking for leads
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [stageStartTime, setStageStartTime] = useState<number>(Date.now());
   const [hasTriggeredFirstResponse, setHasTriggeredFirstResponse] = useState(false);
 
@@ -771,7 +772,7 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
             device_type: deviceType,
             referrer: document.referrer || null,
           })
-          .select('id')
+          .select('id, session_token')
           .single();
 
         if (error) {
@@ -780,6 +781,7 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
         }
 
         setSessionId(data.id);
+        setSessionToken(data.session_token);
         setStageStartTime(Date.now());
       } catch (error) {
         console.error('Error creating session:', error);
@@ -825,6 +827,7 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
         body: {
           quiz_id: quiz.id,
           session_id: sessionId,
+          session_token: sessionToken,
           event_type: 'first_response',
           data: { formData },
         },
@@ -833,7 +836,7 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
     } catch (webhookError) {
       console.error('Error triggering first response webhook:', webhookError);
     }
-  }, [hasTriggeredFirstResponse, quiz?.id, sessionId, formData]);
+  }, [hasTriggeredFirstResponse, quiz?.id, sessionId, sessionToken, formData]);
 
   // Mark session as completed
   const markSessionComplete = useCallback(async () => {
@@ -863,6 +866,7 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
             body: {
               quiz_id: quiz.id,
               session_id: sessionId,
+              session_token: sessionToken,
               event_type: 'quiz_completed',
               data: { formData },
             },
@@ -875,7 +879,7 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
     } catch (error) {
       console.error('Error marking session complete:', error);
     }
-  }, [sessionId, formData, quiz?.id]);
+  }, [sessionId, sessionToken, formData, quiz?.id]);
 
   const handleInputChange = (componentId: string, customId: string | undefined, value: any) => {
     const key = customId || componentId;
@@ -1169,6 +1173,7 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
             component={comp}
             quizId={quiz?.id}
             sessionId={sessionId}
+            sessionToken={sessionToken}
             formData={formData}
           />
         );
