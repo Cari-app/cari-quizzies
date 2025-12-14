@@ -135,7 +135,7 @@ export function IntegrationsEditor({
             <Webhook className="w-6 h-6 text-orange-500" />
           </div>
           <div>
-            <h3 className="font-medium">N8N Webhook</h3>
+            <h3 className="font-medium">Webhook</h3>
             <p className="text-sm text-muted-foreground">
               {webhookUrl ? 'Configurado' : 'Não configurado'}
             </p>
@@ -181,8 +181,8 @@ export function IntegrationsEditor({
                 <Webhook className="w-5 h-5 text-orange-500" />
               </div>
               <div>
-                <SheetTitle>N8N Webhook</SheetTitle>
-                <SheetDescription>Configure a integração com N8N</SheetDescription>
+                <SheetTitle>Webhook</SheetTitle>
+                <SheetDescription>Configure a integração de webhook</SheetDescription>
               </div>
             </div>
           </SheetHeader>
