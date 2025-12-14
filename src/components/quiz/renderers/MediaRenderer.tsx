@@ -53,7 +53,7 @@ export function MediaRenderer({ component, config, type }: MediaRendererProps) {
           src={config.mediaUrl} 
           alt={config.altText || ''} 
           className={cn(
-            "object-cover",
+            imageRatioClass ? "object-cover" : "object-contain",
             imageRatioClass,
             imageStyleClass
           )}
