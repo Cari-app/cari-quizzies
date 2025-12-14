@@ -8,13 +8,15 @@ interface WebhookTriggerRendererProps {
   };
   quizId: string | undefined;
   sessionId: string | null;
+  sessionToken: string | null;
   formData: Record<string, any>;
 }
 
 export function WebhookTriggerRenderer({ 
   component, 
   quizId, 
-  sessionId, 
+  sessionId,
+  sessionToken,
   formData 
 }: WebhookTriggerRendererProps) {
   const hasTriggered = useRef(false);
@@ -36,6 +38,7 @@ export function WebhookTriggerRenderer({
           body: {
             quiz_id: quizId,
             session_id: sessionId,
+            session_token: sessionToken,
             event_type: 'trigger_point',
             data: { 
               formData,
@@ -51,7 +54,7 @@ export function WebhookTriggerRenderer({
     };
 
     triggerWebhook();
-  }, [quizId, sessionId, formData, config.webhookActive, config.webhookDescription]);
+  }, [quizId, sessionId, sessionToken, formData, config.webhookActive, config.webhookDescription]);
 
   // This component is invisible - it just triggers the webhook
   return null;

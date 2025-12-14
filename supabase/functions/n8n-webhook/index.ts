@@ -30,14 +30,101 @@ serve(async (req) => {
   }
 
   try {
-    const { quiz_id, session_id, event_type, data } = await req.json();
+    const { quiz_id, session_id, session_token, event_type, data } = await req.json();
     
     console.log(`[webhook] Received request for quiz: ${quiz_id}, event: ${event_type}`);
+
+    // Validate required parameters
+    if (!quiz_id) {
+      console.error('[webhook] Missing required parameter: quiz_id');
+      return new Response(
+        JSON.stringify({ error: 'Missing required parameter: quiz_id' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Create Supabase client with service role for accessing webhooks
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    // For test events, verify the caller is the quiz owner via JWT
+    if (event_type === 'test') {
+      const authHeader = req.headers.get('Authorization');
+      if (!authHeader) {
+        console.error('[webhook] Test event requires authentication');
+        return new Response(
+          JSON.stringify({ error: 'Authentication required for test events' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Verify user owns the quiz
+      const { createClient: createAuthClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+      const supabaseAuth = createAuthClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
+        global: { headers: { Authorization: authHeader } }
+      });
+
+      const { data: { user }, error: userError } = await supabaseAuth.auth.getUser();
+      if (userError || !user) {
+        console.error('[webhook] Invalid authentication:', userError);
+        return new Response(
+          JSON.stringify({ error: 'Invalid authentication' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Check if user owns the quiz
+      const { data: quiz, error: quizOwnerError } = await supabase
+        .from('quizzes')
+        .select('criado_por')
+        .eq('id', quiz_id)
+        .maybeSingle();
+
+      if (quizOwnerError || !quiz || quiz.criado_por !== user.id) {
+        console.error('[webhook] User does not own this quiz');
+        return new Response(
+          JSON.stringify({ error: 'Forbidden: You do not own this quiz' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      console.log('[webhook] Test event authenticated for user:', user.id);
+    } else {
+      // For non-test events, require session_id and validate session
+      if (!session_id) {
+        console.error('[webhook] Missing required parameter: session_id');
+        return new Response(
+          JSON.stringify({ error: 'Missing required parameter: session_id' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // SECURITY: Validate session belongs to the quiz and verify session_token
+      const { data: session, error: sessionError } = await supabase
+        .from('quiz_sessions')
+        .select('id, session_token, quiz_id')
+        .eq('id', session_id)
+        .eq('quiz_id', quiz_id)
+        .maybeSingle();
+
+      if (sessionError || !session) {
+        console.error('[webhook] Invalid session or session does not belong to quiz:', sessionError);
+        return new Response(
+          JSON.stringify({ error: 'Invalid session' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      // Verify session_token if provided (required for security)
+      if (session_token && session.session_token !== session_token) {
+        console.error('[webhook] Session token mismatch');
+        return new Response(
+          JSON.stringify({ error: 'Invalid session token' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
 
     // Get quiz info
     const { data: quiz, error: quizError } = await supabase
