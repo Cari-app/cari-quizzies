@@ -43,6 +43,7 @@ export interface QuizDesignSettings {
     color: string;
     size: 'small' | 'medium' | 'large';
     style: 'arrow' | 'chevron' | 'circle';
+    position: 'left' | 'center' | 'right';
   };
   
   // CORES
@@ -85,6 +86,7 @@ export const defaultDesignSettings: QuizDesignSettings = {
     color: '#1F2937',
     size: 'medium',
     style: 'chevron',
+    position: 'left',
   },
   primaryColor: '#000000',
   backgroundColor: '#FFFFFF',
@@ -540,27 +542,28 @@ export function DesignEditor({ settings, onSettingsChange }: DesignEditorProps) 
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">Cor</Label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={settings.backIcon?.color || settings.textColor}
-                      onChange={(e) => updateSettings({ 
-                        backIcon: { ...settings.backIcon, color: e.target.value } 
-                      })}
-                      className="w-8 h-8 rounded cursor-pointer border border-border"
-                    />
-                    <Input
-                      value={settings.backIcon?.color || settings.textColor}
-                      onChange={(e) => updateSettings({ 
-                        backIcon: { ...settings.backIcon, color: e.target.value } 
-                      })}
-                      className="flex-1"
-                    />
-                  </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">Cor</Label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={settings.backIcon?.color || settings.textColor}
+                    onChange={(e) => updateSettings({ 
+                      backIcon: { ...settings.backIcon, color: e.target.value } 
+                    })}
+                    className="w-8 h-8 rounded cursor-pointer border border-border"
+                  />
+                  <Input
+                    value={settings.backIcon?.color || settings.textColor}
+                    onChange={(e) => updateSettings({ 
+                      backIcon: { ...settings.backIcon, color: e.target.value } 
+                    })}
+                    className="flex-1"
+                  />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-xs text-muted-foreground">Tamanho</Label>
                   <Select 
@@ -576,6 +579,24 @@ export function DesignEditor({ settings, onSettingsChange }: DesignEditorProps) 
                       <SelectItem value="small">Pequeno</SelectItem>
                       <SelectItem value="medium">Normal</SelectItem>
                       <SelectItem value="large">Grande</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Posição</Label>
+                  <Select 
+                    value={settings.backIcon?.position || 'left'} 
+                    onValueChange={(value: 'left' | 'center' | 'right') => updateSettings({ 
+                      backIcon: { ...settings.backIcon, position: value } 
+                    })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="left">Esquerda</SelectItem>
+                      <SelectItem value="center">Centro</SelectItem>
+                      <SelectItem value="right">Direita</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

@@ -28,6 +28,7 @@ interface DesignSettings {
     color: string;
     size: 'small' | 'medium' | 'large';
     style: 'arrow' | 'chevron' | 'circle';
+    position?: 'left' | 'center' | 'right';
   };
 }
 
@@ -157,18 +158,12 @@ export function QuizHeaderPreview({
     );
   }
 
-  // Top header render
-  const showHeader = designSettings.progressBar !== 'hidden' || designSettings.logo.value || pageSettings.allowBack;
-  
-  if (!showHeader && position === 'top') {
-    return null;
-  }
-
   const dividerStyle = designSettings.headerDivider?.show !== false 
     ? `${designSettings.headerDivider?.thickness || 1}px solid ${designSettings.headerDivider?.color || designSettings.primaryColor}20`
     : 'none';
 
   const backIconColor = designSettings.backIcon?.color || designSettings.textColor;
+  const backIconPosition = designSettings.backIcon?.position || 'left';
 
   // Render Logo component
   const renderLogo = () => {
@@ -191,6 +186,63 @@ export function QuizHeaderPreview({
       />
     );
   };
+
+  // Top header render
+  const showHeader = !hideProgressBar || designSettings.logo.value || pageSettings.allowBack;
+  
+  if (!showHeader && position === 'top') {
+    return null;
+  }
+  
+  // When progress bar is hidden, render standalone back icon with custom position
+  if (hideProgressBar && position === 'top' && (pageSettings.allowBack || designSettings.logo.value)) {
+    return (
+      <div 
+        className="shrink-0"
+        style={{ borderBottom: dividerStyle }}
+      >
+        {/* Logo row */}
+        {designSettings.logo.value && (
+          <div 
+            className={cn(
+              "flex items-center",
+              designSettings.logoPosition === 'center' && "justify-center",
+              designSettings.logoPosition === 'right' && "justify-end",
+              designSettings.logoPosition === 'left' && "justify-start"
+            )}
+            style={{
+              marginTop: `${logoSpacing.marginTop}px`,
+              marginBottom: `${logoSpacing.marginBottom}px`,
+              paddingLeft: `${logoSpacing.paddingX}px`,
+              paddingRight: `${logoSpacing.paddingX}px`,
+            }}
+          >
+            {renderLogo()}
+          </div>
+        )}
+        
+        {/* Back icon row - positioned independently */}
+        {pageSettings.allowBack && (
+          <div 
+            className={cn(
+              "px-4 pb-3 flex items-center",
+              backIconPosition === 'center' && "justify-center",
+              backIconPosition === 'right' && "justify-end",
+              backIconPosition === 'left' && "justify-start"
+            )}
+          >
+            <button 
+              className="p-1 rounded transition-colors hover:opacity-70 pointer-events-none"
+              style={{ color: backIconColor }}
+            >
+              {renderBackIcon()}
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
 
   // Render progress bar
   const renderProgressBar = () => {
