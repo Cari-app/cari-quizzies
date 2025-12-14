@@ -261,18 +261,19 @@ export function OptionsRenderer({
             if (optionStyle === 'image') {
               const isHorizontalLayout = optionOrientation === 'horizontal';
               const effectiveImagePosition = isHorizontalLayout ? 'left' : 'top';
+              const imageOptionStyle = getOptionStyle(isSelected);
               
               return (
                 <button
                   key={opt.id}
                   onClick={() => handleOptionClick(opt.value, opt.id)}
                   className={cn(
-                    "border text-sm transition-colors overflow-hidden",
+                    "text-sm transition-colors overflow-hidden",
                     getBorderRadius(),
                     getShadow(),
-                    isSelected ? "border-foreground bg-accent" : "border-border",
                     isHorizontalLayout ? "flex" : "flex flex-col"
                   )}
+                  style={imageOptionStyle}
                 >
                   {(effectiveImagePosition === 'top' || effectiveImagePosition === 'left') && (
                     <div className={cn(
@@ -290,7 +291,11 @@ export function OptionsRenderer({
                     detailPosition === 'end' && "flex-row-reverse"
                   )}>
                     {renderDetail(isSelected, i)}
-                    <span className="flex-1 rich-text" dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
+                    <span 
+                      className="flex-1 rich-text" 
+                      style={{ color: isSelected ? selectedTextColor : (optionTextColor || '#000000') }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} 
+                    />
                   </div>
                 </button>
               );
