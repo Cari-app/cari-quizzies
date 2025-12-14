@@ -192,6 +192,47 @@ export type Database = {
           },
         ]
       }
+      quiz_webhooks: {
+        Row: {
+          created_at: string
+          enabled: boolean | null
+          id: string
+          name: string
+          quiz_id: string
+          settings: Json | null
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean | null
+          id?: string
+          name?: string
+          quiz_id: string
+          settings?: Json | null
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean | null
+          id?: string
+          name?: string
+          quiz_id?: string
+          settings?: Json | null
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_webhooks_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quizzes: {
         Row: {
           atualizado_em: string | null

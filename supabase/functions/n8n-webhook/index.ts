@@ -15,6 +15,14 @@ interface WebhookSettings {
   triggerOnFirstResponse?: boolean;
 }
 
+interface QuizWebhook {
+  id: string;
+  name: string;
+  url: string;
+  enabled: boolean;
+  settings: WebhookSettings;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -24,46 +32,52 @@ serve(async (req) => {
   try {
     const { quiz_id, session_id, event_type, data } = await req.json();
     
-    console.log(`[n8n-webhook] Received request for quiz: ${quiz_id}, event: ${event_type}`);
+    console.log(`[webhook] Received request for quiz: ${quiz_id}, event: ${event_type}`);
 
-    // Create Supabase client with service role for accessing webhook_url
+    // Create Supabase client with service role for accessing webhooks
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get quiz webhook configuration
+    // Get quiz info
     const { data: quiz, error: quizError } = await supabase
       .from('quizzes')
-      .select('webhook_url, webhook_enabled, webhook_settings, titulo, slug')
+      .select('titulo, slug')
       .eq('id', quiz_id)
       .maybeSingle();
 
     if (quizError) {
-      console.error('[n8n-webhook] Error fetching quiz:', quizError);
+      console.error('[webhook] Error fetching quiz:', quizError);
       return new Response(
         JSON.stringify({ error: 'Failed to fetch quiz configuration' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    if (!quiz || !quiz.webhook_enabled || !quiz.webhook_url) {
-      console.log('[n8n-webhook] Webhook not configured or disabled for this quiz');
+    // Get all enabled webhooks for this quiz
+    const { data: webhooks, error: webhooksError } = await supabase
+      .from('quiz_webhooks')
+      .select('*')
+      .eq('quiz_id', quiz_id)
+      .eq('enabled', true);
+
+    if (webhooksError) {
+      console.error('[webhook] Error fetching webhooks:', webhooksError);
       return new Response(
-        JSON.stringify({ message: 'Webhook not configured or disabled' }),
+        JSON.stringify({ error: 'Failed to fetch webhooks' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!webhooks || webhooks.length === 0) {
+      console.log('[webhook] No enabled webhooks for this quiz');
+      return new Response(
+        JSON.stringify({ message: 'No enabled webhooks' }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const webhookSettings: WebhookSettings = quiz.webhook_settings || {};
-
-    // Check if this event should trigger based on settings
-    if (event_type === 'first_response' && !webhookSettings.triggerOnFirstResponse) {
-      console.log('[n8n-webhook] First response trigger is disabled');
-      return new Response(
-        JSON.stringify({ message: 'First response trigger is disabled' }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    console.log(`[webhook] Found ${webhooks.length} enabled webhook(s)`);
 
     // Get session data if provided
     let sessionData = null;
@@ -77,7 +91,7 @@ serve(async (req) => {
     }
 
     // Get responses if this is a completion event or trigger point
-    let responses = [];
+    let responses: any[] = [];
     if (session_id && (event_type === 'quiz_completed' || event_type === 'first_response' || event_type === 'trigger_point')) {
       const { data: respData } = await supabase
         .from('quiz_responses')
@@ -87,82 +101,113 @@ serve(async (req) => {
       responses = respData || [];
     }
 
-    // Build filtered data based on settings
-    const formData = data?.formData || {};
-    const filteredData: Record<string, any> = {};
+    const results: { webhookName: string; success: boolean; status?: number; error?: string }[] = [];
 
-    // Add standard fields based on settings
-    if (webhookSettings.sendName !== false) {
-      const name = formData.name || formData.nome || sessionData?.name;
-      if (name) filteredData.name = name;
-    }
-    if (webhookSettings.sendEmail !== false) {
-      const email = formData.email || formData.e_mail || sessionData?.email;
-      if (email) filteredData.email = email;
-    }
-    if (webhookSettings.sendPhone !== false) {
-      const phone = formData.phone || formData.telefone || formData.celular || sessionData?.phone;
-      if (phone) filteredData.phone = phone;
-    }
+    // Trigger each webhook
+    for (const webhook of webhooks) {
+      const typedWebhook: QuizWebhook = {
+        id: webhook.id,
+        name: webhook.name,
+        url: webhook.url,
+        enabled: webhook.enabled,
+        settings: (webhook.settings || {}) as WebhookSettings,
+      };
 
-    // Add custom fields based on IDs
-    if (webhookSettings.customFieldIds) {
-      const customIds = webhookSettings.customFieldIds.split(',').map(id => id.trim()).filter(Boolean);
-      for (const customId of customIds) {
-        if (formData[customId] !== undefined) {
-          filteredData[customId] = formData[customId];
+      // Check if this event should trigger based on settings
+      if (event_type === 'first_response' && !typedWebhook.settings.triggerOnFirstResponse) {
+        console.log(`[webhook] First response trigger disabled for webhook: ${typedWebhook.name}`);
+        results.push({ webhookName: typedWebhook.name, success: false, error: 'First response trigger disabled' });
+        continue;
+      }
+
+      // Build filtered data based on settings
+      const formData = data?.formData || {};
+      const filteredData: Record<string, any> = {};
+
+      // Add standard fields based on settings
+      if (typedWebhook.settings.sendName !== false) {
+        const name = formData.name || formData.nome || sessionData?.name;
+        if (name) filteredData.name = name;
+      }
+      if (typedWebhook.settings.sendEmail !== false) {
+        const email = formData.email || formData.e_mail || sessionData?.email;
+        if (email) filteredData.email = email;
+      }
+      if (typedWebhook.settings.sendPhone !== false) {
+        const phone = formData.phone || formData.telefone || formData.celular || sessionData?.phone;
+        if (phone) filteredData.phone = phone;
+      }
+
+      // Add custom fields based on IDs
+      if (typedWebhook.settings.customFieldIds) {
+        const customIds = typedWebhook.settings.customFieldIds.split(',').map(id => id.trim()).filter(Boolean);
+        for (const customId of customIds) {
+          if (formData[customId] !== undefined) {
+            filteredData[customId] = formData[customId];
+          }
         }
       }
+
+      // Prepare payload
+      const webhookPayload = {
+        event_type,
+        timestamp: new Date().toISOString(),
+        webhook_name: typedWebhook.name,
+        quiz: {
+          id: quiz_id,
+          title: quiz?.titulo,
+          slug: quiz?.slug,
+        },
+        session: sessionData ? {
+          id: sessionData.id,
+          started_at: sessionData.started_at,
+          completed_at: sessionData.completed_at,
+          device_type: sessionData.device_type,
+          referrer: sessionData.referrer,
+        } : null,
+        data: filteredData,
+        responses: responses,
+      };
+
+      console.log(`[webhook] Sending to ${typedWebhook.name}: ${typedWebhook.url}`);
+
+      try {
+        const webhookResponse = await fetch(typedWebhook.url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(webhookPayload),
+        });
+
+        const responseText = await webhookResponse.text();
+        console.log(`[webhook] ${typedWebhook.name} response status: ${webhookResponse.status}`);
+        console.log(`[webhook] ${typedWebhook.name} response: ${responseText}`);
+
+        results.push({ 
+          webhookName: typedWebhook.name, 
+          success: webhookResponse.ok, 
+          status: webhookResponse.status 
+        });
+      } catch (fetchError) {
+        const errorMsg = fetchError instanceof Error ? fetchError.message : 'Unknown fetch error';
+        console.error(`[webhook] Error calling ${typedWebhook.name}:`, errorMsg);
+        results.push({ webhookName: typedWebhook.name, success: false, error: errorMsg });
+      }
     }
-
-    // Prepare payload for N8N
-    const webhookPayload = {
-      event_type,
-      timestamp: new Date().toISOString(),
-      quiz: {
-        id: quiz_id,
-        title: quiz.titulo,
-        slug: quiz.slug,
-      },
-      session: sessionData ? {
-        id: sessionData.id,
-        started_at: sessionData.started_at,
-        completed_at: sessionData.completed_at,
-        device_type: sessionData.device_type,
-        referrer: sessionData.referrer,
-      } : null,
-      data: filteredData,
-      responses: responses,
-    };
-
-    console.log('[n8n-webhook] Sending to N8N:', quiz.webhook_url);
-    console.log('[n8n-webhook] Payload:', JSON.stringify(webhookPayload));
-
-    // Call N8N webhook
-    const webhookResponse = await fetch(quiz.webhook_url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(webhookPayload),
-    });
-
-    const responseText = await webhookResponse.text();
-    console.log('[n8n-webhook] N8N response status:', webhookResponse.status);
-    console.log('[n8n-webhook] N8N response:', responseText);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: 'Webhook triggered successfully',
-        n8n_status: webhookResponse.status 
+        message: `Triggered ${results.filter(r => r.success).length}/${webhooks.length} webhooks`,
+        results
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error('[n8n-webhook] Error:', errorMessage);
+    console.error('[webhook] Error:', errorMessage);
     return new Response(
       JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
