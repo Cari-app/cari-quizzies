@@ -20,6 +20,7 @@ export function ImageButtonRenderer({ config, onSelect, selectedValues = [] }: I
   const items: ImageButtonItem[] = config.imageButtonItems || [];
   const orientation = config.imageButtonOrientation || 'vertical';
   const layout = config.imageButtonLayout || 'list';
+  const layoutMobile = config.imageButtonLayoutMobile; // undefined = same as desktop
   const position = config.imageButtonPosition || 'overlay';
   const style = config.imageButtonStyle || 'rounded';
   
@@ -35,7 +36,22 @@ export function ImageButtonRenderer({ config, onSelect, selectedValues = [] }: I
   const containerRadius = config.imageButtonContainerRadius ?? 24;
   const gap = config.imageButtonGap ?? 16;
 
+  // Responsive layout classes
   const getLayoutClass = () => {
+    // If mobile layout is defined, use responsive classes
+    if (layoutMobile) {
+      const mobileClass = layoutMobile === 'grid-2' ? 'grid-cols-2' 
+        : layoutMobile === 'grid-3' ? 'grid-cols-3' 
+        : 'grid-cols-1';
+      
+      const desktopClass = layout === 'grid-2' ? 'sm:grid-cols-2' 
+        : layout === 'grid-3' ? 'sm:grid-cols-3' 
+        : 'sm:grid-cols-1';
+      
+      return `grid ${mobileClass} ${desktopClass}`;
+    }
+    
+    // Default behavior (same for all devices)
     switch (layout) {
       case 'grid-2': return 'grid grid-cols-2';
       case 'grid-3': return 'grid grid-cols-3';
