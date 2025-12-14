@@ -242,6 +242,7 @@ export type Database = {
           id: string
           is_active: boolean | null
           slug: string | null
+          thumbnail_url: string | null
           titulo: string
           webhook_enabled: boolean | null
           webhook_settings: Json | null
@@ -255,6 +256,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           slug?: string | null
+          thumbnail_url?: string | null
           titulo: string
           webhook_enabled?: boolean | null
           webhook_settings?: Json | null
@@ -268,6 +270,7 @@ export type Database = {
           id?: string
           is_active?: boolean | null
           slug?: string | null
+          thumbnail_url?: string | null
           titulo?: string
           webhook_enabled?: boolean | null
           webhook_settings?: Json | null
