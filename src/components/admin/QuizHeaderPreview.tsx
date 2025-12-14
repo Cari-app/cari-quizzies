@@ -16,6 +16,7 @@ interface DesignSettings {
     paddingX: number;
   };
   progressBar: 'hidden' | 'top' | 'bottom';
+  hideProgressBar?: boolean;
   primaryColor: string;
   textColor: string;
   headerDivider?: {
@@ -52,8 +53,9 @@ export function QuizHeaderPreview({
   totalStages,
   position = 'top',
 }: QuizHeaderPreviewProps) {
-  const isTopProgress = position === 'top' && designSettings.progressBar === 'top';
-  const isBottomProgress = position === 'bottom' && designSettings.progressBar === 'bottom';
+  const hideProgressBar = designSettings.hideProgressBar ?? false;
+  const isTopProgress = !hideProgressBar && position === 'top' && designSettings.progressBar === 'top';
+  const isBottomProgress = !hideProgressBar && position === 'bottom' && designSettings.progressBar === 'bottom';
   const headerStyle = designSettings.headerStyle || 'default';
   const logoSizePx = designSettings.logoSizePixels || 40;
   const logoLayout = designSettings.logoLayout || 'above';
