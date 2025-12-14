@@ -112,12 +112,51 @@ export function useFlowAnalytics(quizId: string | undefined, enabled: boolean = 
 
   useEffect(() => {
     fetchAnalytics();
-    
-    // Refresh every 30 seconds when enabled
-    if (enabled) {
-      const interval = setInterval(fetchAnalytics, 30000);
-      return () => clearInterval(interval);
-    }
+  }, [quizId, enabled]);
+
+  // Real-time subscription
+  useEffect(() => {
+    if (!quizId || !enabled) return;
+
+    // Subscribe to new sessions
+    const sessionsChannel = supabase
+      .channel(`analytics-sessions-${quizId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'quiz_sessions',
+          filter: `quiz_id=eq.${quizId}`,
+        },
+        () => {
+          console.log('Session update detected, refreshing analytics...');
+          fetchAnalytics();
+        }
+      )
+      .subscribe();
+
+    // Subscribe to new responses
+    const responsesChannel = supabase
+      .channel(`analytics-responses-${quizId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'quiz_responses',
+        },
+        () => {
+          console.log('Response update detected, refreshing analytics...');
+          fetchAnalytics();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(sessionsChannel);
+      supabase.removeChannel(responsesChannel);
+    };
   }, [quizId, enabled]);
 
   return {
