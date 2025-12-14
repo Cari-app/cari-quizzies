@@ -264,7 +264,10 @@ export function ReadonlyDropZone({ components, designSettings }: ReadonlyDropZon
                   {opt.imageUrl && (
                     <img src={opt.imageUrl} alt="" className="w-full h-20 object-cover rounded mb-2" />
                   )}
-                  <span className="text-sm">{opt.text || `Opção ${idx + 1}`}</span>
+                  <span 
+                    className="text-sm rich-text"
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text || `Opção ${idx + 1}`) }}
+                  />
                 </div>
               ))}
             </div>
