@@ -1371,8 +1371,11 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
         </div>
         
         {/* Device Toggle */}
-        <div className="flex items-center justify-between px-4 py-2 border-b border-border/50">
-          <span className="text-xs text-muted-foreground">Configurar para:</span>
+        <div className="flex items-center justify-between px-4 py-2 border-b border-border/50 bg-muted/20">
+          <span className="text-xs text-muted-foreground">
+            {selectedDevice === 'all' ? 'Configurando para todos' : 
+             selectedDevice === 'desktop' ? 'Configurando Desktop' : 'Configurando Mobile'}
+          </span>
           <DeviceToggle 
             value={selectedDevice} 
             onChange={setSelectedDevice}
