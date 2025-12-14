@@ -6,6 +6,7 @@ interface UserWithRole {
   id: string;
   email: string;
   full_name: string | null;
+  avatar_url: string | null;
   role: string;
   status: 'active' | 'pending';
   created_at: string;
@@ -21,7 +22,7 @@ export function useUserManagement() {
       // Get profiles with roles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('id, full_name, created_at');
+        .select('id, full_name, avatar_url, created_at');
 
       if (profilesError) throw profilesError;
 
@@ -39,6 +40,7 @@ export function useUserManagement() {
           id: profile.id,
           email: '', // Will be fetched from auth if needed
           full_name: profile.full_name,
+          avatar_url: profile.avatar_url,
           role: userRole?.role || 'editor',
           status: 'active' as const,
           created_at: profile.created_at || '',
@@ -120,6 +122,45 @@ export function useUserManagement() {
     },
   });
 
+  // Update avatar mutation
+  const updateAvatarMutation = useMutation({
+    mutationFn: async ({ userId, file }: { userId: string; file: File }) => {
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${userId}/avatar.${fileExt}`;
+
+      // Upload file
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update profile
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', userId);
+
+      if (updateError) throw updateError;
+
+      return { userId, avatarUrl: publicUrl };
+    },
+    onSuccess: () => {
+      toast.success('Avatar atualizado');
+      queryClient.invalidateQueries({ queryKey: ['users-management'] });
+    },
+    onError: (error: Error) => {
+      toast.error('Erro ao atualizar avatar', {
+        description: error.message,
+      });
+    },
+  });
+
   return {
     users,
     pendingUsers,
@@ -127,6 +168,7 @@ export function useUserManagement() {
     inviteUser: inviteMutation.mutate,
     approveUser: approveMutation.mutate,
     rejectUser: rejectMutation.mutate,
+    updateAvatar: updateAvatarMutation.mutateAsync,
     isInviting: inviteMutation.isPending,
     isApproving: approveMutation.isPending,
   };
