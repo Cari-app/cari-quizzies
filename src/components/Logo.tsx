@@ -10,7 +10,7 @@ export function Logo({ className = 'h-8' }: LogoProps) {
       xmlns="http://www.w3.org/2000/svg" 
       viewBox="0 0 1216 289" 
       fill="currentColor"
-      className={cn("w-auto transition-colors duration-300 ease-out", className)}
+      className={cn("w-auto", className)}
       aria-label="Quizzies"
     >
       <g transform="translate(0,289) scale(0.1,-0.1)">
@@ -35,7 +35,7 @@ export function LogoIcon({ className = 'h-8' }: LogoProps) {
       xmlns="http://www.w3.org/2000/svg" 
       viewBox="0 0 242 224" 
       fill="currentColor"
-      className={cn("w-auto transition-colors duration-300 ease-out", className)}
+      className={cn("w-auto", className)}
       aria-label="Quizzies"
     >
       <g transform="translate(0,224) scale(0.1,-0.1)">
