@@ -134,9 +134,9 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
             />
           ) : (
             <img 
-              src={cariLogoLight} 
+              src={theme === 'dark' ? cariLogoDark : cariLogoLight} 
               alt="Cari" 
-              className="h-6 dark:invert"
+              className="h-6"
             />
           )}
         </Link>
