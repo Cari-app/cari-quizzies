@@ -139,12 +139,10 @@ export default function AuthPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex flex-col items-center mb-4 gap-2">
-            <Logo className="h-10" />
-            <span className="text-xs text-muted-foreground">por</span>
             <img 
               src={theme === 'dark' ? cariLogoDark : cariLogoLight} 
               alt="Cari" 
-              className="h-8"
+              className="h-10"
             />
           </div>
           <CardTitle className="text-2xl">Bem-vindo</CardTitle>
