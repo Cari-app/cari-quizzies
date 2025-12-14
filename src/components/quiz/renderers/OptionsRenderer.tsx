@@ -243,7 +243,6 @@ export function OptionsRenderer({
                     detailPosition === 'end' && "flex-row-reverse"
                   )}>
                     {renderDetail(isSelected, i)}
-                    {renderOptionMedia(opt)}
                     <span className="flex-1 rich-text" dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
                   </div>
                   {(imagePosition === 'bottom' || imagePosition === 'right') && (
