@@ -334,6 +334,7 @@ interface DesignSettings {
     paddingX: number;
   };
   progressBar: 'hidden' | 'top' | 'bottom';
+  hideProgressBar?: boolean;
   
   // HEADER STYLING
   headerDivider?: {
@@ -345,6 +346,7 @@ interface DesignSettings {
     color: string;
     size: 'small' | 'medium' | 'large';
     style: 'arrow' | 'chevron' | 'circle';
+    position?: 'left' | 'center' | 'right';
   };
   
   // CORES
@@ -1560,7 +1562,8 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
   }
 
   const progressValue = stages.length > 1 ? ((currentStageIndex + 1) / stages.length) * 100 : 100;
-  const showHeader = pageSettings?.showProgress || (pageSettings?.allowBack && currentStageIndex > 0);
+  const hideProgressBar = designSettings.hideProgressBar ?? false;
+  const showHeader = (!hideProgressBar && pageSettings?.showProgress) || (pageSettings?.allowBack && currentStageIndex > 0) || designSettings.logo?.value;
 
   // Render back icon based on settings
   const renderBackIcon = (settings: typeof designSettings) => {
@@ -1643,7 +1646,7 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
       {showHeader && (
         <>
           {/* Line Style - Thin progress bar at the very top */}
-          {designSettings.headerStyle === 'line' && pageSettings?.showProgress && (
+          {!hideProgressBar && designSettings.headerStyle === 'line' && pageSettings?.showProgress && (
             <div className="shrink-0">
               <div 
                 className="h-1 w-full"
@@ -1660,8 +1663,77 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
             </div>
           )}
 
-          {/* Other header styles */}
-          {designSettings.headerStyle !== 'line' && (() => {
+          {/* When progress bar is hidden - standalone back icon with custom position */}
+          {hideProgressBar && (pageSettings?.allowBack && currentStageIndex > 0 || designSettings.logo?.value) && (() => {
+            const logoSpacing = designSettings.logoSpacing || { marginTop: 16, marginBottom: 8, paddingX: 16 };
+            const backIconPosition = designSettings.backIcon?.position || 'left';
+            
+            return (
+              <div 
+                className="shrink-0"
+                style={{ 
+                  borderBottom: designSettings.headerDivider?.show !== false 
+                    ? `${designSettings.headerDivider?.thickness || 1}px solid ${designSettings.headerDivider?.color || designSettings.primaryColor}20`
+                    : 'none'
+                }}
+              >
+                {/* Logo row */}
+                {designSettings.logo?.value && (
+                  <div 
+                    className={cn(
+                      "flex items-center",
+                      designSettings.logoPosition === 'center' && "justify-center",
+                      designSettings.logoPosition === 'right' && "justify-end",
+                      designSettings.logoPosition === 'left' && "justify-start"
+                    )}
+                    style={{
+                      marginTop: `${logoSpacing.marginTop}px`,
+                      marginBottom: `${logoSpacing.marginBottom}px`,
+                      paddingLeft: `${logoSpacing.paddingX}px`,
+                      paddingRight: `${logoSpacing.paddingX}px`,
+                    }}
+                  >
+                    {designSettings.logo.type === 'emoji' ? (
+                      <span style={{ fontSize: `${designSettings.logoSizePixels || 40}px`, lineHeight: 1 }}>
+                        {designSettings.logo.value}
+                      </span>
+                    ) : (
+                      <img 
+                        src={designSettings.logo.value} 
+                        alt="Logo" 
+                        className="object-contain"
+                        style={{ height: `${designSettings.logoSizePixels || 40}px` }}
+                      />
+                    )}
+                  </div>
+                )}
+                
+                {/* Back icon row - positioned independently */}
+                {pageSettings?.allowBack && currentStageIndex > 0 && (
+                  <div 
+                    className={cn(
+                      "flex items-center",
+                      backIconPosition === 'center' && "justify-center",
+                      backIconPosition === 'right' && "justify-end",
+                      backIconPosition === 'left' && "justify-start"
+                    )}
+                    style={{ padding: '15px' }}
+                  >
+                    <button 
+                      onClick={handleBack}
+                      className="p-1 rounded transition-colors hover:opacity-70"
+                      style={{ color: designSettings.backIcon?.color || designSettings.textColor }}
+                    >
+                      {renderBackIcon(designSettings)}
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Other header styles (when progress bar is NOT hidden) */}
+          {!hideProgressBar && designSettings.headerStyle !== 'line' && (() => {
             const logoSpacing = designSettings.logoSpacing || { marginTop: 16, marginBottom: 8, paddingX: 16 };
             const logoLayout = designSettings.logoLayout || 'above';
             
