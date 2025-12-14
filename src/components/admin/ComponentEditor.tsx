@@ -512,13 +512,11 @@ export interface ComponentConfig {
   formTitle?: string;
   formSpacing?: 'compact' | 'normal' | 'relaxed';
   // Progress component specific
-  progressStyle?: 'bar' | 'segments' | 'steps' | 'dots';
-  progressShowText?: 'none' | 'percent' | 'steps' | 'both';
-  progressTextPosition?: 'left' | 'right' | 'center' | 'above' | 'below';
+  progressStyle?: 'bar' | 'gradient' | 'neon' | 'segments' | 'dots';
   progressHeight?: number;
   progressBarColor?: string;
+  progressGradientColor?: string;
   progressBgColor?: string;
-  progressTextColor?: string;
   progressBorderRadius?: number;
   progressAnimated?: boolean;
 }

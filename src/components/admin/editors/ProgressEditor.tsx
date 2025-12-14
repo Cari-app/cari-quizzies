@@ -16,6 +16,8 @@ export function ProgressEditor({
   advancedOpen,
   setAdvancedOpen 
 }: ProgressEditorProps) {
+  const isGradientStyle = config.progressStyle === 'gradient' || config.progressStyle === 'neon';
+
   return (
     <div className="space-y-4">
       {/* ID/Name */}
@@ -31,64 +33,24 @@ export function ProgressEditor({
         <Label className="text-xs text-muted-foreground">Estilo</Label>
         <Select 
           value={config.progressStyle || 'bar'} 
-          onValueChange={(v) => updateConfig({ progressStyle: v as 'bar' | 'segments' | 'steps' | 'dots' })}
+          onValueChange={(v) => updateConfig({ progressStyle: v as 'bar' | 'gradient' | 'neon' | 'segments' | 'dots' })}
         >
           <SelectTrigger className="mt-1">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="bar">Barra contínua</SelectItem>
+            <SelectItem value="gradient">Gradiente</SelectItem>
+            <SelectItem value="neon">Neon</SelectItem>
             <SelectItem value="segments">Segmentada</SelectItem>
-            <SelectItem value="steps">Passos numerados</SelectItem>
             <SelectItem value="dots">Pontos</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      {/* Mostrar texto */}
-      <div>
-        <Label className="text-xs text-muted-foreground">Mostrar</Label>
-        <Select 
-          value={config.progressShowText || 'none'} 
-          onValueChange={(v) => updateConfig({ progressShowText: v as 'none' | 'percent' | 'steps' | 'both' })}
-        >
-          <SelectTrigger className="mt-1">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">Apenas barra</SelectItem>
-            <SelectItem value="percent">Percentual (75%)</SelectItem>
-            <SelectItem value="steps">Etapas (3 de 5)</SelectItem>
-            <SelectItem value="both">Ambos</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Posição do texto */}
-      {config.progressShowText && config.progressShowText !== 'none' && (
-        <div>
-          <Label className="text-xs text-muted-foreground">Posição do texto</Label>
-          <Select 
-            value={config.progressTextPosition || 'right'} 
-            onValueChange={(v) => updateConfig({ progressTextPosition: v as 'left' | 'right' | 'center' | 'above' | 'below' })}
-          >
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="left">Esquerda</SelectItem>
-              <SelectItem value="center">Centro</SelectItem>
-              <SelectItem value="right">Direita</SelectItem>
-              <SelectItem value="above">Acima</SelectItem>
-              <SelectItem value="below">Abaixo</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      )}
-
       {/* Altura da barra */}
       <div>
-        <Label className="text-xs text-muted-foreground">Altura da barra (px)</Label>
+        <Label className="text-xs text-muted-foreground">Altura (px)</Label>
         <Input
           type="number"
           value={config.progressHeight || 8}
@@ -106,9 +68,11 @@ export function ProgressEditor({
           CORES
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-4 space-y-4">
-          {/* Cor da barra */}
+          {/* Cor da barra / Cor primária */}
           <div>
-            <Label className="text-xs text-muted-foreground">Cor da barra</Label>
+            <Label className="text-xs text-muted-foreground">
+              {isGradientStyle ? 'Cor primária' : 'Cor da barra'}
+            </Label>
             <div className="flex gap-2 mt-1">
               <div 
                 className="w-10 h-10 rounded-lg border cursor-pointer"
@@ -130,6 +94,32 @@ export function ProgressEditor({
             </div>
           </div>
 
+          {/* Cor secundária (só para gradient/neon) */}
+          {isGradientStyle && (
+            <div>
+              <Label className="text-xs text-muted-foreground">Cor secundária</Label>
+              <div className="flex gap-2 mt-1">
+                <div 
+                  className="w-10 h-10 rounded-lg border cursor-pointer"
+                  style={{ backgroundColor: config.progressGradientColor || '#8B5CF6' }}
+                >
+                  <input
+                    type="color"
+                    value={config.progressGradientColor || '#8B5CF6'}
+                    onChange={(e) => updateConfig({ progressGradientColor: e.target.value })}
+                    className="w-full h-full opacity-0 cursor-pointer"
+                  />
+                </div>
+                <Input
+                  value={config.progressGradientColor || '#8B5CF6'}
+                  onChange={(e) => updateConfig({ progressGradientColor: e.target.value })}
+                  placeholder="#8B5CF6"
+                  className="flex-1 font-mono text-xs"
+                />
+              </div>
+            </div>
+          )}
+
           {/* Cor do fundo */}
           <div>
             <Label className="text-xs text-muted-foreground">Cor do fundo</Label>
@@ -149,30 +139,6 @@ export function ProgressEditor({
                 value={config.progressBgColor || '#e5e7eb'}
                 onChange={(e) => updateConfig({ progressBgColor: e.target.value })}
                 placeholder="#e5e7eb"
-                className="flex-1 font-mono text-xs"
-              />
-            </div>
-          </div>
-
-          {/* Cor do texto */}
-          <div>
-            <Label className="text-xs text-muted-foreground">Cor do texto</Label>
-            <div className="flex gap-2 mt-1">
-              <div 
-                className="w-10 h-10 rounded-lg border cursor-pointer"
-                style={{ backgroundColor: config.progressTextColor || '#374151' }}
-              >
-                <input
-                  type="color"
-                  value={config.progressTextColor || '#374151'}
-                  onChange={(e) => updateConfig({ progressTextColor: e.target.value })}
-                  className="w-full h-full opacity-0 cursor-pointer"
-                />
-              </div>
-              <Input
-                value={config.progressTextColor || '#374151'}
-                onChange={(e) => updateConfig({ progressTextColor: e.target.value })}
-                placeholder="#374151"
                 className="flex-1 font-mono text-xs"
               />
             </div>

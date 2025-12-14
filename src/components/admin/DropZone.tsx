@@ -312,12 +312,10 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
       case 'progress':
         return {
           progressStyle: 'bar',
-          progressShowText: 'percent',
-          progressTextPosition: 'right',
           progressHeight: 8,
           progressBarColor: '#000000',
+          progressGradientColor: '#8B5CF6',
           progressBgColor: '#e5e7eb',
-          progressTextColor: '#374151',
           progressBorderRadius: 9999,
           progressAnimated: true,
           width: 100,
@@ -2162,79 +2160,69 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const style = config.progressStyle || 'bar';
         const height = config.progressHeight || 8;
         const barColor = config.progressBarColor || '#000000';
+        const gradientColor = config.progressGradientColor || '#8B5CF6';
         const bgColor = config.progressBgColor || '#e5e7eb';
-        const textColor = config.progressTextColor || '#374151';
         const borderRadius = config.progressBorderRadius ?? 9999;
-        const showText = config.progressShowText || 'none';
         
         // Preview with mock progress
         const mockProgress = 60;
         
+        const getBarStyle = () => {
+          if (style === 'gradient') {
+            return { background: `linear-gradient(90deg, ${barColor} 0%, ${gradientColor} 100%)` };
+          }
+          if (style === 'neon') {
+            return { 
+              background: `linear-gradient(90deg, ${barColor} 0%, ${gradientColor} 100%)`,
+              boxShadow: `0 0 ${height}px ${barColor}, 0 0 ${height * 2}px ${gradientColor}`
+            };
+          }
+          return { backgroundColor: barColor };
+        };
+        
         return (
           <div className="p-4 w-full">
-            <div className="flex items-center gap-3">
-              {style === 'bar' && (
+            {(style === 'bar' || style === 'gradient' || style === 'neon') && (
+              <div 
+                className="w-full overflow-hidden"
+                style={{ backgroundColor: bgColor, height: `${height}px`, borderRadius: `${borderRadius}px` }}
+              >
                 <div 
-                  className="flex-1 overflow-hidden"
-                  style={{ backgroundColor: bgColor, height: `${height}px`, borderRadius: `${borderRadius}px` }}
-                >
+                  style={{ 
+                    width: `${mockProgress}%`, 
+                    height: '100%', 
+                    borderRadius: `${borderRadius}px`,
+                    ...getBarStyle()
+                  }}
+                />
+              </div>
+            )}
+            {style === 'segments' && (
+              <div className="flex gap-1 w-full">
+                {[1,2,3,4,5].map((_, i) => (
                   <div 
-                    style={{ width: `${mockProgress}%`, height: '100%', backgroundColor: barColor, borderRadius: `${borderRadius}px` }}
+                    key={i}
+                    className="flex-1"
+                    style={{ backgroundColor: i < 3 ? barColor : bgColor, height: `${height}px`, borderRadius: `${borderRadius}px` }}
                   />
-                </div>
-              )}
-              {style === 'segments' && (
-                <div className="flex gap-1 flex-1">
-                  {[1,2,3,4,5].map((_, i) => (
-                    <div 
-                      key={i}
-                      className="flex-1"
-                      style={{ backgroundColor: i < 3 ? barColor : bgColor, height: `${height}px`, borderRadius: `${borderRadius}px` }}
-                    />
-                  ))}
-                </div>
-              )}
-              {style === 'steps' && (
-                <div className="flex items-center justify-between flex-1">
-                  {[1,2,3,4,5].map((n, i) => (
-                    <div key={i} className="flex items-center flex-1">
-                      <div 
-                        className="flex items-center justify-center text-xs font-medium shrink-0"
-                        style={{ 
-                          width: '24px', height: '24px',
-                          backgroundColor: i < 3 ? barColor : bgColor,
-                          color: i < 3 ? '#fff' : textColor,
-                          borderRadius: '50%'
-                        }}
-                      >
-                        {n}
-                      </div>
-                      {i < 4 && <div className="flex-1 mx-1" style={{ height: '2px', backgroundColor: i < 2 ? barColor : bgColor }} />}
-                    </div>
-                  ))}
-                </div>
-              )}
-              {style === 'dots' && (
-                <div className="flex gap-2 justify-center flex-1">
-                  {[1,2,3,4,5].map((_, i) => (
-                    <div 
-                      key={i}
-                      style={{ 
-                        width: '10px', height: '10px',
-                        backgroundColor: i < 3 ? barColor : bgColor,
-                        borderRadius: '50%',
-                        transform: i === 2 ? 'scale(1.2)' : 'scale(1)'
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
-              {showText !== 'none' && (
-                <span className="text-sm font-medium" style={{ color: textColor }}>
-                  {showText === 'percent' ? '60%' : showText === 'steps' ? '3 de 5' : '3 de 5 (60%)'}
-                </span>
-              )}
-            </div>
+                ))}
+              </div>
+            )}
+            {style === 'dots' && (
+              <div className="flex gap-2 justify-center w-full">
+                {[1,2,3,4,5].map((_, i) => (
+                  <div 
+                    key={i}
+                    style={{ 
+                      width: '10px', height: '10px',
+                      backgroundColor: i < 3 ? barColor : bgColor,
+                      borderRadius: '50%',
+                      transform: i === 2 ? 'scale(1.2)' : 'scale(1)'
+                    }}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         );
       }
