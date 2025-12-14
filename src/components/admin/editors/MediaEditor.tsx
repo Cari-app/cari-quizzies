@@ -375,6 +375,40 @@ export function MediaComponentTab({
               </button>
             </div>
           </div>
+
+          {/* Border Radius */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs text-muted-foreground">Arredondamento</Label>
+              <span className="text-xs text-muted-foreground">{config.borderRadius ?? 0}px</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 shrink-0"
+                onClick={() => updateConfig({ borderRadius: Math.max(0, (config.borderRadius ?? 0) - 4) })}
+              >
+                <Minus className="h-3 w-3" />
+              </Button>
+              <Slider
+                value={[config.borderRadius ?? 0]}
+                onValueChange={([value]) => updateConfig({ borderRadius: value })}
+                min={0}
+                max={50}
+                step={2}
+                className="flex-1"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-8 w-8 shrink-0"
+                onClick={() => updateConfig({ borderRadius: Math.min(50, (config.borderRadius ?? 0) + 4) })}
+              >
+                <Plus className="h-3 w-3" />
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
