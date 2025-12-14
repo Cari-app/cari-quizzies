@@ -140,8 +140,8 @@ export function AdminHeader({ title, subtitle }: AdminHeaderProps) {
             <DropdownMenuTrigger asChild>
               <Button 
                 variant="ghost" 
-                size="sm" 
-                className="gap-2 h-9 pl-2 pr-3 ml-2"
+                size="icon" 
+                className="h-9 w-9 ml-2"
               >
                 <Avatar className="w-7 h-7">
                   <AvatarImage src={profile?.avatar_url || undefined} />
@@ -149,9 +149,6 @@ export function AdminHeader({ title, subtitle }: AdminHeaderProps) {
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-sm font-medium hidden sm:inline max-w-[120px] truncate">
-                  {profile?.full_name || user?.email?.split('@')[0]}
-                </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
