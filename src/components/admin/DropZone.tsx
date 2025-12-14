@@ -757,7 +757,7 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
                       )}>
                         {renderDetail(isSelected, i)}
                         {renderOptionMedia(opt)}
-                        <span className="flex-1">{opt.text}</span>
+                        <span className="flex-1 rich-text" dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
                       </div>
                       {(imagePosition === 'bottom' || imagePosition === 'right') && (
                         <div className={cn(
