@@ -72,9 +72,24 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        purple: {
-          DEFAULT: "hsl(var(--purple))",
-          foreground: "hsl(var(--purple-foreground))",
+        cari: {
+          DEFAULT: "hsl(var(--cari))",
+          light: "hsl(var(--cari-light))",
+          dark: "hsl(var(--cari-dark))",
+          foreground: "hsl(var(--cari-foreground))",
+        },
+        lime: {
+          50: "hsl(78 92% 95%)",
+          100: "hsl(80 89% 89%)",
+          200: "hsl(81 88% 80%)",
+          300: "hsl(82 85% 67%)",
+          400: "hsl(83 78% 55%)",
+          500: "hsl(84 81% 44%)",
+          600: "hsl(85 85% 35%)",
+          700: "hsl(86 78% 27%)",
+          800: "hsl(86 72% 23%)",
+          900: "hsl(88 64% 20%)",
+          950: "hsl(89 80% 10%)",
         },
       },
       borderRadius: {

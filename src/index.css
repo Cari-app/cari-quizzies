@@ -5,112 +5,116 @@
 
 @layer base {
   :root {
-    /* Background & Foreground - Pure white */
+    /* Background & Foreground - Clean white with subtle warmth */
     --background: 0 0% 100%;
-    --foreground: 0 0% 4%;
+    --foreground: 84 10% 10%;
 
     /* Card surfaces */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 4%;
+    --card-foreground: 84 10% 10%;
 
     /* Popover */
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 4%;
+    --popover-foreground: 84 10% 10%;
 
-    /* Primary - Pure black (buttons, main actions) */
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary - Cari Lime (lime-500) */
+    --primary: 84 81% 44%;
+    --primary-foreground: 84 10% 10%;
 
-    /* Secondary */
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 9%;
+    /* Secondary - Subtle lime tint */
+    --secondary: 80 40% 96%;
+    --secondary-foreground: 84 10% 10%;
 
     /* Muted */
-    --muted: 0 0% 96%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 80 20% 96%;
+    --muted-foreground: 84 5% 45%;
 
-    /* Accent - Black for most UI elements */
-    --accent: 0 0% 96%;
-    --accent-foreground: 0 0% 9%;
+    /* Accent - Light lime for highlights */
+    --accent: 82 85% 93%;
+    --accent-foreground: 84 10% 10%;
 
     /* Destructive */
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Border & Input */
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 0 0% 9%;
+    /* Border & Input - Subtle lime undertone */
+    --border: 80 10% 90%;
+    --input: 80 10% 90%;
+    --ring: 84 81% 44%;
 
     /* Radius */
-    --radius: 0.5rem;
+    --radius: 0.625rem;
 
     /* Sidebar */
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 4%;
-    --sidebar-primary: 0 0% 9%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 0 0% 9%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 0 0% 9%;
+    --sidebar-background: 80 30% 98%;
+    --sidebar-foreground: 84 10% 10%;
+    --sidebar-primary: 84 81% 44%;
+    --sidebar-primary-foreground: 84 10% 10%;
+    --sidebar-accent: 82 85% 93%;
+    --sidebar-accent-foreground: 84 10% 10%;
+    --sidebar-border: 80 10% 90%;
+    --sidebar-ring: 84 81% 44%;
 
-    /* Purple tokens - ONLY for toggles and links */
-    --purple: 271 91% 65%;
-    --purple-foreground: 0 0% 100%;
+    /* Cari brand tokens */
+    --cari: 84 81% 44%;
+    --cari-light: 82 85% 93%;
+    --cari-dark: 85 78% 35%;
+    --cari-foreground: 84 10% 10%;
   }
 
   .dark {
-    /* Background & Foreground - Zinc 950 */
-    --background: 240 5.9% 4%;
-    --foreground: 0 0% 98%;
+    /* Background & Foreground - Deep dark with lime undertone */
+    --background: 80 10% 6%;
+    --foreground: 80 10% 96%;
 
     /* Card surfaces - slightly lighter than background */
-    --card: 240 5.2% 8%;
-    --card-foreground: 0 0% 98%;
+    --card: 80 8% 10%;
+    --card-foreground: 80 10% 96%;
 
     /* Popover */
-    --popover: 240 5.2% 8%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 80 8% 10%;
+    --popover-foreground: 80 10% 96%;
 
-    /* Primary - Pure white (buttons, main actions) */
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 4%;
+    /* Primary - Cari Lime */
+    --primary: 84 81% 44%;
+    --primary-foreground: 84 10% 10%;
 
     /* Secondary */
-    --secondary: 240 4.8% 12%;
-    --secondary-foreground: 0 0% 90%;
+    --secondary: 80 8% 14%;
+    --secondary-foreground: 80 10% 90%;
 
     /* Muted */
-    --muted: 240 4.8% 12%;
-    --muted-foreground: 240 5% 55%;
+    --muted: 80 8% 14%;
+    --muted-foreground: 80 5% 55%;
 
-    /* Accent */
-    --accent: 240 4.8% 12%;
-    --accent-foreground: 0 0% 98%;
+    /* Accent - Subtle lime in dark */
+    --accent: 82 30% 18%;
+    --accent-foreground: 80 10% 96%;
 
     /* Destructive */
-    --destructive: 0 62% 30%;
+    --destructive: 0 62% 40%;
     --destructive-foreground: 0 0% 98%;
 
     /* Border & Input */
-    --border: 240 4.9% 16%;
-    --input: 240 4.9% 16%;
-    --ring: 0 0% 98%;
+    --border: 80 8% 18%;
+    --input: 80 8% 18%;
+    --ring: 84 81% 44%;
 
     /* Sidebar */
-    --sidebar-background: 240 5.9% 4%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 0 0% 98%;
-    --sidebar-primary-foreground: 240 5.9% 4%;
-    --sidebar-accent: 240 4.8% 12%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 4.9% 16%;
-    --sidebar-ring: 0 0% 98%;
+    --sidebar-background: 80 10% 6%;
+    --sidebar-foreground: 80 10% 96%;
+    --sidebar-primary: 84 81% 44%;
+    --sidebar-primary-foreground: 84 10% 10%;
+    --sidebar-accent: 82 30% 18%;
+    --sidebar-accent-foreground: 80 10% 96%;
+    --sidebar-border: 80 8% 18%;
+    --sidebar-ring: 84 81% 44%;
 
-    /* Purple tokens - ONLY for toggles and links */
-    --purple: 271 91% 65%;
-    --purple-foreground: 0 0% 100%;
+    /* Cari brand tokens */
+    --cari: 84 81% 44%;
+    --cari-light: 82 40% 25%;
+    --cari-dark: 85 78% 35%;
+    --cari-foreground: 84 10% 10%;
   }
 }
 
