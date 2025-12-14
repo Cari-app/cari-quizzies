@@ -838,9 +838,9 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
     }
   }, [hasTriggeredFirstResponse, quiz?.id, sessionId, sessionToken, formData]);
 
-  // Mark session as completed
+  // Mark session as completed using secure RPC function
   const markSessionComplete = useCallback(async () => {
-    if (!sessionId) return;
+    if (!sessionId || !sessionToken) return;
 
     try {
       // Extract identification data from formData
@@ -848,16 +848,22 @@ export const QuizPlayer = forwardRef<HTMLDivElement, QuizPlayerProps>(({ slug },
       const phone = formData.phone || formData.telefone || formData.celular || null;
       const name = formData.name || formData.nome || null;
 
-      await supabase
-        .from('quiz_sessions')
-        .update({
-          is_completed: true,
-          completed_at: new Date().toISOString(),
-          email,
-          phone,
-          name,
-        })
-        .eq('id', sessionId);
+      // Use the secure RPC function that validates session_token
+      const { data: success, error } = await supabase.rpc('update_quiz_session', {
+        _session_id: sessionId,
+        _session_token: sessionToken,
+        _email: email,
+        _phone: phone,
+        _name: name,
+        _is_completed: true,
+        _completed_at: new Date().toISOString(),
+      });
+
+      if (error) {
+        console.error('Error updating session via RPC:', error);
+      } else if (!success) {
+        console.warn('Session update failed - token mismatch or session expired');
+      }
 
       // Trigger N8N webhook if configured
       if (quiz?.id) {

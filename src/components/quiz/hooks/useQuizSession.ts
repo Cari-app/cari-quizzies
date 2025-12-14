@@ -8,6 +8,7 @@ interface UseQuizSessionProps {
 
 interface UseQuizSessionReturn {
   sessionId: string | null;
+  sessionToken: string | null;
   stageStartTime: number;
   setStageStartTime: (time: number) => void;
   saveStageResponse: (stageId: string, stageOrder: number, responseValue: any, responseType: string) => Promise<void>;
@@ -16,6 +17,7 @@ interface UseQuizSessionReturn {
 
 export function useQuizSession({ quizId, formData }: UseQuizSessionProps): UseQuizSessionReturn {
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [stageStartTime, setStageStartTime] = useState<number>(Date.now());
 
   // Create session when quiz loads
@@ -38,7 +40,7 @@ export function useQuizSession({ quizId, formData }: UseQuizSessionProps): UseQu
             device_type: deviceType,
             referrer: document.referrer || null,
           })
-          .select('id')
+          .select('id, session_token')
           .single();
 
         if (error) {
@@ -47,6 +49,7 @@ export function useQuizSession({ quizId, formData }: UseQuizSessionProps): UseQu
         }
 
         setSessionId(data.id);
+        setSessionToken(data.session_token);
         setStageStartTime(Date.now());
       } catch (error) {
         console.error('Error creating session:', error);
@@ -86,9 +89,9 @@ export function useQuizSession({ quizId, formData }: UseQuizSessionProps): UseQu
     }
   }, [sessionId, stageStartTime]);
 
-  // Mark session as completed
+  // Mark session as completed using secure RPC function
   const markSessionComplete = useCallback(async () => {
-    if (!sessionId) return;
+    if (!sessionId || !sessionToken) return;
 
     try {
       // Extract identification data from formData
@@ -96,23 +99,30 @@ export function useQuizSession({ quizId, formData }: UseQuizSessionProps): UseQu
       const phone = formData.phone || formData.telefone || formData.celular || null;
       const name = formData.name || formData.nome || null;
 
-      await supabase
-        .from('quiz_sessions')
-        .update({
-          is_completed: true,
-          completed_at: new Date().toISOString(),
-          email,
-          phone,
-          name,
-        })
-        .eq('id', sessionId);
+      // Use the secure RPC function that validates session_token
+      const { data: success, error } = await supabase.rpc('update_quiz_session', {
+        _session_id: sessionId,
+        _session_token: sessionToken,
+        _email: email,
+        _phone: phone,
+        _name: name,
+        _is_completed: true,
+        _completed_at: new Date().toISOString(),
+      });
+
+      if (error) {
+        console.error('Error updating session via RPC:', error);
+      } else if (!success) {
+        console.warn('Session update failed - token mismatch or session expired');
+      }
     } catch (error) {
       console.error('Error marking session complete:', error);
     }
-  }, [sessionId, formData]);
+  }, [sessionId, sessionToken, formData]);
 
   return {
     sessionId,
+    sessionToken,
     stageStartTime,
     setStageStartTime,
     saveStageResponse,
