@@ -10,6 +10,9 @@ import { Loader2, Mail, Lock, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/Logo';
 import { z } from 'zod';
+import { useTheme } from '@/hooks/useTheme';
+import cariLogoLight from '@/assets/cari-logo-light.png';
+import cariLogoDark from '@/assets/cari-logo-dark.png';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -26,6 +29,7 @@ export default function AuthPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading, signIn, signUp } = useAuth();
+  const { theme } = useTheme();
   
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'login' | 'signup'>('login');
@@ -134,8 +138,14 @@ export default function AuthPage() {
     <div className="min-h-screen flex items-center justify-center bg-muted/30 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
+          <div className="flex flex-col items-center mb-4 gap-2">
             <Logo className="h-10" />
+            <span className="text-xs text-muted-foreground">por</span>
+            <img 
+              src={theme === 'dark' ? cariLogoDark : cariLogoLight} 
+              alt="Cari" 
+              className="h-6"
+            />
           </div>
           <CardTitle className="text-2xl">Bem-vindo</CardTitle>
           <CardDescription>
