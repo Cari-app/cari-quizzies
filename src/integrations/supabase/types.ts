@@ -183,17 +183,41 @@ export type Database = {
           },
         ]
       }
+      quiz_session_contacts: {
+        Row: {
+          created_at: string
+          email: string | null
+          id: string
+          name: string | null
+          phone: string | null
+          session_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+          session_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string | null
+          phone?: string | null
+          session_id?: string
+        }
+        Relationships: []
+      }
       quiz_sessions: {
         Row: {
           completed_at: string | null
           device_type: string | null
-          email: string | null
           id: string
           ip_address: string | null
           is_completed: boolean | null
           last_stage_index: number | null
-          name: string | null
-          phone: string | null
           quiz_id: string
           referrer: string | null
           session_token: string | null
@@ -203,13 +227,10 @@ export type Database = {
         Insert: {
           completed_at?: string | null
           device_type?: string | null
-          email?: string | null
           id?: string
           ip_address?: string | null
           is_completed?: boolean | null
           last_stage_index?: number | null
-          name?: string | null
-          phone?: string | null
           quiz_id: string
           referrer?: string | null
           session_token?: string | null
@@ -219,13 +240,10 @@ export type Database = {
         Update: {
           completed_at?: string | null
           device_type?: string | null
-          email?: string | null
           id?: string
           ip_address?: string | null
           is_completed?: boolean | null
           last_stage_index?: number | null
-          name?: string | null
-          phone?: string | null
           quiz_id?: string
           referrer?: string | null
           session_token?: string | null

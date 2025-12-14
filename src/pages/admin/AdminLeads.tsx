@@ -42,29 +42,33 @@ export default function AdminLeads() {
     const loadSessions = async () => {
       setIsLoading(true);
       try {
-        // Load all quiz sessions with quiz name
+        // Load all quiz sessions with quiz name and contact info
         const { data: sessionsData, error: sessionsError } = await supabase
           .from('quiz_sessions')
           .select(`
             *,
-            quizzes:quiz_id (titulo)
+            quizzes:quiz_id (titulo),
+            quiz_session_contacts (email, phone, name)
           `)
           .order('started_at', { ascending: false });
 
         if (sessionsError) throw sessionsError;
 
-        const formattedSessions: LeadSession[] = (sessionsData || []).map((s: any) => ({
-          id: s.id,
-          quiz_id: s.quiz_id,
-          quiz_name: s.quizzes?.titulo || 'Quiz removido',
-          started_at: s.started_at,
-          completed_at: s.completed_at,
-          is_completed: s.is_completed || false,
-          email: s.email,
-          phone: s.phone,
-          name: s.name,
-          device_type: s.device_type,
-        }));
+        const formattedSessions: LeadSession[] = (sessionsData || []).map((s: any) => {
+          const contact = s.quiz_session_contacts?.[0] || {};
+          return {
+            id: s.id,
+            quiz_id: s.quiz_id,
+            quiz_name: s.quizzes?.titulo || 'Quiz removido',
+            started_at: s.started_at,
+            completed_at: s.completed_at,
+            is_completed: s.is_completed || false,
+            email: contact.email || null,
+            phone: contact.phone || null,
+            name: contact.name || null,
+            device_type: s.device_type,
+          };
+        });
 
         setSessions(formattedSessions);
       } catch (error: any) {
