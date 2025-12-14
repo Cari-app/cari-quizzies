@@ -816,24 +816,7 @@ export function QuizEditor() {
           />
         ) : editorView === 'integrations' ? (
           /* Integrations View */
-          <IntegrationsEditor
-            quizId={currentQuiz.id}
-            webhookUrl={webhookUrl}
-            webhookEnabled={webhookEnabled}
-            webhookSettings={webhookSettings}
-            onWebhookUrlChange={(url) => {
-              setWebhookUrl(url);
-              setHasUnsavedChanges(true);
-            }}
-            onWebhookEnabledChange={(enabled) => {
-              setWebhookEnabled(enabled);
-              setHasUnsavedChanges(true);
-            }}
-            onWebhookSettingsChange={(settings) => {
-              setWebhookSettings(settings);
-              setHasUnsavedChanges(true);
-            }}
-          />
+          <IntegrationsEditor quizId={currentQuiz.id} />
         ) : (
           <div className="flex-1 flex flex-col overflow-hidden">
             {/* Preview Mode Toggle */}
