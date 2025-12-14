@@ -96,7 +96,10 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             { id: uuid(), text: 'Opção 3', value: 'opt3' },
           ],
           allowMultiple: false,
-          required: true
+          required: true,
+          optionOrientation: 'vertical',
+          optionStyle: 'simple',
+          optionLayout: 'list'
         };
       case 'multiple':
         return { 
@@ -107,7 +110,10 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             { id: uuid(), text: 'Opção 3', value: 'opt3' },
           ],
           allowMultiple: true,
-          required: true
+          required: true,
+          optionOrientation: 'vertical',
+          optionStyle: 'simple',
+          optionLayout: 'list'
         };
       case 'yesno':
         return { 
@@ -116,7 +122,10 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
             { id: uuid(), text: 'Sim', value: 'yes' },
             { id: uuid(), text: 'Não', value: 'no' },
           ],
-          required: true
+          required: true,
+          optionOrientation: 'vertical',
+          optionStyle: 'simple',
+          optionLayout: 'list'
         };
       case 'text':
         return { content: 'Clique para editar este texto', textAlign: 'left', fontSize: 'base' };
@@ -590,6 +599,9 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const imagePosition = config.imagePosition || 'top';
         const imageRatio = config.imageRatio || '1:1';
         const isVertical = optionOrientation === 'vertical';
+        
+        // Debug log for orientation
+        console.log('DropZone Options Config:', { optionOrientation, isVertical, optionStyle, config });
         
         // Custom colors - default to black/white system
         const optionBgType = config.optionBgType || 'solid';
