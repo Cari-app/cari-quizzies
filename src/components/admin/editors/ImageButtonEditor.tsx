@@ -123,7 +123,8 @@ export function ImageButtonComponentTab({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="list">Lista</SelectItem>
+                  <SelectItem value="list">Lista (vertical)</SelectItem>
+                  <SelectItem value="horizontal">Lado a lado</SelectItem>
                   <SelectItem value="grid-2">Grid 2 colunas</SelectItem>
                   <SelectItem value="grid-3">Grid 3 colunas</SelectItem>
                 </SelectContent>
@@ -140,7 +141,8 @@ export function ImageButtonComponentTab({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="list">Lista</SelectItem>
+                  <SelectItem value="list">Lista (vertical)</SelectItem>
+                  <SelectItem value="horizontal">Lado a lado</SelectItem>
                   <SelectItem value="grid-2">Grid 2 colunas</SelectItem>
                   <SelectItem value="grid-3">Grid 3 colunas</SelectItem>
                 </SelectContent>
@@ -156,7 +158,8 @@ export function ImageButtonComponentTab({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="list">Lista</SelectItem>
+              <SelectItem value="list">Lista (vertical)</SelectItem>
+              <SelectItem value="horizontal">Lado a lado</SelectItem>
               <SelectItem value="grid-2">Grid 2 colunas</SelectItem>
               <SelectItem value="grid-3">Grid 3 colunas</SelectItem>
             </SelectContent>

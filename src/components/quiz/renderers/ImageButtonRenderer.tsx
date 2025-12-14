@@ -42,10 +42,12 @@ export function ImageButtonRenderer({ config, onSelect, selectedValues = [] }: I
     if (layoutMobile) {
       const mobileClass = layoutMobile === 'grid-2' ? 'grid-cols-2' 
         : layoutMobile === 'grid-3' ? 'grid-cols-3' 
+        : layoutMobile === 'horizontal' ? 'grid-cols-[repeat(auto-fit,minmax(0,1fr))]'
         : 'grid-cols-1';
       
       const desktopClass = layout === 'grid-2' ? 'sm:grid-cols-2' 
         : layout === 'grid-3' ? 'sm:grid-cols-3' 
+        : layout === 'horizontal' ? 'sm:grid-cols-[repeat(auto-fit,minmax(0,1fr))]'
         : 'sm:grid-cols-1';
       
       return `grid ${mobileClass} ${desktopClass}`;
@@ -55,7 +57,8 @@ export function ImageButtonRenderer({ config, onSelect, selectedValues = [] }: I
     switch (layout) {
       case 'grid-2': return 'grid grid-cols-2';
       case 'grid-3': return 'grid grid-cols-3';
-      default: return orientation === 'horizontal' ? 'flex flex-row flex-wrap' : 'flex flex-col';
+      case 'horizontal': return 'flex flex-row';
+      default: return 'flex flex-col';
     }
   };
 
