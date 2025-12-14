@@ -16,6 +16,7 @@ interface DesignSettings {
     paddingX: number;
   };
   progressBar: 'hidden' | 'top' | 'bottom';
+  progressBarThickness?: number;
   hideProgressBar?: boolean;
   primaryColor: string;
   textColor: string;
@@ -61,6 +62,7 @@ export function QuizHeaderPreview({
   const logoSizePx = designSettings.logoSizePixels || 40;
   const logoLayout = designSettings.logoLayout || 'above';
   const logoSpacing = designSettings.logoSpacing || { marginTop: 16, marginBottom: 8, paddingX: 16 };
+  const progressBarThickness = designSettings.progressBarThickness || 6;
 
   // Render back icon based on settings
   const renderBackIcon = () => {
@@ -96,8 +98,11 @@ export function QuizHeaderPreview({
       <div className="shrink-0 px-4 pb-4">
         {(headerStyle === 'default' || headerStyle === 'line') && (
           <div 
-            className="h-1.5 rounded-full overflow-hidden"
-            style={{ backgroundColor: `${designSettings.primaryColor}30` }}
+            className="rounded-full overflow-hidden"
+            style={{ 
+              height: `${progressBarThickness}px`,
+              backgroundColor: `${designSettings.primaryColor}30` 
+            }}
           >
             <div 
               className="h-full rounded-full transition-all"
@@ -143,8 +148,11 @@ export function QuizHeaderPreview({
     return (
       <div className="shrink-0">
         <div 
-          className="h-1 w-full"
-          style={{ backgroundColor: `${designSettings.primaryColor}20` }}
+          className="w-full"
+          style={{ 
+            height: `${progressBarThickness}px`,
+            backgroundColor: `${designSettings.primaryColor}20` 
+          }}
         >
           <div 
             className="h-full transition-all duration-300"
@@ -253,8 +261,11 @@ export function QuizHeaderPreview({
       return (
         <div className="flex-1">
           <div 
-            className="h-1.5 rounded-full overflow-hidden"
-            style={{ backgroundColor: `${designSettings.primaryColor}30` }}
+            className="rounded-full overflow-hidden"
+            style={{ 
+              height: `${progressBarThickness}px`,
+              backgroundColor: `${designSettings.primaryColor}30` 
+            }}
           >
             <div 
               className="h-full rounded-full transition-all"
