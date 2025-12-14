@@ -1,6 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Logo, LogoIcon } from '@/components/Logo';
+import { useTheme } from '@/hooks/useTheme';
+import cariLogoLight from '@/assets/cari-logo-light.svg';
+import cariLogoDark from '@/assets/cari-logo-dark.svg';
+import cariIconLight from '@/assets/cari-icon-light.svg';
+import cariIconDark from '@/assets/cari-icon-dark.svg';
 import {
   LayoutDashboard,
   Badge,
@@ -64,6 +69,7 @@ const bottomNavItems = [
 
 export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
   const location = useLocation();
+  const { theme } = useTheme();
 
   const isActive = (path: string, exact?: boolean) => {
     if (exact) {
@@ -121,9 +127,17 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
       )}>
         <Link to="/admin" className="flex items-center">
           {collapsed ? (
-            <LogoIcon className="h-8 w-8" />
+            <img 
+              src={theme === 'dark' ? cariIconDark : cariIconLight} 
+              alt="Cari" 
+              className="h-8 w-8"
+            />
           ) : (
-            <Logo className="h-6" />
+            <img 
+              src={theme === 'dark' ? cariLogoDark : cariLogoLight} 
+              alt="Cari" 
+              className="h-6"
+            />
           )}
         </Link>
         

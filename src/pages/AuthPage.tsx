@@ -11,8 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Logo } from '@/components/Logo';
 import { z } from 'zod';
 import { useTheme } from '@/hooks/useTheme';
-import cariLogoLight from '@/assets/cari-logo-light.png';
-import cariLogoDark from '@/assets/cari-logo-dark.png';
+import cariLogoLight from '@/assets/cari-logo-light.svg';
+import cariLogoDark from '@/assets/cari-logo-dark.svg';
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
