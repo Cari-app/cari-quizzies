@@ -4,6 +4,7 @@ import { Logo } from '@/components/Logo';
 import { useTheme } from '@/hooks/useTheme';
 import {
   LayoutDashboard,
+  Badge,
   Settings,
   Users,
   BarChart3,
@@ -16,8 +17,6 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import iconLight from '@/assets/icon-light.png';
 import iconDark from '@/assets/icon-dark.png';
-import iconMenuLight from '@/assets/icon-menu-light.png';
-import iconMenuDark from '@/assets/icon-menu-dark.png';
 
 interface AdminSidebarProps {
   collapsed: boolean;
@@ -34,7 +33,7 @@ const mainNavItems = [
   { 
     label: 'Quizzies', 
     path: '/admin/quizzes', 
-    customIcon: true
+    icon: Badge
   },
   { 
     label: 'Leads', 
@@ -81,22 +80,6 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
     const active = isActive(item.path, item.exact);
     const Icon = item.icon;
 
-    const renderIcon = () => {
-      if (item.customIcon) {
-        return (
-          <img 
-            src={theme === 'dark' ? iconMenuDark : iconMenuLight} 
-            alt="Quizzies" 
-            className={cn("h-5 w-5 shrink-0", collapsed && "mx-auto")}
-          />
-        );
-      }
-      if (Icon) {
-        return <Icon className={cn("h-5 w-5 shrink-0", collapsed && "mx-auto")} />;
-      }
-      return null;
-    };
-
     const content = (
       <Link
         to={item.path}
@@ -107,7 +90,7 @@ export function AdminSidebar({ collapsed, onToggle }: AdminSidebarProps) {
             : "text-muted-foreground hover:text-foreground hover:bg-muted"
         )}
       >
-        {renderIcon()}
+        <Icon className={cn("h-5 w-5 shrink-0", collapsed && "mx-auto")} />
         {!collapsed && <span>{item.label}</span>}
       </Link>
     );
