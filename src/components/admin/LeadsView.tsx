@@ -56,10 +56,13 @@ export function LeadsView({ quizId, stages }: LeadsViewProps) {
     const loadSessions = async () => {
       setIsLoading(true);
       try {
-        // Load sessions for this quiz
+        // Load sessions for this quiz with contact info
         const { data: sessionsData, error: sessionsError } = await supabase
           .from('quiz_sessions')
-          .select('*')
+          .select(`
+            *,
+            quiz_session_contacts (email, phone, name)
+          `)
           .eq('quiz_id', quizId)
           .order('started_at', { ascending: false });
 
@@ -92,18 +95,21 @@ export function LeadsView({ quizId, stages }: LeadsViewProps) {
           };
         });
 
-        // Combine sessions with responses
-        const combinedSessions: LeadSession[] = sessionsData.map(session => ({
-          id: session.id,
-          started_at: session.started_at,
-          completed_at: session.completed_at,
-          is_completed: session.is_completed || false,
-          email: session.email,
-          phone: session.phone,
-          name: session.name,
-          device_type: session.device_type,
-          responses: responsesBySession[session.id] || {},
-        }));
+        // Combine sessions with responses and contact info
+        const combinedSessions: LeadSession[] = sessionsData.map(session => {
+          const contact = (session as any).quiz_session_contacts?.[0] || {};
+          return {
+            id: session.id,
+            started_at: session.started_at,
+            completed_at: session.completed_at,
+            is_completed: session.is_completed || false,
+            email: contact.email || null,
+            phone: contact.phone || null,
+            name: contact.name || null,
+            device_type: session.device_type,
+            responses: responsesBySession[session.id] || {},
+          };
+        });
 
         setSessions(combinedSessions);
       } catch (error: any) {
