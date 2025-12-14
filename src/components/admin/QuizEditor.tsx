@@ -1154,11 +1154,6 @@ export function QuizEditor() {
               setDesignSettings(newSettings);
               setHasUnsavedChanges(true);
             }}
-            thumbnailUrl={thumbnailUrl}
-            onThumbnailChange={(url) => {
-              setThumbnailUrl(url);
-              setHasUnsavedChanges(true);
-            }}
           />
         </div>
       )}

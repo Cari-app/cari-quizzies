@@ -8,9 +8,17 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { ImageInput } from '@/components/ui/image-input';
 import { Quiz } from '@/types/quiz';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -47,6 +55,11 @@ export function QuizList() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [quizToDelete, setQuizToDelete] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  
+  // Cover dialog
+  const [coverDialogOpen, setCoverDialogOpen] = useState(false);
+  const [selectedQuizForCover, setSelectedQuizForCover] = useState<QuizWithThumbnail | null>(null);
+  const [coverUrl, setCoverUrl] = useState('');
 
   useEffect(() => {
     const loadQuizzes = async () => {
@@ -157,6 +170,35 @@ export function QuizList() {
     }
   };
 
+  const handleOpenCoverDialog = (quiz: QuizWithThumbnail) => {
+    setSelectedQuizForCover(quiz);
+    setCoverUrl(quiz.thumbnailUrl || '');
+    setCoverDialogOpen(true);
+  };
+
+  const handleSaveCover = async () => {
+    if (!selectedQuizForCover) return;
+    
+    try {
+      const { error } = await supabase
+        .from('quizzes')
+        .update({ thumbnail_url: coverUrl || null })
+        .eq('id', selectedQuizForCover.id);
+
+      if (error) throw error;
+
+      setQuizzes(prev => prev.map(q => 
+        q.id === selectedQuizForCover.id ? { ...q, thumbnailUrl: coverUrl || undefined } : q
+      ));
+      
+      toast.success('Capa atualizada');
+      setCoverDialogOpen(false);
+    } catch (error: any) {
+      console.error('Error updating cover:', error);
+      toast.error('Erro ao atualizar capa');
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -218,6 +260,11 @@ export function QuizList() {
                   <Eye className="w-3.5 h-3.5 mr-2" />
                   Visualizar
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleOpenCoverDialog(quiz)} className="text-xs">
+                  <ImageIcon className="w-3.5 h-3.5 mr-2" />
+                  Capa
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   onClick={() => handleDeleteClick(quiz.id)}
                   className="text-xs text-destructive focus:text-destructive"
@@ -353,6 +400,11 @@ export function QuizList() {
                 <Eye className="w-3.5 h-3.5 mr-2" />
                 Visualizar
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleOpenCoverDialog(quiz)} className="text-xs">
+                <ImageIcon className="w-3.5 h-3.5 mr-2" />
+                Capa
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <DropdownMenuItem 
                 onClick={() => handleDeleteClick(quiz.id)}
                 className="text-xs text-destructive focus:text-destructive"
@@ -451,6 +503,39 @@ export function QuizList() {
           ))}
         </div>
       )}
+
+      {/* Cover Dialog */}
+      <Dialog open={coverDialogOpen} onOpenChange={setCoverDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Capa do Quiz</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <ImageInput
+              value={coverUrl}
+              onChange={setCoverUrl}
+              placeholder="Cole a URL da imagem ou faça upload"
+            />
+            {coverUrl && (
+              <div className="rounded-lg overflow-hidden border border-border">
+                <img 
+                  src={coverUrl} 
+                  alt="Preview da capa" 
+                  className="w-full h-32 object-cover"
+                />
+              </div>
+            )}
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setCoverDialogOpen(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveCover}>
+                Salvar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <ConfirmDialog
         open={deleteDialogOpen}
