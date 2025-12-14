@@ -15,32 +15,23 @@ export function MediaRenderer({ component, config, type }: MediaRendererProps) {
   const justifyClass = horizontalAlign === 'center' ? 'justify-center' : horizontalAlign === 'end' ? 'justify-end' : 'justify-start';
 
   if (type === 'image') {
-    const imageRatioClass = {
-      '1:1': 'aspect-square',
-      '16:9': 'aspect-video',
-      '4:3': 'aspect-[4/3]',
-      '3:2': 'aspect-[3/2]',
-      '2:1': 'aspect-[2/1]',
-      'auto': '',
-    }[config.imageRatio || 'auto'] || '';
-    
-    const imageStyleClass = {
-      'rounded': 'rounded-lg',
-      'circle': 'rounded-full',
-      'square': '',
-      'shadow': 'rounded-lg shadow-lg',
-    }[config.imageStyle || 'rounded'] || 'rounded-lg';
-
     if (!config.mediaUrl) {
       return (
-        <div className={cn("py-4 flex", justifyClass)}>
+        <div 
+          style={{
+            padding: '16px 0',
+            width: '100%',
+            display: 'flex',
+            justifyContent: horizontalAlign === 'center' ? 'center' : horizontalAlign === 'end' ? 'flex-end' : 'flex-start'
+          }}
+        >
           <div 
-            className={cn(
-              "bg-muted flex items-center justify-center text-muted-foreground",
-              imageRatioClass || "h-48",
-              imageStyleClass
-            )}
-            style={{ width: `${imageSize}px`, maxWidth: '100%' }}
+            className="bg-muted flex items-center justify-center text-muted-foreground h-48"
+            style={{ 
+              width: `${imageSize}px`, 
+              maxWidth: '100%',
+              borderRadius: config.borderRadius ? `${config.borderRadius}px` : undefined
+            }}
           >
             <span className="text-4xl">🖼️</span>
           </div>
@@ -60,11 +51,6 @@ export function MediaRenderer({ component, config, type }: MediaRendererProps) {
         <img 
           src={config.mediaUrl} 
           alt={config.altText || ''} 
-          className={cn(
-            imageRatioClass ? "object-cover" : "",
-            imageRatioClass,
-            imageStyleClass
-          )}
           style={{ 
             width: `${imageSize}px`,
             maxWidth: '100%',
