@@ -2320,34 +2320,38 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         }
 
         return (
-          <div className={cn("p-4", getLayoutClass())} style={{ gap: `${gap}px` }}>
+          <div className={cn("p-4 w-full", getLayoutClass())} style={{ gap: `${gap}px` }}>
             {items.map((item: any) => (
               <div
                 key={item.id}
-                className="relative overflow-hidden group"
-                style={{ backgroundColor: containerBgColor, borderRadius: `${containerRadius}px` }}
+                className="relative overflow-hidden group flex-1"
+                style={{ 
+                  backgroundColor: containerBgColor, 
+                  borderRadius: `${containerRadius}px`,
+                  minWidth: layout === 'grid-2' ? 'calc(50% - 8px)' : layout === 'grid-3' ? 'calc(33.33% - 11px)' : undefined,
+                }}
               >
                 <div style={{ borderRadius: position === 'overlay' ? `${imageRadius}px` : `${imageRadius}px ${imageRadius}px 0 0` }}>
                   {item.imageUrl ? (
-                    <img src={item.imageUrl} alt={item.buttonText} className="w-full h-auto object-cover aspect-square" />
+                    <img src={item.imageUrl} alt={item.buttonText} className="w-full h-auto object-cover aspect-[4/5]" />
                   ) : (
-                    <div className="w-full aspect-square bg-muted flex items-center justify-center">
+                    <div className="w-full aspect-[4/5] bg-muted flex items-center justify-center">
                       <ImageIcon className="h-8 w-8 text-muted-foreground" />
                     </div>
                   )}
                 </div>
                 {position === 'overlay' ? (
-                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between px-4 py-2.5" style={{ backgroundColor: bgColor, borderRadius: `${getButtonRadius()}px` }}>
-                    <span className="font-medium text-sm" style={{ color: textColor }}>{item.buttonText}</span>
-                    <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ backgroundColor: iconBgColor }}>
-                      <ChevronRight className="w-4 h-4" style={{ color: iconColor }} />
+                  <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between px-3 py-2" style={{ backgroundColor: bgColor, borderRadius: `${getButtonRadius()}px` }}>
+                    <span className="font-medium text-xs leading-tight" style={{ color: textColor }}>{item.buttonText}</span>
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 ml-2" style={{ backgroundColor: iconBgColor }}>
+                      <ChevronRight className="w-3.5 h-3.5" style={{ color: iconColor }} />
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between px-4 py-3" style={{ backgroundColor: bgColor, borderRadius: `0 0 ${getButtonRadius()}px ${getButtonRadius()}px` }}>
-                    <span className="font-medium text-sm" style={{ color: textColor }}>{item.buttonText}</span>
-                    <div className="w-7 h-7 rounded-full flex items-center justify-center" style={{ backgroundColor: iconBgColor }}>
-                      <ChevronRight className="w-4 h-4" style={{ color: iconColor }} />
+                  <div className="flex items-center justify-between px-3 py-2" style={{ backgroundColor: bgColor, borderRadius: `0 0 ${getButtonRadius()}px ${getButtonRadius()}px` }}>
+                    <span className="font-medium text-xs leading-tight" style={{ color: textColor }}>{item.buttonText}</span>
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 ml-2" style={{ backgroundColor: iconBgColor }}>
+                      <ChevronRight className="w-3.5 h-3.5" style={{ color: iconColor }} />
                     </div>
                   </div>
                 )}

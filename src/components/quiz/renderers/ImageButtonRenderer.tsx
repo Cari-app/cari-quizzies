@@ -67,7 +67,7 @@ export function ImageButtonRenderer({ config, onSelect, selectedValues = [] }: I
 
   return (
     <div 
-      className={cn(getLayoutClass())}
+      className={cn(getLayoutClass(), "w-full")}
       style={{ gap: `${gap}px` }}
     >
       {items.map((item) => {
@@ -77,14 +77,13 @@ export function ImageButtonRenderer({ config, onSelect, selectedValues = [] }: I
           <div
             key={item.id}
             className={cn(
-              "relative cursor-pointer transition-all duration-200 overflow-hidden group",
-              layout === 'list' && "w-full",
-              layout.startsWith('grid') && "w-full",
+              "relative cursor-pointer transition-all duration-200 overflow-hidden group flex-1",
               isSelected && "ring-2 ring-primary"
             )}
             style={{
               backgroundColor: containerBgColor,
               borderRadius: `${containerRadius}px`,
+              minWidth: layout === 'grid-2' ? 'calc(50% - 8px)' : layout === 'grid-3' ? 'calc(33.33% - 11px)' : undefined,
             }}
             onClick={() => handleClick(item)}
           >
@@ -99,10 +98,10 @@ export function ImageButtonRenderer({ config, onSelect, selectedValues = [] }: I
                 <img 
                   src={item.imageUrl} 
                   alt={item.buttonText}
-                  className="w-full h-auto object-cover aspect-square group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-auto object-cover aspect-[4/5] group-hover:scale-105 transition-transform duration-300"
                 />
               ) : (
-                <div className="w-full aspect-square bg-muted flex items-center justify-center">
+                <div className="w-full aspect-[4/5] bg-muted flex items-center justify-center">
                   <span className="text-muted-foreground text-sm">Sem imagem</span>
                 </div>
               )}
@@ -112,7 +111,7 @@ export function ImageButtonRenderer({ config, onSelect, selectedValues = [] }: I
             {position === 'overlay' ? (
               <div 
                 className={cn(
-                  "absolute bottom-3 left-3 right-3 flex items-center justify-between px-4 py-2.5",
+                  "absolute bottom-2 left-2 right-2 flex items-center justify-between px-3 py-2",
                   "backdrop-blur-sm"
                 )}
                 style={{
@@ -121,41 +120,41 @@ export function ImageButtonRenderer({ config, onSelect, selectedValues = [] }: I
                 }}
               >
                 <span 
-                  className="font-medium text-sm"
+                  className="font-medium text-xs sm:text-sm leading-tight"
                   style={{ color: textColor }}
                 >
                   {item.buttonText}
                 </span>
                 <div 
-                  className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 ml-2"
                   style={{ backgroundColor: iconBgColor }}
                 >
                   <ChevronRight 
-                    className="w-4 h-4" 
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4" 
                     style={{ color: iconColor }}
                   />
                 </div>
               </div>
             ) : (
               <div 
-                className="flex items-center justify-between px-4 py-3"
+                className="flex items-center justify-between px-3 py-2 sm:px-4 sm:py-3"
                 style={{
                   backgroundColor: bgColor,
                   borderRadius: `0 0 ${getButtonRadius()}px ${getButtonRadius()}px`,
                 }}
               >
                 <span 
-                  className="font-medium text-sm"
+                  className="font-medium text-xs sm:text-sm leading-tight"
                   style={{ color: textColor }}
                 >
                   {item.buttonText}
                 </span>
                 <div 
-                  className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 ml-2"
                   style={{ backgroundColor: iconBgColor }}
                 >
                   <ChevronRight 
-                    className="w-4 h-4" 
+                    className="w-3.5 h-3.5 sm:w-4 sm:h-4" 
                     style={{ color: iconColor }}
                   />
                 </div>
