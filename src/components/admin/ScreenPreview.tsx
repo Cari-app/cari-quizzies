@@ -5,6 +5,7 @@ import { cn } from '@/lib/utils';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
+import { sanitizeHtml } from '@/lib/sanitize';
 
 interface ScreenPreviewProps {
   screen: QuizScreen;
@@ -29,7 +30,7 @@ export function ScreenPreview({ screen }: ScreenPreviewProps) {
               i === 0 ? "border-foreground bg-accent" : "border-border hover:bg-accent/50"
             )}
           >
-            <span>{opt.text}</span>
+            <span className="rich-text" dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
             {i === 0 && <Check className="w-5 h-5" />}
           </div>
         ))}
