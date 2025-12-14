@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils';
+import { sanitizeHtml } from '@/lib/sanitize';
 import { RendererProps, ComponentConfig } from './types';
 
 interface OptionsRendererProps extends RendererProps {
@@ -243,7 +244,7 @@ export function OptionsRenderer({
                   )}>
                     {renderDetail(isSelected, i)}
                     {renderOptionMedia(opt)}
-                    <span className="flex-1">{opt.text}</span>
+                    <span className="flex-1 rich-text" dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
                   </div>
                   {(imagePosition === 'bottom' || imagePosition === 'right') && (
                     <div className={cn(
@@ -283,7 +284,7 @@ export function OptionsRenderer({
                     {isVertical && renderOptionMedia(opt, true)}
                     {!isVertical && renderDetail(isSelected, i)}
                     {!isVertical && renderOptionMedia(opt)}
-                    <span className={cn(!isVertical && "flex-1")}>{opt.text}</span>
+                    <span className={cn(!isVertical && "flex-1", "rich-text")} dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
                     {isVertical && renderDetail(isSelected, i)}
                   </div>
                 </button>
@@ -306,7 +307,7 @@ export function OptionsRenderer({
                 >
                   <div className="flex items-center justify-center gap-2">
                     {renderOptionMedia(opt)}
-                    <span>{opt.text}</span>
+                    <span className="rich-text" dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
                   </div>
                 </button>
               );
@@ -332,7 +333,7 @@ export function OptionsRenderer({
                       : "flex items-center gap-3"
                   )}>
                     {renderOptionMedia(opt)}
-                    <span className="flex-1">{opt.text}</span>
+                    <span className="flex-1 rich-text" dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
                     {isSelected && (
                       <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                         <svg className="w-3 h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -360,7 +361,7 @@ export function OptionsRenderer({
                 >
                   <div className="flex items-center gap-3">
                     {renderOptionMedia(opt)}
-                    <span className="flex-1 text-left">{opt.text}</span>
+                    <span className="flex-1 text-left rich-text" dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
                     <div className={cn(
                       "w-2 h-2 rounded-full transition-all",
                       isSelected ? "bg-primary scale-150" : "bg-muted-foreground/30"
@@ -392,7 +393,7 @@ export function OptionsRenderer({
                   {isVertical && renderOptionMedia(opt, true)}
                   {!isVertical && renderDetail(isSelected, i)}
                   {!isVertical && renderOptionMedia(opt)}
-                  <span className={cn(!isVertical && "flex-1")}>{opt.text}</span>
+                  <span className={cn(!isVertical && "flex-1", "rich-text")} dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
                   {isVertical && renderDetail(isSelected, i)}
                 </div>
               </button>
