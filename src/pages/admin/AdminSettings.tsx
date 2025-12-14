@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 import { useUserManagement } from '@/hooks/useUserManagement';
-import { Loader2, Save, Type, Users, UserPlus, Check, X, Mail, Clock } from 'lucide-react';
+import { Loader2, Save, Type, Users, UserPlus, Check, X, Mail, Clock, Camera } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 export default function AdminSettings() {
   const { settings, isLoading, updateSettings, isUpdating } = useSiteSettings();
@@ -15,7 +16,8 @@ export default function AdminSettings() {
     users, 
     pendingUsers, 
     isLoadingUsers, 
-    inviteUser, 
+    inviteUser,
+    updateAvatar,
     approveUser, 
     rejectUser,
     isInviting,
@@ -25,6 +27,9 @@ export default function AdminSettings() {
   const [formData, setFormData] = useState({
     site_name: 'Cari',
   });
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingUserId, setUploadingUserId] = useState<string | null>(null);
   
   const [inviteEmail, setInviteEmail] = useState('');
 
@@ -49,6 +54,22 @@ export default function AdminSettings() {
     }
   };
 
+  const handleAvatarClick = (userId: string) => {
+    setUploadingUserId(userId);
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && uploadingUserId) {
+      await updateAvatar({ userId: uploadingUserId, file });
+      setUploadingUserId(null);
+    }
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -59,6 +80,15 @@ export default function AdminSettings() {
 
   return (
     <div className="animate-fade-in space-y-8">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+      
       {/* Page Header */}
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">Configurações</h1>
@@ -211,11 +241,26 @@ export default function AdminSettings() {
                       className="flex items-center justify-between p-3 rounded-lg bg-accent/30 border border-border"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center">
-                          <span className="text-sm font-medium text-primary">
-                            {(user.full_name || user.email || '?')[0].toUpperCase()}
-                          </span>
-                        </div>
+                        <button
+                          onClick={() => handleAvatarClick(user.id)}
+                          className="relative group"
+                          title="Alterar foto"
+                        >
+                          <Avatar className="w-10 h-10 border-2 border-border">
+                            <AvatarImage src={user.avatar_url || undefined} alt={user.full_name || 'Avatar'} />
+                            <AvatarFallback className="bg-primary/10 text-primary text-sm font-medium">
+                              {(user.full_name || user.email || '?')[0].toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <Camera className="w-4 h-4 text-white" />
+                          </div>
+                          {uploadingUserId === user.id && (
+                            <div className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                              <Loader2 className="w-4 h-4 text-white animate-spin" />
+                            </div>
+                          )}
+                        </button>
                         <div>
                           <p className="text-sm font-medium">{user.full_name || 'Sem nome'}</p>
                           <p className="text-xs text-muted-foreground">{user.email}</p>
