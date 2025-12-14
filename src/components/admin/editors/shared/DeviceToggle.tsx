@@ -8,9 +8,59 @@ interface DeviceToggleProps {
   onChange: (device: DeviceType) => void;
   showAll?: boolean;
   className?: string;
+  compact?: boolean;
 }
 
-export function DeviceToggle({ value, onChange, showAll = true, className }: DeviceToggleProps) {
+export function DeviceToggle({ value, onChange, showAll = true, className, compact = false }: DeviceToggleProps) {
+  if (compact) {
+    return (
+      <div className={cn("inline-flex items-center gap-1", className)}>
+        {showAll && (
+          <button
+            type="button"
+            onClick={() => onChange('all')}
+            className={cn(
+              "px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors",
+              value === 'all' 
+                ? "bg-primary/10 text-primary" 
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            Igual
+          </button>
+        )}
+        <div className="inline-flex items-center rounded border border-border bg-muted/30 p-0.5">
+          <button
+            type="button"
+            onClick={() => onChange('desktop')}
+            className={cn(
+              "p-1 rounded transition-colors",
+              value === 'desktop' 
+                ? "bg-background text-foreground shadow-sm" 
+                : "text-muted-foreground hover:text-foreground"
+            )}
+            title="Desktop"
+          >
+            <Monitor className="w-3 h-3" />
+          </button>
+          <button
+            type="button"
+            onClick={() => onChange('mobile')}
+            className={cn(
+              "p-1 rounded transition-colors",
+              value === 'mobile' 
+                ? "bg-background text-foreground shadow-sm" 
+                : "text-muted-foreground hover:text-foreground"
+            )}
+            title="Mobile"
+          >
+            <Smartphone className="w-3 h-3" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={cn("inline-flex items-center rounded-lg border border-border p-0.5 bg-muted/30", className)}>
       {showAll && (
@@ -57,7 +107,7 @@ export function DeviceToggle({ value, onChange, showAll = true, className }: Dev
   );
 }
 
-// Responsive setting wrapper - shows device toggle next to a setting
+// Responsive setting wrapper - shows device toggle inline with label
 interface ResponsiveSettingProps {
   label: string;
   deviceValue: DeviceType;
@@ -71,7 +121,7 @@ export function ResponsiveSetting({
   deviceValue, 
   onDeviceChange, 
   children,
-  showAll = false 
+  showAll = true 
 }: ResponsiveSettingProps) {
   return (
     <div className="space-y-1.5">
@@ -81,6 +131,7 @@ export function ResponsiveSetting({
           value={deviceValue} 
           onChange={onDeviceChange} 
           showAll={showAll}
+          compact={true}
         />
       </div>
       {children}
