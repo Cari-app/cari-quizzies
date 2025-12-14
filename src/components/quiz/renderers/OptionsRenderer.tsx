@@ -39,11 +39,13 @@ export function OptionsRenderer({
   const optionStyle = config.optionStyle || 'simple';
   const optionLayout = config.optionLayout || 'list';
   const optionOrientation = config.optionOrientation || 'vertical';
-  const optionBorderRadius = config.optionBorderRadius || 'medium';
+  const optionBorderRadius = config.optionBorderRadius || 'small'; // Match DropZone
   const optionShadow = config.optionShadow || 'none';
-  const detailType = config.detailType || 'none';
+  const optionSpacing = config.optionSpacing || 'simple'; // Add missing
+  const detailType = config.detailType || 'checkbox'; // Match DropZone default
   const detailPosition = config.detailPosition || 'start';
-  const imagePosition = config.imagePosition || 'left';
+  const imagePosition = config.imagePosition || 'top'; // Match DropZone - was 'left'
+  const imageRatio = config.imageRatio || '1:1'; // Add missing
   const widthValue = config.width || 100;
   const horizontalAlign = config.horizontalAlign || 'start';
   
@@ -60,31 +62,52 @@ export function OptionsRenderer({
     'grid-4': 'grid-cols-4',
   }[optionLayout] || 'grid-cols-1');
   
+  const getLayoutClass = () => {
+    switch (optionLayout) {
+      case 'grid-2': return 'grid grid-cols-2';
+      case 'grid-3': return 'grid grid-cols-3';
+      case 'grid-4': return 'grid grid-cols-4';
+      default: return 'flex flex-col';
+    }
+  };
+  
+  const getSpacing = () => {
+    switch (optionSpacing) {
+      case 'compact': return 'gap-1';
+      case 'relaxed': return 'gap-4';
+      default: return 'gap-2';
+    }
+  };
+  
   const isVertical = optionOrientation === 'vertical';
   
-  const getBorderRadius = () => ({
-    'none': 'rounded-none',
-    'small': 'rounded',
-    'medium': 'rounded-lg',
-    'large': 'rounded-xl',
-    'full': 'rounded-full',
-  }[optionBorderRadius] || 'rounded-lg');
+  const getBorderRadius = () => {
+    switch (optionBorderRadius) {
+      case 'none': return 'rounded-none';
+      case 'small': return 'rounded-md';
+      case 'medium': return 'rounded-lg';
+      case 'large': return 'rounded-xl';
+      case 'full': return 'rounded-full';
+      default: return 'rounded-md';
+    }
+  };
   
-  const getShadow = () => ({
-    'none': '',
-    'sm': 'shadow-sm',
-    'md': 'shadow-md',
-    'lg': 'shadow-lg',
-  }[optionShadow] || '');
+  const getShadow = () => {
+    switch (optionShadow) {
+      case 'sm': return 'shadow-sm';
+      case 'md': return 'shadow-md';
+      case 'lg': return 'shadow-lg';
+      default: return '';
+    }
+  };
   
   const getImageRatioClass = () => {
-    const ratio = config.imageRatio || '1:1';
-    return {
-      '1:1': 'aspect-square',
-      '16:9': 'aspect-video',
-      '4:3': 'aspect-[4/3]',
-      '3:2': 'aspect-[3/2]',
-    }[ratio] || 'aspect-square';
+    switch (imageRatio) {
+      case '16:9': return 'aspect-video';
+      case '4:3': return 'aspect-[4/3]';
+      case '3:2': return 'aspect-[3/2]';
+      default: return 'aspect-square';
+    }
   };
 
   const selectedValues = Array.isArray(value) ? value : (value ? [value] : []);
@@ -208,7 +231,7 @@ export function OptionsRenderer({
             dangerouslySetInnerHTML={{ __html: processTemplateHtml ? processTemplateHtml(config.label) : config.label }} 
           />
         )}
-        <div className={cn("grid gap-2", getGridClass())}>
+        <div className={cn(getLayoutClass(), getSpacing())}>
           {options.map((opt, i) => {
             const isSelected = selectedValues.includes(opt.value);
             const isHorizontal = imagePosition === 'left' || imagePosition === 'right';
@@ -220,7 +243,7 @@ export function OptionsRenderer({
                   key={opt.id}
                   onClick={() => handleOptionClick(opt.value, opt.id)}
                   className={cn(
-                    "border text-sm overflow-hidden transition-colors",
+                    "border text-sm transition-colors overflow-hidden",
                     getBorderRadius(),
                     getShadow(),
                     isSelected ? "border-primary bg-primary/20" : "border-border bg-transparent hover:border-primary/50",
@@ -231,7 +254,7 @@ export function OptionsRenderer({
                     <div className={cn(
                       "bg-muted flex items-center justify-center text-muted-foreground text-2xl",
                       getImageRatioClass(),
-                      isHorizontal ? "w-20 shrink-0" : "w-full"
+                      isHorizontal ? "w-20" : "w-full"
                     )}>
                       {opt.imageUrl ? (
                         <img src={opt.imageUrl} alt="" className="w-full h-full object-cover" />
@@ -239,7 +262,7 @@ export function OptionsRenderer({
                     </div>
                   )}
                   <div className={cn(
-                    "p-3 flex items-center gap-2 flex-1",
+                    "p-3 flex items-center gap-2",
                     detailPosition === 'end' && "flex-row-reverse"
                   )}>
                     {renderDetail(isSelected, i)}
@@ -249,7 +272,7 @@ export function OptionsRenderer({
                     <div className={cn(
                       "bg-muted flex items-center justify-center text-muted-foreground text-2xl",
                       getImageRatioClass(),
-                      isHorizontal ? "w-20 shrink-0" : "w-full"
+                      isHorizontal ? "w-20" : "w-full"
                     )}>
                       {opt.imageUrl ? (
                         <img src={opt.imageUrl} alt="" className="w-full h-full object-cover" />
@@ -267,8 +290,7 @@ export function OptionsRenderer({
                   key={opt.id}
                   onClick={() => handleOptionClick(opt.value, opt.id)}
                   className={cn(
-                    "p-4 border text-sm transition-colors",
-                    isVertical ? "text-center" : "text-left",
+                    "p-4 text-sm transition-colors",
                     getBorderRadius(),
                     getShadow(),
                     isSelected ? "border-primary bg-primary/20" : "border-border bg-transparent hover:border-primary/50"
@@ -276,7 +298,7 @@ export function OptionsRenderer({
                 >
                   <div className={cn(
                     isVertical 
-                      ? "flex flex-col items-center gap-2" 
+                      ? "flex flex-col items-center text-center gap-2" 
                       : "flex items-center gap-3",
                     !isVertical && detailPosition === 'end' && "flex-row-reverse"
                   )}>
@@ -336,7 +358,7 @@ export function OptionsRenderer({
                       : "flex items-center gap-3"
                   )}>
                     {renderOptionMedia(opt)}
-                    <span className="flex-1 rich-text" dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
+                    <span className={cn(!isVertical && "flex-1", "rich-text")} dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
                     {isSelected && (
                       <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                         <svg className="w-3 h-3 text-primary-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -384,8 +406,7 @@ export function OptionsRenderer({
                 key={opt.id}
                 onClick={() => handleOptionClick(opt.value, opt.id)}
                 className={cn(
-                  "p-3 border text-sm transition-colors",
-                  isVertical ? "text-center" : "text-left",
+                  "p-3 text-sm transition-colors",
                   getBorderRadius(),
                   getShadow(),
                   isSelected ? "border-primary bg-primary/20" : "border-border bg-transparent hover:border-primary/50"
@@ -393,7 +414,7 @@ export function OptionsRenderer({
               >
                 <div className={cn(
                   isVertical 
-                    ? "flex flex-col items-center gap-2" 
+                    ? "flex flex-col items-center text-center gap-2" 
                     : "flex items-center gap-3",
                   !isVertical && detailPosition === 'end' && "flex-row-reverse"
                 )}>

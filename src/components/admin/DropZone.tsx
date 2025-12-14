@@ -600,9 +600,6 @@ export function DropZone({ components, onComponentsChange, selectedComponentId, 
         const imageRatio = config.imageRatio || '1:1';
         const isVertical = optionOrientation === 'vertical';
         
-        // Debug log for orientation
-        console.log('DropZone Options Config:', { optionOrientation, isVertical, optionStyle, config });
-        
         // Custom colors - default to black/white system
         const optionBgType = config.optionBgType || 'solid';
         const optionBgColor = config.optionBgColor;

@@ -544,7 +544,6 @@ export function ComponentEditor({ component, onUpdate, onUpdateCustomId, onDelet
   // generateSlug is now imported from './editors'
 
   const updateConfig = (updates: Partial<ComponentConfig>) => {
-    console.log('ComponentEditor updateConfig:', { updates, newConfig: { ...config, ...updates } });
     onUpdate({ ...config, ...updates });
   };
 
