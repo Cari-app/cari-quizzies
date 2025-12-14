@@ -400,7 +400,11 @@ export function QuizList() {
         </div>
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-          {/* Create new card */}
+          {quizzes.map((quiz) => (
+            <QuizCardGrid key={quiz.id} quiz={quiz} />
+          ))}
+          
+          {/* Create new card - always last */}
           <Link 
             to="/admin/quiz/new"
             className="border border-dashed border-border rounded-lg h-[168px] flex flex-col items-center justify-center gap-2 hover:border-foreground/30 hover:bg-muted/30 transition-all cursor-pointer"
@@ -410,10 +414,6 @@ export function QuizList() {
             </div>
             <span className="text-xs text-muted-foreground">Novo Quiz</span>
           </Link>
-          
-          {quizzes.map((quiz) => (
-            <QuizCardGrid key={quiz.id} quiz={quiz} />
-          ))}
         </div>
       ) : (
         <div className="grid gap-1.5">
