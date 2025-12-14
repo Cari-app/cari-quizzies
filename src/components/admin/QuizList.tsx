@@ -60,6 +60,8 @@ export function QuizList() {
   const [coverDialogOpen, setCoverDialogOpen] = useState(false);
   const [selectedQuizForCover, setSelectedQuizForCover] = useState<QuizWithThumbnail | null>(null);
   const [coverUrl, setCoverUrl] = useState('');
+  const [coverError, setCoverError] = useState<string | null>(null);
+  const [isValidatingCover, setIsValidatingCover] = useState(false);
 
   useEffect(() => {
     const loadQuizzes = async () => {
@@ -173,12 +175,63 @@ export function QuizList() {
   const handleOpenCoverDialog = (quiz: QuizWithThumbnail) => {
     setSelectedQuizForCover(quiz);
     setCoverUrl(quiz.thumbnailUrl || '');
+    setCoverError(null);
     setCoverDialogOpen(true);
+  };
+
+  const validateImageUrl = async (url: string): Promise<boolean> => {
+    if (!url) {
+      setCoverError(null);
+      return true;
+    }
+
+    setIsValidatingCover(true);
+    setCoverError(null);
+
+    return new Promise((resolve) => {
+      const img = new Image();
+      
+      img.onload = () => {
+        // Check dimensions - recommended 200x250
+        if (img.width < 200 || img.height < 250) {
+          setCoverError(`Imagem muito pequena. Mínimo: 200x250px. Atual: ${img.width}x${img.height}px`);
+          setIsValidatingCover(false);
+          resolve(false);
+          return;
+        }
+        
+        setCoverError(null);
+        setIsValidatingCover(false);
+        resolve(true);
+      };
+
+      img.onerror = () => {
+        setCoverError('Não foi possível carregar a imagem. Verifique a URL.');
+        setIsValidatingCover(false);
+        resolve(false);
+      };
+
+      img.src = url;
+    });
+  };
+
+  const handleCoverUrlChange = (url: string) => {
+    setCoverUrl(url);
+    if (url) {
+      validateImageUrl(url);
+    } else {
+      setCoverError(null);
+    }
   };
 
   const handleSaveCover = async () => {
     if (!selectedQuizForCover) return;
     
+    if (coverUrl && coverError) {
+      toast.error('Corrija os erros antes de salvar');
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('quizzes')
@@ -511,12 +564,32 @@ export function QuizList() {
             <DialogTitle>Capa do Quiz</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            <div className="text-xs text-muted-foreground bg-muted/50 rounded-md p-3">
+              <p className="font-medium mb-1">Requisitos da imagem:</p>
+              <ul className="list-disc list-inside space-y-0.5">
+                <li>Tamanho mínimo: 200x250 pixels</li>
+                <li>Tamanho máximo: 3MB</li>
+              </ul>
+            </div>
+            
             <ImageInput
               value={coverUrl}
-              onChange={setCoverUrl}
+              onChange={handleCoverUrlChange}
               placeholder="Cole a URL da imagem ou faça upload"
             />
-            {coverUrl && (
+            
+            {coverError && (
+              <p className="text-xs text-destructive">{coverError}</p>
+            )}
+            
+            {isValidatingCover && (
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                <Loader2 className="w-3 h-3 animate-spin" />
+                Validando imagem...
+              </p>
+            )}
+            
+            {coverUrl && !coverError && !isValidatingCover && (
               <div className="rounded-lg overflow-hidden border border-border">
                 <img 
                   src={coverUrl} 
@@ -525,11 +598,15 @@ export function QuizList() {
                 />
               </div>
             )}
+            
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setCoverDialogOpen(false)}>
                 Cancelar
               </Button>
-              <Button onClick={handleSaveCover}>
+              <Button 
+                onClick={handleSaveCover}
+                disabled={!!coverError || isValidatingCover}
+              >
                 Salvar
               </Button>
             </div>
