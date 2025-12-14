@@ -257,9 +257,11 @@ export function OptionsRenderer({
           {options.map((opt, i) => {
             const isSelected = selectedValues.includes(opt.value);
             
-            // Image style - EXACT same as DropZone
+            // Image style - Use optionOrientation to determine layout
             if (optionStyle === 'image') {
-              const isHorizontal = imagePosition === 'left' || imagePosition === 'right';
+              const isHorizontalLayout = optionOrientation === 'horizontal';
+              const effectiveImagePosition = isHorizontalLayout ? 'left' : 'top';
+              
               return (
                 <button
                   key={opt.id}
@@ -269,14 +271,14 @@ export function OptionsRenderer({
                     getBorderRadius(),
                     getShadow(),
                     isSelected ? "border-foreground bg-accent" : "border-border",
-                    isHorizontal ? "flex" : "flex flex-col"
+                    isHorizontalLayout ? "flex" : "flex flex-col"
                   )}
                 >
-                  {(imagePosition === 'top' || imagePosition === 'left') && (
+                  {(effectiveImagePosition === 'top' || effectiveImagePosition === 'left') && (
                     <div className={cn(
                       "bg-muted flex items-center justify-center text-muted-foreground text-2xl",
                       getImageRatioClass(),
-                      isHorizontal ? "w-20" : "w-full"
+                      isHorizontalLayout ? "w-20" : "w-full"
                     )}>
                       {opt.imageUrl ? (
                         <img src={opt.imageUrl} alt="" className="w-full h-full object-cover" />
@@ -290,17 +292,6 @@ export function OptionsRenderer({
                     {renderDetail(isSelected, i)}
                     <span className="flex-1 rich-text" dangerouslySetInnerHTML={{ __html: sanitizeHtml(opt.text) }} />
                   </div>
-                  {(imagePosition === 'bottom' || imagePosition === 'right') && (
-                    <div className={cn(
-                      "bg-muted flex items-center justify-center text-muted-foreground text-2xl",
-                      getImageRatioClass(),
-                      isHorizontal ? "w-20" : "w-full"
-                    )}>
-                      {opt.imageUrl ? (
-                        <img src={opt.imageUrl} alt="" className="w-full h-full object-cover" />
-                      ) : '📷'}
-                    </div>
-                  )}
                 </button>
               );
             }
